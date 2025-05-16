@@ -495,12 +495,15 @@ body {
   }
 }
 
+.wide-avatar img {
+  max-width: 200px;
+}
 
 
 /* Override size if using a 'main' image */
-.player-main-avatar.wide-avatar img {
+/* .player-main-avatar.wide-avatar img {
   max-width: 200px;
-}
+} */
 
 /* Optional: widen Leaflet popup if main exists */
 .leaflet-popup-content-wrapper:has(.wide-avatar) {
@@ -518,9 +521,10 @@ body {
 }
 
 /* Optional: widen edit popup when main exists */
-.edit-popup.wide-popup {
-  width: 420px; /* or larger if you want */
+.popup-wrapper.popup-wide {
+  max-width: 400px;
 }
+
 
 
 
