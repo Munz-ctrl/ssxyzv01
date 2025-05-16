@@ -600,6 +600,10 @@ body {
   height: auto;
 }
 
+.icon-sm {
+  width: 120px;
+  height: auto;
+}
 
 .icon-md:hover,
 .icon-sm:hover {
