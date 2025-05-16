@@ -49,7 +49,7 @@ function generatePopupHTML(player) {
   `;
   } else if (player.main) {
     avatarHTML = `
-    <div class="player-main-avatar">
+    <div class="player-main-avatar wide-avatar">
       <img src="${player.main}" />
     </div>
   `;
@@ -66,6 +66,7 @@ function generatePopupHTML(player) {
     </div>
   `;
   }
+
 
 
   const featureIcons = [player.special, player.special2].map((img, i) => {
