@@ -208,16 +208,27 @@ body {
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 100%;
-  height: 35vh; /* or adjust */
+  width: 100vw;
+  /* stretch full width */
+  height: auto;
+  /* auto height instead of fixed */
+  max-height: 26vh;
+  /* limit max height for consistent appearance */
   background: rgba(255, 255, 255, 0.96);
-  padding: 20px;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  padding: 10px 20px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   border-top: 1px solid #ccc;
   z-index: 1100;
   display: none;
+  overflow-x: hidden;
   overflow-y: auto;
   transition: transform 0.3s ease-out;
+}
+
+.slidePanel .profile-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 6px;
 }
 
 
@@ -769,9 +780,9 @@ body {
   display: flex;
   flex-direction: row;
   align-items: center;
-  height: 100%;
+  justify-content: start;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 6px 0;
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
@@ -779,6 +790,16 @@ body {
 }
 
 
+#playerAvatarRow {
+  width: 100%;
+}
+
+.playerBtn {
+  width: 48px;
+  height: auto;
+  max-height: 100px;
+  object-fit: contain;
+}
 
 
 
