@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script type="module" src="js/supabase.js"></script>
+  <script type="module" src="js/ssxyz.js"></script>
+  <script type="module" src="js/main.js"></script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Player</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+
+
+
+</head>
+
+<body>
+  <div class="edit-popup">
+    <div class="profile-id" id="playerID">P-ID: </div>
+    <input type="text" id="playerName" class="profile-name" placeholder="Player Name" />
+
+    <div class="feature-row">
+      <label class="feature-btn" for="uploadSpecial1">
+        <img id="previewSpecial1" src="" alt="+" />
+      </label>
+      <label class="feature-btn" for="uploadSpecial2">
+        <img id="previewSpecial2" src="" alt="+" />
+      </label>
+    </div>
+
+    <div class="iso-group">
+      <label for="uploadAvatar">
+        <img id="avatarPreview" class="avatar-preview" src="" alt="No avatar" />
+      </label>
+    </div>
+
+    <textarea id="playerMission" class="mission-textarea" placeholder="Mission(s)... (One per line)"></textarea>
+    <button class="save-btn" onclick="savePlayerEdits()">Save Changes</button>
+
+    <input type="file" id="uploadSpecial1" accept="image/*" style="display:none" />
+    <input type="file" id="uploadSpecial2" accept="image/*" style="display:none" />
+    <input type="file" id="uploadAvatar" accept="image/*" style="display:none" />
+  </div>
+
+  <button id="logoutBtn" style="
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  padding: 6px 10px;
+  background: #222;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+">
+    Log Out
+  </button>
+
+  <button id="backBtn" style="
+  position: fixed;
+  top: 45px;
+  right: 10px;
+  z-index: 9999;
+  padding: 6px 10px;
+  background: #ccc;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+">
+    ← Back to Map
+  </button>
+
+
+
+
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    const params = new URLSearchParams(window.location.search);
+    const playerId = params.get('id');
+
+    let currentAvatarURL = "";
+    let currentSpecial1URL = "";
+    let currentSpecial2URL = "";
+
+    // 🔐 Step 1: Ensure we are logged in anonymously
+    (async () => {
+      const { error: authError } = await supabase.auth.signInAnonymously();
+      if (authError) {
+        alert("❌ Supabase login failed");
+        console.error(authError);
+        return;
+      }
+
+      loadPlayerData();
+    })();
+
+    async function loadPlayerData() {
+      const { data: player, error } = await supabase
+        .from('players')
+        .select('*')
+        .eq('pid', playerId)
+        .single();
+
+      if (!player || error) {
+        alert('❌ Could not load player');
+        console.error(error);
+        return;
+      }
+
+      document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
+      document.getElementById('playerName').value = player.name || '';
+      const missionList = Array.isArray(player.mission) ? player.mission : [player.mission || ""];
+      document.getElementById('playerMission').value = missionList.join('\n');
+
+
+      if (player.avatar) document.getElementById('avatarPreview').src = currentAvatarURL = player.avatar;
+      if (player.special) document.getElementById('previewSpecial1').src = currentSpecial1URL = player.special;
+      if (player.special2) document.getElementById('previewSpecial2').src = currentSpecial2URL = player.special2;
+    }
+
+    async function uploadImage(file, path) {
+      const { error } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true });
+
+      if (error) {
+        console.error('Upload failed:', error);
+        alert('⚠️ Upload failed');
+        return null;
+      }
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+      return data.publicUrl;
+    }
+
+    document.getElementById('uploadAvatar').addEventListener('change', async function () {
+      const file = this.files[0];
+      if (file) {
+        const path = `avatars/${playerId}/avatar.webp`;
+        const url = await uploadImage(file, path);
+        if (url) document.getElementById('avatarPreview').src = currentAvatarURL = url;
+      }
+    });
+
+    document.getElementById('uploadSpecial1').addEventListener('change', async function () {
+      const file = this.files[0];
+      if (file) {
+        const path = `avatars/${playerId}/special1.webp`;
+        const url = await uploadImage(file, path);
+        if (url) document.getElementById('previewSpecial1').src = currentSpecial1URL = url;
+      }
+    });
+
+    document.getElementById('uploadSpecial2').addEventListener('change', async function () {
+      const file = this.files[0];
+      if (file) {
+        const path = `avatars/${playerId}/special2.webp`;
+        const url = await uploadImage(file, path);
+        if (url) document.getElementById('previewSpecial2').src = currentSpecial2URL = url;
+      }
+    });
+
+    async function savePlayerEdits() {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user?.id) {
+        alert("❌ You're not logged in.");
+        console.error(userError);
+        return;
+      }
+
+      const name = document.getElementById('playerName').value.trim();
+      const mission = document.getElementById('playerMission').value.split('\n');
+
+      const updates = {
+        name: name || '',
+        mission: mission.filter(Boolean),
+        avatar: currentAvatarURL || ''
+      };
+
+
+      const { error } = await supabase
+        .from('players')
+        .update(updates)
+        .eq('pid', playerId);
+
+      if (error) {
+        console.error("❌ Failed to save edits:", error);
+        alert('❌ Edit failed. You may not be the owner of this player.');
+      } else {
+        alert('✅ Player updated!');
+      }
+
+      console.log("Current user ID:", userData.user.id);
+
+    }
+
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+      localStorage.removeItem('playerPid');
+      localStorage.removeItem('playerPin');
+      await supabase.auth.signOut();
+      alert('👋 Logged out.');
+      location.href = 'index.html';
+    });
+
+    document.getElementById('backBtn')?.addEventListener('click', () => {
+      location.href = 'index.html';
+    });
+
+
+    document.getElementById('upgradeEmailBtn')?.addEventListener('click', upgradeToEmail);
+
+
+    window.savePlayerEdits = savePlayerEdits;
+
+  </script>
+
+
+
+
+  <button id="upgradeEmailBtn">🔐 Secure My Account</button>
+
+</body>
+
+</html>

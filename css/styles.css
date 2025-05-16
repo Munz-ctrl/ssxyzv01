@@ -1,0 +1,785 @@
+
+body {
+  margin: 0;
+  font-family: 'Ubuntu', sans-serif;
+  background: #f5f5f5;
+}
+
+.edit-popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 20px;
+  width: 320px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.profile-id {
+  font-size: 10px;
+  color: #666;
+}
+
+.profile-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 5px 0 10px;
+  width: 100%;
+}
+
+.feature-row,
+.iso-group {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+  justify-content: start;
+}
+
+.feature-btn {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.feature-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.placeholder-slot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f4f4f4;
+  border: 2px dashed #bbb;
+  color: #aaa;
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.avatar-preview {
+  width: 120px;
+  height: auto;
+  object-fit: contain;
+  aspect-ratio: 300 / 570;
+  cursor: pointer;
+}
+
+.mission-textarea {
+  width: 100%;
+  height: 80px;
+  margin-top: 12px;
+  padding: 6px;
+  font-family: 'Ubuntu';
+}
+
+.save-btn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 10px;
+  font-weight: bold;
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.save-btn:hover {
+  background: #000;
+}
+
+
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Ubuntu', sans-serif;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    #title {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+
+    }
+
+    #bottomMenu {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      height: 10%;
+      transform: translateX(-50%);
+      display: flex;
+      justify-content: center;
+      width: auto;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0);
+      border-radius: 10px 10px 0 0;
+      z-index: 1000;
+      gap: auto;
+    }
+
+    #bottomMenu img {
+      height: 100%;
+      cursor: pointer;
+      transition: transform 0.13s ease, height 1.5s ease;
+    }
+
+    #bottomMenu img:hover {
+      transform: scale(1.111) translate(0, -20%);
+    }
+
+
+    #bottomMenu img.selected {
+      transform: scale(1.111) translate(0, -20%);
+    }
+
+    
+
+    #map-mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 900;
+      background: hsl(0, 0%, 100%);
+      mix-blend-mode: saturation;
+      opacity: 1;
+      display: none;
+      transition: clip-path 0.4s ease;
+    }
+
+
+    .active {
+      transform: scale(1.2);
+      height: 60px !important;
+    }
+
+    .slidePanel,
+    .overlay {
+      position: fixed;
+      bottom: 10%;
+      left: 50%;
+      width: 25%;
+      height: auto;
+      background: rgba(148, 148, 148, 0.419);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0px -5px 10px rgba(0, 0, 0, 0.2);
+      z-index: 1100;
+      display: none;
+      transition: transform 0.3s ease-out
+    }
+
+    .overlay {
+      width: 50%;
+      top: 20%;
+      bottom: auto;
+      transform: translateX(-50%) translateY(-50%);
+      overflow-y: auto;
+    }
+
+
+    .circle-icon {
+      position: absolute;
+      top: 12px;
+      right: 20px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #ffffffcc;
+      border: 1px solid #333;
+      font-weight: bold;
+      color: #000;
+      font-family: 'Ubuntu', sans-serif;
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 1100;
+      transition: background 0.3s ease;
+    }
+
+    .circle-icon:hover {
+      background: #ddd;
+    }
+
+
+    .activePanel {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .closeBtn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 18px;
+      height: 14px;
+      padding: 4px 4px 0 0;
+      font: 16px/14px Tahoma, Verdana, sans-serif;
+      color: #707070;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      line-height: 14px;
+    }
+
+
+    .closeBtn:hover {
+      transform: scale(1.2);
+      color: #b4b4b4;
+    }
+
+
+    #mouseCoordinates {
+      position: absolute;
+      pointer-events: none;
+      z-index: 5000;
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      display: none;
+    }
+
+
+    .explored-zone {
+      animation: glow 2s ease-in-out infinite alternate;
+      animation: pulseBorder 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      0% {
+        stroke: #00aaff;
+      }
+
+      100% {
+        stroke: #00ffff;
+      }
+    }
+
+
+
+    .avatar {
+      width: auto;
+      height: auto;
+    }
+
+    .avatar.fallback {
+      width: 50px;
+      height: auto;
+    }
+
+    .leaflet-popup-content {
+      text-align: left;
+
+    }
+
+    .leaflet-popup-content-wrapper {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.592);
+
+    }
+
+     
+
+
+
+    .profile-id {
+
+      top: 6px;
+      font-size: 8px;
+      color: #666;
+
+      font-family: 'Ubuntu';
+    }
+
+
+
+
+    .profile-name.z-0 {
+      text-align: left;
+      font-size: 2vw;
+      font-weight: bold;
+      font: 'ubuntu';
+      line-height: 0.8;
+      color: #000;
+      white-space: wrap;
+      text-overflow: clip;
+      display: inline-flex;
+
+      overflow: visible;
+      margin: 0;
+      padding: 0;
+    }
+
+
+
+    .profile-buttons-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 2px;
+
+    }
+
+    .profile-buttons-row a {
+      flex: 1;
+      text-align: center;
+
+    }
+
+    .profile-buttons-row button {
+      width: 100%;
+      padding: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      font: 'ubuntu';
+      border-radius: 4px;
+      border: none;
+      background: #444;
+      color: #fff;
+      cursor: pointer;
+    }
+
+
+
+    .profile-buttons-row button:hover {
+      background: #fd0000;
+      transform: scale(1.05);
+    }
+
+
+    .contact-btn {
+      background-color: #d0d0d0;
+    }
+
+    .contact-btn:hover {
+      background-color: #2e4784;
+    }
+
+
+
+
+    .profile-text {
+      font-weight: bold;
+      font-size: auto;
+      text-align: center;
+      max-width: 140px;
+    }
+
+    .feature-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: start;
+      align-items: center;
+      gap: 2px;
+
+
+
+    }
+
+
+    .feature-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+      background: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+
+    .placeholder-slot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #f4f4f4;
+      border: 2px dashed #bbb;
+      color: #aaa;
+      font-size: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+
+    .feature-btn:hover {
+      transform: scale(1.333);
+      color: #ffffff92;
+    }
+
+
+
+    .iso-group.z-2 {
+      display: inline-block;
+      justify-content: start;
+      align-items: start;
+      margin-top: -3em;
+      margin-bottom: -3em;
+
+      z-index: 2;
+    }
+
+    .iso-group img {
+      width: 100%;
+      height: auto;
+    }
+
+    .sprite-anim {
+      background-repeat: no-repeat;
+      background-size: 7440px auto;
+      animation: spriteLoop 2s steps(62) infinite;
+    }
+
+
+
+
+
+    .iso-group .avatar,
+    .iso-group .sprite-anim {
+
+      width: 120px;
+
+      display: inline-block;
+      margin-left: 1vw;
+      object-fit: contain;
+      aspect-ratio: 300 / 570;
+    }
+
+    .iso-group.avatar.fallback {
+      width: 50px;
+      height: auto;
+      aspect-ratio: 300 / 570;
+      margin-top: -40px;
+    }
+
+    .iso-group .iso-object {
+      width: 120px;
+      object-fit: contain;
+      aspect-ratio: 300 / 570;
+      z-index: 2;
+      margin-right: -1.5vw;
+    }
+
+
+    .mission-text.z-3 {
+      font-size: x-small;
+      font-weight: bold;
+      white-space: wrap;
+      margin-top: 8px;
+      color: #000000;
+    }
+
+
+
+    .icon-md {
+      width: 60px;
+      height: auto;
+    }
+
+   
+
+    .player-ping-container {
+      position: relative;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+    }
+
+    .player-ping {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: rgba(255, 245, 245, 0.416);
+      border: 20px solid transparent;
+      animation: pingAnim 1.5s ease-out infinite;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    .interactive-marker {
+      transition: transform 0.2s ease;
+    }
+
+    .interactive-marker:hover {
+      transform: scale(1.2);
+    }
+
+    .playerBtn {
+      width: 50px;
+      height: auto;
+      transition: transform 0.2s ease;
+      object-fit: contain;
+    }
+
+    .playerBtn.selected {
+      background-color: #82828260;
+
+      box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+
+      outline: 1px solid #ffffff;
+      outline-offset: -2px;
+      border-radius: 10px;
+    }
+
+
+
+
+
+
+    @media (max-width: 500px) {
+      .profile-body {
+        flex-direction: column;
+      }
+    }
+
+
+
+
+
+    @keyframes spriteLoop {
+      from {
+        background-position: 0 0;
+      }
+
+      to {
+        background-position: -7440px 0;
+      }
+    }
+
+
+
+
+    @keyframes pingAnim {
+      0% {
+        transform: translate(-50%, -50%) scale(0.1);
+        color: #959595;
+        opacity: 0.9;
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(2.2);
+        color: #47646e;
+        opacity: 0;
+      }
+    }
+
+
+
+    @keyframes pulseBorder {
+      0% {
+        stroke: #ffffff;
+        stroke-width: 11;
+        fill-opacity: 0.2;
+      }
+
+      100% {
+        stroke: #5a5a5a;
+        stroke-width: 0;
+        fill-opacity: 0.44;
+      }
+    }
+
+
+
+    .player-icon-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 1);
+      border: 1px solid rgba(255, 255, 255, 1);
+      color: rgb(8, 8, 8);
+      font-weight: bold;
+      font-size: 0;
+      height: 5px;
+      width: 5px;
+      border-radius: 50%;
+      transition: all 0.25s ease;
+      z-index: 2;
+      pointer-events: auto;
+    }
+
+
+    .player-icon-pill:hover,
+    .player-icon-pill.zoomed-in {
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(0, 0, 0, 0.7);
+    }
+
+    .player-icon-pill:hover .pill-name,
+    .player-icon-pill.zoomed-in .pill-name {
+      display: block;
+      max-width: 90%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+      line-height: 1;
+      transition: font-size 0.2s ease;
+      font-size: 9px;
+    }
+
+
+
+    .player-icon-pill:hover .pill-char.short {
+      opacity: 0;
+    }
+
+    .player-icon-pill:hover .pill-char.full {
+      opacity: 1;
+    }
+
+    .playerrow {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      gap: auto;
+      margin-bottom: 10px;
+      justify-content: start;
+      align-items: end;
+    }
+
+
+
+
+    .animated-text::after {
+      content: '...';
+      animation: dots 1.5s infinite;
+      display: inline-block;
+      margin-left: 4px;
+      font-weight: bold;
+    }
+
+    @keyframes dots {
+      0% {
+        content: '';
+      }
+
+      33% {
+        content: '.';
+      }
+
+      66% {
+        content: '..';
+      }
+
+      100% {
+        content: '...';
+      }
+    }
+
+    .sprite-title {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%) scale(0.35);
+      transform-origin: top center;
+
+      pointer-events: none;
+
+
+      width: 740px;
+      height: 544px;
+      background-image: url('titlespritesheet.png');
+      background-repeat: no-repeat;
+      background-size: (740*48)px 512px;
+      z-index: 1000;
+      animation: titleAnim 2.4s steps(48) infinite;
+      opacity: 1;
+      transition: opacity 0.5s ease;
+    }
+
+
+    @keyframes titleAnim {
+      from {
+        background-position: 0 0;
+      }
+
+      to {
+        background-position: -35520px 0;
+      }
+    }
+
+
+
+
+    .world-mask {
+      filter: blur(2.2px);
+      transition: opacity 0.999s ease;
+      background: hsl(0, 0%, 100%);
+      mix-blend-mode: saturation;
+    }
+
+
+
+
+
+
+
+    .icon-md:hover,
+    .icon-sm:hover {
+      transform: scaleX(-1) scale(1.2);
+
+      transition: transform 0.4s ease-in-out;
+    }
+  

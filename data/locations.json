@@ -1,0 +1,19 @@
+[
+  {
+    "id": "loc001",
+    "name": "The Compound",
+    "coords": [52.3983,4.7795],
+    "visual": "placeholder_loc.png",
+    "bio": "a ware house full of high frequency and creative energy, located in east Amsterdam",
+    "locked": true
+  },
+  {
+    "id": "loc002",
+    "name": "Another Spot",
+    "coords": [-10, 130],
+    "visual": "placeholder_loc2.png",
+    "bio": "Another location bio...",
+    "locked": true
+  }
+]
+
