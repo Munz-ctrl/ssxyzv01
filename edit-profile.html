@@ -129,8 +129,13 @@
 
       if (player.avatar) document.getElementById('avatarPreview').src = currentAvatarURL = player.avatar;
       if (player.main) {
-        document.getElementById('mainPreview').src = currentMainURL = player.main;
+        const previewEl = document.getElementById('mainPreview');
+        previewEl.src = currentMainURL = player.main;
+
+        // Optional: widen layout
+        document.querySelector('.edit-popup')?.classList.add('wide-popup');
       }
+
 
       if (player.special) document.getElementById('previewSpecial1').src = currentSpecial1URL = player.special;
       if (player.special2) document.getElementById('previewSpecial2').src = currentSpecial2URL = player.special2;
