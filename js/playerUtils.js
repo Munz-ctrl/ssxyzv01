@@ -117,7 +117,11 @@ function generatePopupHTML(player) {
 
 function attachFlyToBehavior(button, marker, coords) {
   button.onclick = () => {
-    closeAllPopups(); // Close all other popups
+    document.querySelectorAll('.playerBtn').forEach(btn => btn.classList.remove('selected'));
+
+    // ✅ Mark this one as selected
+    button.classList.add('selected');
+
     map.closePopup();
     map.flyTo(coords, 9, {
       animate: true,
