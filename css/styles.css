@@ -464,9 +464,9 @@ body {
 
 .player-main-avatar img,
 .player-main-avatar .sprite-anim {
-  max-width: 150px;
+  max-width: auto;
   width: 100%;
-  height: auto;
+  height: 500;
   object-fit: contain;
   aspect-ratio: 300 / 570;
   border-radius: 6px;
