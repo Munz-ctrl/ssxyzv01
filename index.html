@@ -14,13 +14,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
-  <script type="module" src="supabase.js"></script>
+  <script src="js/supabase.js" defer></script>
 
+  <script src="js/playerUtils.js" defer></script>
 
   <script src="https://cdn.jsdelivr.net/gh/domoritz/leaflet-maskcanvas@gh-pages/src/MaskCanvas.js"></script>
 
-  <script type="module" src="ssxyz.js"></script>
-  <script type="module" src="main.js"></script>
+  <script src="js/main.js" defer></script>
+  <script src="js/ssxyz.js" defer></script>
 
   <link rel="stylesheet" href="css/styles.css">
 
@@ -91,11 +92,10 @@
 
   <!-- UI Menu -->
   <div id="bottomMenu">
-    <img id="plyrIcon" src="PlyrMenuIcon.png" alt="Players" />
+    <img id="plyrIcon" src="assets/icons/PlyrMenuIcon.png" alt="Players" />
+    <img id="locIcon" src="assets/icons/LocMenuIcon.png" alt="Locations" />
+    <img id="userIcon" src="assets/icons/userBtn.png" alt="User" />
 
-    <img id="locIcon" src="LocMenuIcon.png" alt="Locations" />
-
-    <img id="userIcon" src="userBtn.png" alt="User" />
   </div>
 
 
@@ -368,13 +368,13 @@
 
         // Set selected PNG and class
         if (buttonId === 'locIcon') {
-          locIcon.src = 'LocMenuIconSelected.png';
+          locIcon.src = 'assets/icons/LocMenuIconSelected.png';
           locIcon.classList.add('selected');
         } else if (buttonId === 'plyrIcon') {
-          plyrIcon.src = 'PlyrMenuIconSelected.png';
+          plyrIcon.src = 'assets/icons/PlyrMenuIconSelected.png';
           plyrIcon.classList.add('selected');
         } else if (buttonId === 'userIcon') {
-          userIcon.src = 'userBtnselected.png';
+          userIcon.src = 'assets/icons/userBtnselected.png';
           userIcon.classList.add('selected');
 
           if (!ssxyz.activePlayer) {
