@@ -50,7 +50,7 @@ fetch('data/locations.json')
       // UI Button in location slider
       const btn = document.createElement('img');
       btn.src = loc.visual;
-      btn.className = 'icon-md locationBtn';
+      btn.className = 'icon-sm locationBtn';
       btn.onclick = () => map.flyTo(loc.coords, 6, {
         animate: true,
         duration: 1.5
