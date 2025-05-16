@@ -522,7 +522,7 @@ body {
 
 /* Optional: widen edit popup when main exists */
 .popup-wrapper.popup-wide {
-  max-width: 400px;
+  max-width: 800px;
 }
 
 
