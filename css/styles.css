@@ -452,35 +452,49 @@ body {
 
 
 
+
+
+
+
 .player-main-avatar {
   width: 100%;
   text-align: center;
   margin: 12px 0;
 }
 
-.player-main-avatar img {
+.player-main-avatar img,
+.player-main-avatar .sprite-anim {
   max-width: 150px;
   width: 100%;
   height: auto;
   object-fit: contain;
+  aspect-ratio: 300 / 570;
   border-radius: 6px;
 }
 
+/* Optional fallback styling */
+.player-main-avatar .fallback {
+  opacity: 0.5;
+}
 
-
-
-
-
-
-
-
-
-
+/* Spritesheet animation */
 .sprite-anim {
   background-repeat: no-repeat;
-  background-size: 7440px auto;
+  background-size: 7440px auto; /* 62 frames */
   animation: spriteLoop 2s steps(62) infinite;
 }
+
+@keyframes spriteLoop {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -7440px 0;
+  }
+}
+
+
+
 
 
 
@@ -585,16 +599,6 @@ body {
 
 
 
-
-@keyframes spriteLoop {
-  from {
-    background-position: 0 0;
-  }
-
-  to {
-    background-position: -7440px 0;
-  }
-}
 
 
 
