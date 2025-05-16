@@ -1,6 +1,6 @@
-// ssxyz.js
-import { createPlayerMarker, generatePopupHTML, attachFlyToBehavior, createPlayerButton } from './playerUtils.js';
-import { supabase } from './supabase.js';
+// /js/ssxyz.js
+import { createPlayerMarker, generatePopupHTML, attachFlyToBehavior, createPlayerButton } from '/js/playerUtils.js';
+import { supabase } from '/js/supabase.js';
 
 export const ssxyz = {
   activePlayer: null,
@@ -257,7 +257,7 @@ export const ssxyz = {
 ssxyz.flyToPlayer = function (player, marker) {
   if (!player || !marker) return;
 
-  map.flyTo(player.coords, 9, {
+  map.flyTo(player.coords, 7, {
     animate: true,
     duration: 2.5
   });
