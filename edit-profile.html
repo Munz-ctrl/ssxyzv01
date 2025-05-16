@@ -3,15 +3,15 @@
 
 <head>
 
- 
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css">
   <title>Edit Player</title>
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
 
   <script type="module" src="/js/supabase.js"></script>
- <script type="module" src="/js/main.js"></script>
+  <script type="module" src="/js/main.js"></script>
   <script type="module" src="/js/playerUtils.js"></script>
   <script type="module" src="/js/ssxyz.js"></script>
 
@@ -33,10 +33,12 @@
     </div>
 
     <div class="iso-group">
-      <label for="uploadAvatar">
-        <img id="avatarPreview" class="avatar-preview" src="" alt="No avatar" />
+      <label for="uploadMain">
+        <img id="mainPreview" class="avatar-preview" src="" alt="Main View" />
       </label>
     </div>
+    <input type="file" id="uploadMain" accept="image/*" style="display:none" />
+
 
     <textarea id="playerMission" class="mission-textarea" placeholder="Mission(s)... (One per line)"></textarea>
     <button class="save-btn" onclick="savePlayerEdits()">Save Changes</button>
@@ -91,6 +93,8 @@
     let currentAvatarURL = "";
     let currentSpecial1URL = "";
     let currentSpecial2URL = "";
+    let currentMainURL = "";
+
 
     // 🔐 Step 1: Ensure we are logged in anonymously
     (async () => {
@@ -124,6 +128,10 @@
 
 
       if (player.avatar) document.getElementById('avatarPreview').src = currentAvatarURL = player.avatar;
+      if (player.main) {
+        document.getElementById('mainPreview').src = currentMainURL = player.main;
+      }
+
       if (player.special) document.getElementById('previewSpecial1').src = currentSpecial1URL = player.special;
       if (player.special2) document.getElementById('previewSpecial2').src = currentSpecial2URL = player.special2;
     }
@@ -152,6 +160,16 @@
       }
     });
 
+    document.getElementById('uploadMain').addEventListener('change', async function () {
+      const file = this.files[0];
+      if (file) {
+        const path = `avatars/${playerId}/main.webp`;
+        const url = await uploadImage(file, path);
+        if (url) document.getElementById('mainPreview').src = currentMainURL = url;
+      }
+    });
+
+
     document.getElementById('uploadSpecial1').addEventListener('change', async function () {
       const file = this.files[0];
       if (file) {
@@ -170,6 +188,9 @@
       }
     });
 
+
+
+
     async function savePlayerEdits() {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData?.user?.id) {
@@ -184,8 +205,9 @@
       const updates = {
         name: name || '',
         mission: mission.filter(Boolean),
-        avatar: currentAvatarURL || ''
+        main: currentMainURL || ''
       };
+
 
 
       const { error } = await supabase
