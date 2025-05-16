@@ -505,8 +505,9 @@ body {
 
 .wide-avatar img {
   width: auto;
-  height: 570px
-  max-width: 500px;
+  height: 100%;
+  max-width: 400px;
+  
 }
 
 
