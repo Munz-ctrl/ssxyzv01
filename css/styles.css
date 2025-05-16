@@ -566,6 +566,13 @@ body {
 }
 
 
+.icon-md:hover,
+.icon-sm:hover {
+  transform: scaleX(-1);
+  transition: none;
+}
+
+
 
 .player-ping-container {
   position: relative;
@@ -816,13 +823,6 @@ body {
 
 
 
-
-.icon-md:hover,
-.icon-sm:hover {
-  transform: scaleX(-1) scale(1.2);
-
-  transition: transform 0.4s ease-in-out;
-}
 
 
 
