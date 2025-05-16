@@ -473,7 +473,7 @@ body {
 /* Default avatar image size */
 
 .player-main-avatar .sprite-anim {
-  /* max-width: 150px; */
+  max-width: 150px;
   width: 100%;
   height: auto;
   object-fit: contain;
@@ -504,7 +504,8 @@ body {
 }
 
 .wide-avatar img {
-  width: 100%;
+  width: auto;
+  height: 570px
   max-width: 500px;
 }
 
