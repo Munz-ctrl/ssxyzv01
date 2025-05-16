@@ -619,7 +619,7 @@ body {
 .playerBtn {
   width: 50px;
   height: auto;
-  transition: transform 0.2s ease;
+  /* transition: transform 0.2s ease; */
   object-fit: contain;
 }
 
