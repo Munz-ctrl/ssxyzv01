@@ -473,15 +473,16 @@
   </script>
 
   <script type="module">
-    import { supabase } from './js/supabase.js';
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      localStorage.removeItem('playerPid');
-      localStorage.removeItem('playerPin');
-      await supabase.auth.signOut();
-      alert('👋 Logged out.');
-      location.reload();
-    });
-  </script>
+  import { supabase } from './js/supabase.js';
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    localStorage.removeItem('playerPid');
+    localStorage.removeItem('playerPin');
+    await supabase.auth.signOut();
+    alert('👋 Logged out.');
+    location.reload();
+  });
+</script>
+
 
 
 </body>
