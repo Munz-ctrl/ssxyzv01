@@ -1,6 +1,6 @@
 // ssxyz.js
-import { createPlayerMarker, generatePopupHTML, attachFlyToBehavior, createPlayerButton } from './playerUtils.js';
-import { supabase } from './supabase.js';
+import { createPlayerMarker, generatePopupHTML, attachFlyToBehavior, createPlayerButton } from './js/playerUtils.js';
+import { supabase } from './js/supabase.js';
 
 export const ssxyz = {
   activePlayer: null,
