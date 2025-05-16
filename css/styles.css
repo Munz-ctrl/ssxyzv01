@@ -462,7 +462,7 @@ body {
   margin: 0px 0;
 }
 
-.player-main-avatar img{
+.player-main-avatar img {
   /* max-width: 150px; */
   width: 100%;
   height: auto;
@@ -470,6 +470,7 @@ body {
   aspect-ratio: 400 / 570;
   border-radius: 6px;
 }
+
 /* Default avatar image size */
 
 .player-main-avatar .sprite-anim {
@@ -490,7 +491,8 @@ body {
 /* Spritesheet animation */
 .sprite-anim {
   background-repeat: no-repeat;
-  background-size: 7440px auto; /* 62 frames */
+  background-size: 7440px auto;
+  /* 62 frames */
   animation: spriteLoop 2s steps(62) infinite;
 }
 
@@ -498,16 +500,17 @@ body {
   from {
     background-position: 0 0;
   }
+
   to {
     background-position: -7440px 0;
   }
 }
 
 .wide-avatar img {
-  
+
   height: auto;
   max-width: 400px;
-  
+
 }
 
 
@@ -572,6 +575,22 @@ body {
   transition: none;
 }
 
+.playerBtn {
+  width: 50px;
+  height: auto;
+  /* transition: transform 0.2s ease; */
+  object-fit: contain;
+}
+
+.playerBtn.selected {
+  background-color: #82828260;
+  transform: scaleX(-1);
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+
+  outline: 1px solid #ffffff8e;
+  outline-offset: -2px;
+  border-radius: 10px;
+}
 
 
 .player-ping-container {
@@ -616,22 +635,6 @@ body {
   transform: scale(1.2);
 }
 
-.playerBtn {
-  width: 50px;
-  height: auto;
-  /* transition: transform 0.2s ease; */
-  object-fit: contain;
-}
-
-.playerBtn.selected {
-  background-color: #82828260;
-
-  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
-
-  outline: 1px solid #ffffff8e;
-  outline-offset: -2px;
-  border-radius: 10px;
-}
 
 
 
