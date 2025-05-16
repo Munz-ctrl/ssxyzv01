@@ -782,10 +782,7 @@ body {
   transition: transform 0.4s ease-in-out;
 }
 
-.location-popup {
-  text-align: center;
-  font-family: 'Ubuntu', sans-serif;
-}
+
 
 .location-preview {
   width: 200px;
@@ -794,8 +791,71 @@ body {
   margin-bottom: 8px;
 }
 
+
+
+.location-popup {
+  font-family: 'Ubuntu', sans-serif;
+  text-align: left;
+  padding: 12px;
+}
+
+.location-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+.location-thumbnail {
+  width: 100px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.location-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: 260px;
+}
+
+.location-popup .profile-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #000;
+  line-height: 1.1;
+}
+
 .location-bio {
   font-size: 12px;
   color: #333;
-  margin-bottom: 6px;
+  margin-top: 4px;
+}
+
+.location-preview-secondary {
+  text-align: center;
+  margin: 16px 0 12px;
+}
+
+.location-preview-secondary img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+}
+
+.location-play-btn {
+  width: 100%;
+  background: #ddd;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 0;
+  color: #444;
+  font-size: 12px;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
