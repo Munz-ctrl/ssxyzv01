@@ -459,14 +459,15 @@ body {
 .player-main-avatar {
   width: 100%;
   text-align: center;
-  margin: 12px 0;
+  margin: 0px 0;
 }
 
 .player-main-avatar img,
 .player-main-avatar .sprite-anim {
-  max-width: auto;
+   height: 500;
+   max-width: auto;
   width: 100%;
-  height: 500;
+ 
   object-fit: contain;
   aspect-ratio: 300 / 570;
   border-radius: 6px;
