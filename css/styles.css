@@ -209,21 +209,17 @@ body {
   bottom: 0;
   left: 0;
   width: 100vw;
-  /* stretch full width */
   height: auto;
-  /* auto height instead of fixed */
-  max-height: 26vh;
-  /* limit max height for consistent appearance */
+  max-height: 28vh;
   background: rgba(255, 255, 255, 0.96);
-  padding: 10px 20px;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-  border-top: 1px solid #ccc;
+  padding: 12px 16px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
   z-index: 1100;
   display: none;
   overflow-x: hidden;
   overflow-y: auto;
-  transition: transform 0.3s ease-out;
 }
+
 
 .slidePanel .profile-name {
   font-size: 16px;
@@ -266,8 +262,8 @@ body {
 
 .activePanel {
   display: block !important;
-  transform: translateX(-50%) translateY(0);
 }
+
 
 .closeBtn {
   position: absolute;
