@@ -71,13 +71,14 @@ fetch('data/locations.json')
       }).addTo(map);
 
       const popupHTML = `
-        <div style="text-align:center; font-family: Ubuntu;">
-          <h4>${loc.name}</h4>
-          <img src="${loc.visual}" class="icon-lg" />
-          <p>${loc.bio}</p>
-          <button disabled style="opacity: 0.5;">🔒 Play</button>
-        </div>
-      `;
+          <div class="location-popup">
+            <div class="profile-name">${loc.name}</div>
+            <img src="${loc.visual}" class="location-preview" />
+            <p class="location-bio">${loc.bio}</p>
+            <button disabled style="opacity: 0.5;">🔒 Play</button>
+          </div>
+        `;
+
 
       marker.bindPopup(popupHTML);
 
