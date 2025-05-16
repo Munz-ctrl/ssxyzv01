@@ -740,7 +740,7 @@ body {
 
       width: 740px;
       height: 544px;
-      background-image: url('titlespritesheet.png');
+      background-image: url('./titlespritesheet.png');
       background-repeat: no-repeat;
       background-size: (740*48)px 512px;
       z-index: 1000;
