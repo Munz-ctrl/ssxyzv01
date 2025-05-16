@@ -605,8 +605,12 @@ body {
   height: auto;
 }
 
-.icon-md:hover,
 .icon-sm:hover {
+  transform: scale(1.2);
+  transition: ease;
+}
+
+.icon-md:hover{
   transform: scaleX(-1);
   transition: none;
 }
@@ -618,6 +622,7 @@ body {
   object-fit: contain;
 }
 
+.icon-sm.selected ,
 .playerBtn.selected {
   background-color: #82828260;
   transform: scaleX(-1);
