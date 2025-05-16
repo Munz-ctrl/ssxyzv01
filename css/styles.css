@@ -446,20 +446,35 @@ body {
 
 
 
-.iso-group.z-2 {
-  display: inline-block;
-  justify-content: start;
-  align-items: start;
-  margin-top: -3em;
-  margin-bottom: -3em;
 
-  z-index: 2;
+
+
+
+
+
+.player-main-avatar {
+  width: 100%;
+  text-align: center;
+  margin: 12px 0;
 }
 
-.iso-group img {
+.player-main-avatar img {
+  max-width: 150px;
   width: 100%;
   height: auto;
+  object-fit: contain;
+  border-radius: 6px;
 }
+
+
+
+
+
+
+
+
+
+
 
 .sprite-anim {
   background-repeat: no-repeat;
@@ -471,31 +486,13 @@ body {
 
 
 
-.iso-group .avatar,
-.iso-group .sprite-anim {
-
-  width: 120px;
-
-  display: inline-block;
-  margin-left: 1vw;
-  object-fit: contain;
-  aspect-ratio: 300 / 570;
-}
-
-.iso-group.avatar.fallback {
+.avatar.fallback {
   width: 50px;
   height: auto;
   aspect-ratio: 300 / 570;
   margin-top: -40px;
 }
 
-.iso-group .iso-object {
-  width: 120px;
-  object-fit: contain;
-  aspect-ratio: 300 / 570;
-  z-index: 2;
-  margin-right: -1.5vw;
-}
 
 
 .mission-text.z-3 {
