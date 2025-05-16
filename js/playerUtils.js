@@ -132,7 +132,7 @@ function attachFlyToBehavior(button, marker, coords) {
 
 function createPlayerButton(player) {
   const btn = document.createElement('img');
-  btn.src = player.avatar || 'https://hoaztxbbeabvwewswmkl.supabase.co/storage/v1/object/public/avatars//fallbackIsoAvatar.webp';
+  btn.src = player.avatar || 'assets/fallbackIsoAvatar.webp';
   btn.className = 'icon-md playerBtn';
   btn.title = player.pid;
   btn.alt = player.pid;
