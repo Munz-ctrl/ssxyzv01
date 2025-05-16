@@ -127,7 +127,7 @@ body {
 
 }
 
-#bottomMenu {
+/* #bottomMenu {
   position: fixed;
   bottom: 0;
   left: 50%;
@@ -141,13 +141,36 @@ body {
   border-radius: 10px 10px 0 0;
   z-index: 1000;
   gap: auto;
+} */
+
+#bottomMenu {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: auto;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 0;
+  border-radius: 0 10px 10px 0;
+  z-index: 1000;
+  gap: 12px;
 }
 
+
+
 #bottomMenu img {
-  height: 100%;
+  width: 36px;
+  height: 36px;
   cursor: pointer;
-  transition: transform 0.13s ease, height 1.5s ease;
+  transition: transform 0.2s ease;
 }
+
+
 
 #bottomMenu img:hover {
   transform: scale(1.111) translate(0, -20%);
@@ -181,21 +204,22 @@ body {
   height: 60px !important;
 }
 
-.slidePanel,
-.overlay {
+.slidePanel {
   position: fixed;
-  bottom: 10%;
-  left: 50%;
-  width: 25%;
-  height: auto;
-  background: rgba(148, 148, 148, 0.419);
-  border-radius: 15px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 35vh; /* or adjust */
+  background: rgba(255, 255, 255, 0.96);
   padding: 20px;
-  box-shadow: 0px -5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  border-top: 1px solid #ccc;
   z-index: 1100;
   display: none;
-  transition: transform 0.3s ease-out
+  overflow-y: auto;
+  transition: transform 0.3s ease-out;
 }
+
 
 .overlay {
   width: 50%;
@@ -230,6 +254,7 @@ body {
 
 
 .activePanel {
+  display: block !important;
   transform: translateX(-50%) translateY(0);
 }
 
@@ -740,15 +765,19 @@ body {
   opacity: 1;
 }
 
-.playerrow {
+.player-row {
   display: flex;
-  flex-wrap: wrap;
-  width: 100%;
-  gap: auto;
-  margin-bottom: 10px;
-  justify-content: start;
-  align-items: end;
+  flex-direction: row;
+  align-items: center;
+  height: 100%;
+  gap: 8px;
+  padding: 6px 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  scroll-behavior: smooth;
 }
+
 
 
 
