@@ -70,14 +70,24 @@ fetch('data/locations.json')
         pane: 'locationsPane'
       }).addTo(map);
 
+      const secondPreview = loc.preview2
+        ? `<div class="location-preview-secondary"><img src="${loc.preview2}" /></div>`
+        : "";
+
       const popupHTML = `
-          <div class="location-popup">
-            <div class="profile-name">${loc.name}</div>
-            <img src="${loc.visual}" class="location-preview" />
-            <p class="location-bio">${loc.bio}</p>
-            <button disabled style="opacity: 0.5;">🔒 Play</button>
-          </div>
-        `;
+              <div class="location-popup ${loc.preview2 ? 'with-preview2' : ''}">
+                <div class="location-header">
+                  <img src="${loc.visual}" class="location-thumbnail" />
+                  <div class="location-text">
+                    <div class="profile-name">${loc.name}</div>
+                    <div class="location-bio">${loc.bio}</div>
+                  </div>
+                </div>
+                ${secondPreview}
+                <button disabled class="location-play-btn">Play (locked)</button>
+              </div>
+            `;
+            
 
 
       marker.bindPopup(popupHTML);
