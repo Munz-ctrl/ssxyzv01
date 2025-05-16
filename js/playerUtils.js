@@ -38,27 +38,10 @@ function createPlayerMarker(player) {
 
 
 function generatePopupHTML(player) {
-  const avatarHTML = player.spritesheet
-    ? `<div class="sprite-anim" style="background-image: url('${player.spritesheet}')"></div>`
-    : player.avatar
-      ? `<img src="${player.avatar}" class="avatar" />`
-      : "";
+  const avatarHTML = player.avatar
+    ? `<div class="player-main-avatar"><img src="${player.avatar}" /></div>`
+    : "";
 
-
-
-  //  `<img src="fallbackIsoAvatar.webp" class="fallback"  title="Player Needs to upload Iso Ch." />`     
-
-
-  // const isoObjectHTML = player.playerIsoObject
-  //     ? `<img src="${player.playerIsoObject}" class="iso-object" />`
-  //     : "";
-
-  const isoVisualGroup = `
-    <div class="iso-group z-2">
-      
-       ${avatarHTML}
-    </div>
-  `;
 
   const featureIcons = [player.special, player.special2].map((img, i) => {
     const hasImage = img && img !== "";
@@ -87,31 +70,17 @@ function generatePopupHTML(player) {
 
 
   return `
-    
-      <!-- P-ID TEXT -->
-      <div class="profile-id">P-ID: ${player.pid}</div>
-  
-      <!-- PLAYER NAME -->
-      <div class="profile-name z-0">${player.name}</div>
-  
-      <!-- FEATURES -->
-      <div class="feature-row z-1">
-        ${featureIcons}
-      </div>
-  
-      <!-- ISOMETRIC GROUP -->
-      ${isoVisualGroup}
-  
-      <!-- PERSONAL MISSION -->
-      ${missionHTML}
-  
-      <!-- BUTTONS -->
-      <div class="profile-buttons-row">
-        ${editButton}
-        
-      </div>
-    
-  `;
+  <div class="profile-id">P-ID: ${player.pid}</div>
+  <div class="profile-name z-0">${player.name}</div>
+  <div class="feature-row z-1">${featureIcons}</div>
+  ${avatarHTML}
+  ${missionHTML}
+  <div class="profile-buttons-row">
+    ${editButton}
+    ${exploreButton}
+  </div>
+`;
+
 
 }
 
