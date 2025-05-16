@@ -50,7 +50,8 @@ fetch('data/locations.json')
       // UI Button in location slider
       const btn = document.createElement('img');
       btn.src = loc.visual;
-      btn.className = 'icon-sm locationBtn';
+      // btn.className = 'icon-sm locationBtn';
+      btn.className = 'icon-sm ';
 
       document.querySelectorAll('.icon-sm').forEach(btn => btn.classList.remove('selected'));
 
