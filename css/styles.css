@@ -496,6 +496,19 @@ body {
 
 
 
+/* Default preview size */
+#mainPreview {
+  width: 200px;
+  height: auto;
+  object-fit: contain;
+  aspect-ratio: 300 / 570;
+  border-radius: 6px;
+}
+
+/* Optional: widen edit popup when main exists */
+.edit-popup.wide-popup {
+  width: 420px; /* or larger if you want */
+}
 
 
 
