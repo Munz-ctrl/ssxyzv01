@@ -38,9 +38,34 @@ function createPlayerMarker(player) {
 
 
 function generatePopupHTML(player) {
-  const avatarHTML = player.avatar
-    ? `<div class="player-main-avatar"><img src="${player.avatar}" /></div>`
-    : "";
+  let avatarHTML = "";
+  const fallback = 'assets/fallbackIsoAvatar.webp';
+
+  if (player.spritesheet) {
+    avatarHTML = `
+    <div class="player-main-avatar">
+      <div class="sprite-anim" style="background-image: url('${player.spritesheet}');"></div>
+    </div>
+  `;
+  } else if (player.main) {
+    avatarHTML = `
+    <div class="player-main-avatar">
+      <img src="${player.main}" />
+    </div>
+  `;
+  } else if (player.avatar) {
+    avatarHTML = `
+    <div class="player-main-avatar">
+      <img src="${player.avatar}" />
+    </div>
+  `;
+  } else {
+    avatarHTML = `
+    <div class="player-main-avatar">
+      <img src="${fallback}" class="fallback" />
+    </div>
+  `;
+  }
 
 
   const featureIcons = [player.special, player.special2].map((img, i) => {
@@ -80,6 +105,7 @@ function generatePopupHTML(player) {
     ${exploreButton}
   </div>
 `;
+
 
 
 }
