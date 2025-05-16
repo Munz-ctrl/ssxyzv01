@@ -51,11 +51,16 @@ fetch('data/locations.json')
       const btn = document.createElement('img');
       btn.src = loc.visual;
       btn.className = 'icon-sm locationBtn';
-      btn.onclick = () => map.flyTo(loc.coords, 6, {
-        animate: true,
-        duration: 1.5
-      });
-      locationsPanel.appendChild(btn);
+
+      document.querySelectorAll('.icon-sm').forEach(btn => btn.classList.remove('selected'));
+
+    // ✅ Mark this one as selected
+    btn.classList.add('selected');
+    btn.onclick = () => map.flyTo(loc.coords, 6, {
+      animate: true,
+      duration: 1.5
+    });
+    locationsPanel.appendChild(btn);
 
       // Map marker
       const icon = L.divIcon({
