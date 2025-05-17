@@ -120,7 +120,20 @@ function attachFlyToBehavior(button, marker, coords) {
     document.querySelectorAll('.playerBtn').forEach(btn => btn.classList.remove('selected'));
 
     // ✅ Mark this one as selected
-    button.classList.add('selected');
+    btn.onclick = () => {
+      // Remove existing selected state from other location buttons
+      document.querySelectorAll('.locationBtn').forEach(b => b.classList.remove('selected'));
+
+      // Apply selected class to this button
+      btn.classList.add('selected');
+
+      // Fly to location
+      map.flyTo(loc.coords, 6, {
+        animate: true,
+        duration: 1.5
+      });
+    };
+
 
     map.closePopup();
     map.flyTo(coords, 9, {
