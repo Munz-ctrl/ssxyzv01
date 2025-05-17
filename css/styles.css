@@ -593,6 +593,12 @@ body {
   color: #000000;
 }
 
+.locationBtn.selected {
+  background-color: rgba(100, 100, 255, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px #668cff inset;
+  transform: scale(1.1);
+}
 
 
 .icon-md {
