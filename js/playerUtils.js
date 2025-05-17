@@ -39,7 +39,7 @@ function createPlayerMarker(player) {
 
 function generatePopupHTML(player) {
   let avatarHTML = "";
-  const fallback = 'assets/fallbackIsoAvatar.webp';
+  const fallback = '/assets/fallbackIsoAvatar.webp';
 
   if (player.spritesheet) {
     avatarHTML = `
@@ -148,7 +148,7 @@ function attachFlyToBehavior(button, marker, coords) {
 
 function createPlayerButton(player) {
   const btn = document.createElement('img');
-  btn.src = player.avatar || 'assets/fallbackIsoAvatar.webp';
+  btn.src = player.avatar || '/assets/fallbackIsoAvatar.webp';
   btn.className = 'icon-md playerBtn';
   btn.title = player.pid;
   btn.alt = player.pid;
