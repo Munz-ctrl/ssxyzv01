@@ -600,7 +600,7 @@ body {
   height: auto;
 }
 
-.icon-sm {
+.icon-sm.locationBtn {
   width: 120px;
   height: auto;
 }
@@ -622,7 +622,7 @@ body {
   object-fit: contain;
 }
 
-.icon-sm.selected ,
+.icon-sm.locationBtn.selected ,
 .playerBtn.selected {
   background-color: #82828260;
   transform: scaleX(-1);
