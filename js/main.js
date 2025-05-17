@@ -53,7 +53,7 @@ fetch('data/locations.json')
       btn.className = 'icon-sm locationBtn';
 
       
-      btn.onclick = () => map.flyTo(loc.coords, 6, {
+      btn.onclick = () => map.flyTo(loc.coords, 10, {
         animate: true,
         duration: 1.5
       });
