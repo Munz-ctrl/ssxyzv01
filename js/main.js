@@ -50,19 +50,17 @@ fetch('data/locations.json')
       // UI Button in location slider
       const btn = document.createElement('img');
       btn.src = loc.visual;
-      // btn.className = 'icon-sm locationBtn';
-      btn.className = 'icon-sm ';
+      btn.className = 'icon-sm locationBtn';
 
-     
+      document.querySelectorAll('.icon-sm').forEach(btn => btn.classList.remove('selected'));
 
     // ✅ Mark this one as selected
-    btn.classList.add('selected');
-    btn.onclick = () =>  document.querySelectorAll('.icon-sm ').forEach(btn => btn.classList.remove('selected'));
-    map.flyTo(loc.coords, 6, {
-      animate: true,
-      duration: 1.5
-    });
-    locationsPanel.appendChild(btn);
+    button.classList.add('selected');
+    btn.onclick = () => map.flyTo(loc.coords, 6, {
+        animate: true,
+        duration: 1.5
+      });
+      locationsPanel.appendChild(btn);
 
       // Map marker
       const icon = L.divIcon({
