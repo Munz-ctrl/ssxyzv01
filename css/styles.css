@@ -607,8 +607,9 @@ body {
 }
 
 .icon-sm {
-  width: 90px;
-  height: auto;
+  
+  height: 70px;
+  width: auto;
 }
 
 
