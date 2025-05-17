@@ -53,11 +53,12 @@ fetch('data/locations.json')
       // btn.className = 'icon-sm locationBtn';
       btn.className = 'icon-sm ';
 
-      document.querySelectorAll('.icon-sm').forEach(btn => btn.classList.remove('selected'));
+     
 
     // ✅ Mark this one as selected
     btn.classList.add('selected');
-    btn.onclick = () => map.flyTo(loc.coords, 6, {
+    btn.onclick = () =>  document.querySelectorAll('.icon-sm ').forEach(btn => btn.classList.remove('selected'));
+    map.flyTo(loc.coords, 6, {
       animate: true,
       duration: 1.5
     });
