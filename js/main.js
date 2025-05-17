@@ -52,7 +52,7 @@ fetch('data/locations.json')
       btn.src = loc.visual;
       btn.className = 'icon-sm locationBtn';
 
-      document.querySelectorAll('.icon-sm').forEach(btn => btn.classList.remove('selected'));
+      document.querySelectorAll('.icon-sm locationBtn').forEach(btn => btn.classList.remove('selected'));
 
     // ✅ Mark this one as selected
     button.classList.add('selected');
