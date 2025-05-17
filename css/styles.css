@@ -605,10 +605,7 @@ body {
   height: auto;
 }
 
-.icon-sm:selected {
-  width: 120px;
-  height: auto;
-}
+
 .icon-sm:hover {
   transform: scale(1.2);
   transition: ease;
