@@ -5,7 +5,7 @@
 
 
 
- <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/main.js"></script>
 
 
   <meta charset="UTF-8" />
@@ -14,7 +14,7 @@
   <!-- Leaflet & Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
- 
+
 
 
 
@@ -100,7 +100,7 @@
 
   </div>
 
-  
+
 
 
   <div id="editProfileFloatBtn" class="floating-edit-btn" style="display: none;">
@@ -388,6 +388,10 @@
 
             if (marker) {
               ssxyz.flyToPlayer(player, marker);
+              ssxyz.updateUserPanelAfterLogin();
+              userPanel.style.display = 'block';
+              userPanel.classList.add('activePanel');
+
             } else {
               alert("⚠️ Could not find your marker on the map.");
             }
