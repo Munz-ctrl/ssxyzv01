@@ -162,34 +162,9 @@ export const ssxyz = {
     closeAllPopups();
   },
 
-  openLoginPanel: async function () {
-    closeAllPopups();
 
-    const container = document.getElementById('userPanelContent');
-    container.innerHTML = `
-      <h3>Login</h3>
-      <select id="loginPlayerSelect" style="width: 100%; margin: 6px 0;"></select>
-      <input type="password" id="loginPin" placeholder="Security Pin" style="width: 100%; margin: 6px 0;" />
-      <button onclick="ssxyz.handleLogin()">Login</button>
-      <hr>
-      <button onclick="ssxyz.renderCreatePlayerPanel()">+ New Player</button>
-    `;
 
-    const select = container.querySelector('#loginPlayerSelect');
-    const { data: players, error } = await supabase
-      .from('players')
-      .select('pid');
 
-    if (!players || error) {
-      alert("❌ Could not load players");
-      return;
-    }
-
-    select.innerHTML = players.map(p => `<option value="${p.pid}">${p.pid}</option>`).join('');
-
-    document.getElementById('userPanel').style.display = 'block';
-    document.getElementById('userPanel').classList.add('activePanel');
-  },
 
   autoLoginIfPossible: async function () {
     const pid = localStorage.getItem('playerPid');
@@ -254,6 +229,10 @@ export const ssxyz = {
   }
 };
 
+
+
+
+
 ssxyz.flyToPlayer = function (player, marker) {
   if (!player || !marker) return;
 
@@ -266,6 +245,104 @@ ssxyz.flyToPlayer = function (player, marker) {
     marker.openPopup();
   }, 2700);
 };
+
+
+ssxyz.openLoginPanel = async function () {
+  closeAllPopups();
+
+  const container = document.getElementById('userPanelContent');
+  container.innerHTML = `
+    <div class="login-tabs">
+      <button id="loginTabBtn" class="tab-btn active">Login</button>
+      <button id="createTabBtn" class="tab-btn">Create New Player</button>
+    </div>
+    <div id="loginTabContent" class="tab-content">
+      <label for="loginPlayerSelect">select your player:</label>
+      <select id="loginPlayerSelect" style="width: 100%; margin: 6px 0;">
+        <option disabled selected>Player ID</option>
+      </select>
+      <div id="loginFieldsContainer"></div>
+    </div>
+    <div id="createTabContent" class="tab-content" style="display:none;"></div>
+  `;
+
+  const { data: players, error } = await supabase.from('players').select('pid, auth_type, email');
+
+  if (!players || error) {
+    alert("❌ Could not load players");
+    return;
+  }
+
+  const select = document.getElementById('loginPlayerSelect');
+  select.innerHTML += players.map(p => `<option value="${p.pid}">${p.pid}</option>`).join('');
+
+  select.addEventListener('change', () => {
+    const selected = players.find(p => p.pid === select.value);
+    renderLoginFields(selected);
+  });
+
+  // Tab switching
+  document.getElementById('loginTabBtn').onclick = () => {
+    document.getElementById('loginTabContent').style.display = 'block';
+    document.getElementById('createTabContent').style.display = 'none';
+    document.getElementById('loginTabBtn').classList.add('active');
+    document.getElementById('createTabBtn').classList.remove('active');
+  };
+
+  document.getElementById('createTabBtn').onclick = () => {
+    ssxyz.renderCreatePlayerPanel('createTabContent');
+    document.getElementById('loginTabContent').style.display = 'none';
+    document.getElementById('createTabContent').style.display = 'block';
+    document.getElementById('createTabBtn').classList.add('active');
+    document.getElementById('loginTabBtn').classList.remove('active');
+  };
+
+  document.getElementById('userPanel').style.display = 'block';
+  document.getElementById('userPanel').classList.add('activePanel');
+};
+
+
+
+
+ssxyz.handleEmailLogin = async function () {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+
+  if (!email || !password) {
+    alert("Please enter email and password.");
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error || !data?.user?.id) {
+    alert("❌ Login failed: " + error.message);
+    return;
+  }
+
+  const { data: player, error: playerError } = await supabase
+    .from('players')
+    .select('*')
+    .eq('email', email)
+    .eq('auth_type', 'email')
+    .single();
+
+  if (!player || playerError) {
+    alert("❌ No player linked to this email.");
+    return;
+  }
+
+  ssxyz.activePlayer = player;
+  ssxyz.updateAllPopups();
+  closeAllPopups();
+  alert(`✅ Logged in as ${player.pid}`);
+};
+
+
+
+
+
+
 
 ssxyz.upgradeToEmail = async function () {
 
@@ -316,6 +393,28 @@ ssxyz.upgradeToEmail = async function () {
 
   alert("✅ Account upgraded successfully! You’re now protected by email login.");
 };
+
+
+function renderLoginFields(player) {
+  const container = document.getElementById('loginFieldsContainer');
+  if (!player) return container.innerHTML = '';
+
+  if (player.auth_type === 'email') {
+    container.innerHTML = `
+      <p>Authenticated Player: sign in using email</p>
+      <input id="loginEmail" type="email" placeholder="Email" style="width:100%; margin: 6px 0;" />
+      <input id="loginPassword" type="password" placeholder="Password" style="width:100%; margin: 6px 0;" />
+      <button style="width:100%;" onclick="ssxyz.handleEmailLogin()">Login</button>
+    `;
+  } else {
+    container.innerHTML = `
+      <p>un-authenticated Player: enter pin</p>
+      <input id="loginPin" type="password" placeholder="Security Pin" style="width:100%; margin: 6px 0;" />
+      <p style="font-size:10px;">*make sure you authenticate your player with an email for longevity and secureity</p>
+      <button style="width:100%;" onclick="ssxyz.handleLogin()">Login</button>
+    `;
+  }
+}
 
 
 window.ssxyz = ssxyz;
