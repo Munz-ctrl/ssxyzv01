@@ -7,7 +7,11 @@ import { supabase } from '/js/supabase.js';
 
 // Fetch players and render them
 (async () => {
-  const { data: players, error } = await supabase.from('players').select('*');
+  const { data: players, error } = await supabase
+    .from('players')
+    .select('*')
+    .order('id', { ascending: true });
+
   console.log("Loaded players from Supabase:", players);
 
   if (!players || error) {
@@ -21,10 +25,12 @@ import { supabase } from '/js/supabase.js';
 
   players
     .sort((a, b) => {
-      const aHasAvatar = a.avatar || a.spritesheet;
-      const bHasAvatar = b.avatar || b.spritesheet;
-      return (aHasAvatar ? -1 : 1) - (bHasAvatar ? -1 : 1);
+      const isFallback = val => !val || val.includes('fallbackIsoAvatar.webp');
+      const aHasCustomAvatar = !isFallback(a.avatar) || a.spritesheet;
+      const bHasCustomAvatar = !isFallback(b.avatar) || b.spritesheet;
+      return (bHasCustomAvatar ? 1 : 0) - (aHasCustomAvatar ? 1 : 0);
     })
+
     .forEach(player => {
       console.log('Rendering player:', player);
 
@@ -52,7 +58,7 @@ fetch('data/locations.json')
       btn.src = loc.visual;
       btn.className = 'icon-sm locationBtn';
 
-      
+
       btn.onclick = () => map.flyTo(loc.coords, 10, {
         animate: true,
         duration: 1.5
@@ -89,7 +95,7 @@ fetch('data/locations.json')
                 <button disabled class="location-play-btn">Play (locked)</button>
               </div>
             `;
-            
+
 
 
       marker.bindPopup(popupHTML);
