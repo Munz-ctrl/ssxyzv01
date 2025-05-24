@@ -213,22 +213,23 @@ export const ssxyz = {
 
 
 
-  renderCreatePlayerPanel: function () {
-    const container = document.getElementById('userPanelContent');
-    container.innerHTML = `
-      <h3>Create New Player</h3>
-      <input type="text" id="newPlayerID" placeholder="Player ID" />
-      <input type="text" id="newPlayerName" placeholder="Name" />
-      <input type="password" id="newPlayerPin" placeholder="Security Pin" />
-      <input type="text" id="newPlayerCoords" placeholder="Lat,Lng" />
-      <button onclick="ssxyz.getCurrentLocation()">📍 Use My Location</button>
-      <div style="margin-top: 10px;">
-        <button onclick="ssxyz.createNewPlayer()">Create</button>
-      </div>
-    `;
-  }
+
 };
 
+ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
+  const container = document.getElementById(targetId);
+  container.innerHTML = `
+    <h3>Create New Player</h3>
+    <input type="text" id="newPlayerID" placeholder="Player ID" />
+    <input type="text" id="newPlayerName" placeholder="Name" />
+    <input type="password" id="newPlayerPin" placeholder="Security Pin" />
+    <input type="text" id="newPlayerCoords" placeholder="Lat,Lng" />
+    <button onclick="ssxyz.getCurrentLocation()">📍 Use My Location</button>
+    <div style="margin-top: 10px;">
+      <button onclick="ssxyz.createNewPlayer()">Create</button>
+    </div>
+  `;
+};
 
 
 
@@ -257,10 +258,10 @@ ssxyz.openLoginPanel = async function () {
       <button id="createTabBtn" class="tab-btn">Create New Player</button>
     </div>
     <div id="loginTabContent" class="tab-content">
-      <label for="loginPlayerSelect">select your player:</label>
-      <select id="loginPlayerSelect" style="width: 100%; margin: 6px 0;">
-        <option disabled selected>Player ID</option>
-      </select>
+      <label for="loginPlayerInput">select your player:</label>
+       <input list="playerList" id="loginPlayerInput" placeholder="Start typing Player ID..." style="width: 100%; margin: 6px 0;" />
+       <datalist id="playerList"></datalist>
+
       <div id="loginFieldsContainer"></div>
     </div>
     <div id="createTabContent" class="tab-content" style="display:none;"></div>
@@ -273,13 +274,20 @@ ssxyz.openLoginPanel = async function () {
     return;
   }
 
-  const select = document.getElementById('loginPlayerSelect');
-  select.innerHTML += players.map(p => `<option value="${p.pid}">${p.pid}</option>`).join('');
+  const input = document.getElementById('loginPlayerInput');
+  const datalist = document.getElementById('playerList');
 
-  select.addEventListener('change', () => {
-    const selected = players.find(p => p.pid === select.value);
+  players.forEach(p => {
+    const option = document.createElement('option');
+    option.value = p.pid;
+    datalist.appendChild(option);
+  });
+
+  input.addEventListener('input', () => {
+    const selected = players.find(p => p.pid === input.value);
     renderLoginFields(selected);
   });
+
 
   // Tab switching
   document.getElementById('loginTabBtn').onclick = () => {
@@ -410,7 +418,7 @@ function renderLoginFields(player) {
     container.innerHTML = `
       <p>un-authenticated Player: enter pin</p>
       <input id="loginPin" type="password" placeholder="Security Pin" style="width:100%; margin: 6px 0;" />
-      <p style="font-size:10px;">*make sure you authenticate your player with an email for longevity and secureity</p>
+      <p style="font-size:10px;">*make sure you authenticate your player with an email for player longevity, security, and additional features</p>
       <button style="width:100%;" onclick="ssxyz.handleLogin()">Login</button>
     `;
   }
