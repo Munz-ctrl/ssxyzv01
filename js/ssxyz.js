@@ -372,14 +372,6 @@ ssxyz.handleEmailLogin = async function () {
 
 
 ssxyz.upgradeToEmail = async function () {
-
-  const { data: userData } = await supabase.auth.getUser();
-  if (!userData?.user?.id) {
-    alert("❌ You must be logged in first.");
-    return;
-  }
-
-
   const email = prompt("Enter your email:");
   const password = prompt("Create a password:");
 
@@ -388,39 +380,41 @@ ssxyz.upgradeToEmail = async function () {
     return;
   }
 
-  const { error: loginError } = await supabase.auth.signInAnonymously();
-  if (loginError) {
-    alert("❌ Supabase login failed");
-    return;
-  }
-
-
-  const { data, error } = await supabase.auth.updateUser({
-    email,
-    password
-  });
+  // ❗ Sign up instead of updateUser
+  const { data, error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
-    alert("❌ Failed to upgrade account: " + error.message);
+    alert("❌ Sign up failed: " + error.message);
     console.error(error);
     return;
   }
 
-  // ✅ Step 2: update your player record with their email + auth_type
-  const userId = userData.user.id;
-  const { error: updateError } = await supabase
-    .from('players')
-    .update({ auth_type: 'email', email, owner_id: userId })
-    .eq('pid', ssxyz.activePlayer?.pid);
+  const userId = data?.user?.id;
 
-  if (updateError) {
-    console.error("Failed to update player record:", updateError);
-    alert("⚠️ Email linked, but player info was not updated.");
+  // ❗ If email confirmation is required, userId may be null
+  if (!userId) {
+    alert("✅ Confirmation email sent! Please confirm your email before logging in.");
     return;
   }
 
-  alert("✅ Account upgraded successfully! You’re now protected by email login.");
+  // Link the new email-auth user to the existing player
+  const { error: updateError } = await supabase
+    .from('players')
+    .update({
+      auth_type: 'email',
+      email: email,
+      owner_id: userId
+    })
+    .eq('pid', ssxyz.activePlayer?.pid);
+
+  if (updateError) {
+    alert("⚠️ Email linked, but player update failed.");
+    console.error(updateError);
+  } else {
+    alert("✅ Account upgraded successfully! You’re now protected by email login.");
+  }
 };
+
 
 
 function renderLoginFields(player) {
