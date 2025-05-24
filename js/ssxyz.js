@@ -406,9 +406,10 @@ ssxyz.upgradeToEmail = async function () {
   }
 
   // ✅ Step 2: update your player record with their email + auth_type
+  const userId = userData.user.id;
   const { error: updateError } = await supabase
     .from('players')
-    .update({ auth_type: 'email', email })
+    .update({ auth_type: 'email', email, owner_id: userId })
     .eq('pid', ssxyz.activePlayer?.pid);
 
   if (updateError) {
