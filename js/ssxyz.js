@@ -129,7 +129,8 @@ export const ssxyz = {
 
 
 
-    const selectedId = document.getElementById('loginPlayerSelect').value;
+    const selectedId = document.getElementById('loginPlayerInput').value;
+
     const enteredPin = document.getElementById('loginPin').value;
 
 
