@@ -160,38 +160,13 @@ export const ssxyz = {
 
     alert(`✅ Logged in as ${player.pid}`);
     closeAllPopups();
+
+    ssxyz.updateUserPanelAfterLogin();
+
   },
 
 
 
-
-
-  autoLoginIfPossible: async function () {
-    const pid = localStorage.getItem('playerPid');
-    const pin = localStorage.getItem('playerPin');
-    if (!pid || !pin) return;
-
-    const { error: authError } = await supabase.auth.signInAnonymously();
-    if (authError) {
-      console.warn("Anonymous login failed:", authError);
-      return;
-    }
-
-    const { data: player, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('pid', pid)
-      .single();
-
-    if (error || !player || player.pin !== pin) {
-      console.warn("Auto-login failed (PIN mismatch or player missing)");
-      return;
-    }
-
-    ssxyz.activePlayer = player;
-    ssxyz.updateAllPopups();
-    console.log(`🔑 Auto-logged in as ${player.pid}`);
-  },
 
   logout: async function () {
     localStorage.removeItem('playerPid');
@@ -215,6 +190,47 @@ export const ssxyz = {
 
 
 };
+
+
+ssxyz.autoLoginIfPossible = async function () {
+  const { data: userData, error } = await supabase.auth.getUser();
+  if (error || !userData?.user?.id) return;
+
+  const userId = userData.user.id;
+
+  // First, try to find a linked authenticated player
+  let { data: player, error: playerError } = await supabase
+    .from('players')
+    .select('*')
+    .eq('owner_id', userId)
+    .single();
+
+  if (player) {
+    ssxyz.activePlayer = player;
+    ssxyz.updateAllPopups();
+    console.log(`🔐 Auto-logged in as ${player.pid} via Supabase Auth`);
+    return;
+  }
+
+  // Fallback: soft login from localStorage
+  const pid = localStorage.getItem('playerPid');
+  const pin = localStorage.getItem('playerPin');
+  if (!pid || !pin) return;
+
+  const { data: softPlayer, error: softError } = await supabase
+    .from('players')
+    .select('*')
+    .eq('pid', pid)
+    .single();
+
+  if (softPlayer && softPlayer.pin === pin) {
+    ssxyz.activePlayer = softPlayer;
+    ssxyz.updateAllPopups();
+    console.log(`🔑 Auto-logged in via soft login: ${softPlayer.pid}`);
+  }
+};
+
+
 
 ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
   const container = document.getElementById(targetId);
@@ -344,6 +360,8 @@ ssxyz.handleEmailLogin = async function () {
   ssxyz.updateAllPopups();
   closeAllPopups();
   alert(`✅ Logged in as ${player.pid}`);
+
+  ssxyz.updateUserPanelAfterLogin();
 };
 
 
@@ -423,6 +441,24 @@ function renderLoginFields(player) {
     `;
   }
 }
+
+
+ssxyz.updateUserPanelAfterLogin = function () {
+  const container = document.getElementById('userPanelContent');
+  const player = ssxyz.activePlayer;
+  if (!player) return;
+
+  const authLabel = player.auth_type === 'email' ? "Email Authenticated" : "Soft Login";
+
+  container.innerHTML = `
+    <p>✅ Logged in as: <b>${player.pid}</b> <small style="opacity: 0.6;">(${authLabel})</small></p>
+    <button onclick="ssxyz.flyToPlayer(player, ssxyz.playerMarkers.find(m => m.options.player?.pid === player.pid))">📍 Fly To Player</button><br><br>
+    <button onclick="ssxyz.upgradeToEmail()">🔐 Upgrade to Email</button><br><br>
+    <button onclick="ssxyz.logout()">🚪 Log Out</button>
+  `;
+};
+
+
 
 
 window.ssxyz = ssxyz;
