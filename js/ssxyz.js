@@ -276,7 +276,7 @@ ssxyz.openLoginPanel = async function () {
     </div>
     <div id="loginTabContent" class="tab-content">
       <label for="loginPlayerInput">select your player:</label>
-       <input list="playerList" id="loginPlayerInput" placeholder="Start typing Player ID..." style="width: 100%; margin: 6px 0;" />
+       <input list="playerList" id="loginPlayerInput" placeholder="Start typing Player ID..."  margin: 6px 0;" />
        <datalist id="playerList"></datalist>
 
       <div id="loginFieldsContainer"></div>
