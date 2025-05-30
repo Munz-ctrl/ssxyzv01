@@ -986,7 +986,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 2px;
-  margin-bottom: 4px;
+  margin: -12px 0 4px;
 }
 
 .login-tabs .tab-btn {
