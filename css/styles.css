@@ -229,12 +229,21 @@ body {
 
 
 .overlay {
-  width: 50%;
+  position: fixed;
+  left: 50%;
   top: 20%;
-  bottom: auto;
-  transform: translateX(-50%) translateY(-50%);
-  overflow-y: auto;
+  transform: translateX(-50%);
+  width: 80vw;
+  max-width: 500px;
+  background-color: rgba(255, 255, 255, 0.96);
+  z-index: 1100;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+  display: none;
+  /* stays hidden until activated */
 }
+
 
 
 .circle-icon {
