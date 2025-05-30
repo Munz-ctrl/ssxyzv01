@@ -71,21 +71,7 @@
   <div id="mouseCoordinates"></div>
 
 
-  <button id="logoutBtn" style="
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 9999;
-  padding: 6px 10px;
-  background: #222;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-">
-    Log Out
-  </button>
+
 
 
 
@@ -418,6 +404,13 @@
     plyrIcon.addEventListener('click', () => togglePanelFromButton('plyrIcon'));
     userIcon.addEventListener('click', () => togglePanelFromButton('userIcon'));
 
+    document.getElementById('infoCircleBtn').addEventListener('click', () => {
+      const panel = document.getElementById('infoPanel');
+      panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+      panel.classList.toggle('activePanel');
+    });
+
+
     // 🧹 Update close button (×) in each panel
     document.querySelectorAll('.closeBtn').forEach(btn => {
       btn.onclick = () => {
@@ -467,16 +460,7 @@
 
   </script>
 
-  <script type="module">
-    import { supabase } from '/js/supabase.js';
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      localStorage.removeItem('playerPid');
-      localStorage.removeItem('playerPin');
-      await supabase.auth.signOut();
-      alert('👋 Logged out.');
-      location.reload();
-    });
-  </script>
+
 
 
 
