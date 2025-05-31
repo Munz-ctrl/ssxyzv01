@@ -282,7 +282,7 @@ ssxyz.openLoginPanel = async function () {
 
        <input list="playerList" id="loginPlayerInput" placeholder="Player ID" style="justify-content: center; " />
        <datalist id="playerList"></datalist>
-
+    </div>
       <div id="loginFieldsContainer" class="tab-content"></div>
     </div>
     <div id="createTabContent" class="tab-content"></div>
