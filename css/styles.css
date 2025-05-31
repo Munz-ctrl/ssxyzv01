@@ -984,7 +984,7 @@ body {
 /* Compact Login/Create Tabs */
 .login-tabs {
   display: flex;
-  
+  justify-content: center;
   gap: 2px;
   margin-top: -10px;
 }
