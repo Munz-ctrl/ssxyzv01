@@ -323,6 +323,7 @@ ssxyz.openLoginPanel = async function () {
   document.getElementById('createTabBtn').onclick = () => {
     // Hide login fields when switching to Create tab
     document.getElementById('loginFieldsContainer').innerHTML = '';
+    input.value = null; // Clear selected player
     ssxyz.renderCreatePlayerPanel('createTabContent');
     document.getElementById('loginTabContent').style.display = 'none';
     document.getElementById('createTabContent').style.display = 'block';
