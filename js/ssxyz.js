@@ -284,7 +284,7 @@ ssxyz.openLoginPanel = async function () {
 
       <div id="loginFieldsContainer"></div>
     </div>
-    <div id="createTabContent" class="tab-content" style="display:none;"></div>
+    <div id="createTabContent" class="tab-content" ></div>
   `;
 
   const { data: players, error } = await supabase.from('players').select('pid, auth_type, email');
