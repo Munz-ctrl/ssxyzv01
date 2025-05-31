@@ -236,13 +236,12 @@ ssxyz.autoLoginIfPossible = async function () {
 ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
   const container = document.getElementById(targetId);
   container.innerHTML = `
-    <h3>Create New Player</h3>
-    <input type="text" id="newPlayerID" placeholder="Player ID" />
-    <input type="text" id="newPlayerName" placeholder="Name" />
-    <input type="password" id="newPlayerPin" placeholder="Security Pin" />
-    <input type="text" id="newPlayerCoords" placeholder="Lat,Lng" />
-    <button onclick="ssxyz.getCurrentLocation()">📍 Use My Location</button>
-    <div style="margin-top: 10px;">
+    <div class="tab-content">
+      <input type="text" id="newPlayerID" placeholder="Player ID" />
+      <input type="text" id="newPlayerName" placeholder="Name" />
+      <input type="password" id="newPlayerPin" placeholder="Security Pin" />
+      
+      <button onclick="ssxyz.getCurrentLocation()">📍 Use My Location</button>
       <button onclick="ssxyz.createNewPlayer()">Create</button>
     </div>
   `;
