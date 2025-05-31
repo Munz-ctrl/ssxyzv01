@@ -485,10 +485,14 @@ ssxyz.updateUserPanelAfterLogin = function () {
   const authLabel = player.auth_type === 'email' ? "Email Authenticated" : "Soft Login";
 
   container.innerHTML = `
+  <div class="tab-content">
+    
     <p> PID: <b>${player.pid}</b> <small style="opacity: 0.6; font-size: 6px;">(${authLabel})</small></p>
+    <p>Welcome, <b>${player.name}</b>!</p>
     <button onclick="ssxyz.flyToPlayer(player, ssxyz.playerMarkers.find(m => m.options.player?.pid === player.pid))">Fly To Player</button><br><br>
     <button onclick="ssxyz.upgradeToEmail()"> Authenticate</button><br><br>
     <button onclick="ssxyz.logout()"> Log Out </button>
+  </div>
   `;
 };
 
