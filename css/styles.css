@@ -1006,6 +1006,7 @@ body {
 }
 
  .tab-btn.activtab {
+  flex-grow: 2;
   background: rgb(255, 0, 0);
   height: 22px;
    /* z-index: 2; */
@@ -1037,7 +1038,7 @@ body {
 /* Login Button (Wide but skinny) */
 .tab-content button {
   flex: 1 1 80vw;
-  max-width: 100vw;
+  max-width: 80vw;
   padding: 4px;
   font-size: 11px;
   font-weight: bold;
