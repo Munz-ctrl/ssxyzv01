@@ -1006,7 +1006,7 @@ body {
 .login-tabs .tab-btn.active {
   background: white;
   border-bottom: 2px solid transparent;
-  z-index: 2;
+  /* z-index: 2; */
 }
 
 .tab-content {
