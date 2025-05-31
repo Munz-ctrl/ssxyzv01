@@ -998,11 +998,11 @@ body {
   border-radius: 6px 6px 0 0;
   background: #ccc;
   cursor: pointer;
-  height: 222px;
+  height: 22px;
 
 }
 
-.login-tabs .tab-btn.active {
+.login-tabs .tab-btn .activtab {
   background: rgba(255, 255, 255, 0);
    
    /* z-index: 2; */
