@@ -831,7 +831,8 @@ body {
 
 
 #playerAvatarRow {
-  width: 100%;
+  width: 100vw;
+  max-height: fit-content;
 }
 
 .playerBtn {
