@@ -984,7 +984,7 @@ body {
 /* Compact Login/Create Tabs */
 .login-tabs {
   position: absolute;
-  top: -222px;
+  top: 10px;
   left: 0;
   width: 100%;
   border-bottom: 1px solid #aaa;
