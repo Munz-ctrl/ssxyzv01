@@ -458,7 +458,14 @@ ssxyz.upgradeToEmail = async function () {
 
 function renderLoginFields(player) {
   const container = document.getElementById('loginFieldsContainer');
-  if (!player) return container.innerHTML = '';
+  if (!player) {
+    container.innerHTML = `
+      <div class="tab-content">
+        <button style="width:100%;" disabled>Login</button>
+      </div>
+    `;
+    return;
+  }
 
   if (player.auth_type === 'email') {
     container.innerHTML = `
