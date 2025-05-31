@@ -198,7 +198,6 @@ body {
   transition: clip-path 0.4s ease;
 }
 
-
 .active {
   transform: scale(1.2);
   height: 60px !important;
@@ -209,6 +208,7 @@ body {
   bottom: 0;
   left: 0;
   width: 100vw;
+  
   max-height: 30vh;
   min-height: 30vh;
   
@@ -1004,8 +1004,8 @@ body {
 
 }
 
-.login-tabs .tab-btn .activtab {
-  background: rgba(255, 255, 255, 0);
+ .tab-btn .activtab {
+  background: rgb(255, 0, 0);
   height: 22px;
    /* z-index: 2; */
 }
