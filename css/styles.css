@@ -1008,7 +1008,7 @@ body {
 
 .login-tabs .tab-btn.active {
   background: rgba(255, 255, 255, 0);
-  border-bottom: 2px solid transparent;
+   height: 22px;
   /* z-index: 2; */
 }
 
