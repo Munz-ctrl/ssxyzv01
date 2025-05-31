@@ -232,6 +232,7 @@ ssxyz.autoLoginIfPossible = async function () {
 };
 
 
+
 ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
   const container = document.getElementById(targetId);
   container.innerHTML = `
@@ -240,8 +241,8 @@ ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
       <input type="text" id="newPlayerName" placeholder="Name" />
       <input type="password" id="newPlayerPin" placeholder="Security Pin" />
 
-      <div class="location-row">
-        <input type="text" id="newPlayerCoords" placeholder="Coords" readonly />
+      <div class="coord-row">
+        <input type="text" id="newPlayerCoords" placeholder="Lat , Lang" readonly />
         <button type="button" onclick="ssxyz.getCurrentLocation()">📍</button>
       </div>
 
@@ -252,6 +253,7 @@ ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
 
 
 
+<input type="text" id="newPlayerCoords" placeholder="Lat,Lng" />
 
 
 ssxyz.flyToPlayer = function (player, marker) {
@@ -274,7 +276,7 @@ ssxyz.openLoginPanel = async function () {
   const container = document.getElementById('userPanelContent');
   container.innerHTML = `
     <div class="login-tabs">
-      <button id="loginTabBtn" class="tab-btn active">Login</button>
+      <button id="loginTabBtn" class="tab-btn activtab">Login</button>
       <button id="createTabBtn" class="tab-btn">Create New Player</button>
     </div>
     <div id="loginTabContent" class="tab-content">
