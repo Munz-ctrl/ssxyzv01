@@ -240,10 +240,9 @@ ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
   container.innerHTML = `
     <div class="tab-content">
       <input type="text" id="newPlayerID" placeholder="Player ID" />
-      <input type="text" id="newPlayerName" placeholder="Name" />
+    
       <input type="password" id="newPlayerPin" placeholder="Security Pin" />
 
-      
       <input type="text" id="newPlayerCoords" placeholder="Lat , Lang" readonly />
      
 
