@@ -270,6 +270,7 @@ ssxyz.flyToPlayer = function (player, marker) {
 
 
 ssxyz.openLoginPanel = async function () {
+
   closeAllPopups();
 
   const container = document.getElementById('userPanelContent');
@@ -320,6 +321,8 @@ ssxyz.openLoginPanel = async function () {
   };
 
   document.getElementById('createTabBtn').onclick = () => {
+    // Hide login fields when switching to Create tab
+    document.getElementById('loginFieldsContainer').innerHTML = '';
     ssxyz.renderCreatePlayerPanel('createTabContent');
     document.getElementById('loginTabContent').style.display = 'none';
     document.getElementById('createTabContent').style.display = 'block';
@@ -454,7 +457,7 @@ ssxyz.upgradeToEmail = async function () {
 
 function renderLoginFields(player) {
   const container = document.getElementById('loginFieldsContainer');
-  if (!player) return container.innerHTML = '<button style="width:100%;"  onclick="ssxyz.handleLogin()" disabled>Login</button>';
+  if (!player) return container.innerHTML = '';
 
   if (player.auth_type === 'email') {
     container.innerHTML = `
@@ -465,7 +468,7 @@ function renderLoginFields(player) {
       <button  style="width:100%;" onclick="ssxyz.handleEmailLogin()">Login</button>
     </div>
   `;
-  } else {
+  } else if (player.auth_type === 'anon') {
     container.innerHTML = `
     <div class="tab-content">
       <p>un-authenticated Player: enter pin</p>
