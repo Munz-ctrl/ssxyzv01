@@ -279,7 +279,7 @@ ssxyz.openLoginPanel = async function () {
       <button id="loginTabBtn" class="tab-btn activtab">Login</button>
       <button id="createTabBtn" class="tab-btn">Create New Player</button>
     </div>
-    <div id="loginTabContent" class="tab-content">
+    <div id="loginTabContent" class="tab-content" style="justify-content: center; ">
 
        <input list="playerList" id="loginPlayerInput" placeholder="Player ID" style="justify-content: center; " />
        <datalist id="playerList"></datalist>
