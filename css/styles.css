@@ -999,12 +999,13 @@ body {
   background: #ccc;
   cursor: pointer;
   height: 22px;
+
 }
 
 .login-tabs .tab-btn.active {
   background: rgba(255, 255, 255, 0);
-   height: 22px;
-  /* z-index: 2; */
+   
+   /* z-index: 2; */
 }
 
 .tab-content {
