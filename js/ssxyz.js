@@ -454,7 +454,7 @@ ssxyz.upgradeToEmail = async function () {
 
 function renderLoginFields(player) {
   const container = document.getElementById('loginFieldsContainer');
-  if (!player) return container.innerHTML = '<button style="width:100%;" id="LoginBtn" onclick="ssxyz.handleLogin()" disabled>Login</button>';
+  if (!player) return container.innerHTML = '<button style="width:100%;"  onclick="ssxyz.handleLogin()" disabled>Login</button>';
 
   if (player.auth_type === 'email') {
     container.innerHTML = `
@@ -462,7 +462,7 @@ function renderLoginFields(player) {
       <p>Authenticated Player: sign in using email</p>
       <input id="loginEmail" type="email" placeholder="Email" style="width:100%; margin: 6px 0;" />
       <input id="loginPassword" type="password" placeholder="Password" style="width:100%; margin: 6px 0;" />
-      <button id="LoginBtn" style="width:100%;" onclick="ssxyz.handleEmailLogin()">Login</button>
+      <button  style="width:100%;" onclick="ssxyz.handleEmailLogin()">Login</button>
     </div>
   `;
   } else {
@@ -471,7 +471,7 @@ function renderLoginFields(player) {
       <p>un-authenticated Player: enter pin</p>
       <input id="loginPin" type="password" placeholder="Security Pin" style="width:100%; margin: 6px 0;" />
       <p>*make sure you authenticate your player with an email for player longevity, security, and additional features</p>
-      <button style="width:100%;" id="LoginBtn" onclick="ssxyz.handleLogin()">Login</button>
+      <button style="width:100%;"  onclick="ssxyz.handleLogin()">Login</button>
     </div>
   `;
   }
