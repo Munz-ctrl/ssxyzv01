@@ -84,25 +84,27 @@ export const ssxyz = {
     alert(`✅ Player ${pid} created and logged in.`);
   },
 
-  getCurrentLocation: function () {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
-      return;
-    }
+  // getCurrentLocation: function () {
+  //   if (!navigator.geolocation) {
+  //     alert("Geolocation is not supported by your browser.");
+  //     return;
+  //   }
 
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const lat = position.coords.latitude.toFixed(5);
-        const lng = position.coords.longitude.toFixed(5);
-        document.getElementById('newPlayerCoords').value = `${lat},${lng}`;
-        alert(`📍 Found you at: ${lat}, ${lng}`);
-      },
-      error => {
-        alert("⚠️ Could not get your location.");
-        console.error(error);
-      }
-    );
-  },
+  //   navigator.geolocation.getCurrentPosition(
+  //     position => {
+  //       const lat = position.coords.latitude.toFixed(5);
+  //       const lng = position.coords.longitude.toFixed(5);
+  //       document.getElementById('newPlayerCoords').value = `${lat},${lng}`;
+  //       alert(`📍 Found you at: ${lat}, ${lng}`);
+  //     },
+  //     error => {
+  //       alert("⚠️ Could not get your location.");
+  //       console.error(error);
+  //     }
+  //   );
+  // },
+
+
 
   uploadImage: async function (file, path) {
     const { data, error } = await supabase.storage
@@ -241,12 +243,12 @@ ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
       <input type="text" id="newPlayerName" placeholder="Name" />
       <input type="password" id="newPlayerPin" placeholder="Security Pin" />
 
-      <div class="coord-row">
-        <input type="text" id="newPlayerCoords" placeholder="Lat , Lang" readonly />
-        <button type="button" onclick="ssxyz.getCurrentLocation()">📍</button>
-      </div>
+      
+      <input type="text" id="newPlayerCoords" placeholder="Lat , Lang" readonly />
+     
 
-      <button onclick="ssxyz.createNewPlayer()">Create</button>
+      <button onclick="ssxyz.createNewPlayerWithLocation()">Create</button>
+
     </div>
   `;
 };
@@ -369,8 +371,38 @@ ssxyz.handleEmailLogin = async function () {
 
 
 
+ssxyz.getCoordsAsync = function () {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return reject("Unsupported");
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        const lat = position.coords.latitude.toFixed(5);
+        const lng = position.coords.longitude.toFixed(5);
+        resolve(`${lat},${lng}`);
+      },
+      error => {
+        alert("⚠️ Could not get your location.");
+        console.error(error);
+        reject(error);
+      }
+    );
+  });
+};
 
 
+ssxyz.createNewPlayerWithLocation = async function () {
+  try {
+    const coords = await ssxyz.getCoordsAsync();
+    document.getElementById('newPlayerCoords').value = coords;
+    await ssxyz.createNewPlayer(); // run the existing creation
+  } catch (err) {
+    console.warn("Location not found, player not created.");
+  }
+};
 
 
 ssxyz.upgradeToEmail = async function () {
