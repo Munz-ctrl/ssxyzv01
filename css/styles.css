@@ -1004,7 +1004,7 @@ body {
 
 }
 
- .tab-btn .activtab {
+ .tab-btn.activtab {
   background: rgb(255, 0, 0);
   height: 22px;
    /* z-index: 2; */
