@@ -279,7 +279,7 @@ ssxyz.openLoginPanel = async function () {
       <button id="loginTabBtn" class="tab-btn activtab">Login</button>
       <button id="createTabBtn" class="tab-btn">Create New Player</button>
     </div>
-    <div id="loginTabContent" class="tab-content" style="justify-content: center; ">
+    <div id="loginTabContent" class="tab-content" style="justify-self: center; ">
 
        <input list="playerList" id="loginPlayerInput" placeholder="Player ID" style="justify-content: center; " />
        <datalist id="playerList"></datalist>
@@ -465,11 +465,7 @@ ssxyz.upgradeToEmail = async function () {
 function renderLoginFields(player) {
   const container = document.getElementById('loginFieldsContainer');
   if (!player) {
-    container.innerHTML = `
-      <div class="tab-content">
-        <button style="width:100%;" disabled>Login</button>
-      </div>
-    `;
+    container.innerHTML = '';
     return;
   }
 
