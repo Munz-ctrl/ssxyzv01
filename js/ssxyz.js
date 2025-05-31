@@ -315,11 +315,7 @@ ssxyz.openLoginPanel = async function () {
   // Tab switching
   document.getElementById('loginTabBtn').onclick = () => {
     input.value = null; // Clear selected player
-    document.getElementById('loginFieldsContainer').innerHTML = `
-      <div class="tab-content">
-        <button style="width:100%;" disabled>Login</button>
-      </div>
-    `;
+    document.getElementById('loginFieldsContainer').innerHTML = '';
     document.getElementById('loginTabContent').style.display = 'block';
     document.getElementById('createTabContent').style.display = 'none';
     document.getElementById('loginTabBtn').classList.add('activtab');
