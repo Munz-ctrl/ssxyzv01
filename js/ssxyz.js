@@ -248,7 +248,7 @@ ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
         ${coords || 'Lat , Lang'}
       </span>
      
-      <button onclick="ssxyz.createNewPlayerWithLocation()">Create</button>
+      <button onclick="ssxyz.createNewPlayerWithLocation()">Create and place</button>
     </div>
   `;
 };
@@ -280,12 +280,12 @@ ssxyz.openLoginPanel = async function () {
     </div>
     <div id="loginTabContent" class="tab-content">
       <label for="loginPlayerInput">select your player:</label>
-       <input list="playerList" id="loginPlayerInput" placeholder="Start typing Player ID..."  margin: 6px 0;" />
+       <input list="playerList" id="loginPlayerInput" placeholder="Player ID"  margin: 6px 0;" />
        <datalist id="playerList"></datalist>
 
-      <div id="loginFieldsContainer"></div>
+      <div id="loginFieldsContainer" class="tab-content"></div>
     </div>
-    <div id="createTabContent" class="tab-content" ></div>
+    <div id="createTabContent" class="tab-content"></div>
   `;
 
   const { data: players, error } = await supabase.from('players').select('pid, auth_type, email');
