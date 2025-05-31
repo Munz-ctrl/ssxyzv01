@@ -467,9 +467,9 @@ function renderLoginFields(player) {
   } else {
     container.innerHTML = `
     <div class="tab-content">
-      <label>un-authenticated Player: enter pin</label>
+      <p>un-authenticated Player: enter pin</p>
       <input id="loginPin" type="password" placeholder="Security Pin" style="width:100%; margin: 6px 0;" />
-      <p style="font-size:10px;">*make sure you authenticate your player with an email for player longevity, security, and additional features</p>
+      <p>*make sure you authenticate your player with an email for player longevity, security, and additional features</p>
       <button style="width:100%;" onclick="ssxyz.handleLogin()">Login</button>
     </div>
   `;
@@ -485,10 +485,10 @@ ssxyz.updateUserPanelAfterLogin = function () {
   const authLabel = player.auth_type === 'email' ? "Email Authenticated" : "Soft Login";
 
   container.innerHTML = `
-    <p>✅ Logged in as: <b>${player.pid}</b> <small style="opacity: 0.6;">(${authLabel})</small></p>
-    <button onclick="ssxyz.flyToPlayer(player, ssxyz.playerMarkers.find(m => m.options.player?.pid === player.pid))">📍 Fly To Player</button><br><br>
-    <button onclick="ssxyz.upgradeToEmail()">🔐 Upgrade to Email</button><br><br>
-    <button onclick="ssxyz.logout()">🚪 Log Out</button>
+    <p> PID: <b>${player.pid}</b> <small style="opacity: 0.6; font-size: 6px;">(${authLabel})</small></p>
+    <button onclick="ssxyz.flyToPlayer(player, ssxyz.playerMarkers.find(m => m.options.player?.pid === player.pid))">Fly To Player</button><br><br>
+    <button onclick="ssxyz.upgradeToEmail()"> Authenticate</button><br><br>
+    <button onclick="ssxyz.logout()"> Log Out </button>
   `;
 };
 
