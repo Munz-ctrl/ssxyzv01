@@ -997,6 +997,7 @@ body {
   font-size: 10px;
   font-weight: bold;
   border: none;
+  overflow: visible;
   border-radius: 6px 6px 0 0;
   background: #ccc;
   cursor: pointer;
@@ -1006,7 +1007,7 @@ body {
 }
 
 .login-tabs .tab-btn.active {
-  background: white;
+  background: rgba(255, 255, 255, 0);
   border-bottom: 2px solid transparent;
   /* z-index: 2; */
 }
