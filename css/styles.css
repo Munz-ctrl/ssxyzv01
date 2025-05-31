@@ -983,10 +983,11 @@ body {
 
 /* Compact Login/Create Tabs */
 .login-tabs {
-  display: flex;
+  
   justify-content: center;
   gap: 2px;
   margin-top: -10px;
+  
 }
 
 .login-tabs .tab-btn {
@@ -1004,7 +1005,7 @@ body {
 
 .login-tabs .tab-btn .activtab {
   background: rgba(255, 255, 255, 0);
-   
+  height: 22px;
    /* z-index: 2; */
 }
 
