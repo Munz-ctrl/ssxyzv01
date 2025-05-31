@@ -12,6 +12,14 @@ body {
   position: relative;
 }
 
+@media (max-width: 600px) {
+  .leaflet-control-zoom {
+    display: none !important;
+  }
+}
+
+
+
 .edit-popup {
   position: absolute;
   top: 50%;
@@ -218,7 +226,7 @@ body {
   left: 0;
   width: 100vw;
 
-  max-height: 30vh;
+  max-height: 20vh;
   min-height: 10vh;
 
   background: rgba(255, 255, 255, 0.373);
