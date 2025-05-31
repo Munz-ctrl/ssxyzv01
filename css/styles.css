@@ -4,6 +4,14 @@ body {
   background: #f5f5f5;
 }
 
+#app {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
 .edit-popup {
   position: absolute;
   top: 50%;
@@ -107,7 +115,8 @@ html,
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   font-family: 'Ubuntu', sans-serif;
 }
 
@@ -208,10 +217,10 @@ body {
   bottom: 0;
   left: 0;
   width: 100vw;
-  
+
   max-height: 30vh;
   min-height: 10vh;
-  
+
   background: rgba(255, 255, 255, 0.373);
   padding: 12px 16px 6px;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
@@ -1005,11 +1014,11 @@ body {
 
 }
 
- .tab-btn.activtab {
+.tab-btn.activtab {
   flex-grow: 2;
   background: rgb(255, 0, 0);
   height: 22px;
-   /* z-index: 2; */
+  /* z-index: 2; */
 }
 
 .tab-content {
@@ -1020,7 +1029,7 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 6px;
-  
+
 }
 
 /* Input Styles */
@@ -1048,7 +1057,7 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  
+
 }
 
 .tab-content button:hover {
