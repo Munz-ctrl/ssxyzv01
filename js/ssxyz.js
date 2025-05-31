@@ -457,18 +457,22 @@ function renderLoginFields(player) {
 
   if (player.auth_type === 'email') {
     container.innerHTML = `
+    <div class="tab-content">
       <p>Authenticated Player: sign in using email</p>
       <input id="loginEmail" type="email" placeholder="Email" style="width:100%; margin: 6px 0;" />
       <input id="loginPassword" type="password" placeholder="Password" style="width:100%; margin: 6px 0;" />
       <button style="width:100%;" onclick="ssxyz.handleEmailLogin()">Login</button>
-    `;
+    </div>
+  `;
   } else {
     container.innerHTML = `
-      <p>un-authenticated Player: enter pin</p>
+    <div class="tab-content">
+      <label>un-authenticated Player: enter pin</label>
       <input id="loginPin" type="password" placeholder="Security Pin" style="width:100%; margin: 6px 0;" />
       <p style="font-size:10px;">*make sure you authenticate your player with an email for player longevity, security, and additional features</p>
       <button style="width:100%;" onclick="ssxyz.handleLogin()">Login</button>
-    `;
+    </div>
+  `;
   }
 }
 
