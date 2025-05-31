@@ -253,9 +253,6 @@ ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
 
 
 
-<input type="text" id="newPlayerCoords" placeholder="Lat,Lng" />
-
-
 ssxyz.flyToPlayer = function (player, marker) {
   if (!player || !marker) return;
 
