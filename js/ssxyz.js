@@ -312,16 +312,16 @@ ssxyz.openLoginPanel = async function () {
   document.getElementById('loginTabBtn').onclick = () => {
     document.getElementById('loginTabContent').style.display = 'block';
     document.getElementById('createTabContent').style.display = 'none';
-    document.getElementById('loginTabBtn').classList.add('active');
-    document.getElementById('createTabBtn').classList.remove('active');
+    document.getElementById('loginTabBtn').classList.add('activtab');
+    document.getElementById('createTabBtn').classList.remove('activtab');
   };
 
   document.getElementById('createTabBtn').onclick = () => {
     ssxyz.renderCreatePlayerPanel('createTabContent');
     document.getElementById('loginTabContent').style.display = 'none';
     document.getElementById('createTabContent').style.display = 'block';
-    document.getElementById('createTabBtn').classList.add('active');
-    document.getElementById('loginTabBtn').classList.remove('active');
+    document.getElementById('createTabBtn').classList.add('activtab');
+    document.getElementById('loginTabBtn').classList.remove('activtab');
   };
 
   document.getElementById('userPanel').style.display = 'block';
