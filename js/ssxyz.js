@@ -237,17 +237,18 @@ ssxyz.autoLoginIfPossible = async function () {
 
 ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
   const container = document.getElementById(targetId);
+  const coords = document.getElementById('newPlayerCoords')?.value || '';
   container.innerHTML = `
     <div class="tab-content">
       <input type="text" id="newPlayerID" placeholder="Player ID" />
     
       <input type="password" id="newPlayerPin" placeholder="Security Pin" />
 
-      <input type="text" id="newPlayerCoords" placeholder="Lat , Lang" readonly />
+      <span id="newPlayerCoordsText" style="display:inline-block; margin:6px 0; padding:4px 8px; background:#f5f5f5; border-radius:4px;">
+        ${coords || 'Lat , Lang'}
+      </span>
      
-
       <button onclick="ssxyz.createNewPlayerWithLocation()">Create</button>
-
     </div>
   `;
 };
