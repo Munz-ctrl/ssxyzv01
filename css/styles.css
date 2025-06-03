@@ -684,7 +684,7 @@ html, body {
   position: relative;
   width: 20px;
   height: 20px;
-  pointer-events: none;
+  /* pointer-events: none; */
 }
 
 .player-ping {
@@ -699,7 +699,7 @@ html, body {
   border: 20px solid transparent;
   animation: pingAnim 1.5s ease-out infinite;
   z-index: 0;
-  pointer-events: none;
+  /* pointer-events: none; */
 }
 
 
