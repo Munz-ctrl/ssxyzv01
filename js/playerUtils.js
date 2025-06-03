@@ -37,11 +37,10 @@ function createPlayerMarker(player) {
   if (markerEl) markerEl.style.pointerEvents = 'none';
 
   // Re-enable after popup closes
- marker.on('click', () => {
-  closeAllPopups();
-  ssxyz.disableInteractionForActiveMarker(player.pid);
+  marker.on('popupclose', () => {
+    if (markerEl) markerEl.style.pointerEvents = 'auto';
+  });
 });
-
 
 
   return marker; // ✅ return AFTER setting up everything
