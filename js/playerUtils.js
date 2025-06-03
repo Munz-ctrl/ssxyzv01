@@ -151,7 +151,7 @@ function attachFlyToBehavior(button, marker, coords) {
     setTimeout(() => {
   marker.openPopup();
   ssxyz.setMarkerUnclickable(marker); // 🔥 make it unclickable once popup opens
-    }, 1000);
+    }, 4000);
 
   };
 }
