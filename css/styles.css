@@ -1,8 +1,4 @@
-body {
-  margin: 0;
-  font-family: 'Ubuntu', sans-serif;
-  background: #00000099;
-}
+
 
 #app {
   width: 100vw;
@@ -124,6 +120,7 @@ body {
 
 
 html, body {
+
   margin: 0;
   padding: 0;
   width: 100vw;
