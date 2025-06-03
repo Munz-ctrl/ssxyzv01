@@ -767,9 +767,9 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 1);
+  background: rgb(255, 255, 255);
   border: 1px solid rgba(255, 255, 255, 1);
-  color: rgb(8, 8, 8);
+  color: rgb(91, 44, 44);
   font-weight: bold;
   font-size: 0;
   height: 5px;
