@@ -147,10 +147,14 @@ function attachFlyToBehavior(button, marker, coords) {
       animate: true,
       duration: 2.0
     });
-
+ 
+    ssxyz.setMarkerUnclickable(marker);
     setTimeout(() => {
-  marker.openPopup();
-  ssxyz.setMarkerUnclickable(marker); // 🔥 make it unclickable once popup opens
+ 
+      marker.openPopup();
+
+  // 🔥 make it unclickable once popup opens
+  
     }, 2200);
 
   };
