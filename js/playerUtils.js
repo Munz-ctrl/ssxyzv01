@@ -83,7 +83,7 @@ function generatePopupHTML(player) {
 
   const missionHTML = `<p class="mission-text z-3">${missionText}</p>`;
 
-  const popupWrapperClass = player.main ? 'popup-wide' : '';
+  // const popupWrapperClass = player.main ? 'popup-wide' : '';
 
 
   const editButton = ssxyz.activePlayer?.pid === player.pid
@@ -98,7 +98,7 @@ function generatePopupHTML(player) {
 
 
   return `
-   <div class="popup-wrapper ${popupWrapperClass}">
+  <div class="popup-wrapper">
   <div class="profile-id">P-ID: ${player.pid}</div>
   <div class="profile-name z-0">${player.name}</div>
   <div class="feature-row z-1">${featureIcons}</div>
