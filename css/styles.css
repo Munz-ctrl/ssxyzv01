@@ -565,12 +565,12 @@ body {
   }
 }
 
-.wide-avatar img {
+/* .wide-avatar img {
 
   height: auto;
   max-width: 400px;
 
-}
+} */
 
 
 /* Override size if using a 'main' image */
@@ -579,9 +579,6 @@ body {
 } */
 
 /* Optional: widen Leaflet popup if main exists */
-.leaflet-popup-content-wrapper:has(.wide-avatar) {
-  max-width: 800px;
-}
 
 
 /* Default preview size */
@@ -594,9 +591,9 @@ body {
 }
 
 /* Optional: widen edit popup when main exists */
-.popup-wrapper.popup-wide {
+/* .popup-wrapper.popup-wide {
   max-width: 800px;
-}
+} */
 
 
 
