@@ -9,6 +9,8 @@ body {
   height: 100vh;
   overflow: hidden;
   position: static; /* or remove entirely */
+
+    background: rgba(255, 0, 0, 0.2);
 }
 
 
@@ -131,16 +133,20 @@ html, body {
 }
 
 #map {
-  position: fixed; /* NOT absolute */
-  top: env(safe-area-inset-top, 0px);
-  left: env(safe-area-inset-left, 0px);
-  right: env(safe-area-inset-right, 0px);
-  bottom: env(safe-area-inset-bottom, 0px);
-  width: 100vw;
-  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 120vw;
+  height: 120vh;
+  
+  margin-top: env(safe-area-inset-top, 0px);
+  margin-left: env(safe-area-inset-left, 0px);
+  margin-right: env(safe-area-inset-right, 0px);
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+  background: #000; /* fallback just in case */
+  overflow: hidden;
   z-index: 0;
 }
-
 
 
 
