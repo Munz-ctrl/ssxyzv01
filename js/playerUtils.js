@@ -41,6 +41,9 @@ function generatePopupHTML(player) {
   let avatarHTML = "";
   const fallback = '/assets/fallbackIsoAvatar.webp';
 
+  const popupBgStyle = player.popupBg ? `style="background:${player.popupBg};"` : '';
+
+
   if (player.spritesheet) {
     avatarHTML = `
     <div class="player-main-avatar">
@@ -98,7 +101,7 @@ function generatePopupHTML(player) {
 
 
   return `
-  <div class="popup-wrapper">
+  <div class="popup-wrapper" ${popupBgStyle}>
   <div class="profile-id">P-ID: ${player.pid}</div>
   <div class="profile-name z-0">${player.name}</div>
   <div class="feature-row z-1">${featureIcons}</div>
@@ -109,7 +112,6 @@ function generatePopupHTML(player) {
     ${exploreButton}
   </div>
 `;
-
 
 
 }
