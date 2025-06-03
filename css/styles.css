@@ -131,7 +131,7 @@ body {
 #map {
   width: 120vw;
   height: 100vh;
-  justify-content: center;
+  justify-self: center;
 }
 
 #title {
