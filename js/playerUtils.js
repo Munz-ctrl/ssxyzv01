@@ -102,15 +102,17 @@ function generatePopupHTML(player) {
 
   return `
   <div class="popup-wrapper" ${popupBgStyle}>
-  <div class="profile-id">P-ID: ${player.pid}</div>
-  <div class="profile-name z-0">${player.name}</div>
-  <div class="feature-row z-1">${featureIcons}</div>
-  ${avatarHTML}
-  ${missionHTML}
-  <div class="profile-buttons-row">
+   <div class="profile-id">P-ID: ${player.pid}</div>
+   <div class="profile-name z-0">${player.name}</div>
+   <div class="feature-row z-1">${featureIcons}</div>
+   ${avatarHTML}
+   ${missionHTML}
+   <div class="profile-buttons-row">
     ${editButton}
     ${exploreButton}
+   </div>
   </div>
+
 `;
 
 
