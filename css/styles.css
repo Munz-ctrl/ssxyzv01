@@ -131,10 +131,10 @@ html, body {
 
 #map {
   position: relative;
-  top: -10vh;
-  left: -10vw;
-  width: 120vw;
-  height: 120vh;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   overflow: visible;
   z-index: 0;
 }
