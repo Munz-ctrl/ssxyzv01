@@ -38,6 +38,7 @@
       </label>
     </div>
     <input type="file" id="uploadMain" accept="image/*" style="display:none" />
+    <input type="text" id="popupBgInput" placeholder="Popup Background (e.g. #000 or url...)" />
 
 
     <textarea id="playerMission" class="mission-textarea" placeholder="Mission(s)... (One per line)"></textarea>
@@ -121,11 +122,17 @@
         return;
       }
 
+
+     
+
+
       document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
       document.getElementById('playerName').value = player.name || '';
       const missionList = Array.isArray(player.mission) ? player.mission : [player.mission || ""];
       document.getElementById('playerMission').value = missionList.join('\n');
 
+
+      document.getElementById('popupBgInput').value = player.popupBg || '';
 
       if (player.avatar) document.getElementById('avatarPreview').src = currentAvatarURL = player.avatar;
       if (player.main) {
@@ -206,14 +213,18 @@
 
       const name = document.getElementById('playerName').value.trim();
       const mission = document.getElementById('playerMission').value.split('\n');
+      const popupBg = document.getElementById('popupBgInput').value.trim();
+
 
       const updates = {
         name: name || '',
         mission: mission.filter(Boolean),
-        main: currentMainURL || ''
+        main: currentMainURL || '',
+        popupBg: popupBg
+        
       };
 
-
+     
 
       const { error } = await supabase
         .from('players')
