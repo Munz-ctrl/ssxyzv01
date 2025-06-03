@@ -41,7 +41,7 @@ function generatePopupHTML(player) {
   let avatarHTML = "";
   const fallback = '/assets/fallbackIsoAvatar.webp';
 
-  const popupBgStyle = player.popupBg ? `style="background:${player.popupBg};"` : '';
+ 
 
 
   if (player.spritesheet) {
@@ -70,7 +70,7 @@ function generatePopupHTML(player) {
   `;
   }
 
-
+ const popupBgStyle = player.popupBg ? `style="background:${player.popupBg};"` : '';
 
   const featureIcons = [player.special, player.special2].map((img, i) => {
     const hasImage = img && img !== "";
