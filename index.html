@@ -109,10 +109,10 @@
 
 
   <div id="playersPanel" class="slidePanel">
+    
     <div class="closeBtn" onclick="closeAllPopups('playersPanel')">&times;</div>
 
     <span class="profile-name" style="transform: scale(0.5);">Players</span>
-
     <div id="playerAvatarRow" class="player-row"></div>
 
 
@@ -189,6 +189,7 @@
     map.getPane('locationsPane').style.zIndex = 399; // Lower than player markers
 
 
+    // L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="https://carto.com/attributions">CARTO</a>'
