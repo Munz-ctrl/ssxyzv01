@@ -265,7 +265,7 @@ ssxyz.flyToPlayer = function (player, marker) {
     animate: true,
     duration: 2.5
   });
-
+  
   setTimeout(() => {
     marker.openPopup();
   }, 2700);
