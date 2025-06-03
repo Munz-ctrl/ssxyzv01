@@ -49,7 +49,8 @@ import { supabase } from '/js/supabase.js';
   const styleTag = document.createElement('style');
   styleTag.innerHTML = `
     .popup-${player.pid} .leaflet-popup-content-wrapper {
-      background: ${player.popupBg} !important;
+      background: ${player.popupBg.startsWith('http') ? `url(${player.popupBg})` : player.popupBg} !important;
+
     }
   `;
   document.head.appendChild(styleTag);
