@@ -37,7 +37,13 @@ import { supabase } from '/js/supabase.js';
       const marker = createPlayerMarker(player);
       if (!marker) return; // Skip broken players
 
-      marker.bindPopup(generatePopupHTML(player));
+      marker.bindPopup(generatePopupHTML(player), {
+        className: `popup-${player.pid}`
+      });
+
+
+
+
 
       if (player.popupBg) {
         const styleTag = document.createElement('style');
@@ -45,7 +51,7 @@ import { supabase } from '/js/supabase.js';
     .leaflet-popup-content-wrapper.popup-${player.pid} {
       background: ${player.popupBg} !important;
     }
-  `;
+    `;
         document.head.appendChild(styleTag);
       }
 
