@@ -135,9 +135,9 @@ html, body {
 #map {
   position: fixed;
   top: 0;
-  left: 0;
+  left: -20vw;
   width: 120vw;
-  height: 120vh;
+  height: auto;
   overflow: visible;
   z-index: 0;
 }
