@@ -213,7 +213,9 @@
 
       const name = document.getElementById('playerName').value.trim();
       const mission = document.getElementById('playerMission').value.split('\n');
-      const popupBg = document.getElementById('popupBgInput').value.trim();
+      let popupBg = document.getElementById('popupBgInput').value.trim();
+       if (popupBg.startsWith('http')) popupBg = `url(${popupBg})`;
+
 
 
       const updates = {
