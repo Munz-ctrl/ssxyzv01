@@ -30,7 +30,7 @@ function createPlayerMarker(player) {
   const marker = L.marker(player.coords, { icon: iconWithPing }).addTo(map); // ✅ save it into "marker"
 
  marker.on('click', () => {
-  closeAllPopups();
+  
 
   // Disable clicks on the selected player's marker
   const markerEl = marker.getElement();
@@ -40,6 +40,9 @@ function createPlayerMarker(player) {
   marker.on('popupclose', () => {
     if (markerEl) markerEl.style.pointerEvents = 'auto';
   });
+
+  closeAllPopups();
+
 });
 
 
