@@ -99,21 +99,24 @@ function generatePopupHTML(player) {
     ? `<a><button class="map-btn">MAP</button></a>`
     : "";
 
-
-  return `
-  <div class="leaflet-popup-content-wrapper" ${popupBgStyle}>
-   <div class="profile-id">P-ID: ${player.pid}</div>
-   <div class="profile-name z-0">${player.name}</div>
-   <div class="feature-row z-1">${featureIcons}</div>
-   ${avatarHTML}
-   ${missionHTML}
-   <div class="profile-buttons-row">
-    ${editButton}
-    ${exploreButton}
-   </div>
+  const popupContent = `
+  <div class="popup-wrapper">
+    <div class="profile-id">P-ID: ${player.pid}</div>
+    <div class="profile-name z-0">${player.name}</div>
+    <div class="feature-row z-1">${featureIcons}</div>
+    ${avatarHTML}
+    ${missionHTML}
+    <div class="profile-buttons-row">
+      ${editButton}
+      ${exploreButton}
+    </div>
   </div>
-
 `;
+
+// Instead of using inline background, return content only
+return popupContent;
+  
+
 
 
 }
