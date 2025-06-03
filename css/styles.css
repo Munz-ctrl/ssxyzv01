@@ -3,10 +3,31 @@
 #app {
   width: 100vw;
   height: 100vh;
-  overflow: visible;
-  position: static; /* or remove entirely */
+  position: static;
+  overflow: hidden;
+}
 
-    background: rgba(255, 0, 0, 0.2);
+#map {
+  position: fixed;
+  top: env(safe-area-inset-top, 0);
+  left: env(safe-area-inset-left, 0);
+  right: env(safe-area-inset-right, 0);
+  bottom: env(safe-area-inset-bottom, 0);
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  overflow: hidden;
+}
+
+
+html, body {
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Ubuntu', sans-serif;
 }
 
 
@@ -118,26 +139,6 @@
 }
 
 
-
-html, body {
-  justify-content: center;
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: visible;
-  font-family: 'Ubuntu', sans-serif;
-}
-
-#map {
-  position: relative;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  overflow: visible;
-  z-index: 0;
-}
 
 
 
