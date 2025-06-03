@@ -362,7 +362,8 @@ body {
 
 .leaflet-popup-content-wrapper {
   width: 100%;
-  /* background: rgba(255, 255, 255, 0.592); */
+  background: url(...) no-repeat center center / cover !important;
+
 
 }
 
