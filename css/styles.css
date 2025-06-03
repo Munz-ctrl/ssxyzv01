@@ -271,7 +271,7 @@ body {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #ffffffcc;
+  background: #ffffffc1;
   border: 1px solid #333;
   font-weight: bold;
   color: #000;
@@ -545,7 +545,9 @@ body {
 /* Optional fallback styling */
 .player-main-avatar .fallback {
   height: 50px;
-  opacity: 0.5;
+  width: 50px;
+  margin-right: 1vh;
+  opacity: 0.2;
 }
 
 /* Spritesheet animation */
