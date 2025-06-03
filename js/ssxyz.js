@@ -506,6 +506,17 @@ ssxyz.updateUserPanelAfterLogin = function () {
   `;
 };
 
+ssxyz.disableInteractionForActiveMarker = function(activePid) {
+  ssxyz.playerMarkers.forEach(marker => {
+    const el = marker.getElement();
+    if (!el) return;
+    if (marker.options.player?.pid === activePid) {
+      el.style.pointerEvents = 'none';
+    } else {
+      el.style.pointerEvents = 'auto';
+    }
+  });
+};
 
 
 
