@@ -7,6 +7,9 @@ export const ssxyz = {
   players: [],
   locations: [],
 
+  selectedMarker: null,
+
+
   createNewPlayer: async function () {
     const pid = document.getElementById('newPlayerID').value.trim();
     const name = document.getElementById('newPlayerName').value.trim();
@@ -267,6 +270,33 @@ ssxyz.flyToPlayer = function (player, marker) {
     marker.openPopup();
   }, 2700);
 };
+
+
+ssxyz.setMarkerUnclickable = function(marker) {
+  if (!marker) return;
+
+  // Re-enable any previously disabled marker
+  if (ssxyz.selectedMarker && ssxyz.selectedMarker !== marker) {
+    const prevEl = ssxyz.selectedMarker.getElement();
+    if (prevEl) prevEl.style.pointerEvents = 'auto';
+  }
+
+  const el = marker.getElement();
+  if (el) {
+    el.style.pointerEvents = 'none';
+    ssxyz.selectedMarker = marker;
+
+    // Reset interactivity on popup close
+    marker.once('popupclose', () => {
+      el.style.pointerEvents = 'auto';
+      ssxyz.selectedMarker = null;
+    });
+  }
+};
+
+
+
+
 
 
 ssxyz.openLoginPanel = async function () {
