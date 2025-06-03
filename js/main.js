@@ -38,6 +38,19 @@ import { supabase } from '/js/supabase.js';
       if (!marker) return; // Skip broken players
 
       marker.bindPopup(generatePopupHTML(player));
+
+      if (player.popupBg) {
+        const styleTag = document.createElement('style');
+        styleTag.innerHTML = `
+    .leaflet-popup-content-wrapper.popup-${player.pid} {
+      background: ${player.popupBg} !important;
+    }
+  `;
+        document.head.appendChild(styleTag);
+      }
+
+
+
       marker.options.player = player;
       ssxyz.playerMarkers.push(marker);
       const btn = createPlayerButton(player);
