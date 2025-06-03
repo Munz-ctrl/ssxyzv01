@@ -45,15 +45,16 @@ import { supabase } from '/js/supabase.js';
 
 
 
-      if (player.popupBg) {
-        const styleTag = document.createElement('style');
-        styleTag.innerHTML = `
-    .leaflet-popup-content-wrapper.popup-${player.pid} {
+     if (player.popupBg) {
+  const styleTag = document.createElement('style');
+  styleTag.innerHTML = `
+    .popup-${player.pid} .leaflet-popup-content-wrapper {
       background: ${player.popupBg} !important;
     }
-    `;
-        document.head.appendChild(styleTag);
-      }
+  `;
+  document.head.appendChild(styleTag);
+}
+
 
 
 
