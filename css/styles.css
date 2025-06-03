@@ -133,7 +133,7 @@ html, body {
 }
 
 #map {
-  position: fixed;
+  position: relative;
   top: 0;
   left: -20vw;
   width: 120vw;
