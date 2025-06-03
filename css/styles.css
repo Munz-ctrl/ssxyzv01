@@ -136,17 +136,11 @@ html, body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 120vw;
-  height: 120vh;
-  
-  margin-top: env(safe-area-inset-top, 0px);
-  margin-left: env(safe-area-inset-left, 0px);
-  margin-right: env(safe-area-inset-right, 0px);
-  margin-bottom: env(safe-area-inset-bottom, 0px);
-  background: #000; /* fallback just in case */
-  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
   z-index: 0;
 }
+
 
 
 
