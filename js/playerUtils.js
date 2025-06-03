@@ -101,7 +101,7 @@ function generatePopupHTML(player) {
 
 
   return `
-  <div class="popup-wrapper" ${popupBgStyle}>
+  <div class="leaflet-popup-content-wrapper" ${popupBgStyle}>
    <div class="profile-id">P-ID: ${player.pid}</div>
    <div class="profile-name z-0">${player.name}</div>
    <div class="feature-row z-1">${featureIcons}</div>
