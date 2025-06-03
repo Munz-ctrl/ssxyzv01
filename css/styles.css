@@ -516,14 +516,14 @@ body {
 
 
 .player-main-avatar {
-  width: 100%;
+  width: 22vh;
   text-align: center;
   margin-top: -44px;
 }
 
 .player-main-avatar img {
   /* max-width: 150px; */
-  width: 100%;
+  width: 22vh;
   height: auto;
   object-fit: contain;
   aspect-ratio: 400 / 570;
@@ -533,7 +533,7 @@ body {
 /* Default avatar image size */
 
 .player-main-avatar .sprite-anim {
-  max-width: 150px;
+ 
   width: 100%;
   height: auto;
   object-fit: contain;
