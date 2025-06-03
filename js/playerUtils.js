@@ -145,13 +145,13 @@ function attachFlyToBehavior(button, marker, coords) {
 
     map.flyTo(coords, 9, {
       animate: true,
-      duration: 2.5
+      duration: 2.0
     });
 
     setTimeout(() => {
   marker.openPopup();
   ssxyz.setMarkerUnclickable(marker); // 🔥 make it unclickable once popup opens
-    }, 4000);
+    }, 2100);
 
   };
 }
