@@ -45,16 +45,16 @@ import { supabase } from '/js/supabase.js';
 
 
 
-     if (player.popupBg) {
-  const styleTag = document.createElement('style');
-  styleTag.innerHTML = `
-    .popup-${player.pid} .leaflet-popup-content-wrapper {
-      background: ${player.popupBg.startsWith('http') ? `url(${player.popupBg})` : player.popupBg} !important;
+      if (player.popupBg) {
+        const styleTag = document.createElement('style');
+        styleTag.innerHTML = `
+  .popup-${player.pid} .leaflet-popup-content-wrapper {
+    background: ${player.popupBg.startsWith('http') ? `url(${player.popupBg})` : player.popupBg} no-repeat center center / cover !important;
+  }
+`;
 
-    }
-  `;
-  document.head.appendChild(styleTag);
-}
+        document.head.appendChild(styleTag);
+      }
 
 
 
