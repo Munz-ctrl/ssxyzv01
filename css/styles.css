@@ -274,10 +274,10 @@ html, body {
 
 
 
-.circle-icon {
+#infoCircleBtn {
   position: absolute;
   top: 12px;
-  right: 20px;
+  left: 12px;
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -292,9 +292,10 @@ html, body {
   transition: background 0.3s ease;
 }
 
-.circle-icon:hover {
+#infoCircleBtn:hover {
   background: #ddd;
 }
+
 
 
 .activePanel {
