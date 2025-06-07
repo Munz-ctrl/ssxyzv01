@@ -293,6 +293,16 @@ html, body {
   order: 1;
 }
 
+#tileToggleBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #333;
+  background: #fff;
+  padding: 2px;
+  cursor: pointer;
+}
+
 
 .circle-icon {
   
