@@ -275,7 +275,7 @@ html, body {
   /* stays hidden until activated */
 }
 
-#topLeftControls {
+#customTopLeftControls {
   position: absolute;
   top: 12px;
   left: 12px;
@@ -285,13 +285,11 @@ html, body {
   z-index: 1100;
 }
 
-#topLeftControls .leaflet-control-zoom {
-  order: 0;
+#customTopLeftControls .circle-icon {
+  width: 28px;
+  height: 28px;
 }
 
-#topLeftControls .circle-icon {
-  order: 1;
-}
 
 #tileToggleBtn {
   width: 28px;
