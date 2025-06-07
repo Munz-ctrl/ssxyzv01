@@ -37,6 +37,9 @@ html, body {
   .leaflet-control-zoom {
     display: none !important;
   }
+  .circle-icon {
+    display: none !important;
+  }
 }
 
 
@@ -272,15 +275,29 @@ html, body {
   /* stays hidden until activated */
 }
 
+#topLeftControls {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 1100;
+}
+
+#topLeftControls .leaflet-control-zoom {
+  order: 0;
+}
+
+#topLeftControls .circle-icon {
+  order: 1;
+}
 
 
 .circle-icon {
   
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 28px;
-  height: 28px;
+  
+
   border-radius: 50%;
   background: #ffffffc1;
   border: 1px solid #333;
