@@ -71,9 +71,11 @@
   </div>
   
   <div id="topLeftControls">
-  <div class="leaflet-top leaflet-left"></div> <!-- Leaflet will auto-fill this -->
+  <div class="leaflet-top leaflet-left"></div>
   <button id="infoCircleBtn" class="circle-icon">?</button>
-  </div>
+  <img id="tileToggleBtn" src="assets/icons/tileToggleIcon.png" class="circle-icon" alt="Toggle Tiles" />
+</div>
+
 
 
 
@@ -153,30 +155,43 @@
 
 
 
-    // Default and Explore tile layers
-    const GreyDefualtTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution: '© CartoDB'
+    // // Default and Explore tile layers
+    // const GreyDefualtTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    //   attribution: '© CartoDB'
+    // });
+
+    // const colorTiles = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    //   attribution: '&copy; OpenTopoMap contributors',
+    //   subdomains: 'abc',
+    //   maxZoom: 11
+    // });
+
+
+    const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+         maxZoom: 11,
+        attribution: '&copy; CARTO'
     });
 
-    const colorTiles = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenTopoMap contributors',
-      subdomains: 'abc',
-      maxZoom: 11
-    });
+    const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      maxZoom: 11,
+       attribution: '&copy; CARTO'
+     });
+
+   let currentTileLayer = darkTiles;
+   currentTileLayer.addTo(map);
 
 
 
 
 
+    // const worldMask = L.rectangle([[-90, -180], [90, 180]], {
+    //   color: '#30ba55',
+    //   weight: 0.0,
+    //   fillColor: '#0c2914',
+    //   fillOpacity: 0,
+    //   interactive: false
 
-    const worldMask = L.rectangle([[-90, -180], [90, 180]], {
-      color: '#30ba55',
-      weight: 0.0,
-      fillColor: '#0c2914',
-      fillOpacity: 0,
-      interactive: false
-
-    });
+    // });
 
 
     const map = L.map('map', {
@@ -203,6 +218,19 @@
       maxZoom: 11,
       attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
     }).addTo(map);
+
+
+
+
+document.getElementById('tileToggleBtn').addEventListener('click', () => {
+  map.removeLayer(currentTileLayer);
+  currentTileLayer = (currentTileLayer === darkTiles) ? lightTiles : darkTiles;
+  map.addLayer(currentTileLayer);
+});
+
+
+
+
 
     map.on('zoomend', () => {
       const zoom = map.getZoom();
