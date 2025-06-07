@@ -38,7 +38,7 @@ html, body {
     display: none !important;
   }
   .circle-icon {
-    display: none !important;
+    top: 10px !important;
   }
 }
 
@@ -699,7 +699,7 @@ html, body {
 
 .icon-sm.selected,
 .playerBtn.selected {
-  background-color: #82828260;
+  background-color: #ebebeb60;
   transform: scaleX(-1);
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
 
@@ -724,7 +724,7 @@ html, body {
   height: 20px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: rgba(255, 245, 245, 0.416);
+  background: rgba(255, 0, 0, 0.358);
   border: 20px solid transparent;
   animation: pingAnim 1.5s ease-out infinite;
   z-index: 0;
@@ -773,13 +773,14 @@ html, body {
 @keyframes pingAnim {
   0% {
     transform: translate(-50%, -50%) scale(0.1);
-    color: #959595;
-    opacity: 0.9;
+    color: #9d9d9d85;
+    border: #2f2f2f69;
+    opacity: 0.77;
   }
 
   100% {
     transform: translate(-50%, -50%) scale(2.2);
-    color: #47646e;
+    color: #47646e5d;
     opacity: 0;
   }
 }
@@ -810,9 +811,9 @@ html, body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgb(255, 255, 255);
-  border: 1px solid rgba(255, 255, 255, 1);
-  color: rgb(91, 44, 44);
+  background: rgba(255, 255, 255, 0.733);
+  border: 1px dotted rgba(255, 255, 255, 0.214);
+  color: rgba(91, 44, 44, 0);
   font-weight: bold;
   font-size: 0;
   height: 5px;
