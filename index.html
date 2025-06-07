@@ -70,11 +70,13 @@
     <span class="animated-text"></span>
   </div>
   
-  <div id="topLeftControls">
-  <div class="leaflet-top leaflet-left"></div>
+ <!-- Let Leaflet do its own thing -->
+<!-- Your custom control stack, separate from Leaflet -->
+<div id="customTopLeftControls">
   <button id="infoCircleBtn" class="circle-icon">?</button>
-  <img id="tileToggleBtn" src="assets/icons/tileToggleIcon.png" class="circle-icon" alt="Toggle Tiles" />
+  <img id="tileToggleBtn" src="assets/icons/tileToggleIcon.png" class="circle-icon" />
 </div>
+
 
 
 
@@ -195,6 +197,9 @@
       maxBoundsViscosity: 1.0 // full resistance at edges
     });
 
+      map.createPane('locationsPane');
+      map.getPane('locationsPane').style.zIndex = 399; // Lower than player markers
+
 
 
   
@@ -216,9 +221,6 @@
 
    let currentTileLayer = darkTiles;
    currentTileLayer.addTo(map);
-
-  map.createPane('locationsPane');
-    map.getPane('locationsPane').style.zIndex = 399; // Lower than player markers
 
 
 
