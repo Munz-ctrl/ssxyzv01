@@ -167,18 +167,6 @@
     // });
 
 
-    const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-         maxZoom: 11,
-        attribution: '&copy; CARTO'
-    });
-
-    const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-      maxZoom: 11,
-       attribution: '&copy; CARTO'
-     });
-
-   let currentTileLayer = darkTiles;
-   currentTileLayer.addTo(map);
 
 
 
@@ -209,16 +197,28 @@
 
 
 
-    map.createPane('locationsPane');
-    map.getPane('locationsPane').style.zIndex = 399; // Lower than player markers
-
-
+  
     // L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
-      maxZoom: 11,
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
-    }).addTo(map);
+    // L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+    //   maxZoom: 11,
+    //   attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+    // }).addTo(map);
 
+    const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
+         maxZoom: 11,
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+    });
+
+    const lightTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+      maxZoom: 11,
+       attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+     });
+
+   let currentTileLayer = darkTiles;
+   currentTileLayer.addTo(map);
+
+  map.createPane('locationsPane');
+    map.getPane('locationsPane').style.zIndex = 399; // Lower than player markers
 
 
 
@@ -284,7 +284,7 @@ document.getElementById('tileToggleBtn').addEventListener('click', () => {
     });
 
 
-    GreyDefualtTiles.addTo(map); // Initial map view
+    // GreyDefualtTiles.addTo(map); // Initial map view
 
     // Utility: Close all popups, panels, and modals
     // Define buttons
