@@ -277,8 +277,8 @@ html, body {
 
 #customTopLeftControls {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  /* top: 12px;
+  left: 12px; */
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -304,8 +304,6 @@ html, body {
 
 .circle-icon {
   
-  
-
   border-radius: 50%;
   background: #ffffffc1;
   border: 1px solid #333;
