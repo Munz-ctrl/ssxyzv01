@@ -556,7 +556,7 @@ html, body {
 .player-main-avatar {
   /* position: relative; */
   max-width: 80%;
-  content: center;
+  justify-content: center;
   text-align: center;
   margin-top: -44px;
 }
