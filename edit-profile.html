@@ -172,7 +172,7 @@
 
 
         if (file) {
-          const path = `avatars/${user.id}/avatar.webp`;
+          const path = `avatars/${currentUser.id}/avatar.webp`;
 
 
           const url = await uploadImage(file, path);
@@ -194,7 +194,7 @@
      popupImageInput.addEventListener('change', async function () {
        const file = this.files[0];
        if (file) {
-         const path = `avatars/${user.id}/popupBg.webp`;
+         const path = `avatars/${currentUser.id}/popupBg.webp`;
          const url = await uploadImage(file, path);
          if (url) {
            currentBgImage = url;
@@ -250,7 +250,7 @@
     document.getElementById('uploadAvatar').addEventListener('change', async function () {
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${user.id}/avatar.webp`;
+        const path = `avatars/${currentUser.id}/avatar.webp`;
         const url = await uploadImage(file, path);
         if (url) document.getElementById('avatarPreview').src = currentAvatarURL = url;
       }
@@ -259,7 +259,7 @@
     document.getElementById('uploadMain').addEventListener('change', async function () {
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${user.id}/main.webp`;
+        const path = `avatars/${currentUser.id}/main.webp`;
         const url = await uploadImage(file, path);
         if (url) document.getElementById('mainPreview').src = currentMainURL = url;
       }
@@ -269,7 +269,7 @@
     document.getElementById('uploadSpecial1').addEventListener('change', async function () {
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${user.id}/special1.webp`;
+        const path = `avatars/${currentUser.id}/special1.webp`;
         const url = await uploadImage(file, path);
         if (url) document.getElementById('previewSpecial1').src = currentSpecial1URL = url;
       }
@@ -278,7 +278,7 @@
     document.getElementById('uploadSpecial2').addEventListener('change', async function () {
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${user.id}/special2.webp`;
+        const path = `avatars/${currentUser.id}/special2.webp`;
         const url = await uploadImage(file, path);
         if (url) document.getElementById('previewSpecial2').src = currentSpecial2URL = url;
       }
