@@ -68,13 +68,13 @@ html, body {
 .profile-name {
   font-size: 10vw;
   
-  font-weight: bold;
   /* margin: 5px 0 0px; */
   width: 10vw;
 }
 
 .edit-popup .profile-name {
-  font-size: 10vw;
+  
+  font-style: italic;
   font-weight: bold;
   margin: 5px 0 0px;
   width: 100%;
