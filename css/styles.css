@@ -38,7 +38,8 @@ html, body {
     display: none !important;
   }
   .circle-icon {
-    top: 10px !important;
+    top: 10vh !important;
+    left: 10vw !important;
   }
 }
 
@@ -277,8 +278,8 @@ html, body {
 
 #customTopLeftControls {
   position: absolute;
-  /* top: 12px;
-  left: 12px; */
+  top: 12px;
+  left: 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -910,7 +911,7 @@ html, body {
 .sprite-title {
   position: absolute;
   top: 10px;
-  left: 50%;
+  right: 10%;
   transform: translateX(-50%) scale(0.35);
   transform-origin: top center;
 
