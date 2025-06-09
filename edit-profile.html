@@ -39,10 +39,22 @@
     <div id="mainAvatarPreviewContainer" class="player-main-avatar"></div>
 
     <input type="file" id="uploadMain" accept="image/*" style="display:none" />
-    <input type="text" id="popupBgInput" placeholder="Popup Background (e.g. #000 or url...)" />
 
+   
 
     <textarea id="playerMission" class="mission-textarea" placeholder="Mission(s)... (One per line)"></textarea>
+
+     <div class="coord-row" style="margin-top: 10px;">
+      <label style="font-size: 10px;">Popup BG Color:</label>
+      <input type="color" id="popupBgColor" style="width: 40px; height: 30px; border: none;" />
+    </div>
+
+    <div class="coord-row" style="margin-top: 6px;">
+      <label style="font-size: 10px;">Upload BG Image:</label>
+      <input type="file" id="popupBgImage" accept="image/*" />
+    </div>
+
+
     <button class="save-btn" onclick="savePlayerEdits()">Save Changes</button>
 
     <input type="file" id="uploadSpecial1" accept="image/*" style="display:none" />
