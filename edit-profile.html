@@ -44,10 +44,10 @@
 
     <textarea id="playerMission" class="mission-textarea" placeholder="Mission(s)... (One per line)"></textarea>
 
-    <div class="coord-row" style="margin-top: 10px;">
+    <!-- <div class="coord-row" style="margin-top: 10px;">
       <label style="font-size: 10px;">Popup BG Color:</label>
       <input type="color" id="popupBgColor" style="width: 40px; height: 30px; border: none;" />
-    </div>
+    </div> -->
 
     <div class="coord-row" style="margin-top: 6px;">
       <label style="font-size: 10px;">Upload BG Image:</label>
@@ -160,10 +160,11 @@
         // It's an image URL
         const bgUrl = player.popupBg.match(/url\((.*?)\)/)?.[1]?.replace(/['"]/g, '');
         currentBgImage = bgUrl;
-        document.getElementById('popupBgColor').value = "#ffffff"; // fallback color
-      } else {
-        document.getElementById('popupBgColor').value = player.popupBg || "#ffffff";
-      }
+        // document.getElementById('popupBgColor').value = "#ffffff"; // fallback color
+       }
+      //  else {
+      //   document.getElementById('popupBgColor').value = player.popupBg || "#ffffff";
+      // }
 
       document.getElementById('popupBgImage').addEventListener('change', async function () {
         const file = this.files[0];
@@ -181,15 +182,18 @@
       });
 
       const editPopup = document.querySelector('.edit-popup');
-     const popupColorInput = document.getElementById('popupBgColor');
+    //  const popupColorInput = document.getElementById('popupBgColor');
      const popupImageInput = document.getElementById('popupBgImage');
 
      // Live background preview on color change
-     popupColorInput.addEventListener('input', () => {
-       currentBgImage = ""; // override image if color selected
-       editPopup.style.background = popupColorInput.value;
-     });
-     
+    //  popupColorInput.addEventListener('input', () => {
+    //    currentBgImage = ""; // override image if color selected
+    //    editPopup.style.background = popupColorInput.value;
+    //  });
+     editPopup.style.background = player.popupBg?.startsWith('url')
+  ? `url(${currentBgImage}) no-repeat center center / cover`
+  : player.popupBg || 'rgba(255, 114, 114, 0.4)';
+
      // Live background preview on image upload
      popupImageInput.addEventListener('change', async function () {
        const file = this.files[0];
@@ -299,8 +303,9 @@
       const mission = document.getElementById('playerMission').value.trim().split('\n');
 
       let popupBg = currentBgImage
-        ? `url(${currentBgImage})`
-        : document.getElementById('popupBgColor').value;
+       ? `url(${currentBgImage})`
+       : 'rgba(255, 114, 114, 0.4)';
+
 
 
 
