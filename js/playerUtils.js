@@ -14,7 +14,7 @@ function createPlayerMarker(player) {
   const pingHTML = `
     <div class="player-ping-container" data-player-id="${player.pid}">
       <div class="player-ping"></div>
-      
+      <div class="player-icon-pill" data-id="${player.pid}">
         
       </div>
     </div>
