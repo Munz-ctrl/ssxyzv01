@@ -110,29 +110,28 @@
     let currentMainURL = "";
     let currentBgImage = "";
 
+    let currentUser = null;
+
+
 
     // 🔐 Step 1: Ensure we are logged in anonymously
     (async () => {
-     const { data: sessionData, authError } = await supabase.auth.getSession();
-         if (!sessionData?.session?.user) {
-           await supabase.auth.signInAnonymously();
-        }
+  const { data: sessionData, error: authError } = await supabase.auth.getSession();
+  if (!sessionData?.session?.user) {
+    await supabase.auth.signInAnonymously();
+  }
 
-      if (authError) {
-        alert("❌ Supabase login failed");
-        console.error(authError);
-        return;
-      }
+  const { data } = await supabase.auth.getUser();
+  currentUser = data?.user;
 
+  if (!currentUser) {
+    alert("❌ Failed to retrieve user.");
+    return;
+  }
 
+  loadPlayerData();
+})();
 
-      const { data: { user } } = await supabase.auth.getUser();
-      const uploaderId = user.id;
-
-
-
-      loadPlayerData();
-    })();
 
     async function loadPlayerData() {
       const { data: player, error } = await supabase
