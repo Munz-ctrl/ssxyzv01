@@ -67,6 +67,7 @@ html, body {
 
 .profile-name {
   font-size: 10vw;
+  
   font-weight: bold;
   margin: 5px 0 0px;
   width: 10vw;
@@ -114,7 +115,7 @@ html, body {
 }
 
 .avatar-preview {
-  width: 120px;
+  width: 100%;
   height: auto;
   object-fit: contain;
   aspect-ratio: 300 / 570;
@@ -1080,13 +1081,13 @@ html, body {
 }
 
 .tab-content {
-  padding: 4px 0;
+  padding: 0px 0;
   font-size: 11px;
-  line-height: 1.2;
+  line-height: 0.7;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
 
 }
 
