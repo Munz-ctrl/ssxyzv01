@@ -555,7 +555,7 @@ html, body {
 
 .player-main-avatar {
   /* position: relative; */
-  max-width: 80%;
+  max-width: 100%;
   justify-content: center;
   text-align: center;
   margin-top: -44px;
@@ -811,9 +811,9 @@ html, body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.733);
+  background: rgba(255, 255, 255, 0.229);
   border: 1px dotted rgba(255, 255, 255, 0.214);
-  color: rgba(91, 44, 44, 0);
+  color: rgba(44, 91, 50, 0);
   font-weight: bold;
   font-size: 0;
   height: 5px;
@@ -830,8 +830,9 @@ html, body {
   height: 40px;
   width: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(0, 0, 0, 0.7);
+  background: rgba(255, 255, 255, 0);
+  border: 1px dotted rgba(187, 110, 110, 0.079);
+  pointer-events: none;
 }
 
 .player-icon-pill:hover .pill-name,
