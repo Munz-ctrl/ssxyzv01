@@ -15,10 +15,15 @@ function createPlayerMarker(player) {
     <div class="player-ping-container" data-player-id="${player.pid}">
       <div class="player-ping"></div>
       <div class="player-icon-pill" data-id="${player.pid}">
-        <span class="pill-name">${player.pid}</span>
+        
       </div>
     </div>
   `;
+
+
+
+// backup code
+  // <span class="pill-name">${player.pid}</span>
 
   const iconWithPing = L.divIcon({
     html: `<div class="interactive-marker">${pingHTML}</div>`,
