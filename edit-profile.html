@@ -113,7 +113,7 @@
 
     // 🔐 Step 1: Ensure we are logged in anonymously
     (async () => {
-     const { data: sessionData, autherror } = await supabase.auth.getSession();
+     const { data: sessionData, authError } = await supabase.auth.getSession();
          if (!sessionData?.session?.user) {
            await supabase.auth.signInAnonymously();
         }
@@ -123,6 +123,13 @@
         console.error(authError);
         return;
       }
+
+
+
+      const { data: { user } } = await supabase.auth.getUser();
+      const uploaderId = user.id;
+
+
 
       loadPlayerData();
     })();
@@ -161,8 +168,13 @@
 
       document.getElementById('popupBgImage').addEventListener('change', async function () {
         const file = this.files[0];
+
+        
+
+
         if (file) {
-          const path = `avatars/${playerId}/popupBg.webp`;
+          const path = `avatars/${uploaderId}/popupBg.webp`;
+
           const url = await uploadImage(file, path);
           if (url) currentBgImage = url;
         }
@@ -238,7 +250,7 @@
     document.getElementById('uploadAvatar').addEventListener('change', async function () {
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${playerId}/avatar.webp`;
+        const path = `avatars/${uploaderId}/avatar.webp`;
         const url = await uploadImage(file, path);
         if (url) document.getElementById('avatarPreview').src = currentAvatarURL = url;
       }
@@ -247,7 +259,7 @@
     document.getElementById('uploadMain').addEventListener('change', async function () {
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${playerId}/main.webp`;
+        const path = `avatars/${uploaderId}/avatar.webp`;
         const url = await uploadImage(file, path);
         if (url) document.getElementById('mainPreview').src = currentMainURL = url;
       }
