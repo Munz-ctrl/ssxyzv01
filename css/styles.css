@@ -921,6 +921,7 @@ html, body {
 
   width: 740px;
   height: 544px;
+  scale: 0.35;
   background-image: url('/titlespritesheet.png');
   background-repeat: no-repeat;
   background-size: (740*48)px 512px;
