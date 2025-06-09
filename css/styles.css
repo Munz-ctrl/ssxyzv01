@@ -73,6 +73,14 @@ html, body {
   width: 10vw;
 }
 
+.edit-popup .profile-name {
+  font-size: 10vw;
+  
+  font-weight: bold;
+  margin: 5px 0 0px;
+  width: 10vw;
+}
+
 .feature-row,
 .iso-group {
   display: flex;
@@ -394,6 +402,7 @@ html, body {
 .avatar.fallback {
   width: 50px;
   height: auto;
+  margin-top: -40px;
 }
 
 .leaflet-popup-content {
@@ -592,7 +601,7 @@ html, body {
 .player-main-avatar .fallback {
   height: 50px;
   width: 50px;
-  right: 10px;
+  left: 10px;
   margin-right: 1vh;
   opacity: 0.2;
 }
@@ -633,10 +642,10 @@ html, body {
 
 /* Default preview size */
 #mainPreview {
-  width: 500px;
+  width: fit-content;
   height: auto;
   object-fit: contain;
-  aspect-ratio: 300 / 570;
+  /* aspect-ratio: 300 / 570; */
   border-radius: 6px;
 }
 
@@ -650,12 +659,7 @@ html, body {
 
 
 
-.avatar.fallback {
-  width: 50px;
-  height: auto;
-  aspect-ratio: 300 / 570;
-  margin-top: -40px;
-}
+
 
 
 
