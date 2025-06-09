@@ -39,6 +39,7 @@ html, body {
   .leaflet-control-zoom {
     display: none !important;
   }
+  
   .circle-icon {
     top: 10vh !important;
     left: 10vw !important;
@@ -360,7 +361,7 @@ html, body {
   z-index: 5000;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
-  font-size: 12px;
+  font-size: 4px;
   padding: 4px 6px;
   border-radius: 4px;
   display: none;
