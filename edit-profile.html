@@ -113,7 +113,11 @@
 
     // 🔐 Step 1: Ensure we are logged in anonymously
     (async () => {
-      const { error: authError } = await supabase.auth.signInAnonymously();
+     const { data: sessionData, autherror } = await supabase.auth.getSession();
+         if (!sessionData?.session?.user) {
+           await supabase.auth.signInAnonymously();
+        }
+
       if (authError) {
         alert("❌ Supabase login failed");
         console.error(authError);
