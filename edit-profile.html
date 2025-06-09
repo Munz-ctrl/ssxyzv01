@@ -110,10 +110,9 @@
     let currentMainURL = "";
     let currentBgImage = "";
 
-    let uploaderId = "";
+   let currentUser = null;
+   let uploaderId = ""; // <-- initialize safely
 
-    let currentUser = null;
-    uploaderId = currentUser.id;
 
 
 
@@ -122,21 +121,29 @@
   const { data: sessionData, error: authError } = await supabase.auth.getSession();
   if (!sessionData?.session?.user) {
     await supabase.auth.signInAnonymously();
-  }
+   }
 
   const { data } = await supabase.auth.getUser();
   currentUser = data?.user;
-
+  
   if (!currentUser) {
-    alert("❌ Failed to retrieve user.");
-    return;
+  alert("❌ Failed to retrieve user.");
+  return;
   }
 
+  uploaderId = currentUser.id; // ✅ safe here, after assignment
   loadPlayerData();
 })();
 
 
     async function loadPlayerData() {
+
+      if (!uploaderId) {
+  alert("Uploader not ready");
+  return;
+}
+
+
       const { data: player, error } = await supabase
         .from('players')
         .select('*')
@@ -149,9 +156,7 @@
         return;
       }
 
-
-
-
+      
 
       document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
       document.getElementById('playerName').value = player.name || '';
