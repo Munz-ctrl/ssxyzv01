@@ -55,7 +55,9 @@
     </div>
 
 
-    <button class="save-btn" onclick="savePlayerEdits()">Save Changes</button>
+    <!-- <button class="save-btn" onclick="savePlayerEdits()">Save Changes</button> -->
+    <button class="save-btn" id="saveBtn">Save Changes</button>
+
 
     <input type="file" id="uploadSpecial1" accept="image/*" style="display:none" />
     <input type="file" id="uploadSpecial2" accept="image/*" style="display:none" />
@@ -108,6 +110,7 @@
     let currentSpecial1URL = "";
     let currentSpecial2URL = "";
     let currentMainURL = "";
+    let currentBgImage = "";
 
 
     // 🔐 Step 1: Ensure we are logged in anonymously
@@ -188,6 +191,9 @@
 
       if (player.special) document.getElementById('previewSpecial1').src = currentSpecial1URL = player.special;
       if (player.special2) document.getElementById('previewSpecial2').src = currentSpecial2URL = player.special2;
+
+      document.getElementById('saveBtn')?.addEventListener('click', savePlayerEdits);
+
     }
 
     async function uploadImage(file, path) {
@@ -255,6 +261,8 @@
 
       const name = document.getElementById('playerName').value.trim();
       const mission = document.getElementById('playerMission').value.split('\n');
+     
+     
       let popupBg = currentBgImage
         ? `url(${currentBgImage})`
         : document.getElementById('popupBgColor').value;
@@ -310,8 +318,7 @@
 
 
 
-
-  <button id="upgradeEmailBtn">🔐 Secure My Account</button>
+  <!-- <button id="upgradeEmailBtn">🔐 Secure My Account</button> -->
 
 </body>
 
