@@ -402,8 +402,8 @@ html, body {
 .leaflet-popup-content-wrapper {
   width: 100%;
   background: url(...) no-repeat center center / cover !important;
-  pointer-events: none;
-
+  /* pointer-events: none;
+  cursor: default; */
 }
 
 
