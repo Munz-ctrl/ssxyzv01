@@ -110,7 +110,10 @@
     let currentMainURL = "";
     let currentBgImage = "";
 
+    let uploaderId = "";
+
     let currentUser = null;
+    uploaderId = currentUser.id;
 
 
 
@@ -252,39 +255,60 @@
     }
 
     document.getElementById('uploadAvatar').addEventListener('change', async function () {
+      if (!uploaderId) return alert("User not ready");
+      
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${currentUser.id}/avatar.webp`;
+        const path = `avatars/${uploaderId}/avatar.webp`;
         const url = await uploadImage(file, path);
-        if (url) document.getElementById('avatarPreview').src = currentAvatarURL = url;
+        if (url) {
+          currentAvatarURL = url;
+          document.getElementById('avatarPreview').src = url;
+        }
       }
     });
 
-    document.getElementById('uploadMain').addEventListener('change', async function () {
-      const file = this.files[0];
-      if (file) {
-        const path = `avatars/${currentUser.id}/main.webp`;
-        const url = await uploadImage(file, path);
-        if (url) document.getElementById('mainPreview').src = currentMainURL = url;
-      }
-    });
+   document.getElementById('uploadMain').addEventListener('change', async function () {
+  if (!uploaderId) return alert("User not ready");
+
+  const file = this.files[0];
+  if (file) {
+    const path = `avatars/${uploaderId}/main.webp`;
+    const url = await uploadImage(file, path);
+    if (url) {
+      currentMainURL = url;
+      document.getElementById('mainPreview').src = url;
+    }
+  }
+});
+
 
 
     document.getElementById('uploadSpecial1').addEventListener('change', async function () {
+      if (!uploaderId) return alert("User not ready");
+
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${currentUser.id}/special1.webp`;
+        const path = `avatars/${uploaderId}/special1.webp`;
         const url = await uploadImage(file, path);
-        if (url) document.getElementById('previewSpecial1').src = currentSpecial1URL = url;
+        if (url) {
+          currentSpecial1URL = url;
+          document.getElementById('previewSpecial1').src = url;
+        }
       }
     });
 
     document.getElementById('uploadSpecial2').addEventListener('change', async function () {
+      if (!uploaderId) return alert("User not ready");
+
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${currentUser.id}/special2.webp`;
+        const path = `avatars/${uploaderId}/special2.webp`;
         const url = await uploadImage(file, path);
-        if (url) document.getElementById('previewSpecial2').src = currentSpecial2URL = url;
+        if (url) {
+          currentSpecial2URL = url;
+          document.getElementById('previewSpecial2').src = url;
+        }
       }
     });
 
