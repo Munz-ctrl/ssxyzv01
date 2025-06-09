@@ -69,16 +69,15 @@ html, body {
   font-size: 10vw;
   
   font-weight: bold;
-  margin: 5px 0 0px;
+  /* margin: 5px 0 0px; */
   width: 10vw;
 }
 
 .edit-popup .profile-name {
   font-size: 10vw;
-  
   font-weight: bold;
   margin: 5px 0 0px;
-  width: 10vw;
+  width: 100%;
 }
 
 .feature-row,
