@@ -31,7 +31,9 @@ html, body {
 }
 
 
-
+.leaflet-control-zoom {
+    display: inline-block !important;
+  }
 
 @media (max-width: 1200px) {
   .leaflet-control-zoom {
