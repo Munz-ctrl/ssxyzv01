@@ -36,11 +36,8 @@
     </div>
 
 
-    <div class="player-main-avatar">
-      <label for="upload an isometric picture or a full body picture">
-        <img id="mainPreview" class="avatar-preview" src="" alt="Main View" />
-      </label>
-    </div>
+    <div id="mainAvatarPreviewContainer" class="player-main-avatar"></div>
+
     <input type="file" id="uploadMain" accept="image/*" style="display:none" />
     <input type="text" id="popupBgInput" placeholder="Popup Background (e.g. #000 or url...)" />
 
@@ -127,7 +124,7 @@
       }
 
 
-     
+
 
 
       document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
@@ -138,14 +135,23 @@
 
       document.getElementById('popupBgInput').value = player.popupBg || '';
 
-      if (player.avatar) document.getElementById('avatarPreview').src = currentAvatarURL = player.avatar;
-      if (player.main) {
-        const previewEl = document.getElementById('mainPreview');
-        previewEl.src = currentMainURL = player.main;
+      const avatarContainer = document.getElementById('mainAvatarPreviewContainer');
+      const fallback = '/assets/fallbackIsoAvatar.webp';
 
-        // Optional: widen layout
-        document.querySelector('.edit-popup')?.classList.add('wide-popup');
+      let avatarHTML = '';
+
+      if (player.spritesheet) {
+        avatarHTML = `<div class="sprite-anim" style="background-image: url('${player.spritesheet}')"></div>`;
+      } else if (player.main) {
+        avatarHTML = `<img src="${player.main}" />`;
+      } else if (player.avatar) {
+        avatarHTML = `<img src="${player.avatar}" />`;
+      } else {
+        avatarHTML = `<img src="${fallback}" class="fallback" />`;
       }
+
+      avatarContainer.innerHTML = avatarHTML;
+
 
 
       if (player.special) document.getElementById('previewSpecial1').src = currentSpecial1URL = player.special;
@@ -218,7 +224,7 @@
       const name = document.getElementById('playerName').value.trim();
       const mission = document.getElementById('playerMission').value.split('\n');
       let popupBg = document.getElementById('popupBgInput').value.trim();
-       if (popupBg.startsWith('http')) popupBg = `url(${popupBg})`;
+      if (popupBg.startsWith('http')) popupBg = `url(${popupBg})`;
 
 
 
@@ -227,10 +233,10 @@
         mission: mission.filter(Boolean),
         main: currentMainURL || '',
         popupBg: popupBg
-        
+
       };
 
-     
+
 
       const { error } = await supabase
         .from('players')
