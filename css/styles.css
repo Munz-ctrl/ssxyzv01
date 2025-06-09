@@ -584,6 +584,7 @@ html, body {
 .player-main-avatar .fallback {
   height: 50px;
   width: 50px;
+  right: 10px;
   margin-right: 1vh;
   opacity: 0.2;
 }
