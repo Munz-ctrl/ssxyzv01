@@ -1,6 +1,6 @@
 // /js/playerUtils.js
 
-import L from '/js/main.js';
+// import L from '/js/main.js';
 
 
 function createPlayerMarker(player) {
