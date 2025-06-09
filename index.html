@@ -40,9 +40,9 @@
 
   <!-- <div id="map-mask"></div> -->
 
-<div id="titleSprite" class="sprite-title"></div>
+ <div id="titleSprite" class="sprite-title"></div>
 
-<div id="titleText" style="
+ <div id="titleText" style="
   position: absolute;
   top: 10px;
   right: 10%;
@@ -67,20 +67,20 @@
     SSX XYZ v(0.2)
     <span class="animated-text"></span>
   </div>
-</div>
+
 
   <!-- <img id="title" src="sxtitleT.png" alt="Title Overlay" /> -->
 
   
  <!-- Let Leaflet do its own thing -->
-<!-- Your custom control stack, separate from Leaflet -->
-<div id="customTopLeftControls"> 
+ <!-- Your custom control stack, separate from Leaflet -->
+ <div id="customTopLeftControls"> 
 
 
   <button id="infoCircleBtn" class="circle-icon">?</button>
   <img id="tileToggleBtn" src="assets/icons/tileToggleIcon.png" class="circle-icon" />
 
-</div>
+ </div>
 
 
 
@@ -229,11 +229,11 @@
 
 
 
-document.getElementById('tileToggleBtn').addEventListener('click', () => {
+ document.getElementById('tileToggleBtn').addEventListener('click', () => {
   map.removeLayer(currentTileLayer);
   currentTileLayer = (currentTileLayer === darkTiles) ? lightTiles : darkTiles;
   map.addLayer(currentTileLayer);
-});
+ });
 
 
 
@@ -492,12 +492,6 @@ document.getElementById('tileToggleBtn').addEventListener('click', () => {
       setTimeout(typeLoop, 100);
     }
     typeLoop();
-
-
-
-
-
-
 
   </script>
 
