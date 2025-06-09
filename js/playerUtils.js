@@ -1,6 +1,6 @@
 // /js/playerUtils.js
 
-import L from 'leaflet';
+import L from '/leaflet';
 
 
 function createPlayerMarker(player) {
