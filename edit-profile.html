@@ -40,11 +40,11 @@
 
     <input type="file" id="uploadMain" accept="image/*" style="display:none" />
 
-   
+
 
     <textarea id="playerMission" class="mission-textarea" placeholder="Mission(s)... (One per line)"></textarea>
 
-     <div class="coord-row" style="margin-top: 10px;">
+    <div class="coord-row" style="margin-top: 10px;">
       <label style="font-size: 10px;">Popup BG Color:</label>
       <input type="color" id="popupBgColor" style="width: 40px; height: 30px; border: none;" />
     </div>
@@ -145,7 +145,15 @@
       document.getElementById('playerMission').value = missionList.join('\n');
 
 
-      document.getElementById('popupBgInput').value = player.popupBg || '';
+      if (player.popupBg?.startsWith('url')) {
+        // It's an image URL
+        const bgUrl = player.popupBg.match(/url\((.*?)\)/)?.[1]?.replace(/['"]/g, '');
+        currentBgImage = bgUrl;
+        document.getElementById('popupBgColor').value = "#ffffff"; // fallback color
+      } else {
+        document.getElementById('popupBgColor').value = player.popupBg || "#ffffff";
+      }
+
 
       const avatarContainer = document.getElementById('mainAvatarPreviewContainer');
       const fallback = '/assets/fallbackIsoAvatar.webp';
