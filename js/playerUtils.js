@@ -81,7 +81,7 @@ function generatePopupHTML(player) {
   `;
   }
 
- const popupBgStyle = player.popupBg ? `style="background:${player.popupBg};"` : '';
+ const popupBgStyle = player.popupBg ? `style="background:${player.popupBg};"` : `style="background: rgba(255, 114, 114, 0.4);"`;
 
   const featureIcons = [player.special, player.special2].map((img, i) => {
     const hasImage = img && img !== "";
@@ -149,12 +149,13 @@ function attachFlyToBehavior(button, marker, coords) {
     });
  
     ssxyz.setMarkerUnclickable(marker);
+    
     setTimeout(() => {
  
       marker.openPopup();
 
   // 🔥 make it unclickable once popup opens
-  
+
     }, 2200);
 
   };
