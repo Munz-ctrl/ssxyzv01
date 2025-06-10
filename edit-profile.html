@@ -175,19 +175,17 @@
       // }
 
       document.getElementById('popupBgImage').addEventListener('change', async function () {
-        const file = this.files[0];
+  const file = this.files[0];
+  if (file) {
+    const path = `avatars/${currentUser.id}/popupBg.webp`; // ✅ CORRECT NOW
+    const url = await uploadImage(file, path);
+    if (url) {
+      currentBgImage = url;
+      editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
+    }
+  }
+});
 
-        
-
-
-        if (file) {
-          const path = `avatars/${currentUser.id}/avatar.webp`;
-
-
-          const url = await uploadImage(file, path);
-          if (url) currentBgImage = url;
-        }
-      });
 
       const editPopup = document.querySelector('.edit-popup');
     //  const popupColorInput = document.getElementById('popupBgColor');
@@ -215,7 +213,7 @@
        }
      });
 
-
+     
 
 
       const avatarContainer = document.getElementById('mainAvatarPreviewContainer');
