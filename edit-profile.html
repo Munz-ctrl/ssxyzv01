@@ -131,7 +131,7 @@
   return;
   }
 
-  uploaderId = currentUser.id; // ✅ safe here, after assignment
+  uploaderId = data.user.id; // ✅ safe here, after assignment
   loadPlayerData();
 })();
 
@@ -156,7 +156,7 @@
         return;
       }
 
-      
+      const ownerId = player.owner_id;
 
       document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
       document.getElementById('playerName').value = player.name || '';
