@@ -489,7 +489,7 @@ ssxyz.uploadImage = async function (file, filename, uploaderId = "") {
 
   const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
   return urlData.publicUrl;
-},
+};
  
 
 
