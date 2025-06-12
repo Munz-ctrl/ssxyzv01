@@ -78,13 +78,11 @@ function generatePopupHTML(player) {
       <img src="${player.avatar}" />
     </div>
   `;
-  } else {
-    avatarHTML = `
-    <div class="player-main-avatar">
-      <img src="${fallback}" class="fallback" />
-    </div>
-  `;
-  }
+  } else if (!player.avatar && player.popupBg?.startsWith('http')) {
+  avatarHTML = `<img src="${fallback}" class="fallback" />`;
+} else {
+  avatarHTML = ''; // No avatar shown if no avatar and no popupBg image
+}
 
  const popupBgStyle = player.popupBg ? `style="background:${player.popupBg};"` : `style="background: rgba(255, 114, 114, 0.4);"`;
 
