@@ -473,13 +473,16 @@ ssxyz.upgradeToEmail = async function () {
   }
 };
 
-  ssxyz.uploadImage = async function (file, filename = "uploaded.webp") {
-  if (!ssxyz.activePlayer?.owner_id) {
-    alert("User not authenticated.");
+ssxyz.uploadImage = async function (file, filename = "uploaded.webp", fallbackOwnerId = null) {
+  const user = ssxyz.activePlayer;
+  const ownerId = user?.owner_id || fallbackOwnerId;
+
+  if (!ownerId) {
+    alert("Upload failed: missing owner ID.");
     return null;
   }
 
-  const path = `${ssxyz.activePlayer.owner_id}/${filename}`;
+  const path = `${ownerId}/${filename}`;
   const { error } = await supabase.storage
     .from('userassets') // ✅ new bucket
     .upload(path, file, { upsert: true });
@@ -493,6 +496,7 @@ ssxyz.upgradeToEmail = async function () {
   const { data: urlData } = supabase.storage.from('userassets').getPublicUrl(path);
   return urlData.publicUrl;
 },
+
 
 
 function renderLoginFields(player) {
