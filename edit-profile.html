@@ -188,32 +188,31 @@
 
 
       const editPopup = document.querySelector('.edit-popup');
-    //  const popupColorInput = document.getElementById('popupBgColor');
-     const popupImageInput = document.getElementById('popupBgImage');
+//  const popupColorInput = document.getElementById('popupBgColor');
+const popupImageInput = document.getElementById('popupBgImage');
 
-     // Live background preview on color change
-    //  popupColorInput.addEventListener('input', () => {
-    //    currentBgImage = ""; // override image if color selected
-    //    editPopup.style.background = popupColorInput.value;
-    //  });
-     editPopup.style.background = player.popupBg?.startsWith('url')
+// Live background preview on color change
+//  popupColorInput.addEventListener('input', () => {
+//    currentBgImage = ""; // override image if color selected
+//    editPopup.style.background = popupColorInput.value;
+//  });
+editPopup.style.background = player.popupBg?.startsWith('url')
   ? `url(${currentBgImage}) no-repeat center center / cover`
   : player.popupBg || 'rgba(255, 114, 114, 0.4)';
 
-     // Live background preview on image upload
-     popupImageInput.addEventListener('change', async function () {
-       const file = this.files[0];
-       if (file) {
-         const path = `avatars/${currentUser.id}/popupBg.webp`;
-         const url = await uploadImage(file, path);
-         if (url) {
-           currentBgImage = url;
-           editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
-         }
-       }
-     });
+// Live background preview on image upload
+popupImageInput.addEventListener('change', async function () {
+  const file = this.files[0];
+  if (file) {
+    const path = `avatars/${currentUser.id}/popupBg.webp`;
+    const url = await uploadImage(file, path);
+    if (url) {
+      currentBgImage = url;
+      editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
+    }
+  }
+});
 
-     
 
 
       const avatarContainer = document.getElementById('mainAvatarPreviewContainer');
