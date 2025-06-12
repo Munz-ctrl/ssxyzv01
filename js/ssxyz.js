@@ -473,29 +473,24 @@ ssxyz.upgradeToEmail = async function () {
   }
 };
 
-ssxyz.uploadImage = async function (file, filename = "uploaded.webp", fallbackOwnerId = null) {
-  const user = ssxyz.activePlayer;
-  const ownerId = user?.owner_id || fallbackOwnerId;
+ssxyz.uploadImage = async function (file, filename, uploaderId = "") {
+  const bucket = uploaderId ? 'userassets' : 'avatars'; // ✅ dynamic support
+  const path = uploaderId ? `userassets/${uploaderId}/${filename}` : filename;
 
-  if (!ownerId) {
-    alert("Upload failed: missing owner ID.");
-    return null;
-  }
-
-  const path = `${ownerId}/${filename}`;
-  const { error } = await supabase.storage
-    .from('userassets') // ✅ new bucket
+  const { data, error } = await supabase.storage
+    .from(bucket)
     .upload(path, file, { upsert: true });
 
   if (error) {
-    console.error("Upload failed", error);
-    alert("Upload failed");
+    console.error('Upload failed:', error);
+    alert('⚠️ Upload failed');
     return null;
   }
 
-  const { data: urlData } = supabase.storage.from('userassets').getPublicUrl(path);
+  const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
   return urlData.publicUrl;
 },
+ 
 
 
 
