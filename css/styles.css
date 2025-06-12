@@ -663,7 +663,7 @@ html, body {
   
   color: #181818;
   /* text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff; */
-  background: circular-gradient(45deg, #ffffffb3, #ffffff00);
+  background: linear-gradient(45deg, #ffffffb3, #ffffff00);
   box-decoration-break: slice;
 }
 
