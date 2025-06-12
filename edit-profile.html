@@ -100,6 +100,9 @@
 
   <script type="module">
     import { supabase } from './js/supabase.js';
+    import L from 'leaflet'; 
+    import { upgradeToEmail } from './js/main.js';
+    import { ssxyz } from './js/ssxyz.js'; // <-- import ssxyz for centralized upload
 
     const params = new URLSearchParams(window.location.search);
     const playerId = params.get('id');
@@ -136,7 +139,9 @@
 })();
 
 
-    async function loadPlayerData() {
+
+
+async function loadPlayerData() {
 
       if (!uploaderId) {
   alert("Uploader not ready");
@@ -177,8 +182,7 @@
       document.getElementById('popupBgImage').addEventListener('change', async function () {
   const file = this.files[0];
   if (file) {
-    const path = `avatars/${currentUser.id}/popupBg.webp`; // ✅ CORRECT NOW
-    const url = await uploadImage(file, path);
+    const url = await ssxyz.uploadImage(file, "popupBg.webp", currentUser.id);
     if (url) {
       currentBgImage = url;
       editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
@@ -196,6 +200,7 @@
     //    currentBgImage = ""; // override image if color selected
     //    editPopup.style.background = popupColorInput.value;
     //  });
+
      editPopup.style.background = player.popupBg?.startsWith('url')
   ? `url(${currentBgImage}) no-repeat center center / cover`
   : player.popupBg || 'rgba(255, 114, 114, 0.4)';
@@ -204,8 +209,7 @@
      popupImageInput.addEventListener('change', async function () {
        const file = this.files[0];
        if (file) {
-         const path = `avatars/${currentUser.id}/popupBg.webp`;
-         const url = await uploadImage(file, path);
+         const url = await ssxyz.uploadImage(file, "popupBg.webp", currentUser.id);
          if (url) {
            currentBgImage = url;
            editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
@@ -242,28 +246,11 @@
 
     }
 
-    async function uploadImage(file, path) {
-      const { error } = await supabase.storage
-        .from('avatars')
-        .upload(path, file, { upsert: true });
-
-      if (error) {
-        console.error('Upload failed:', error);
-        alert('⚠️ Upload failed');
-        return null;
-      }
-
-      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-      return data.publicUrl;
-    }
-
     document.getElementById('uploadAvatar').addEventListener('change', async function () {
       if (!uploaderId) return alert("User not ready");
-      
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${uploaderId}/avatar.webp`;
-        const url = await uploadImage(file, path);
+        const url = await ssxyz.uploadImage(file, "avatar.webp", uploaderId);
         if (url) {
           currentAvatarURL = url;
           document.getElementById('avatarPreview').src = url;
@@ -273,11 +260,9 @@
 
    document.getElementById('uploadMain').addEventListener('change', async function () {
   if (!uploaderId) return alert("User not ready");
-
   const file = this.files[0];
   if (file) {
-    const path = `avatars/${uploaderId}/main.webp`;
-    const url = await uploadImage(file, path);
+    const url = await ssxyz.uploadImage(file, "main.webp", uploaderId);
     if (url) {
       currentMainURL = url;
       document.getElementById('mainPreview').src = url;
@@ -289,11 +274,9 @@
 
     document.getElementById('uploadSpecial1').addEventListener('change', async function () {
       if (!uploaderId) return alert("User not ready");
-
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${uploaderId}/special1.webp`;
-        const url = await uploadImage(file, path);
+        const url = await ssxyz.uploadImage(file, "special1.webp", uploaderId);
         if (url) {
           currentSpecial1URL = url;
           document.getElementById('previewSpecial1').src = url;
@@ -303,11 +286,9 @@
 
     document.getElementById('uploadSpecial2').addEventListener('change', async function () {
       if (!uploaderId) return alert("User not ready");
-
       const file = this.files[0];
       if (file) {
-        const path = `avatars/${uploaderId}/special2.webp`;
-        const url = await uploadImage(file, path);
+        const url = await ssxyz.uploadImage(file, "special2.webp", uploaderId);
         if (url) {
           currentSpecial2URL = url;
           document.getElementById('previewSpecial2').src = url;
