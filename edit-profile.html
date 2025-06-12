@@ -173,11 +173,12 @@ async function loadPlayerData() {
       document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
       document.getElementById('playerName').value = player.name || '';
       const missionList = Array.isArray(player.mission) ? player.mission : [player.mission || ""];
-      document.getElementById('playerMission').value = missionList.join('\n');
+      const mission = document.getElementById('playerMission').value.trim();
+
 
 
             if (player.popupBg?.startsWith('http')) {
-                              currentBgImage = player.popupBg;
+             currentBgImage = player.popupBg;
               }
 
 
@@ -317,7 +318,7 @@ async function loadPlayerData() {
 
       const updates = {
         name: name || '',
-        mission: mission.filter(Boolean),
+        mission: mission || '',
         main: currentMainURL || '',
         popupBg: popupBg
 
