@@ -100,10 +100,10 @@
 
   <script type="module">
     import { supabase } from '/js/supabase.js';
-    import L from 'leaflet'; 
+    import * as ssxyz from '/js/ssxyz.js';
     import { upgradeToEmail } from '/js/main.js';
-    import { ssxyz } from '/js/ssxyz.js'; // <-- import ssxyz for centralized upload
-
+    import '/js/playerUtils.js'; 
+    
     const params = new URLSearchParams(window.location.search);
     const playerId = params.get('id');
 
