@@ -660,7 +660,7 @@ html, body {
   font-size: x-small;
   font-weight: bold;
   white-space: wrap;
-  margin-top: 8px;
+  
   color: #181818;
   /* text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff; */
   background: linear-gradient(90deg, #fffbe71f 0%, #fffbe736 50%, #fffbe75c 100%);
