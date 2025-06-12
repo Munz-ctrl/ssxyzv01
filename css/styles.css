@@ -576,11 +576,12 @@ html, body {
   display: flex; */
 
   text-align: center;
-  margin-top: -44px;
+  margin-top: -10%;
+  margin-bottom: -10%;
 }
 
 .player-main-avatar img {
-  /* max-width: 150px; */
+  max-width: 100%;
   width: 17vh;
   height: auto;
   object-fit: contain;
@@ -602,7 +603,7 @@ html, body {
 /* Optional fallback styling */
 .player-main-avatar .fallback {
   height: auto;
-  width: 120px;
+  width: 111px;
   left: 10px;
   margin-right: 1vh;
   opacity: 0.0;
