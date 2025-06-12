@@ -110,8 +110,8 @@ html, body {
 }
 
 .placeholder-slot {
-  width: 18px;
-  height: 18px;
+  width: 10vw;
+  height: 10vw;
   border-radius: 50%;
   background: #f4f4f457;
   border: 2px dashed #bbb;
@@ -153,9 +153,6 @@ html, body {
 .save-btn:hover {
   background: #000;
 }
-
-
-
 
 
 
@@ -418,7 +415,12 @@ html, body {
 }
 
 
-
+.leaflet-popup-tip {
+  background: transparent !important;
+  border: none !important;
+  width: 11px !important;
+  height: 17px !important;
+}
 
 
 .profile-id {
@@ -435,12 +437,12 @@ html, body {
 
 .profile-name.z-0 {
   text-align: left;
-  font-size: 2vw;
+  font-size: 2vh;
   font-weight: bold;
   font: 'ubuntu';
   line-height: 0.8;
   color: #000;
-  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+  text-shadow: 1px 1px 0 #ffffff78, -1px -1px 0 #ffffff76, 1px -1px 0 #fff, -1px 1px 0 #fff;
   white-space: wrap;
   text-overflow: clip;
   display: inline-flex;
