@@ -320,7 +320,8 @@ async function loadPlayerData() {
 
       const updates = {
         name: name || '',
-        mission: mission.filter(Boolean),
+        mission: mission || '',
+
         main: currentMainURL || '',
         popupBg: popupBg
 
