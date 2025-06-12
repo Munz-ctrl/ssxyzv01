@@ -176,15 +176,10 @@ async function loadPlayerData() {
       document.getElementById('playerMission').value = missionList.join('\n');
 
 
-      if (player.popupBg?.startsWith('url')) {
-        // It's an image URL
-        const bgUrl = player.popupBg.match(/url\((.*?)\)/)?.[1]?.replace(/['"]/g, '');
-        currentBgImage = bgUrl;
-        // document.getElementById('popupBgColor').value = "#ffffff"; // fallback color
-       }
-      //  else {
-      //   document.getElementById('popupBgColor').value = player.popupBg || "#ffffff";
-      // }
+            if (player.popupBg?.startsWith('http')) {
+                              currentBgImage = player.popupBg;
+              }
+
 
       document.getElementById('popupBgImage').addEventListener('change', async function () {
   const file = this.files[0];
@@ -208,9 +203,10 @@ async function loadPlayerData() {
     //    editPopup.style.background = popupColorInput.value;
     //  });
 
-     editPopup.style.background = player.popupBg?.startsWith('url')
-  ? `url(${currentBgImage}) no-repeat center center / cover`
-  : player.popupBg || 'rgba(255, 114, 114, 0.4)';
+      editPopup.style.background = currentBgImage
+       ? `url(${currentBgImage}) no-repeat center center / cover`
+       : 'rgba(255, 114, 114, 0.4)';
+
 
      // Live background preview on image upload
     //  popupImageInput.addEventListener('change', async function () {
@@ -317,9 +313,8 @@ async function loadPlayerData() {
       const name = document.getElementById('playerName').value.trim();
       const mission = document.getElementById('playerMission').value.trim().split('\n');
 
-      let popupBg = currentBgImage
-       ? `url(${currentBgImage})`
-       : 'rgba(255, 255, 255, 0.4)';
+    let popupBg = currentBgImage || 'rgba(255, 255, 255, 0.4)';
+
 
 
 
@@ -366,11 +361,9 @@ async function loadPlayerData() {
       location.href = 'index.html';
     });
 
-
     document.getElementById('upgradeEmailBtn')?.addEventListener('click', upgradeToEmail);
-
-
     window.savePlayerEdits = savePlayerEdits;
+
 
   </script>
 
