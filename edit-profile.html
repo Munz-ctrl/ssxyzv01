@@ -189,7 +189,8 @@ async function loadPlayerData() {
     const url = await ssxyz.uploadImage(file, "popupBg.webp", currentUser.id);
     if (url) {
       currentBgImage = url;
-      editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
+      editPopup.style.background = `url(${currentBgImage}?t=${Date.now()}) no-repeat center center / cover`;
+
     }
   }
 });
@@ -206,7 +207,7 @@ async function loadPlayerData() {
     //  });
 
   editPopup.style.background = currentBgImage
-  ? `url(${currentBgImage}) no-repeat center center / cover`
+  ? `url(${currentBgImage}?t=${Date.now()}) no-repeat center center / cover`
   : player.popupBg || 'rgba(255, 114, 114, 0.4)';
 
 
