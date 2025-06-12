@@ -581,7 +581,7 @@ html, body {
 
 .player-main-avatar img {
   /* max-width: 150px; */
-  width: 22vh;
+  width: 17vh;
   height: auto;
   object-fit: contain;
   /* aspect-ratio: 400 / 570; */
@@ -1163,9 +1163,13 @@ html, body {
   cursor: pointer;
 }
 
-@media screen and (orientation: portrait) {
+/* @media screen and (orientation: portrait) {
   .leaflet-popup-content-wrapper {
     max-width: 90vw;
+  }
+  .player-main-avatar img {
+    width: 40vw;
+    height: auto;
   }
 }
 
@@ -1173,4 +1177,4 @@ html, body {
   .leaflet-popup-content-wrapper {
     max-width: 60vw;
   }
-}
+} */
