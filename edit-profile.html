@@ -105,7 +105,10 @@
 
 
 
-<script type="module">
+
+
+window.addEventListener('DOMContentLoaded', async () => {
+  <script type="module">
 import { supabase } from './js/supabase.js';
 import { ssxyz } from './js/ssxyz.js';
 
@@ -161,7 +164,7 @@ let currentUser = null;
   document.getElementById('popupBgImage').addEventListener('change', async function () {
     const file = this.files[0];
     if (file) {
-      const url = await ssxyz.uploadImage(file, 'popupBg.webp');
+      const url = await ssxyz.uploadImage(file, 'popupBg.webp', currentUser.id);
       if (url) {
         currentBgImage = url;
         editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
@@ -202,7 +205,7 @@ if (player.avatar) {
 document.getElementById('uploadMain').addEventListener('change', async function () {
   const file = this.files[0];
   if (file) {
-    const url = await ssxyz.uploadImage(file, 'main.webp');
+    const url = await ssxyz.uploadImage(file, 'main.webp', currentUser.id);
     if (url) {
       currentMainURL = url;
       document.getElementById('mainPreview')?.src = url;
@@ -213,7 +216,7 @@ document.getElementById('uploadMain').addEventListener('change', async function 
 document.getElementById('uploadSpecial1').addEventListener('change', async function () {
   const file = this.files[0];
   if (file) {
-    const url = await ssxyz.uploadImage(file, 'special1.webp');
+    const url = await ssxyz.uploadImage(file, 'special1.webp', currentUser.id);
     if (url) {
       currentSpecial1URL = url;
       document.getElementById('previewSpecial1').src = url;
@@ -224,7 +227,7 @@ document.getElementById('uploadSpecial1').addEventListener('change', async funct
 document.getElementById('uploadSpecial2').addEventListener('change', async function () {
   const file = this.files[0];
   if (file) {
-    const url = await ssxyz.uploadImage(file, 'special2.webp');
+    const url = await ssxyz.uploadImage(file, 'special2.webp', currentUser.id);
     if (url) {
       currentSpecial2URL = url;
       document.getElementById('previewSpecial2').src = url;
@@ -235,7 +238,7 @@ document.getElementById('uploadSpecial2').addEventListener('change', async funct
 document.getElementById('uploadAvatar').addEventListener('change', async function () {
   const file = this.files[0];
   if (file) {
-    const url = await ssxyz.uploadImage(file, 'avatar.webp');
+    const url = await ssxyz.uploadImage(file, 'avatar.webp', currentUser.id);
     if (url) {
       currentAvatarURL = url;
       document.getElementById('avatarPreview')?.src = url;
@@ -284,7 +287,7 @@ document.getElementById('backBtn')?.addEventListener('click', () => {
   location.href = 'index.html';
 });
 </script>
-
+});
 
 
 
