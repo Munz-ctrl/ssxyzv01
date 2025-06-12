@@ -784,12 +784,12 @@ html, body {
   0% {
     transform: translate(-50%, -50%) scale(0.1);
     color: #9d9d9d85;
-    border: #2f2f2f69;
+    /* border: #2f2f2f69; */
     opacity: 0.77;
   }
 
   100% {
-    transform: translate(-50%, -50%) scale(2.2);
+    transform: translate(-50%, -50%) scale(1.2);
     color: #47646e5d;
     opacity: 0;
   }
