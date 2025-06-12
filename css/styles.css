@@ -600,11 +600,12 @@ html, body {
 
 /* Optional fallback styling */
 .player-main-avatar .fallback {
-  height: 50px;
-  width: 50px;
+  height: auto;
+  width: 120px;
   left: 10px;
   margin-right: 1vh;
-  opacity: 0.2;
+  opacity: 0.0;
+  pointer-events: none;
 }
 
 /* Spritesheet animation */
