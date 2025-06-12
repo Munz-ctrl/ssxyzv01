@@ -235,7 +235,7 @@ async function loadPlayerData() {
       if (player.spritesheet) {
         avatarHTML = `<div class="sprite-anim" style="background-image: url('${player.spritesheet}')"></div>`;
       } else if (player.main) {
-        avatarHTML = `<img src="${player.main}" />`;
+      avatarHTML = `<img id="mainPreview" src="${player.main}" />`;
       } else if (player.avatar) {
         avatarHTML = `<img src="${player.avatar}" />`;
       } else {
