@@ -440,8 +440,7 @@ html, body {
   font: 'ubuntu';
   line-height: 0.8;
   color: #000;
-  stroke: #c1c1c1bb;
-  stroke-width: 1px;
+  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
   white-space: wrap;
   text-overflow: clip;
   display: inline-flex;
