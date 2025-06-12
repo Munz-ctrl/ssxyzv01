@@ -125,5 +125,36 @@ fetch('data/locations.json')
         closeallpopups();
       });
 
+
+
+
+
+
+
+
     });
   });
+
+// Responsive Popup Resizing
+function adjustPopupSizes() {
+  const isPortrait = window.innerHeight > window.innerWidth;
+
+  document.querySelectorAll('.leaflet-popup-content-wrapper').forEach(wrapper => {
+    if (isPortrait) {
+      wrapper.style.width = '80vw';
+      wrapper.style.maxWidth = '90vw';
+    } else {
+      wrapper.style.width = '40vw';
+      wrapper.style.maxWidth = '60vw';
+    }
+  });
+
+  if (window.map && window.map._popup) {
+    const latlng = window.map._popup.getLatLng();
+    window.map.panTo(latlng);
+  }
+}
+
+window.addEventListener('resize', () => {
+  adjustPopupSizes();
+});
