@@ -670,7 +670,7 @@ html, body {
   white-space: wrap;
   margin-top: 8px;
   color: #000000;
-  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+  text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff;
 
 }
 
