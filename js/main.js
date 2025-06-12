@@ -142,7 +142,7 @@ function adjustPopupSizes() {
   document.querySelectorAll('.leaflet-popup-content-wrapper').forEach(wrapper => {
     if (isPortrait) {
       // wrapper.style.width = '80vw';
-      wrapper.style.maxHeight = '30vh';
+      wrapper.style.maxWidth = '50vw';
     } else {
       // wrapper.style.width = '40vw';
       // wrapper.style.maxWidth = '60vw';
