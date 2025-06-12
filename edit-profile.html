@@ -203,9 +203,9 @@ async function loadPlayerData() {
     //    editPopup.style.background = popupColorInput.value;
     //  });
 
-      editPopup.style.background = currentBgImage
-       ? `url(${currentBgImage}) no-repeat center center / cover`
-       : 'rgba(255, 114, 114, 0.4)';
+  editPopup.style.background = currentBgImage
+  ? `url(${currentBgImage}) no-repeat center center / cover`
+  : player.popupBg || 'rgba(255, 114, 114, 0.4)';
 
 
      // Live background preview on image upload
