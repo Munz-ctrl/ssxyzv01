@@ -430,7 +430,7 @@ html, body {
   font: 'ubuntu';
   line-height: 0.8;
   color: #000;
-  text-shadow: 1px 1px 0 #ffffff78, -1px -1px 0 #ffffff76, 1px -1px 0 #fff, -1px 1px 0 #fff;
+  text-shadow: 1px 1px 0 #ffffff76, -1px -1px 0 #ffffff76, 1px -1px 0 #ffffff76, -1px 1px 0 #ffffff76;
   white-space: wrap;
   text-overflow: clip;
   display: inline-flex;
@@ -661,9 +661,10 @@ html, body {
   font-weight: bold;
   white-space: wrap;
   margin-top: 8px;
-  color: #000000;
-  text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff;
-
+  color: #181818;
+  /* text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff; */
+  background: linear-gradient(90deg, #fffbe7 0%, #fffbe7cc 50%, #fffbe7 100%);
+  box-decoration-break: clone;
 }
 
 .locationBtn.selected {
