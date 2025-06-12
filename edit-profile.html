@@ -213,16 +213,16 @@ async function loadPlayerData() {
   : player.popupBg || 'rgba(255, 114, 114, 0.4)';
 
      // Live background preview on image upload
-     popupImageInput.addEventListener('change', async function () {
-       const file = this.files[0];
-       if (file) {
-         const url = await ssxyz.uploadImage(file, "popupBg.webp", currentUser.id);
-         if (url) {
-           currentBgImage = url;
-           editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
-         }
-       }
-     });
+    //  popupImageInput.addEventListener('change', async function () {
+    //    const file = this.files[0];
+    //    if (file) {
+    //      const url = await ssxyz.uploadImage(file, "popupBg.webp", currentUser.id);
+    //      if (url) {
+    //        currentBgImage = url;
+    //        editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
+    //      }
+    //    }
+    //  });
 
      
 
