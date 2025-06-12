@@ -168,18 +168,19 @@ async function loadPlayerData() {
         return;
       }
 
-      const ownerId = player.owner_id;
+    const ownerId = player.owner_id;
 
-      document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
-      document.getElementById('playerName').value = player.name || '';
-      const missionList = Array.isArray(player.mission) ? player.mission : [player.mission || ""];
-      const mission = document.getElementById('playerMission').value.trim();
+    document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
+    document.getElementById('playerName').value = player.name || '';
+     
+    document.getElementById('playerMission').value = player.mission || '';
 
 
 
-            if (player.popupBg?.startsWith('http')) {
-             currentBgImage = player.popupBg;
-              }
+
+    if (player.popupBg?.startsWith('http')) {
+     currentBgImage = player.popupBg;
+     }
 
 
       document.getElementById('popupBgImage').addEventListener('change', async function () {
@@ -312,13 +313,14 @@ async function loadPlayerData() {
       }
 
       const name = document.getElementById('playerName').value.trim();
-      const mission = document.getElementById('playerMission').value.trim().split('\n');
+      const mission = document.getElementById('playerMission').value.trim();
+
 
       let popupBg = currentBgImage || 'rgba(15, 255, 255, 0.4)';
 
       const updates = {
         name: name || '',
-        mission: mission || '',
+        mission: mission.filter(Boolean),
         main: currentMainURL || '',
         popupBg: popupBg
 
