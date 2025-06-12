@@ -98,173 +98,297 @@
 
 
 
-<script type="module">
-import { supabase } from './js/supabase.js';
-import { ssxyz } from './js/ssxyz.js';
+  <script type="module">
+    import { supabase } from './js/supabase.js';
 
-const params = new URLSearchParams(window.location.search);
-const playerId = params.get('id');
+    const params = new URLSearchParams(window.location.search);
+    const playerId = params.get('id');
 
-let currentAvatarURL = "";
-let currentSpecial1URL = "";
-let currentSpecial2URL = "";
-let currentMainURL = "";
-let currentBgImage = "";
+    let currentAvatarURL = "";
+    let currentSpecial1URL = "";
+    let currentSpecial2URL = "";
+    let currentMainURL = "";
+    let currentBgImage = "";
 
-let currentUser = null;
+   let currentUser = null;
+   let uploaderId = ""; // <-- initialize safely
 
-(async () => {
-  const { data: sessionData } = await supabase.auth.getSession();
-  if (!sessionData?.session?.user) await supabase.auth.signInAnonymously();
+
+
+
+    // 🔐 Step 1: Ensure we are logged in anonymously
+    (async () => {
+  const { data: sessionData, error: authError } = await supabase.auth.getSession();
+  if (!sessionData?.session?.user) {
+    await supabase.auth.signInAnonymously();
+   }
 
   const { data } = await supabase.auth.getUser();
   currentUser = data?.user;
+  
   if (!currentUser) {
-    alert("❌ Failed to retrieve user.");
-    return;
+  alert("❌ Failed to retrieve user.");
+  return;
   }
 
-  const { data: player, error } = await supabase
-    .from('players')
-    .select('*')
-    .eq('pid', playerId)
-    .single();
-
-  if (!player || error) {
-    alert("❌ Could not load player");
-    return;
-  }
-
-  ssxyz.activePlayer = player; // ✅ required for uploadImage()
-
-  document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
-  document.getElementById('playerName').value = player.name || '';
-  document.getElementById('playerMission').value = (Array.isArray(player.mission) ? player.mission : [player.mission || ""]).join('\n');
-
-  if (player.popupBg?.startsWith('url')) {
-    const bgUrl = player.popupBg.match(/url\((.*?)\)/)?.[1]?.replace(/['"]/g, '');
-    currentBgImage = bgUrl;
-  }
-
-  const editPopup = document.querySelector('.edit-popup');
-  editPopup.style.background = player.popupBg?.startsWith('url')
-    ? `url(${currentBgImage}) no-repeat center center / cover`
-    : player.popupBg || 'rgba(255, 114, 114, 0.4)';
-
-  document.getElementById('popupBgImage').addEventListener('change', async function () {
-    const file = this.files[0];
-    if (file) {
-      const url = await ssxyz.uploadImage(file, 'popupBg.webp');
-      if (url) {
-        currentBgImage = url;
-        editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
-      }
-    }
-  });
-
-  const avatarContainer = document.getElementById('mainAvatarPreviewContainer');
-  const fallback = '/assets/fallbackIsoAvatar.webp';
-  avatarContainer.innerHTML = player.spritesheet
-    ? `<div class="sprite-anim" style="background-image: url('${player.spritesheet}')"></div>`
-    : player.main
-    ? `<img src="${player.main}" />`
-    : player.avatar
-    ? `<img src="${player.avatar}" />`
-    : `<img src="${fallback}" class="fallback" />`;
-
-  if (player.special) document.getElementById('previewSpecial1').src = currentSpecial1URL = player.special;
-  if (player.special2) document.getElementById('previewSpecial2').src = currentSpecial2URL = player.special2;
-
-  document.getElementById('saveBtn')?.addEventListener('click', savePlayerEdits);
+  uploaderId = data.user.id; // ✅ safe here, after assignment
+  loadPlayerData();
 })();
 
-document.getElementById('uploadMain').addEventListener('change', async function () {
-  const file = this.files[0];
-  if (file) {
-    const url = await ssxyz.uploadImage(file, 'main.webp');
-    if (url) {
-      currentMainURL = url;
-      document.getElementById('mainPreview')?.src = url;
-    }
-  }
-});
 
-document.getElementById('uploadSpecial1').addEventListener('change', async function () {
-  const file = this.files[0];
-  if (file) {
-    const url = await ssxyz.uploadImage(file, 'special1.webp');
-    if (url) {
-      currentSpecial1URL = url;
-      document.getElementById('previewSpecial1').src = url;
-    }
-  }
-});
+    async function loadPlayerData() {
 
-document.getElementById('uploadSpecial2').addEventListener('change', async function () {
-  const file = this.files[0];
-  if (file) {
-    const url = await ssxyz.uploadImage(file, 'special2.webp');
-    if (url) {
-      currentSpecial2URL = url;
-      document.getElementById('previewSpecial2').src = url;
-    }
-  }
-});
-
-document.getElementById('uploadAvatar').addEventListener('change', async function () {
-  const file = this.files[0];
-  if (file) {
-    const url = await ssxyz.uploadImage(file, 'avatar.webp');
-    if (url) {
-      currentAvatarURL = url;
-      document.getElementById('avatarPreview')?.src = url;
-    }
-  }
-});
-
-async function savePlayerEdits() {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData?.user?.id) {
-    alert("❌ You're not logged in.");
-    return;
-  }
-
-  const name = document.getElementById('playerName').value.trim();
-  const mission = document.getElementById('playerMission').value.trim().split('\n');
-  let popupBg = currentBgImage ? `url(${currentBgImage})` : 'rgba(255, 114, 114, 0.4)';
-
-  const updates = {
-    name: name || '',
-    mission: mission.filter(Boolean),
-    main: currentMainURL || '',
-    popupBg: popupBg
-  };
-
-  const { error } = await supabase.from('players').update(updates).eq('pid', playerId);
-  if (error) {
-    console.error("❌ Failed to save edits:", error);
-    alert('❌ Edit failed. You may not be the owner of this player.');
-  } else {
-    alert('✅ Player updated!');
-    localStorage.setItem('playerPid', playerId);
-    location.href = 'index.html';
-  }
+      if (!uploaderId) {
+  alert("Uploader not ready");
+  return;
 }
 
-document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-  localStorage.removeItem('playerPid');
-  localStorage.removeItem('playerPin');
-  await supabase.auth.signOut();
-  alert('👋 Logged out.');
-  location.href = 'index.html';
+
+      const { data: player, error } = await supabase
+        .from('players')
+        .select('*')
+        .eq('pid', playerId)
+        .single();
+
+      if (!player || error) {
+        alert('❌ Could not load player');
+        console.error(error);
+        return;
+      }
+
+      const ownerId = player.owner_id;
+
+      document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
+      document.getElementById('playerName').value = player.name || '';
+      const missionList = Array.isArray(player.mission) ? player.mission : [player.mission || ""];
+      document.getElementById('playerMission').value = missionList.join('\n');
+
+
+      if (player.popupBg?.startsWith('url')) {
+        // It's an image URL
+        const bgUrl = player.popupBg.match(/url\((.*?)\)/)?.[1]?.replace(/['"]/g, '');
+        currentBgImage = bgUrl;
+        // document.getElementById('popupBgColor').value = "#ffffff"; // fallback color
+       }
+      //  else {
+      //   document.getElementById('popupBgColor').value = player.popupBg || "#ffffff";
+      // }
+
+      document.getElementById('popupBgImage').addEventListener('change', async function () {
+  const file = this.files[0];
+  if (file) {
+    const path = `avatars/${currentUser.id}/popupBg.webp`; // ✅ CORRECT NOW
+    const url = await ssxyz.uploadImage(file, "main.webp"); // or "avatar.webp", etc.
+    if (url) {
+      currentBgImage = url;
+      document.querySelector('.edit-popup').style.background = `url(${currentBgImage}) no-repeat center center / cover`;
+    }
+    if (url) {
+      currentBgImage = url;
+      editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
+    }
+  }
 });
 
-document.getElementById('backBtn')?.addEventListener('click', () => {
-  location.href = 'index.html';
+
+      const editPopup = document.querySelector('.edit-popup');
+    //  const popupColorInput = document.getElementById('popupBgColor');
+     const popupImageInput = document.getElementById('popupBgImage');
+
+     // Live background preview on color change
+    //  popupColorInput.addEventListener('input', () => {
+    //    currentBgImage = ""; // override image if color selected
+    //    editPopup.style.background = popupColorInput.value;
+    //  });
+     editPopup.style.background = player.popupBg?.startsWith('url')
+  ? `url(${currentBgImage}) no-repeat center center / cover`
+  : player.popupBg || 'rgba(255, 114, 114, 0.4)';
+
+     // Live background preview on image upload
+     popupImageInput.addEventListener('change', async function () {
+       const file = this.files[0];
+       if (file) {
+         const path = `avatars/${currentUser.id}/popupBg.webp`;
+         const url = await uploadImage(file, path);
+         if (url) {
+           currentBgImage = url;
+           editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
+         }
+       }
+     });
+
+     
+
+
+      const avatarContainer = document.getElementById('mainAvatarPreviewContainer');
+      const fallback = '/assets/fallbackIsoAvatar.webp';
+
+      let avatarHTML = '';
+
+      if (player.spritesheet) {
+        avatarHTML = `<div class="sprite-anim" style="background-image: url('${player.spritesheet}')"></div>`;
+      } else if (player.main) {
+        avatarHTML = `<img src="${player.main}" />`;
+      } else if (player.avatar) {
+        avatarHTML = `<img src="${player.avatar}" />`;
+      } else {
+        avatarHTML = `<img src="${fallback}" class="fallback" />`;
+      }
+
+      avatarContainer.innerHTML = avatarHTML;
+
+
+
+      if (player.special) document.getElementById('previewSpecial1').src = currentSpecial1URL = player.special;
+      if (player.special2) document.getElementById('previewSpecial2').src = currentSpecial2URL = player.special2;
+
+      document.getElementById('saveBtn')?.addEventListener('click', savePlayerEdits);
+
+    }
+
+    async function uploadImage(file, path) {
+      const { error } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true });
+
+      if (error) {
+        console.error('Upload failed:', error);
+        alert('⚠️ Upload failed');
+        return null;
+      }
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+      return data.publicUrl;
+    }
+
+    document.getElementById('uploadAvatar').addEventListener('change', async function () {
+      if (!uploaderId) return alert("User not ready");
+      
+      const file = this.files[0];
+      if (file) {
+        const path = `avatars/${uploaderId}/avatar.webp`;
+        const url = await uploadImage(file, path);
+        if (url) {
+          currentAvatarURL = url;
+          document.getElementById('avatarPreview').src = url;
+        }
+      }
+    });
+
+   document.getElementById('uploadMain').addEventListener('change', async function () {
+  if (!uploaderId) return alert("User not ready");
+
+  const file = this.files[0];
+  if (file) {
+    const path = `avatars/${uploaderId}/main.webp`;
+    const url = await uploadImage(file, path);
+    if (url) {
+      currentMainURL = url;
+      document.getElementById('mainPreview').src = url;
+    }
+  }
 });
-</script>
 
 
+
+    document.getElementById('uploadSpecial1').addEventListener('change', async function () {
+      if (!uploaderId) return alert("User not ready");
+
+      const file = this.files[0];
+      if (file) {
+        const path = `avatars/${uploaderId}/special1.webp`;
+        const url = await uploadImage(file, path);
+        if (url) {
+          currentSpecial1URL = url;
+          document.getElementById('previewSpecial1').src = url;
+        }
+      }
+    });
+
+    document.getElementById('uploadSpecial2').addEventListener('change', async function () {
+      if (!uploaderId) return alert("User not ready");
+
+      const file = this.files[0];
+      if (file) {
+        const path = `avatars/${uploaderId}/special2.webp`;
+        const url = await uploadImage(file, path);
+        if (url) {
+          currentSpecial2URL = url;
+          document.getElementById('previewSpecial2').src = url;
+        }
+      }
+    });
+
+
+
+
+    async function savePlayerEdits() {
+      const { data: userData, error: userError } = await supabase.auth.getUser();
+      if (userError || !userData?.user?.id) {
+        alert("❌ You're not logged in.");
+        console.error(userError);
+        return;
+      }
+
+      const name = document.getElementById('playerName').value.trim();
+      const mission = document.getElementById('playerMission').value.trim().split('\n');
+
+      let popupBg = currentBgImage
+       ? `url(${currentBgImage})`
+       : 'rgba(255, 114, 114, 0.4)';
+
+
+
+
+
+      const updates = {
+        name: name || '',
+        mission: mission.filter(Boolean),
+        main: currentMainURL || '',
+        popupBg: popupBg
+
+      };
+
+
+
+      const { error } = await supabase
+        .from('players')
+        .update(updates)
+        .eq('pid', playerId);
+
+      if (error) {
+        console.error("❌ Failed to save edits:", error);
+        alert('❌ Edit failed. You may not be the owner of this player.');
+      } if (!error) {
+         alert('✅ Player updated!');
+        localStorage.setItem('playerPid', playerId);
+        location.href = 'index.html';
+      }
+
+
+      console.log("Current user ID:", userData.user.id);
+
+    }
+
+    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+      localStorage.removeItem('playerPid');
+      localStorage.removeItem('playerPin');
+      await supabase.auth.signOut();
+      alert('👋 Logged out.');
+      location.href = 'index.html';
+    });
+
+    document.getElementById('backBtn')?.addEventListener('click', () => {
+      location.href = 'index.html';
+    });
+
+
+    document.getElementById('upgradeEmailBtn')?.addEventListener('click', upgradeToEmail);
+
+
+    window.savePlayerEdits = savePlayerEdits;
+
+  </script>
 
 
 
