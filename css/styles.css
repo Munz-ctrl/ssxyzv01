@@ -109,18 +109,7 @@ html, body {
   object-fit: contain;
 }
 
-.placeholder-slot {
-  width: 10vw;
-  height: 10vw;
-  border-radius: 50%;
-  background: #f4f4f457;
-  border: 2px dashed #bbb;
-  color: #aaa;
-  font-size: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 
 .avatar-preview {
   width: 100%;
@@ -541,7 +530,7 @@ html, body {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #f4f4f4;
+  background: #f4f4f457;
   border: 2px dashed #bbb;
   color: #aaa;
   font-size: 10px;
