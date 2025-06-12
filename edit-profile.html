@@ -49,6 +49,13 @@
       <input type="color" id="popupBgColor" style="width: 40px; height: 30px; border: none;" />
     </div> -->
 
+    <div id="mainAvatarPreviewContainer" class="player-main-avatar">
+  <img id="mainPreview" src="" />
+  <img id="avatarPreview" src="" style="display:none;" />
+</div>
+
+
+
     <div class="coord-row" style="margin-top: 6px;">
       <label style="font-size: 10px;">Upload BG Image:</label>
       <input type="file" id="popupBgImage" accept="image/*" />
@@ -174,6 +181,20 @@ let currentUser = null;
 
   if (player.special) document.getElementById('previewSpecial1').src = currentSpecial1URL = player.special;
   if (player.special2) document.getElementById('previewSpecial2').src = currentSpecial2URL = player.special2;
+
+
+  currentAvatarURL = player.avatar || "";
+currentMainURL = player.main || "";
+currentBgImage = player.popupBg?.startsWith("url")
+  ? player.popupBg.match(/url\((.*?)\)/)?.[1]?.replace(/['"]/g, '')
+  : "";
+
+if (player.avatar) {
+  const avatarEl = document.getElementById('avatarPreview');
+  if (avatarEl) avatarEl.src = currentAvatarURL;
+}
+
+
 
   document.getElementById('saveBtn')?.addEventListener('click', savePlayerEdits);
 })();
