@@ -313,12 +313,7 @@ async function loadPlayerData() {
       const name = document.getElementById('playerName').value.trim();
       const mission = document.getElementById('playerMission').value.trim().split('\n');
 
-      let popupBg = currentBgImage || player.popupBg;
-
-
-
-
-    
+      let popupBg = currentBgImage || player.popupBg || 'rgba(255, 255, 255, 0.4)';
 
       const updates = {
         name: name || '',
