@@ -109,20 +109,27 @@ export const ssxyz = {
 
 
 
-  uploadImage: async function (file, path) {
-    const { data, error } = await supabase.storage
-      .from('avatars')
-      .upload(path, file, { upsert: true });
+  uploadImage: async function (file, filename = "uploaded.webp") {
+  if (!ssxyz.activePlayer?.owner_id) {
+    alert("User not authenticated.");
+    return null;
+  }
 
-    if (error) {
-      console.error('Upload failed:', error);
-      alert('⚠️ Upload failed');
-      return null;
-    }
+  const path = `${ssxyz.activePlayer.owner_id}/${filename}`;
+  const { error } = await supabase.storage
+    .from('userassets') // ✅ new bucket
+    .upload(path, file, { upsert: true });
 
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
-    return urlData.publicUrl;
-  },
+  if (error) {
+    console.error("Upload failed", error);
+    alert("Upload failed");
+    return null;
+  }
+
+  const { data: urlData } = supabase.storage.from('userassets').getPublicUrl(path);
+  return urlData.publicUrl;
+},
+
 
   handleLogin: async function () {
     const { error: authError } = await supabase.auth.signInAnonymously();
