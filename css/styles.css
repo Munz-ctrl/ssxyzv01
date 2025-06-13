@@ -642,18 +642,11 @@ html, body {
   border-radius: 6px;
 }
 
+
 /* Optional: widen edit popup when main exists */
 /* .popup-wrapper.popup-wide {
   max-width: 800px;
 } */
-
-
-
-
-
-
-
-
 
 
 .mission-text.z-3 {
@@ -661,11 +654,12 @@ html, body {
   font-weight: bold;
   white-space: wrap;
   
-  color: #181818;
+  color: #8a8a8a;
   /* text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff; */
-  background: linear-gradient(90deg, #ffffff 0%, #fffffff0 50%, #ffffff60 100%);
+  /* background: linear-gradient(90deg, #ffffff 0%, #fffffff0 50%, #ffffff60 100%); */
   box-decoration-break: slice;
 }
+
 
 .locationBtn.selected {
   background-color: rgba(100, 100, 255, 0.2);
@@ -673,6 +667,9 @@ html, body {
   box-shadow: 0 0 0 2px #668cff inset;
   transform: scale(1.1);
 }
+
+
+
 
 
 .icon-md {
