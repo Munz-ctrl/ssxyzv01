@@ -31,19 +31,19 @@ html, body {
 }
 
 
-.leaflet-control-zoom {
+  .leaflet-control-zoom {
+    /* display: none !important; */
     display: inline-block !important;
+    position: relative;
   }
 
+
 @media (max-width: 1200px) {
+
   .leaflet-control-zoom {
     display: none !important;
   }
-  
-  .circle-icon {
-    top: 10vh !important;
-    left: 10vw !important;
-  }
+
 }
 
 
@@ -281,7 +281,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  z-index: 1100;
+  /* z-index: 1100; */
 }
 
 #customTopLeftControls .circle-icon {
