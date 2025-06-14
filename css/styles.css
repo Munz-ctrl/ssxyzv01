@@ -265,7 +265,7 @@ html, body {
   transform: translateX(-50%);
   width: 80vw;
   max-width: 500px;
-  background-color: rgba(255, 255, 255, 0.96);
+  background-color: rgba(255, 255, 255, 0.823);
   z-index: 1100;
   padding: 16px;
   border-radius: 8px;
@@ -281,6 +281,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  
   /* z-index: 1100; */
 }
 
@@ -305,10 +306,10 @@ html, body {
 .circle-icon {
   
   border-radius: 50%;
-  background: #ffffffc1;
+  background: #ffffff79;
   border: 1px solid #333;
   font-weight: bold;
-  color: #000;
+  color: #696969;
   font-family: 'Ubuntu', sans-serif;
   font-size: 16px;
   cursor: pointer;
