@@ -32,17 +32,17 @@ html, body {
 
 
   .leaflet-control-zoom {
-    /* display: none !important; */
-    display: inline-block !important;
+    display: none !important;
+    /* display: inline-block !important; */
     position: relative;
   }
 
 
 @media (max-width: 1200px) {
 
-  .leaflet-control-zoom {
+  /* .leaflet-control-zoom {
     display: none !important;
-  }
+  } */
 
 }
 
