@@ -82,7 +82,7 @@
 
 
 
-  <img id="tileToggleBtn" src="assets/icons/tileToggleIcon.png" style="width: 20vh; height: 20vh;" />
+  <img id="tileToggleBtn" src="assets/icons/tileToggleIcon.png" style="width: 10vh; height: 10vh;" />
   <button id="infoCircleBtn" class="circle-icon">?</button>
  
 </div>
@@ -246,14 +246,14 @@ tileToggleBtn.addEventListener('click', () => {
     map.removeLayer(lightTiles);
     map.addLayer(darkTiles);
     currentTileLayer = darkTiles;
-    tileToggleBtn.style.background = '#000'; // Set background to black for dark tiles
+    tileToggleBtn.style.background = 'rgba(0, 0, 0, 0.823)'; // Set background to black for dark tiles
   } else {
     map.removeLayer(darkTiles);
     map.addLayer(lightTiles);
     currentTileLayer = lightTiles;
-    tileToggleBtn.style.background = '#fff'; // Set background to white for light tiles
+    tileToggleBtn.style.background = 'rgba(255, 255, 255, 0.823)'; // Set background to white for light tiles
   }
-
+ 
   // Rotate button
   isTileToggled = !isTileToggled;
   tileToggleBtn.style.transform = isTileToggled ? 'rotate(145deg)' : 'rotate(0deg)';
