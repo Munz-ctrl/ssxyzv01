@@ -229,11 +229,30 @@
 
 
 
- document.getElementById('tileToggleBtn').addEventListener('click', () => {
-  map.removeLayer(currentTileLayer);
-  currentTileLayer = (currentTileLayer === darkTiles) ? lightTiles : darkTiles;
-  map.addLayer(currentTileLayer);
- });
+ const tileToggleBtn = document.getElementById('tileToggleBtn');
+let isTileToggled = false;
+
+// Example: assuming you have two tile layers defined
+// let lightTileLayer, darkTileLayer, currentTileLayer;
+
+tileToggleBtn.addEventListener('click', () => {
+  // Toggle tile layers
+  if (currentTileLayer === lightTiles) {
+    map.removeLayer(lightTiles);
+    map.addLayer(darkTiles);
+    currentTileLayer = darkTiles;
+    tileToggleBtn.style.background = '#000'; // Set background to black for dark tiles
+  } else {
+    map.removeLayer(darkTiles);
+    map.addLayer(lightTiles);
+    currentTileLayer = lightTiles;
+    tileToggleBtn.style.background = '#fff'; // Set background to white for light tiles
+  }
+
+  // Rotate button
+  isTileToggled = !isTileToggled;
+  tileToggleBtn.style.transform = isTileToggled ? 'rotate(180deg)' : 'rotate(0deg)';
+});
 
 
 
