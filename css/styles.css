@@ -298,6 +298,7 @@ html, body {
   background: #fff;
   padding: 2px;
   cursor: pointer;
+ transition: transform 0.3s, background 0.3s;
 }
 
 
