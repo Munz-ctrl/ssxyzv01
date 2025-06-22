@@ -326,7 +326,7 @@ ssxyz.openLoginPanel = async function () {
   // `;
   
 
-  const { data: players, error } = await supabase.from('players').select('pid, auth_type, email');
+ const { data: players, error } = await supabase.from('players').select('*');
 
   if (!players || error) {
     alert("❌ Could not load players");
