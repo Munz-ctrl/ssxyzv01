@@ -301,13 +301,8 @@ ssxyz.openLoginPanel = async function () {
     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
     <button id="createTabBtn" class="tab-btn">Create</button>
  
-  </div>
-  <div id="loginTabContent" class="tab-content" >
-  
-      <!-- Avatar row -->
-      <div id="searchAvatarRow" class="tab-content player-row"  ></div>
 
-  <div id="searchWrapper" style="display: flex; align-items: center;   ">
+    <div id="searchWrapper" style="display: flex; align-items: center; justify-content: flex-end;">
     <label style="font-size: 9px;">select player:</label>
     <div style="display: flex; align-items: center; gap: 4px;">
          <span style="display: inline-block; width: 14px; height: 14px;">
@@ -322,10 +317,13 @@ ssxyz.openLoginPanel = async function () {
   
     </div>
 
+  </div>
+  <div id="loginTabContent" class="tab-content" >
   
+      <!-- Avatar row -->
+      <div id="searchAvatarRow" class="tab-content player-row"  ></div>
 
-
-
+  
 
  <!-- Dynamic form content -->
  <div id="loginFieldsContainer" class="tab-content"></div>
@@ -469,8 +467,8 @@ input.addEventListener('input', () => {
     document.getElementById('createTabBtn').classList.remove('activtab');
 
 
-    document.getElementById('searchWrapper').style.display = 'flex';
-    document.getElementById('searchAvatarRow').style.display = 'flex';
+    document.getElementById('searchWrapper').style.display = 'inline-flex';
+    document.getElementById('searchAvatarRow').style.display = 'inline-flex';
 
 
     
@@ -494,7 +492,8 @@ input.addEventListener('input', () => {
     document.getElementById('loginTabBtn').classList.remove('activtab');
 
 
-
+     document.getElementById('searchWrapper').style.display = 'none';
+    document.getElementById('searchAvatarRow').style.display = 'none';
    
   };
 
