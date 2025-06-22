@@ -306,7 +306,7 @@ ssxyz.openLoginPanel = async function () {
 
 
 
-    <div id="searchWrapper" style=" margin-top: -3vh; display: flex; align-items: center; justify-content: flex-end;">
+    <div id="searchWrapper" style=" margin-top: -3vh; margin-right: 1vw; display: flex; align-items: center; justify-content: flex-end;">
      <label style="font-size: 9px;">select player:</label>
      <div style="display: flex; align-items: center; gap: 4px;">
          <span style="display: inline-block; width: 14px; height: 14px;">
@@ -325,7 +325,7 @@ ssxyz.openLoginPanel = async function () {
   <div id="loginTabContent" class="tab-content" >
   
       <!-- Avatar row -->
-      <div id="searchAvatarRow" class="tab-content player-row"  ></div>
+      <div id="searchAvatarRow" class="tab-content player-row"   ></div>
 
   
 
