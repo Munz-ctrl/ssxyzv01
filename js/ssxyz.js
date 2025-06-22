@@ -467,8 +467,8 @@ input.addEventListener('input', () => {
     document.getElementById('createTabBtn').classList.remove('activtab');
 
 
-    document.getElementById('searchWrapper').style.display = 'inline-flex';
-    document.getElementById('searchAvatarRow').style.display = 'inline-flex';
+    document.getElementById('searchWrapper').style.display = 'flex';
+    document.getElementById('searchAvatarRow').style.display = 'inline-block';
 
 
     
