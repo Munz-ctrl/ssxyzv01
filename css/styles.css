@@ -765,8 +765,9 @@ html, body {
   max-height: 4vh;
 }
 #searchAvatarRow .playerBtn {
-  width: 30px;
-  height: auto;
+  height: fit-content;
+  width: auto;
+  
 }
 
 
