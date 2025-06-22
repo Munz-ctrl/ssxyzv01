@@ -291,37 +291,70 @@ ssxyz.openLoginPanel = async function () {
   closeAllPopups();
 
   const container = document.getElementById('userPanelContent');
-  container.innerHTML = `
-  <div class="login-tabs">
+  
+  
+  container.innerHTML = ` 
+  <div class="login-tabs" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 0 6px;">
+  <div style="display: flex; gap: 2px;">
     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
-    <button id="createTabBtn" class="tab-btn">Create New Player</button>
+    <button id="createTabBtn" class="tab-btn">Create</button>
   </div>
 
-  <div id="loginTabContent" class="tab-content" style="flex-wrap: nowrap; align-items: center; justify-content: start; gap: 4px; padding: 4px;">
-
-  <span style="font-size: 9px; white-space: nowrap;">Choose player to log in:</span>
-
-  <div class="coord-row" style="flex: 1; gap: 6px;">
+  <div id="searchWrapper" style="display: flex; align-items: center; gap: 6px;">
+    <label style="font-size: 9px;">Log in to:</label>
     <div style="display: flex; align-items: center; gap: 4px;">
-     <span style="display: inline-block; width: 14px; height: 14px; margin-right: 4px;">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#444" width="100%" height="100%">
-    <path d="M10 2a8 8 0 105.293 14.293l5.707 5.707 1.414-1.414-5.707-5.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
-  </svg>
-</span>
-
-      <input id="playerSearchInput" type="text" placeholder=" Search Player ID..." style="max-width: 15vw; font-size: 10px; padding: 2px;" />
+      <span style="display: inline-block; width: 14px; height: 14px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#444" width="100%" height="100%">
+          <path d="M10 2a8 8 0 105.293 14.293l5.707 5.707 1.414-1.414-5.707-5.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
+        </svg>
+      </span>
+      <input id="playerSearchInput" type="text" placeholder="Search..." style="max-width: 18vw; font-size: 10px; padding: 2px;" />
     </div>
-
-    <div id="searchAvatarRow" class="player-row" style="max-width: 45vw; overflow-x: auto; gap: 4px;"></div>
   </div>
-
 </div>
 
+<!-- Avatar row -->
+<div id="searchAvatarRow" class="tab-content player-row" style="gap: 6px; padding: 4px 0; max-height: 7vh;"></div>
+
+<!-- Dynamic form content -->
+<div id="loginFieldsContainer" class="tab-content"></div>
+<div id="createTabContent" class="tab-content"></div>
+
+  
+  `;
+  
+  
+
+//   <div class="login-tabs">
+//     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
+//     <button id="createTabBtn" class="tab-btn">Create New Player</button>
+//   </div>
+
+//   <div id="loginTabContent" class="tab-content" style="flex-wrap: nowrap; align-items: center; justify-content: start; gap: 4px; padding: 4px;">
+
+//   <span style="font-size: 9px; white-space: nowrap;">Choose player to log in:</span>
+
+//   <div class="coord-row" style="flex: 1; gap: 6px;">
+//     <div style="display: flex; align-items: center; gap: 4px;">
+//      <span style="display: inline-block; width: 14px; height: 14px; margin-right: 4px;">
+//   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#444" width="100%" height="100%">
+//     <path d="M10 2a8 8 0 105.293 14.293l5.707 5.707 1.414-1.414-5.707-5.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
+//   </svg>
+// </span>
+
+//       <input id="playerSearchInput" type="text" placeholder=" Search Player ID..." style="max-width: 15vw; font-size: 10px; padding: 2px;" />
+//     </div>
+
+//     <div id="searchAvatarRow" class="player-row" style="max-width: 45vw; overflow-x: auto; gap: 4px;"></div>
+//   </div>
+
+// </div>
 
 
-  <div id="loginFieldsContainer" class="tab-content"></div>
-  <div id="createTabContent" class="tab-content"></div>
-`;
+
+//   <div id="loginFieldsContainer" class="tab-content"></div>
+//   <div id="createTabContent" class="tab-content"></div>
+// `;
 
   
 //   <div id="loginTabContent" class="tab-content" style="flex-direction: row; align-items: center; justify-content: center; gap: 4px;">
@@ -411,29 +444,69 @@ input.addEventListener('input', () => {
   // });
 
 
+
+
+
+
+//      ---   tab switching code ---
+
+document.getElementById('loginTabBtn').onclick = () => {
+  input.value = null;
+  document.getElementById('loginFieldsContainer').innerHTML = '';
+  renderAvatarRow(''); // Optional: auto-clear
+
+  document.getElementById('loginTabContent').style.display = 'block';
+  document.getElementById('createTabContent').style.display = 'none';
+  document.getElementById('searchWrapper').style.display = 'flex';
+  document.getElementById('searchAvatarRow').style.display = 'flex';
+
+  loginTabBtn.classList.add('activtab');
+  createTabBtn.classList.remove('activtab');
+};
+
+document.getElementById('createTabBtn').onclick = () => {
+  document.getElementById('loginFieldsContainer').innerHTML = '';
+  input.value = null;
+  ssxyz.renderCreatePlayerPanel('createTabContent');
+
+  document.getElementById('loginTabContent').style.display = 'none';
+  document.getElementById('createTabContent').style.display = 'block';
+  document.getElementById('searchWrapper').style.display = 'none';
+  document.getElementById('searchAvatarRow').style.display = 'none';
+
+  createTabBtn.classList.add('activtab');
+  loginTabBtn.classList.remove('activtab');
+};
+
+
+
+
+
   // Tab switching
-  document.getElementById('loginTabBtn').onclick = () => {
-    input.value = null; // Clear selected player
-    document.getElementById('loginFieldsContainer').innerHTML = '';
-    document.getElementById('loginTabContent').style.display = 'block';
-    document.getElementById('createTabContent').style.display = 'none';
-    document.getElementById('loginTabBtn').classList.add('activtab');
-    document.getElementById('createTabBtn').classList.remove('activtab');
-  };
+  // document.getElementById('loginTabBtn').onclick = () => {
+  //   input.value = null; // Clear selected player
+  //   document.getElementById('loginFieldsContainer').innerHTML = '';
+  //   document.getElementById('loginTabContent').style.display = 'block';
+  //   document.getElementById('createTabContent').style.display = 'none';
+  //   document.getElementById('loginTabBtn').classList.add('activtab');
+  //   document.getElementById('createTabBtn').classList.remove('activtab');
+  // };
 
-  document.getElementById('createTabBtn').onclick = () => {
-    // Hide login fields when switching to Create tab
-    document.getElementById('loginFieldsContainer').innerHTML = '';
-    input.value = null; // Clear selected player
-    ssxyz.renderCreatePlayerPanel('createTabContent');
-    document.getElementById('loginTabContent').style.display = 'none';
-    document.getElementById('createTabContent').style.display = 'block';
-    document.getElementById('createTabBtn').classList.add('activtab');
-    document.getElementById('loginTabBtn').classList.remove('activtab');
-  };
+  // document.getElementById('createTabBtn').onclick = () => {
+  //   // Hide login fields when switching to Create tab
+  //   document.getElementById('loginFieldsContainer').innerHTML = '';
+  //   input.value = null; // Clear selected player
+  //   ssxyz.renderCreatePlayerPanel('createTabContent');
+  //   document.getElementById('loginTabContent').style.display = 'none';
+  //   document.getElementById('createTabContent').style.display = 'block';
+  //   document.getElementById('createTabBtn').classList.add('activtab');
+  //   document.getElementById('loginTabBtn').classList.remove('activtab');
+  // };
 
-  document.getElementById('userPanel').style.display = 'block';
-  document.getElementById('userPanel').classList.add('activePanel');
+  // document.getElementById('userPanel').style.display = 'block';
+  // document.getElementById('userPanel').classList.add('activePanel');
+
+  
 };
 
 
