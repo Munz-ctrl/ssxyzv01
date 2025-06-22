@@ -322,7 +322,7 @@ ssxyz.openLoginPanel = async function () {
 
  
 
-<div id="loginTabContent" style="display: flex; flex-wrap: nowrap; align-items: stretch;">
+<div id="loginTabContent" style="display: flex; flex-wrap: nowrap; align-items: stretch; justify-content: center;">
   
   <!-- Avatar row -->
    <div id="searchAvatarRow" class="player-row"   ></div>
