@@ -300,7 +300,8 @@ ssxyz.openLoginPanel = async function () {
     <button id="createTabBtn" class="tab-btn">Create</button>
   </div>
 
-<div id="loginTabContent" class="tab-content"
+<div id="loginTabContent" class="tab-content" style="flex-wrap: nowrap; align-items: center; justify-content: start; gap: 4px; padding: 4px;">
+  <span style="font-size: 9px; white-space: nowrap;">Choose player to log in:</span>
 
   <div id="searchWrapper" style="display: flex; align-items: center; gap: 6px;">
     <label style="font-size: 9px;">Log in to:</label>
@@ -457,6 +458,7 @@ input.addEventListener('input', () => {
     document.getElementById('loginFieldsContainer').innerHTML = '';
     document.getElementById('loginTabContent').style.display = 'block';
     document.getElementById('createTabContent').style.display = 'none';
+
     document.getElementById('loginTabBtn').classList.add('activtab');
     document.getElementById('createTabBtn').classList.remove('activtab');
 
@@ -464,9 +466,8 @@ input.addEventListener('input', () => {
     document.getElementById('searchWrapper').style.display = 'flex';
     document.getElementById('searchAvatarRow').style.display = 'flex';
 
-   loginTabBtn.classList.add('activtab');
-   createTabBtn.classList.remove('activtab');
 
+    
 
 
   };
@@ -475,8 +476,8 @@ input.addEventListener('input', () => {
 
 
     
-    document.getElementById('searchWrapper').style.display = 'none';
-    document.getElementById('searchAvatarRow').style.display = 'none';
+    // document.getElementById('searchWrapper').style.display = 'none';
+    // document.getElementById('searchAvatarRow').style.display = 'none';
     // Hide login fields when switching to Create tab
     document.getElementById('loginFieldsContainer').innerHTML = '';
     input.value = null; // Clear selected player
@@ -488,8 +489,7 @@ input.addEventListener('input', () => {
 
 
 
-     createTabBtn.classList.add('activtab');
-     loginTabBtn.classList.remove('activtab');
+   
   };
 
   document.getElementById('userPanel').style.display = 'block';
