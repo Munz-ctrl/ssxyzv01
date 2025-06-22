@@ -294,17 +294,19 @@ ssxyz.openLoginPanel = async function () {
   
   
   container.innerHTML = ` 
+
+  
   <div class="login-tabs" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 0 6px;">
-  <div style="display: flex; gap: 2px;">
+ 
     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
     <button id="createTabBtn" class="tab-btn">Create</button>
-  </div>
+ 
 
-<div id="loginTabContent" class="tab-content" style="flex-wrap: nowrap; align-items: center; justify-content: start; gap: 4px; padding: 4px;">
-  <span style="font-size: 9px; white-space: nowrap;">Choose player to log in:</span>
+ <div id="loginTabContent" class="tab-content" style="flex-wrap: nowrap; align-items: center; justify-content: start; gap: 4px; padding: 4px;">
+  
 
   <div id="searchWrapper" style="display: flex; align-items: center; gap: 6px;">
-    <label style="font-size: 9px;">Log in to:</label>
+    <label style="font-size: 9px;">select player:</label>
     <div style="display: flex; align-items: center; gap: 4px;">
          <span style="display: inline-block; width: 14px; height: 14px;">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#444" width="100%" height="100%">
