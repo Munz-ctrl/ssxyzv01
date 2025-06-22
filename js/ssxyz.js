@@ -297,11 +297,21 @@ ssxyz.openLoginPanel = async function () {
     <button id="createTabBtn" class="tab-btn">Create New Player</button>
   </div>
 
-  <div id="loginTabContent" class="tab-content" style="flex-direction: row; align-items: center; justify-content: center; gap: 4px;">
-  <p>Choose a player to log-in </p>
-  <input id="playerSearchInput" type="text" placeholder=" Search player's ID..." style="max-width: 10vw; padding: 4px;" />
-  <div id="searchAvatarRow" class="player-row" style="max-width: 30vw; overflow-x: auto;"></div>
+  <div id="loginTabContent" class="tab-content" style="flex-wrap: nowrap; align-items: center; justify-content: start; gap: 4px; padding: 4px;">
+
+  <span style="font-size: 9px; white-space: nowrap;">Choose player to log in:</span>
+
+  <div class="coord-row" style="flex: 1; gap: 6px;">
+    <div style="display: flex; align-items: center; gap: 4px;">
+      <img src="/assets/icons/searchIcon.png" style="width: 14px; height: 14px;" />
+      <input id="playerSearchInput" type="text" placeholder="Search..." style="max-width: 15vw; font-size: 10px; padding: 2px;" />
+    </div>
+
+    <div id="searchAvatarRow" class="player-row" style="max-width: 45vw; overflow-x: auto; gap: 4px;"></div>
+  </div>
+
 </div>
+
 
 
   <div id="loginFieldsContainer" class="tab-content"></div>
@@ -309,7 +319,11 @@ ssxyz.openLoginPanel = async function () {
 `;
 
   
-  
+//   <div id="loginTabContent" class="tab-content" style="flex-direction: row; align-items: center; justify-content: center; gap: 4px;">
+//   <p>Choose a player to log-in </p>
+//   <input id="playerSearchInput" type="text" placeholder=" Search player's ID..." style="max-width: 10vw; padding: 4px;" />
+//   <div id="searchAvatarRow" class="player-row" style="max-width: 30vw; overflow-x: auto;"></div>
+// </div>
   
   // container.innerHTML = `
   //   <div class="login-tabs">
