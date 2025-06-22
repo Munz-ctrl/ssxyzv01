@@ -601,7 +601,7 @@ html, body {
 /* Optional fallback styling */
 .player-main-avatar .fallback {
   height: auto;
-  width: 111px;
+  width: 4vh;
   left: 10px;
   margin-right: 1vh;
   opacity: 0.0;
