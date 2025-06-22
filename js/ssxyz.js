@@ -303,9 +303,13 @@ ssxyz.openLoginPanel = async function () {
 
   <div class="coord-row" style="flex: 1; gap: 6px;">
     <div style="display: flex; align-items: center; gap: 4px;">
-     <img src="/assets/icons/searchIcon.png" style="width: 14px; height: 14px;" />
+     <span style="display: inline-block; width: 14px; height: 14px; margin-right: 4px;">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#444" width="100%" height="100%">
+    <path d="M10 2a8 8 0 105.293 14.293l5.707 5.707 1.414-1.414-5.707-5.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
+  </svg>
+</span>
 
-      <input id="playerSearchInput" type="text" placeholder="Search..." style="max-width: 15vw; font-size: 10px; padding: 2px;" />
+      <input id="playerSearchInput" type="text" placeholder=" Search Player ID..." style="max-width: 15vw; font-size: 10px; padding: 2px;" />
     </div>
 
     <div id="searchAvatarRow" class="player-row" style="max-width: 45vw; overflow-x: auto; gap: 4px;"></div>
