@@ -317,15 +317,16 @@ ssxyz.openLoginPanel = async function () {
         <input id="playerSearchInput" type="text" placeholder="Search..." style="max-width: 18vw; font-size: 10px; padding: 2px;" />
      </div>
     </div>
-
   </div>
+  
 
-   <!-- Avatar row -->
+ 
+
+<div id="loginTabContent" >
+  
+  <!-- Avatar row -->
    <div id="searchAvatarRow" class="player-row"   ></div>
 
-
-  <div id="loginTabContent" class="tab-content" >
-  
  <!-- Dynamic form content -->
  <div id="loginFieldsContainer" class="tab-content"></div>
 
