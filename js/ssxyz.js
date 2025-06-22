@@ -301,8 +301,8 @@ ssxyz.openLoginPanel = async function () {
  
     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
     <button id="createTabBtn" class="tab-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
-  Create <span style="font-size: 8px;">(Coming Soon)</span>
-</button>
+          Create Player <span style="font-size: 8px; font-weight: bold;">(Coming Soon)</span>
+       </button>
  
     </div>
 
@@ -329,11 +329,10 @@ ssxyz.openLoginPanel = async function () {
   <!-- Avatar row -->
    <div id="searchAvatarRow" class="player-row"   ></div>
 
- <!-- Dynamic form content -->
- <div id="loginFieldsContainer" class="tab-content">  </div>
+    <!-- Dynamic form content -->
+    <div id="loginFieldsContainer" class="tab-content">  </div>
 
 </div>
-
 
 
 <div id="createTabContent" class="tab-content"></div>  
