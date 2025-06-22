@@ -489,6 +489,11 @@ input.addEventListener('input', () => {
   document.getElementById('loginTabBtn').onclick = () => {
     input.value = null; // Clear selected player
     document.getElementById('loginFieldsContainer').innerHTML = '';
+
+    document.getElementById('createTabContent').style.display = 'none';
+    document.getElementById('searchWrapper').style.display = 'flex';
+
+    
     document.getElementById('loginTabContent').style.display = 'block';
     document.getElementById('createTabContent').style.display = 'none';
     document.getElementById('loginTabBtn').classList.add('activtab');
@@ -500,8 +505,14 @@ input.addEventListener('input', () => {
     document.getElementById('loginFieldsContainer').innerHTML = '';
     input.value = null; // Clear selected player
     ssxyz.renderCreatePlayerPanel('createTabContent');
+
+
+    document.getElementById('searchAvatarRow').style.display = 'none';
+    document.getElementById('searchWrapper').style.display = 'none';
+
     document.getElementById('loginTabContent').style.display = 'none';
     document.getElementById('createTabContent').style.display = 'block';
+    document.getElementById('loginFieldsContainer').style.display = 'none';
     document.getElementById('createTabBtn').classList.add('activtab');
     document.getElementById('loginTabBtn').classList.remove('activtab');
   };
