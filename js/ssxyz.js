@@ -317,7 +317,7 @@ ssxyz.openLoginPanel = async function () {
     </div>
 
      <!-- Avatar row -->
-      <div id="searchAvatarRow" class="tab-content player-row" style="gap: 6px; padding: 4px 0; max-height: 7vh;"></div>
+      <div id="searchAvatarRow" class="tab-content player-row" style="position: fixed; right:10px;  " ></div>
   
     </div>
 
