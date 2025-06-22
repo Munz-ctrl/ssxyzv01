@@ -332,12 +332,18 @@ ssxyz.openLoginPanel = async function () {
 
 </div>
 
-<div id="createTabContent" class="tab-content"></div>
+
+<button id="createTabBtn" class="tab-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
+  Create <span style="font-size: 8px;">(Coming Soon)</span>
+</button>
 
   
   `;
   
-  
+
+// ---- re activate create tab here v ---- 
+
+//<div id="createTabContent" class="tab-content"></div>  
 
 //   <div class="login-tabs">
 //     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
