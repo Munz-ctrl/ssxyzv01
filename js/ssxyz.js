@@ -364,6 +364,8 @@ let selectedPlayer = null;
 
 function renderAvatarRow(query = '') {
   row.innerHTML = '';
+  if (!query.trim()) return; // Don't render anything unless input exists
+
   const matches = players.filter(p => p.pid.toLowerCase().includes(query.toLowerCase()));
   matches.forEach(p => {
     const btn = createPlayerButton(p);
@@ -377,13 +379,14 @@ function renderAvatarRow(query = '') {
   });
 }
 
+
 input.addEventListener('input', () => {
   renderAvatarRow(input.value);
   document.getElementById('loginFieldsContainer').innerHTML = ''; // Clear when typing
 });
 
 // Initial render
-renderAvatarRow('');
+// renderAvatarRow('');
 
 
 
