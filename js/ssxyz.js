@@ -303,7 +303,8 @@ ssxyz.openLoginPanel = async function () {
 
   <div class="coord-row" style="flex: 1; gap: 6px;">
     <div style="display: flex; align-items: center; gap: 4px;">
-      <img src="/assets/icons/searchIcon.png" style="width: 14px; height: 14px;" />
+     <img src="/assets/icons/searchIcon.png" style="width: 14px; height: 14px;" />
+
       <input id="playerSearchInput" type="text" placeholder="Search..." style="max-width: 15vw; font-size: 10px; padding: 2px;" />
     </div>
 
