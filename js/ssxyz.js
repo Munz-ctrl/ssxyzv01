@@ -298,8 +298,8 @@ ssxyz.openLoginPanel = async function () {
   </div>
 
   <div id="loginTabContent" class="tab-content" style="flex-direction: column; align-items: center;">
-    <input id="playerSearchInput" type="text" placeholder="Search players..." style="width: 90%; max-width: 240px; margin: 4px 0; padding: 4px;" />
-    <div id="searchAvatarRow" class="player-row" style="max-width: 90vw; overflow-x: auto;"></div>
+    <input id="playerSearchInput" type="text" placeholder="Search players..." style=" max-width: 40vw; margin: 4px 0; padding: 4px;" />
+    <div id="searchAvatarRow" class="player-row" style="max-width: 40vw; overflow-x: auto;"></div>
   </div>
 
   <div id="loginFieldsContainer" class="tab-content"></div>
