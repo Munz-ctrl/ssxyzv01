@@ -302,10 +302,10 @@ ssxyz.openLoginPanel = async function () {
     <button id="createTabBtn" class="tab-btn">Create</button>
  
   </div>
- <div id="loginTabContent" class="tab-content" style="flex-wrap: nowrap; align-items: center; justify-content: center; gap: 4px; padding: 4px;">
+  <div id="loginTabContent" class="tab-content" >
   
- <!-- Avatar row -->
-      <div id="searchAvatarRow" class="tab-content player-row" style="position: fixed; right:10px; bottom: 10px;  " ></div>
+      <!-- Avatar row -->
+      <div id="searchAvatarRow" class="tab-content player-row"  ></div>
 
   <div id="searchWrapper" style="display: flex; align-items: center; gap: 6px; top: 4px; right: 4px; position: fixed; z-index: 1000; ">
     <label style="font-size: 9px;">select player:</label>
