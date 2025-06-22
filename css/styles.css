@@ -393,6 +393,12 @@ html, body {
   margin-top: -40px;
 }
 
+.leaflet-container {
+  font-family: 'Ubuntu', sans-serif;
+  
+}
+
+
 .leaflet-popup-content {
   text-align: left;
 
