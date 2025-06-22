@@ -465,6 +465,11 @@ input.addEventListener('input', () => {
   };
 
   document.getElementById('createTabBtn').onclick = () => {
+
+
+    
+    document.getElementById('searchWrapper').style.display = 'none';
+    document.getElementById('searchAvatarRow').style.display = 'none';
     // Hide login fields when switching to Create tab
     document.getElementById('loginFieldsContainer').innerHTML = '';
     input.value = null; // Clear selected player
@@ -475,8 +480,6 @@ input.addEventListener('input', () => {
     document.getElementById('loginTabBtn').classList.remove('activtab');
 
 
-      document.getElementById('searchWrapper').style.display = 'none';
-      document.getElementById('searchAvatarRow').style.display = 'none';
 
      createTabBtn.classList.add('activtab');
      loginTabBtn.classList.remove('activtab');
