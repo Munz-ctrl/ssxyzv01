@@ -455,24 +455,27 @@ document.getElementById('loginTabBtn').onclick = () => {
   document.getElementById('loginFieldsContainer').innerHTML = '';
   renderAvatarRow(''); // Optional: auto-clear
 
-  document.getElementById('loginTabContent').style.display = 'block';
   document.getElementById('createTabContent').style.display = 'none';
-  document.getElementById('searchWrapper').style.display = 'flex';
-  document.getElementById('searchAvatarRow').style.display = 'flex';
+document.getElementById('searchWrapper').style.display = 'flex';
+document.getElementById('searchAvatarRow').style.display = 'flex';
+document.getElementById('loginFieldsContainer').style.display = 'flex';
+
 
   loginTabBtn.classList.add('activtab');
   createTabBtn.classList.remove('activtab');
 };
 
-document.getElementById('createTabBtn').onclick = () => {
+  document.getElementById('createTabBtn').onclick = () => {
   document.getElementById('loginFieldsContainer').innerHTML = '';
   input.value = null;
   ssxyz.renderCreatePlayerPanel('createTabContent');
 
-  document.getElementById('loginTabContent').style.display = 'none';
-  document.getElementById('createTabContent').style.display = 'block';
   document.getElementById('searchWrapper').style.display = 'none';
-  document.getElementById('searchAvatarRow').style.display = 'none';
+document.getElementById('searchAvatarRow').style.display = 'none';
+document.getElementById('loginFieldsContainer').style.display = 'none';
+document.getElementById('createTabContent').style.display = 'block';
+
+
 
   createTabBtn.classList.add('activtab');
   loginTabBtn.classList.remove('activtab');
