@@ -292,20 +292,39 @@ ssxyz.openLoginPanel = async function () {
 
   const container = document.getElementById('userPanelContent');
   container.innerHTML = `
-    <div class="login-tabs">
-      <button id="loginTabBtn" class="tab-btn activtab">Login</button>
-      <button id="createTabBtn" class="tab-btn">Create New Player</button>
-    </div>
-    <div id="loginTabContent" class="tab-content" style="justify-self: center; ">
+  <div class="login-tabs">
+    <button id="loginTabBtn" class="tab-btn activtab">Login</button>
+    <button id="createTabBtn" class="tab-btn">Create New Player</button>
+  </div>
 
-       <input list="playerList" id="loginPlayerInput" placeholder="Player ID" style="justify-content: center; " />
-       <datalist id="playerList"></datalist>
-    </div>
-      <div id="loginFieldsContainer" class="tab-content"></div>
-    </div>
+  <div id="loginTabContent" class="tab-content" style="flex-direction: column; align-items: center;">
+    <input id="playerSearchInput" type="text" placeholder="Search players..." style="width: 90%; max-width: 240px; margin: 4px 0; padding: 4px;" />
+    <div id="searchAvatarRow" class="player-row" style="max-width: 90vw; overflow-x: auto;"></div>
+  </div>
+
+  <div id="loginFieldsContainer" class="tab-content"></div>
+  <div id="createTabContent" class="tab-content"></div>
+`;
+
+  
+  
+  
+  // container.innerHTML = `
+  //   <div class="login-tabs">
+  //     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
+  //     <button id="createTabBtn" class="tab-btn">Create New Player</button>
+  //   </div>
+  //   <div id="loginTabContent" class="tab-content" style="justify-self: center; ">
+
+  //      <input list="playerList" id="loginPlayerInput" placeholder="Player ID" style="justify-content: center; " />
+  //      <datalist id="playerList"></datalist>
+  //   </div>
+  //     <div id="loginFieldsContainer" class="tab-content"></div>
+  //   </div>
     
-    <div id="createTabContent" class="tab-content"></div>
-  `;
+  //   <div id="createTabContent" class="tab-content"></div>
+  // `;
+  
 
   const { data: players, error } = await supabase.from('players').select('pid, auth_type, email');
 
@@ -314,19 +333,58 @@ ssxyz.openLoginPanel = async function () {
     return;
   }
 
-  const input = document.getElementById('loginPlayerInput');
-  const datalist = document.getElementById('playerList');
 
-  players.forEach(p => {
-    const option = document.createElement('option');
-    option.value = p.pid;
-    datalist.appendChild(option);
-  });
+  //new data search box code //
 
-  input.addEventListener('input', () => {
-    const selected = players.find(p => p.pid === input.value);
-    renderLoginFields(selected);
+  const input = document.getElementById('playerSearchInput');
+  const row = document.getElementById('searchAvatarRow');
+
+let selectedPlayer = null;
+
+function renderAvatarRow(query = '') {
+  row.innerHTML = '';
+  const matches = players.filter(p => p.pid.toLowerCase().includes(query.toLowerCase()));
+  matches.forEach(p => {
+    const btn = createPlayerButton(p);
+    btn.onclick = () => {
+      selectedPlayer = p;
+      document.querySelectorAll('.playerBtn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      renderLoginFields(p);
+    };
+    row.appendChild(btn);
   });
+}
+
+input.addEventListener('input', () => {
+  renderAvatarRow(input.value);
+  document.getElementById('loginFieldsContainer').innerHTML = ''; // Clear when typing
+});
+
+// Initial render
+renderAvatarRow('');
+
+
+
+
+
+  // 
+
+
+
+ 
+  // const datalist = document.getElementById('playerList');
+
+  // players.forEach(p => {
+  //   const option = document.createElement('option');
+  //   option.value = p.pid;
+  //   datalist.appendChild(option);
+  // });
+
+  // input.addEventListener('input', () => {
+  //   const selected = players.find(p => p.pid === input.value);
+  //   renderLoginFields(selected);
+  // });
 
 
   // Tab switching
