@@ -328,7 +328,7 @@ ssxyz.openLoginPanel = async function () {
    <div id="searchAvatarRow" class="player-row"   ></div>
 
  <!-- Dynamic form content -->
- <div id="loginFieldsContainer" class="tab-content"> style="display: inline" </div>
+ <div id="loginFieldsContainer" class="tab-content">  </div>
 
 </div>
 
