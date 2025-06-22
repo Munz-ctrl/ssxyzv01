@@ -401,6 +401,7 @@ html, body {
 
 .leaflet-popup-content {
   text-align: left;
+  line-height: 1;
 
 }
 
