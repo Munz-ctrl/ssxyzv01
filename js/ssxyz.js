@@ -296,7 +296,7 @@ ssxyz.openLoginPanel = async function () {
   container.innerHTML = ` 
 
   
-  <div class="login-tabs" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 0 6px;">
+  <div class="login-tabs">
  
     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
     <button id="createTabBtn" class="tab-btn">Create</button>
@@ -315,13 +315,16 @@ ssxyz.openLoginPanel = async function () {
          </span>
         <input id="playerSearchInput" type="text" placeholder="Search..." style="max-width: 18vw; font-size: 10px; padding: 2px;" />
     </div>
-  </div>
+
+     <!-- Avatar row -->
+      <div id="searchAvatarRow" class="tab-content player-row" style="gap: 6px; padding: 4px 0; max-height: 7vh;"></div>
+  
+    </div>
 
   
 
 
- <!-- Avatar row -->
- <div id="searchAvatarRow" class="tab-content player-row" style="gap: 6px; padding: 4px 0; max-height: 7vh;"></div>
+
 
  <!-- Dynamic form content -->
  <div id="loginFieldsContainer" class="tab-content"></div>
