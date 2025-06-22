@@ -298,8 +298,9 @@ ssxyz.openLoginPanel = async function () {
   </div>
 
   <div id="loginTabContent" class="tab-content" style="flex-direction: row; align-items: center; justify-content: center; gap: 4px;">
-  <input id="playerSearchInput" type="text" placeholder="Search players..." style="max-width: 30vw; padding: 4px;" />
-  <div id="searchAvatarRow" class="player-row" style="max-width: 50vw; overflow-x: auto;"></div>
+  <p>Choose a player to log-in </p>
+  <input id="playerSearchInput" type="text" placeholder="Search players..." style="max-width: 10vw; padding: 4px;" />
+  <div id="searchAvatarRow" class="player-row" style="max-width: 30vw; overflow-x: auto;"></div>
 </div>
 
 
@@ -573,14 +574,14 @@ function renderLoginFields(player) {
     container.innerHTML = `
     <div class="tab-content">
       <p>un-authenticated Player: enter pin</p>
-      <input id="loginPin" type="password" placeholder="Security Pin" style="width:100%; margin: 6px 0;" />
-      <p>*make sure you authenticate your player with an email for player longevity, security, and additional features</p>
+      <input id="loginPin" type="password" placeholder="Security Pin" style="width:100%;" />
       <button style="width:100%;"  onclick="ssxyz.handleLogin()">Login</button>
     </div>
   `;
   }
 }
 
+//<p>*make sure you authenticate your player with an email for player longevity, security, and additional features</p>
 
 ssxyz.updateUserPanelAfterLogin = function () {
   const container = document.getElementById('userPanelContent');
