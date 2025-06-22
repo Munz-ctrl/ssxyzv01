@@ -444,60 +444,24 @@ input.addEventListener('input', () => {
   // });
 
 
-
-
-
-
-//      ---   tab switching code ---
-
-// document.getElementById('loginTabBtn').onclick = () => {
-//   input.value = null;
-//   document.getElementById('loginFieldsContainer').innerHTML = '';
-//   renderAvatarRow(''); // Optional: auto-clear
-
-//   document.getElementById('createTabContent').style.display = 'none';
-// document.getElementById('searchWrapper').style.display = 'flex';
-// document.getElementById('searchAvatarRow').style.display = 'flex';
-// document.getElementById('loginFieldsContainer').style.display = 'flex';
-
-
-//   loginTabBtn.classList.add('activtab');
-//   createTabBtn.classList.remove('activtab');
-// };
-
-//   document.getElementById('createTabBtn').onclick = () => {
-//   document.getElementById('loginFieldsContainer').innerHTML = '';
-//   input.value = null;
-//   ssxyz.renderCreatePlayerPanel('createTabContent');
-
-//   document.getElementById('searchWrapper').style.display = 'none';
-// document.getElementById('searchAvatarRow').style.display = 'none';
-// document.getElementById('loginFieldsContainer').style.display = 'none';
-// document.getElementById('createTabContent').style.display = 'block';
-
-
-
-//   createTabBtn.classList.add('activtab');
-//   loginTabBtn.classList.remove('activtab');
-// };
-
-
-
-
-
   // Tab switching
   document.getElementById('loginTabBtn').onclick = () => {
     input.value = null; // Clear selected player
     document.getElementById('loginFieldsContainer').innerHTML = '';
-
-    document.getElementById('createTabContent').style.display = 'none';
-    document.getElementById('searchWrapper').style.display = 'flex';
-
-    
     document.getElementById('loginTabContent').style.display = 'block';
     document.getElementById('createTabContent').style.display = 'none';
     document.getElementById('loginTabBtn').classList.add('activtab');
     document.getElementById('createTabBtn').classList.remove('activtab');
+
+
+    document.getElementById('searchWrapper').style.display = 'flex';
+    document.getElementById('searchAvatarRow').style.display = 'flex';
+
+   loginTabBtn.classList.add('activtab');
+   createTabBtn.classList.remove('activtab');
+
+
+
   };
 
   document.getElementById('createTabBtn').onclick = () => {
@@ -505,16 +469,17 @@ input.addEventListener('input', () => {
     document.getElementById('loginFieldsContainer').innerHTML = '';
     input.value = null; // Clear selected player
     ssxyz.renderCreatePlayerPanel('createTabContent');
-
-
-    document.getElementById('searchAvatarRow').style.display = 'none';
-    document.getElementById('searchWrapper').style.display = 'none';
-
     document.getElementById('loginTabContent').style.display = 'none';
     document.getElementById('createTabContent').style.display = 'block';
-    document.getElementById('loginFieldsContainer').style.display = 'none';
     document.getElementById('createTabBtn').classList.add('activtab');
     document.getElementById('loginTabBtn').classList.remove('activtab');
+
+
+      document.getElementById('searchWrapper').style.display = 'none';
+      document.getElementById('searchAvatarRow').style.display = 'none';
+
+     createTabBtn.classList.add('activtab');
+     loginTabBtn.classList.remove('activtab');
   };
 
   document.getElementById('userPanel').style.display = 'block';
