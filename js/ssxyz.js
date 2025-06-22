@@ -320,15 +320,12 @@ ssxyz.openLoginPanel = async function () {
 
   </div>
 
+   <!-- Avatar row -->
+   <div id="searchAvatarRow" class="tab-content player-row"   ></div>
 
 
   <div id="loginTabContent" class="tab-content" >
   
-      <!-- Avatar row -->
-      <div id="searchAvatarRow" class="tab-content player-row"   ></div>
-
-  
-
  <!-- Dynamic form content -->
  <div id="loginFieldsContainer" class="tab-content"></div>
 
@@ -464,7 +461,7 @@ input.addEventListener('input', () => {
   document.getElementById('loginTabBtn').onclick = () => {
     input.value = null; // Clear selected player
     document.getElementById('loginFieldsContainer').innerHTML = '';
-    document.getElementById('loginTabContent').style.display = 'block';
+    document.getElementById('loginTabContent').style.display = 'inline-block';
     document.getElementById('createTabContent').style.display = 'none';
 
     document.getElementById('loginTabBtn').classList.add('activtab');
