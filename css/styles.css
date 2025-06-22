@@ -762,10 +762,10 @@ html, body {
 #searchAvatarRow.player-row {
   gap: 4px;
   padding: 4px 0;
-  max-height: 60px;
+  max-height: 4vh;
 }
 #searchAvatarRow .playerBtn {
-  width: 44px;
+  width: 30px;
   height: auto;
 }
 
