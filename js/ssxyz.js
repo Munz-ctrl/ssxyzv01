@@ -301,7 +301,7 @@ ssxyz.openLoginPanel = async function () {
     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
     <button id="createTabBtn" class="tab-btn">Create</button>
  
-
+  </div>
  <div id="loginTabContent" class="tab-content" style="flex-wrap: nowrap; align-items: center; justify-content: start; gap: 4px; padding: 4px;">
   
 
