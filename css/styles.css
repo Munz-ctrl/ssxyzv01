@@ -1116,7 +1116,7 @@ html, body {
   padding: 0px 0;
   font-size: 11px;
   line-height: 0.7;
-  display: flex;
+  display: auto;
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px;
