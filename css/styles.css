@@ -658,10 +658,10 @@ html, body {
 
 
 .mission-text.z-3 {
-  font-size: x-small;
+  font-size: 1vh;
   font-weight: bold;
   white-space: wrap;
-  
+  margin: -2px 0 0;
   color: #8a8a8a;
   /* text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff; */
   /* background: linear-gradient(90deg, #ffffff 0%, #fffffff0 50%, #ffffff60 100%); */
@@ -1052,11 +1052,15 @@ html, body {
 }
 
 .location-preview-secondary img {
-  width: 100%;
+  width: 120%;
   max-width: 300px;
   height: auto;
-  object-fit: contain;
+  max-height: 100%;
+  /* object-fit: contain; */
+  overflow: visible;
   border-radius: 6px;
+  position: relative;
+  z-index: -2;
 }
 
 .location-play-btn {
