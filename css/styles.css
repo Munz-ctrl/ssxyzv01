@@ -1116,7 +1116,7 @@ html, body {
   padding: 0px 0;
   font-size: 11px;
   line-height: 0.7;
-  display: auto;
+  /* display: auto; */
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px;
@@ -1127,7 +1127,7 @@ html, body {
 
 .tab-content input[type="email"],
 .tab-content input[type="password"] {
-  flex: 1 1 45%;
+  flex: 1 1 25%;
   max-width: 240px;
   padding: 4px;
   font-size: 10px;
