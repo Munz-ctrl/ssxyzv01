@@ -661,7 +661,7 @@ html, body {
   font-size: 1vh;
   font-weight: bold;
   white-space: wrap;
-  margin: -2px 0 0;
+  margin: -10% 0 4px;
   color: #8a8a8a;
   /* text-shadow: 1px 1px 3px #fff, -1px -1px 3px #fff, 1px -1px 3px #fff, -1px 1px 3px #fff; */
   /* background: linear-gradient(90deg, #ffffff 0%, #fffffff0 50%, #ffffff60 100%); */
