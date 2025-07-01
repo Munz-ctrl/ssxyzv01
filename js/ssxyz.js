@@ -243,24 +243,24 @@ ssxyz.flyToPlayer = function (player, marker) {
 };
 
 
-ssxyz.setMarkerUnclickable = function(marker) {
+ssxyz.setAnyMarkerUnclickable = function(marker) {
   if (!marker) return;
 
-  // Re-enable any previously disabled marker
-  if (ssxyz.selectedMarker && ssxyz.selectedMarker !== marker) {
-    const prevEl = ssxyz.selectedMarker.getElement();
-    if (prevEl) prevEl.style.pointerEvents = 'auto';
+  // Re-enable previous marker if different
+  if (ssxyz.activeMapMarker && ssxyz.activeMapMarker !== marker) {
+    const prev = ssxyz.activeMapMarker.getElement();
+    if (prev) prev.style.pointerEvents = 'auto';
   }
 
+  // Disable new marker
   const el = marker.getElement();
   if (el) {
     el.style.pointerEvents = 'none';
-    ssxyz.selectedMarker = marker;
+    ssxyz.activeMapMarker = marker;
 
-    // Reset interactivity on popup close
     marker.once('popupclose', () => {
       el.style.pointerEvents = 'auto';
-      ssxyz.selectedMarker = null;
+      ssxyz.activeMapMarker = null;
     });
   }
 };
