@@ -111,7 +111,7 @@ export const ssxyz = {
 
 
 
-  handleLogin: async function () {
+  handleLogin: async function (playerFromUI = null) {
     const { error: authError } = await supabase.auth.signInAnonymously();
     if (authError) {
       alert("⚠️ Supabase login failed");
