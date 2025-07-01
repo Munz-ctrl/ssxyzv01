@@ -35,19 +35,11 @@ function createPlayerMarker(player) {
 
   const marker = L.marker(player.coords, { icon: iconWithPing }).addTo(map); // ✅ save it into "marker"
 
- marker.on('click', () => {
+marker.on('click', () => {
   closeAllPopups();
-
-  // Disable clicks on the selected player's marker
-  const markerEl = marker.getElement();
-  if (markerEl) markerEl.style.pointerEvents = 'none';
-
-  // Re-enable after popup closes
-  marker.on('popupclose', () => {
-    if (markerEl) markerEl.style.pointerEvents = 'auto';
-  });
-  
+  ssxyz.setAnyMarkerUnclickable(marker);
 });
+
 
   return marker; // ✅ return AFTER setting up everything
 }
