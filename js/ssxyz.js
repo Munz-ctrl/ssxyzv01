@@ -111,52 +111,36 @@ export const ssxyz = {
 
 
 
-  handleLogin: async function (selectedId = null) {
-    const { error: authError } = await supabase.auth.signInAnonymously();
-    if (authError) {
-      alert("⚠️ Supabase login failed");
-      console.error(authError);
-      return;
-    }
+  ssxyz.handleLogin = async function (selectedPlayer = null) {
+  const { error: authError } = await supabase.auth.signInAnonymously();
+  if (authError) {
+    alert("⚠️ Supabase login failed");
+    console.error(authError);
+    return;
+  }
 
+  if (!selectedPlayer) {
+    alert("⚠️ No player selected.");
+    return;
+  }
 
+  const enteredPin = document.getElementById('loginPin')?.value;
+  if (selectedPlayer.pin && selectedPlayer.pin !== enteredPin) {
+    alert("❌ Incorrect PIN.");
+    return;
+  }
 
-    const selectedId = document.getElementById('loginPlayerInput').value;
+  ssxyz.activePlayer = selectedPlayer;
+  ssxyz.updateAllPopups();
 
-    const enteredPin = document.getElementById('loginPin').value;
+  localStorage.setItem('playerPid', selectedPlayer.pid);
+  localStorage.setItem('playerPin', selectedPlayer.pin);
 
+  alert(`✅ Logged in as ${selectedPlayer.pid}`);
+  closeAllPopups();
+  ssxyz.updateUserPanelAfterLogin();
+},
 
-
-    const { data: player, error } = await supabase
-      .from('players')
-      .select('*')
-      .eq('pid', selectedId)
-      .single();
-
-    if (!player) {
-      alert("❌ Player not found.");
-      return;
-    }
-
-    if (player.pin && player.pin !== enteredPin) {
-      alert("❌ Incorrect PIN.");
-      return;
-    }
-
-    ssxyz.activePlayer = player;
-    ssxyz.updateAllPopups();
-
-    localStorage.setItem('playerPid', player.pid);
-    localStorage.setItem('playerPin', player.pin);
-
-
-
-    alert(`✅ Logged in as ${player.pid}`);
-    closeAllPopups();
-
-    ssxyz.updateUserPanelAfterLogin();
-
-  },
 
 
 
@@ -423,6 +407,8 @@ function renderAvatarRow(query = '') {
     const btn = createPlayerButton(p);
     btn.onclick = () => {
       selectedPlayer = p;
+      window.selectedPlayerForLogin = p;
+
       document.querySelectorAll('.playerBtn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       renderLoginFields(p);
