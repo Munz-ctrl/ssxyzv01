@@ -474,7 +474,9 @@ html, body {
   border: none;
   background: #444;
   color: #fff;
-  cursor: none;
+  margin-top: 15px;
+  /* cursor: none; */
+
 }
 
 
