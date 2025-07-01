@@ -6,7 +6,9 @@
     "coords": [52.3983,4.7795],
     "visual": "/assets/locations/placeholder_loc.png",
     "bio": "a ware house full of high frequency and creative energy, located in east Amsterdam",
-    "locked": true
+    "locked": true,
+    "popupBg": "/assets/locations/compundPrv.png"
+
   },
   {
     "id": "ConvNYC",
@@ -15,7 +17,9 @@
     "coords": [-10, 130],
     "visual": "/assets/locations/placeholder_loc2.png",
     "bio": "Converse Flagship Store in NYC",
-    "locked": true
+    "locked": true,
+    "popupBg": "/assets/locations/compundPrv.png"
+
   }
 ]
 
