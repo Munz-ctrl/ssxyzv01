@@ -474,13 +474,13 @@ html, body {
   border: none;
   background: #444;
   color: #fff;
-  cursor: pointer;
+  cursor: none;
 }
 
 
 
 .profile-buttons-row button:hover {
-  background: #fd0000;
+  background: #51515189;
   transform: scale(1.05);
 }
 
