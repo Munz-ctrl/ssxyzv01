@@ -121,6 +121,27 @@ fetch('data/locations.json')
 
       marker.bindPopup(popupHTML);
 
+      if (loc.popupBg) {
+  const className = `popup-loc-${loc.id}`;
+  marker.bindPopup(popupHTML, { className });
+
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .${className} .leaflet-popup-content-wrapper {
+      background: ${
+        loc.popupBg.startsWith('http') || loc.popupBg.startsWith('/')
+          ? `url(${loc.popupBg}) no-repeat center center / cover`
+          : loc.popupBg
+      } !important;
+    }
+  `;
+  document.head.appendChild(style);
+} else {
+  marker.bindPopup(popupHTML);
+}
+
+
+      
     marker.on('click', () => {
   closeAllPopups();
   ssxyz.setAnyMarkerUnclickable(marker);
