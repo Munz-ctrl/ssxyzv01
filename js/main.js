@@ -121,9 +121,10 @@ fetch('data/locations.json')
 
       marker.bindPopup(popupHTML);
 
-      marker.on('click', () => {
-        closeallpopups();
-      });
+    marker.on('click', () => {
+  closeAllPopups();
+  ssxyz.setAnyMarkerUnclickable(marker);
+});
 
 
 
