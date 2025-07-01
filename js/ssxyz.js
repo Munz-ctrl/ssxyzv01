@@ -671,7 +671,7 @@ function renderLoginFields(player) {
     <div class="tab-content">
       <p>un-authenticated Player: enter pin</p>
       <input id="loginPin" type="password" placeholder="Security Pin" style="width:100%;" />
-      <button style="width:100%;"  onclick="ssxyz.handleLogin()">Login</button>
+<button style="width:100%;" onclick='ssxyz.handleLogin(window.selectedPlayerForLogin)'>Login</button>
     </div>
   `;
   }
