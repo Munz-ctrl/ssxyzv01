@@ -139,20 +139,27 @@
   </main>
 
   <script type="module">
-  const suitcaseImage = document.getElementById("suitcaseImage");
-  const itemGrid = document.getElementById("itemGrid");
+const suitcaseImage = document.getElementById("suitcaseImage");
+const itemGrid = document.getElementById("itemGrid");
 
-  suitcaseImage.addEventListener("click", function handleClick() {
-    suitcaseImage.removeEventListener("click", handleClick);
-    suitcaseImage.classList.add("move-left");
+const images = [
+  "/assets/suitcase/01_suitcase-alone.png",
+  "/assets/suitcase/02_person-arrives.png",
+  "/assets/suitcase/03_person-opening.png"
+];
 
-    setTimeout(() => suitcaseImage.src = "02_person-arrives.png", 100);
-    setTimeout(() => suitcaseImage.src = "03_person-opening.png", 200);
-    setTimeout(() => {
-      loadItems();
-      itemGrid.style.display = "grid";
-    }, 300);
-  });
+suitcaseImage.addEventListener("click", function handleClick() {
+  suitcaseImage.removeEventListener("click", handleClick);
+  suitcaseImage.classList.add("move-left");
+
+  setTimeout(() => suitcaseImage.src = images[1], 100);
+  setTimeout(() => suitcaseImage.src = images[2], 200);
+  setTimeout(() => {
+    loadItems();
+    itemGrid.style.display = "grid";
+  }, 300);
+});
+
 
   async function loadItems() {
     const res = await fetch("data/suitcaseItems.json");
