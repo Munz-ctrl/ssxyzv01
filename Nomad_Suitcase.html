@@ -6,116 +6,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   
-  
-
-
-
-  <title>Sunsex Suitcase</title>
-  <style>
-    /* Basic page setup */
-    body, html {
-      
-      font-family: "Ubuntu", sans-serif;
-      font-weight: 400;
-      font-style: normal;
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      
-      background: #f0f0f0;
-    }
-
-    /* Center main content vertically */
-    main {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh; /* Occupy full viewport height */
-      text-align: center;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    /* Intro text styling */
-    section {
-      margin-bottom: 20px;
-      max-width: 600px;
-    }
-    section h2 {
-      font-size: 1rem;
-      margin: 0 0 10px 0;
-    }
-    section p {
-      font-size: 0.875rem;
-      line-height: 1.4;
-      margin: 5px 0;
-    }
-
-    /************************************************
-     * Container for suitcase + item list together. *
-     * We fix a width and height so we can position *
-     * both elements absolutely inside it.          *
-     ************************************************/
-    .container {
-      position: relative;
-      width: 600px;  /* Adjust as desired */
-      height: 350px; /* Adjust as desired */
-      margin: 0 auto; /* Center the container itself */
-      border: 0; /* optional: set to 1px solid red to visualize */
-    }
-
-    /********************************************
-     * Suitcase Image: centered by default.     *
-     * Moves left on click via transform.       *
-     ********************************************/
-    #suitcaseImage {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      /* Center the image in the container: */
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      max-width: 200px;
-      transition: transform 0.5s ease;
-    }
-    /* On click, we shift it left (instead of reflowing the layout). */
-    #suitcaseImage.move-left {
-      /* Adjust -120% for more or less left movement. */
-      transform: translate(-120%, -50%);
-    }
-
-    /********************************************
-     * Item List: hidden initially, then appears *
-     * to the right of the suitcase after click. *
-     ********************************************/
-    #itemList {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      /* This places it to the right of the center. 
-         Adjust 20% to move it further or closer. */
-      transform: translate(20%, -50%);
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      width: 200px;
-    }
-    #itemList li {
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-    }
-    #itemList li:last-child {
-      border-bottom: none;
-    }
-  </style>
-
   <link rel="stylesheet" href="css/suitcase.css" />
+
+
+
+ <title>Sunsex Suitcase</title>
+
+
+ 
 
 
 </head>
