@@ -24,6 +24,23 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.item-slot {
+  animation: fadeInScale 0.4s ease forwards;
+  opacity: 0; /* initial state for animation */
+}
+
+
 .item-slot:hover {
   transform: scale(1.08);
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.25);
