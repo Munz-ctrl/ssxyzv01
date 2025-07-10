@@ -72,27 +72,31 @@ suitcaseImage.addEventListener("click", function handleClick() {
     itemGrid.innerHTML = "";
 
     for (let i = 0; i < totalSlots; i++) {
-      const item = items[i];
-      const slot = document.createElement("div");
-      slot.classList.add("item-slot");
+  const item = items[i];
+  const slot = document.createElement("div");
+  slot.classList.add("item-slot");
 
-      if (item) {
-        const link = document.createElement("a");
-        link.href = item.link || "#";
-        link.target = "_blank";
-        const img = document.createElement("img");
-        img.src = item.image;
-        img.alt = item.name;
-        link.appendChild(img);
-        slot.appendChild(link);
-      } else {
-        const plus = document.createElement("span");
-        plus.textContent = "+";
-        slot.appendChild(plus);
-      }
+  // Animation delay
+  slot.style.animationDelay = `${i * 30}ms`;
 
-      itemGrid.appendChild(slot);
-    }
+  if (item) {
+    const link = document.createElement("a");
+    link.href = item.link || "#";
+    link.target = "_blank";
+    const img = document.createElement("img");
+    img.src = item.image;
+    img.alt = item.name;
+    link.appendChild(img);
+    slot.appendChild(link);
+  } else {
+    const plus = document.createElement("span");
+    plus.textContent = "+";
+    slot.appendChild(plus);
+  }
+
+  itemGrid.appendChild(slot);
+}
+
   }
 </script>
 
