@@ -18,7 +18,7 @@
     "visual": "/assets/locations/placeholder_loc2.png",
     "bio": "Converse Flagship Store in NYC",
     "locked": true,
-    "popupBg": "/assets/locations/compundPrv.png"
+    "popupBg": "rgba(255, 200, 200, 0.8)"
 
   }
 ]
