@@ -6,6 +6,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
   
+  <link rel="stylesheet" href="css/suitcase.css" />
+
+
+
   <title>Sunsex Suitcase</title>
   <style>
     /* Basic page setup */
@@ -128,47 +132,58 @@
         alt="Suitcase alone"
       />
 
-      <ul id="itemList">
-        <li>HOLY Tank</li>
-        <li>Human Nature Lace Pants</li>
-        <li>La Fam Jacket</li>
-        <li>Yeezy Pods</li>
-      </ul>
+      <div id="itemGrid" class="item-grid"></div>
+
     </div>
   </main>
 
-  <script>
-    // Array of images for the sequence
-    const images = [
-      "01_suitcase-alone.png",
-      "02_person-arrives.png",
-      "03_person-opening.png"
-    ];
+  <script type="module">
+  const suitcaseImage = document.getElementById("suitcaseImage");
+  const itemGrid = document.getElementById("itemGrid");
 
-    const suitcaseImage = document.getElementById("suitcaseImage");
-    const itemList = document.getElementById("itemList");
+  suitcaseImage.addEventListener("click", function handleClick() {
+    suitcaseImage.removeEventListener("click", handleClick);
+    suitcaseImage.classList.add("move-left");
 
-    // Single-click event triggers the entire sequence
-    suitcaseImage.addEventListener("click", function handleClick() {
-      // Prevent multiple clicks
-      suitcaseImage.removeEventListener("click", handleClick);
+    setTimeout(() => suitcaseImage.src = "02_person-arrives.png", 100);
+    setTimeout(() => suitcaseImage.src = "03_person-opening.png", 200);
+    setTimeout(() => {
+      loadItems();
+      itemGrid.style.display = "grid";
+    }, 300);
+  });
 
-      // Move suitcase left right away (visually)
-      suitcaseImage.classList.add("move-left");
+  async function loadItems() {
+    const res = await fetch("data/suitcaseItems.json");
+    const items = await res.json();
 
-      // Change images in quick succession
-      setTimeout(() => {
-        suitcaseImage.src = images[1];
-      }, 100);
-      setTimeout(() => {
-        suitcaseImage.src = images[2];
-      }, 200);
+    const totalSlots = 18;
+    itemGrid.innerHTML = "";
 
-      // Show item list after the final image
-      setTimeout(() => {
-        itemList.style.display = "block";
-      }, 300);
-    });
-  </script>
+    for (let i = 0; i < totalSlots; i++) {
+      const item = items[i];
+      const slot = document.createElement("div");
+      slot.classList.add("item-slot");
+
+      if (item) {
+        const link = document.createElement("a");
+        link.href = item.link || "#";
+        link.target = "_blank";
+        const img = document.createElement("img");
+        img.src = item.image;
+        img.alt = item.name;
+        link.appendChild(img);
+        slot.appendChild(link);
+      } else {
+        const plus = document.createElement("span");
+        plus.textContent = "+";
+        slot.appendChild(plus);
+      }
+
+      itemGrid.appendChild(slot);
+    }
+  }
+</script>
+
 </body>
 </html>
