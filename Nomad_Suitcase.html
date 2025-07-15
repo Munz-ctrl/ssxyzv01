@@ -12,21 +12,23 @@
       overflow: hidden;
     }
     #gameContainer {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      max-width: 1080px;
-      margin: auto;
-      background: black;
-    }
-    video#gameVideo {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
+  width: 100vh;
+  height: 100vh;
+  aspect-ratio: 9/16;
+  max-height: 100vh;
+  max-width: 1080px;
+  margin: auto;
+  background: black;
+  position: relative;
+  overflow: hidden;
+}
+
+   video#gameVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
     .click-area, #itemGrid, #itemOverlay, #closeSuitcaseBtn {
       position: absolute;
       z-index: 2;
@@ -91,7 +93,7 @@
     const closeBtn = document.getElementById('closeSuitcaseBtn');
 
     const states = {
-      IDLE: [0, 299],
+      IDLE: [0, 230],
       TO_SUITCASE: [320, 478],
       SUITCASE_LOOP: [454, 478],
       EXIT_SUITCASE: [478, 646]
