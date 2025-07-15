@@ -1,13 +1,15 @@
 .item-grid {
-  width: 90vw; /* scales responsively */
-  max-width: 600px;
+  width: 80%; /* scales responsively */
+  max-width: 1080px; 
+  max-height: 25vh; /* max width for larger screens */
+
   aspect-ratio: 763 / 405;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 6px;
   position: absolute;
-  top: 50%;
+  top: 15%;
   left: 50%;
   transform: translate(20%, -50%);
 }
