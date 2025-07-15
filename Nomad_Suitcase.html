@@ -1,104 +1,195 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
   <meta charset="UTF-8">
-  
-  <link rel="stylesheet" href="css/suitcase.css" />
-
-
-
- <title>Sunsex Suitcase</title>
-
-
- 
-
-
+  <meta name="viewport" content="width=1080, user-scalable=no">
+  <link rel="stylesheet" href="css/suitcase.css">
+  <title>Nomad Suitcase Game</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+    }
+    #gameContainer {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      max-width: 1080px;
+      margin: auto;
+      background: black;
+    }
+    video#gameVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .click-area, #itemGrid, #itemOverlay, #closeSuitcaseBtn {
+      position: absolute;
+      z-index: 2;
+    }
+    #suitcaseBtn {
+      bottom: 220px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 60px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+    #itemGrid {
+      display: none;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    #itemOverlay {
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: none;
+      font-size: 12px;
+      text-align: center;
+    }
+    #closeSuitcaseBtn {
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #222;
+      color: white;
+      padding: 4px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <main>
-    <!-- Intro Text -->
-    <section>
-      <h2>Munz Nomad suitecase</h2>
-      <p>View my suitcase — I’ve got some cool stuff in there. Can’t fit a lot, so every piece has to count!</p>
-      <p>Also welcoming all designers who want to add their items to my suitcase. Just reach out to me; I’d love to wear your pieces on my side missions!</p>
-    </section>
+  <div id="gameContainer">
+    <video id="gameVideo" src="assets/suitcase/nomad_seq.mp4" preload="auto" playsinline muted></video>
 
-    <!-- Container holds suitcase & item list absolutely -->
-    <div class="container">
-      <img
-  id="suitcaseImage"
-  src="/assets/suitcase/01_suitcase-alone.png"
-  alt="Suitcase alone"
-/>
-
-
-      <div id="itemGrid" class="item-grid"></div>
-
-    </div>
-  </main>
+    <button id="suitcaseBtn" class="click-area"></button>
+    <div id="itemGrid" class="item-grid"></div>
+    <div id="itemOverlay"></div>
+    <button id="closeSuitcaseBtn">Close Suitcase</button>
+  </div>
 
   <script type="module">
-const suitcaseImage = document.getElementById("suitcaseImage");
-const itemGrid = document.getElementById("itemGrid");
+    const video = document.getElementById('gameVideo');
+    const itemGrid = document.getElementById('itemGrid');
+    const overlay = document.getElementById('itemOverlay');
+    const suitcaseBtn = document.getElementById('suitcaseBtn');
+    const closeBtn = document.getElementById('closeSuitcaseBtn');
 
-const images = [
-  "/assets/suitcase/01_suitcase-alone.png",
-  "/assets/suitcase/02_person-arrives.png",
-  "/assets/suitcase/03_person-opening.png"
-];
+    const states = {
+      IDLE: [0, 299],
+      TO_SUITCASE: [320, 478],
+      SUITCASE_LOOP: [454, 478],
+      EXIT_SUITCASE: [478, 646]
+    };
 
-suitcaseImage.addEventListener("click", function handleClick() {
-  suitcaseImage.removeEventListener("click", handleClick); // prevent multiple triggers
-  suitcaseImage.classList.add("move-left");
+    let state = 'IDLE';
+    let transitionTimeout;
+    let allowClick = true;
 
-  setTimeout(() => suitcaseImage.src = images[1], 100);
-  setTimeout(() => suitcaseImage.src = images[2], 200);
-  setTimeout(() => {
+    function toTime(frame) {
+      return frame / 30;
+    }
+
+    function playSegment(startFrame, endFrame, callback) {
+      clearTimeout(transitionTimeout);
+      allowClick = false;
+      video.currentTime = toTime(startFrame);
+      video.play();
+      const duration = toTime(endFrame - startFrame);
+      transitionTimeout = setTimeout(() => {
+        video.pause();
+        video.currentTime = toTime(endFrame);
+        allowClick = true;
+        if (callback) callback();
+      }, duration * 1000);
+    }
+
+    function loopSegment(startFrame, endFrame) {
+      video.currentTime = toTime(startFrame);
+      video.play();
+      const loopStart = toTime(startFrame);
+      const loopEnd = toTime(endFrame);
+      video.ontimeupdate = () => {
+        if (video.currentTime >= loopEnd) video.currentTime = loopStart;
+      };
+    }
+
+    function pauseAtFrame(frame) {
+      video.currentTime = toTime(frame);
+      video.pause();
+    }
+
+    suitcaseBtn.onclick = () => {
+      if (!allowClick || state !== 'IDLE') return;
+      state = 'OPENING';
+      playSegment(...states.TO_SUITCASE, () => {
+        state = 'SUITCASE';
+        pauseAtFrame(478); // or loopSegment(454, 478);
+        itemGrid.style.display = 'grid';
+        closeBtn.style.display = 'block';
+      });
+    };
+
+    closeBtn.onclick = () => {
+      if (!allowClick || state !== 'SUITCASE') return;
+      state = 'CLOSING';
+      itemGrid.style.display = 'none';
+      overlay.style.display = 'none';
+      closeBtn.style.display = 'none';
+      playSegment(...states.EXIT_SUITCASE, () => {
+        state = 'IDLE';
+        video.currentTime = toTime(states.IDLE[0]);
+        video.play();
+      });
+    };
+
+    async function loadItems() {
+      const res = await fetch('data/suitcaseItems.json');
+      const items = await res.json();
+      const totalSlots = 18;
+      itemGrid.innerHTML = '';
+
+      for (let i = 0; i < totalSlots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'item-slot';
+
+        const item = items[i];
+        if (item) {
+          const img = document.createElement('img');
+          img.src = item.image;
+          img.alt = item.name;
+          slot.appendChild(img);
+          slot.onclick = () => {
+            overlay.innerHTML = `<strong>${item.name}</strong><br><a href="${item.link}" target="_blank">View</a>`;
+            overlay.style.display = 'block';
+          };
+        } else {
+          const plus = document.createElement('span');
+          plus.textContent = '+';
+          slot.appendChild(plus);
+        }
+
+        itemGrid.appendChild(slot);
+      }
+    }
+
     loadItems();
-    itemGrid.style.display = "grid"; // ✅ this works only if not blocked by CSS
-  }, 300);
-});
-
-
-
-  async function loadItems() {
-    const res = await fetch("data/suitcaseItems.json");
-    const items = await res.json();
-
-    const totalSlots = 18;
-    itemGrid.innerHTML = "";
-
-    for (let i = 0; i < totalSlots; i++) {
-  const item = items[i];
-  const slot = document.createElement("div");
-  slot.classList.add("item-slot");
-
-  // Animation delay
-  slot.style.animationDelay = `${i * 30}ms`;
-
-  if (item) {
-    const link = document.createElement("a");
-    link.href = item.link || "#";
-    link.target = "_blank";
-    const img = document.createElement("img");
-    img.src = item.image;
-    img.alt = item.name;
-    link.appendChild(img);
-    slot.appendChild(link);
-  } else {
-    const plus = document.createElement("span");
-    plus.textContent = "+";
-    slot.appendChild(plus);
-  }
-
-  itemGrid.appendChild(slot);
-}
-
-  }
-</script>
-
+    pauseAtFrame(230); // start idle still
+  </script>
 </body>
 </html>
