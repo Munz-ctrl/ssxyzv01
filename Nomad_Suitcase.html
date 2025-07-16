@@ -95,7 +95,7 @@
     const closeBtn = document.getElementById('closeSuitcaseBtn');
 
     const states = {
-      IDLE: [0, 230],
+      IDLE: [0, 299],
       TO_SUITCASE: [320, 478],
       SUITCASE_LOOP: [454, 478],
       EXIT_SUITCASE: [478, 646]
@@ -193,7 +193,11 @@
     }
 
     loadItems();
-    pauseAtFrame(230); // start idle still
+    playSegment(...states.IDLE, () => {
+  loopSegment(...states.IDLE);
+});
+
+
   </script>
 </body>
 </html>
