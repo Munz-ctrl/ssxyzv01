@@ -143,8 +143,7 @@
       state = 'OPENING';
       playSegment(...states.TO_SUITCASE, () => {
         state = 'SUITCASE';
-        loopSegment(...states.SUITCASE_LOOP);
-
+        pauseAtFrame(478); // or loopSegment(454, 478);
         itemGrid.style.display = 'grid';
         closeBtn.style.display = 'block';
       });
@@ -194,11 +193,7 @@
     }
 
     loadItems();
-    playSegment(...states.IDLE, () => {
-  loopSegment(...states.IDLE);
-});
-
-
+    pauseAtFrame(230); // start idle still
   </script>
 </body>
 </html>
