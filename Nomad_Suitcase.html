@@ -193,7 +193,11 @@
     }
 
     loadItems();
-    pauseAtFrame(230); // start idle still
+    playSegment(...states.IDLE, () => {
+  loopSegment(...states.IDLE);
+});
+
+
   </script>
 </body>
 </html>
