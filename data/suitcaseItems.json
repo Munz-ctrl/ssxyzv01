@@ -10,17 +10,5 @@
     "name": "Human Nature Pants",
     "image": "/assets/items/lace_pants.png",
     "link": "https://example.com/lace-pants"
-  },
-  {
-    "id": "item3",
-    "name": "La Fam Jacket",
-    "image": "/assets/items/la_fam_jacket.png",
-    "link": "https://example.com/la-fam"
-  },
-  {
-    "id": "item4",
-    "name": "Yeezy Pods",
-    "image": "/assets/items/yeezy_pods.png",
-    "link": "https://example.com/yeezy"
   }
 ]
