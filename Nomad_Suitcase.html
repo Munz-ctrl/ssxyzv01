@@ -98,7 +98,7 @@
       IDLE: [0, 299],
       TO_SUITCASE: [320, 478],
       SUITCASE_LOOP: [454, 478],
-      EXIT_SUITCASE: [478, 646]
+      EXIT_SUITCASE: [479, 646]
     };
 
     let state = 'IDLE';
@@ -193,10 +193,9 @@
     }
 
     loadItems();
-    playSegment(...states.IDLE, () => {
+  
   loopSegment(...states.IDLE);
-});
-
+  
 
   </script>
 </body>
