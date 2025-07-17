@@ -88,114 +88,123 @@
   </div>
 
   <script type="module">
-    const video = document.getElementById('gameVideo');
-    const itemGrid = document.getElementById('itemGrid');
-    const overlay = document.getElementById('itemOverlay');
-    const suitcaseBtn = document.getElementById('suitcaseBtn');
-    const closeBtn = document.getElementById('closeSuitcaseBtn');
+   const video = document.getElementById('gameVideo');
+const itemGrid = document.getElementById('itemGrid');
+const overlay = document.getElementById('itemOverlay');
+const suitcaseBtn = document.getElementById('suitcaseBtn');
+const closeBtn = document.getElementById('closeSuitcaseBtn');
 
-    const states = {
-      IDLE: [0, 299],
-      TO_SUITCASE: [320, 478],
-      SUITCASE_LOOP: [454, 478],
-      EXIT_SUITCASE: [479, 646]
-    };
+const states = {
+  IDLE: [0, 299],
+  TO_SUITCASE: [320, 478],
+  SUITCASE_LOOP: [454, 478],
+  EXIT_SUITCASE: [479, 646]
+};
 
-    let state = 'IDLE';
-    let transitionTimeout;
-    let allowClick = true;
+let state = 'IDLE';
 
-    function toTime(frame) {
-      return frame / 30;
-    }
+function toTime(frame) {
+  return frame / 30;
+}
 
-    function playSegment(startFrame, endFrame, callback) {
-      clearTimeout(transitionTimeout);
-      allowClick = false;
-      video.currentTime = toTime(startFrame);
-      video.play();
-      const duration = toTime(endFrame - startFrame);
-      transitionTimeout = setTimeout(() => {
-        video.pause();
-        video.currentTime = toTime(endFrame);
-        allowClick = true;
-        if (callback) callback();
-      }, duration * 1000);
-    }
-
-    function loopSegment(startFrame, endFrame) {
-      video.currentTime = toTime(startFrame);
-      video.play();
-      const loopStart = toTime(startFrame);
-      const loopEnd = toTime(endFrame);
-      video.ontimeupdate = () => {
-        if (video.currentTime >= loopEnd) video.currentTime = loopStart;
-      };
-    }
-
-    function pauseAtFrame(frame) {
-      video.currentTime = toTime(frame);
-      video.pause();
-    }
-
-    suitcaseBtn.onclick = () => {
-      if (!allowClick || state !== 'IDLE') return;
-      state = 'OPENING';
-      playSegment(...states.TO_SUITCASE, () => {
-        state = 'SUITCASE';
-        pauseAtFrame(478); // or loopSegment(454, 478);
-        itemGrid.style.display = 'grid';
-        closeBtn.style.display = 'block';
-      });
-    };
-
-    closeBtn.onclick = () => {
-      if (!allowClick || state !== 'SUITCASE') return;
-      state = 'CLOSING';
+function goToState(newState) {
+  state = newState;
+  switch (state) {
+    case 'IDLE':
       itemGrid.style.display = 'none';
       overlay.style.display = 'none';
       closeBtn.style.display = 'none';
-      playSegment(...states.EXIT_SUITCASE, () => {
-        state = 'IDLE';
-        video.currentTime = toTime(states.IDLE[0]);
-        video.play();
-      });
-    };
-
-    async function loadItems() {
-      const res = await fetch('data/suitcaseItems.json');
-      const items = await res.json();
-      const totalSlots = 18;
-      itemGrid.innerHTML = '';
-
-      for (let i = 0; i < totalSlots; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'item-slot';
-
-        const item = items[i];
-        if (item) {
-          const img = document.createElement('img');
-          img.src = item.image;
-          img.alt = item.name;
-          slot.appendChild(img);
-          slot.onclick = () => {
-            overlay.innerHTML = `<strong>${item.name}</strong><br><a href="${item.link}" target="_blank">View</a>`;
-            overlay.style.display = 'block';
-          };
-        } else {
-          const plus = document.createElement('span');
-          plus.textContent = '+';
-          slot.appendChild(plus);
+      video.currentTime = toTime(states.IDLE[0]);
+      video.play();
+      video.ontimeupdate = () => {
+        if (video.currentTime >= toTime(states.IDLE[1])) {
+          video.currentTime = toTime(states.IDLE[0]);
         }
+      };
+      break;
+    case 'OPENING':
+      video.ontimeupdate = null;
+      video.currentTime = toTime(states.TO_SUITCASE[0]);
+      video.play();
+      video.ontimeupdate = () => {
+        if (video.currentTime >= toTime(states.TO_SUITCASE[1])) {
+          goToState('SUITCASE');
+        }
+      };
+      break;
+    case 'SUITCASE':
+      video.ontimeupdate = null;
+      video.currentTime = toTime(states.TO_SUITCASE[1]);
+      video.pause();
+      itemGrid.style.display = 'grid';
+      closeBtn.style.display = 'block';
+      break;
+    case 'CLOSING':
+      video.ontimeupdate = null;
+      itemGrid.style.display = 'none';
+      overlay.style.display = 'none';
+      closeBtn.style.display = 'none';
+      video.currentTime = toTime(states.EXIT_SUITCASE[0]);
+      video.play();
+      video.ontimeupdate = () => {
+        if (video.currentTime >= toTime(states.EXIT_SUITCASE[1])) {
+          goToState('IDLE');
+        }
+      };
+      break;
+  }
+}
 
-        itemGrid.appendChild(slot);
-      }
+suitcaseBtn.onclick = () => {
+  if (state === 'IDLE') {
+    goToState('OPENING');
+  } else if (state === 'OPENING' || state === 'CLOSING') {
+    // Interrupt animation and go straight to suitcase
+    goToState('SUITCASE');
+  }
+};
+
+closeBtn.onclick = () => {
+  if (state === 'SUITCASE') {
+    goToState('CLOSING');
+  } else if (state === 'OPENING' || state === 'CLOSING') {
+    // Interrupt animation and go straight to idle
+    goToState('IDLE');
+  }
+};
+
+async function loadItems() {
+  const res = await fetch('data/suitcaseItems.json');
+  const items = await res.json();
+  const totalSlots = 18;
+  itemGrid.innerHTML = '';
+
+  for (let i = 0; i < totalSlots; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'item-slot';
+
+    const item = items[i];
+    if (item) {
+      const img = document.createElement('img');
+      img.src = item.image;
+      img.alt = item.name;
+      slot.appendChild(img);
+      slot.onclick = () => {
+        overlay.innerHTML = `<strong>${item.name}</strong><br><a href="${item.link}" target="_blank">View</a>`;
+        overlay.style.display = 'block';
+      };
+    } else {
+      const plus = document.createElement('span');
+      plus.textContent = '+';
+      slot.appendChild(plus);
     }
 
-    loadItems();
-  
-  loopSegment(...states.IDLE);
-  
+    itemGrid.appendChild(slot);
+  }
+}
+
+loadItems();
+goToState('IDLE');
 
   </script>
 </body>
