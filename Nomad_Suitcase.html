@@ -5,6 +5,7 @@
 
 
   <link rel="stylesheet" href="css/suitcase.css">
+  <link rel="stylesheet" href="css/styles.css">
   <title>Nomad Suitcase Game</title>
   <style>
     html, body {
@@ -81,7 +82,11 @@
   <div id="gameContainer">
     <video id="gameVideo" src="assets/suitcase/nomad_seq.mp4" preload="auto" playsinline muted></video>
 
-    <button id="suitcaseBtn" class="click-area"></button>
+    <button id="suitcaseBtn" class="click-area">
+      <span class="suitcase-ping"></span>
+      <span class="suitcase-label">OPEN SUITCASE</span>
+    </button>
+
     <div id="itemGrid" class="item-grid"></div>
     <div id="itemOverlay"></div>
     <button id="closeSuitcaseBtn">Close Suitcase</button>
