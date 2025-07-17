@@ -162,10 +162,17 @@ function goToState(newState) {
 
 suitcaseBtn.onclick = () => {
   if (state === 'IDLE') {
-    goToState('OPENING');
+    suitcaseBtn.classList.add('fade-out');
+    setTimeout(() => {
+      suitcaseBtn.style.display = 'none';
+      goToState('OPENING');
+    }, 500);
   } else if (state === 'OPENING' || state === 'CLOSING') {
-    // Interrupt animation and go straight to suitcase
-    goToState('SUITCASE');
+    suitcaseBtn.classList.add('fade-out');
+    setTimeout(() => {
+      suitcaseBtn.style.display = 'none';
+      goToState('SUITCASE');
+    }, 500);
   }
 };
 
