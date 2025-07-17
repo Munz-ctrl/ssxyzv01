@@ -24,23 +24,30 @@
       font-style: normal;
    }
 
-    #gameContainer {
-  width: auto;
-  height: 100vh;
-  aspect-ratio: 9/16;
-  max-height: 100vh;
-  max-width: 1080px;
-  margin: auto;
-  background: black;
-  position: relative;
-  overflow: hidden;
+ #itemGrid {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  padding: 12px;
+  border-radius: 0 0 12px 12px;
+  animation: slideDown 0.4s ease forwards;
 }
 
-   video#gameVideo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+@keyframes slideDown {
+  from {
+    transform: translateX(-50%) translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
 }
+
+
 
     .click-area, #itemGrid, #itemOverlay, #closeSuitcaseBtn {
       position: absolute;
