@@ -73,7 +73,7 @@
   position: absolute;
   z-index: 10;
   left: 50%;
-  bottom: 220px;
+  bottom: 20%;
   transform: translateX(-50%);
   width: 100px;
   height: 100px;
