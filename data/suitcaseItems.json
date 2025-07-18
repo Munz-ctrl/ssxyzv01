@@ -3,12 +3,14 @@
     "id": "item1",
     "name": "HOLY Tank",
     "image": "assets/suitcase/holy_tank.png",
+    "overlayImage": "assets/suitcase/holy_tank_overlay.png",
     "link": "https://example.com/holy-tank"
   },
   {
     "id": "item2",
     "name": "Human Nature Pants",
     "image": "assets/suitcase/lace_pants.png",
+    "overlayImage": "assets/suitcase/lace_pants_overlay.png",
     "link": "https://example.com/lace-pants"
   }
 ]
