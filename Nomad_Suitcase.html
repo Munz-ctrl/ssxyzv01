@@ -14,8 +14,8 @@
     html, body {
       margin: 0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100dvw;
+      height: 100dvh;
       background: #e5e5e5; /* Light grey background */
       overflow: hidden;
      touch-action: none;
@@ -38,7 +38,7 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   aspect-ratio: 9 / 16;
-  height: 100vh;
+  height: 100dvh;
   width: auto;
   max-height: 1920px;
   max-width: auto;
@@ -60,7 +60,7 @@ body {
     #itemGrid {
   display: none;
   position: absolute;
-  top: 0;
+  top: env(safe-area-inset-top, 0);
   left: 50%;
   transform: translateX(-50%);
   background: #1a1a1a;
@@ -136,6 +136,14 @@ video#gameVideo {
   </div>
 
   <script type="module">
+
+
+window.addEventListener('load', () => {
+  document.body.style.height = window.innerHeight + 'px';
+});
+
+
+
    const video = document.getElementById('gameVideo');
 const itemGrid = document.getElementById('itemGrid');
 const overlay = document.getElementById('itemOverlay');
