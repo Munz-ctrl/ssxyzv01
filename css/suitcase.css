@@ -188,3 +188,6 @@
   text-decoration: underline;
   font-weight: bold;
 }
+
+#itemGrid { z-index: 2; }
+#itemOverlay { z-index: 1; }
