@@ -239,17 +239,17 @@ async function loadItems() {
       img.alt = item.name;
       slot.appendChild(img);
       slot.onclick = () => {
-  overlay.innerHTML = `
-    <div class="overlay-content">
-      <img src="${item.image}" alt="${item.name}">
-      <div class="item-info">
-        <div><strong>${item.name}</strong></div>
-        <a href="${item.link}" target="_blank">View</a>
-      </div>
-    </div>
-  `;
-  overlay.style.display = 'block';
-};
+        overlay.innerHTML = `
+          <div class="overlay-content">
+            <img src="${item.overlayImage || item.image}" alt="${item.name}">
+            <div class="item-info">
+              <div><strong>${item.name}</strong></div>
+              <a href="${item.link}" target="_blank">View</a>
+            </div>
+          </div>
+        `;
+        overlay.style.display = 'block';
+      };
 
     } else {
       const plus = document.createElement('span');
