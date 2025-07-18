@@ -1,7 +1,7 @@
 .item-grid {
   width: 80%; /* scales responsively */
-  max-width: 1080px; 
-  max-height: 25vh; /* max width for larger screens */
+  max-width: 90%; 
+  max-height: 25dvh; /* max width for larger screens */
 
   aspect-ratio: 763 / 405;
   display: grid;
@@ -18,6 +18,7 @@
   background: #bcbcbc;
   border-radius: 12px;
   display: flex;
+  aspect-ratio: 1 / 1;
   align-items: center;
   justify-content: center;
   overflow: hidden;
@@ -141,7 +142,7 @@
    #itemOverlay {
   display: none;
   position: absolute;
-  top: calc(env(safe-area-inset-top, 0) + 1dvh);
+  top: calc(env(safe-area-inset-top, 0) + 27dvh);
   left: 0;
   width: 100%;
   max-width: 1080px;
