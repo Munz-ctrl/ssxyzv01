@@ -193,12 +193,17 @@ function goToState(newState) {
 suitcaseBtn.onclick = () => {
   if (state === 'IDLE') {
     suitcaseBtn.classList.add('fade-out');
+    // Show grid and close button immediately
+    itemGrid.style.display = 'grid';
+    closeBtn.style.display = 'block';
     setTimeout(() => {
       suitcaseBtn.style.display = 'none';
       goToState('OPENING');
     }, 100);
   } else if (state === 'OPENING' || state === 'CLOSING') {
     suitcaseBtn.classList.add('fade-out');
+    itemGrid.style.display = 'grid';
+    closeBtn.style.display = 'block';
     setTimeout(() => {
       suitcaseBtn.style.display = 'none';
       goToState('SUITCASE');
