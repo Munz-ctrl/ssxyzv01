@@ -149,6 +149,8 @@ function goToState(newState) {
       itemGrid.style.display = 'none';
       overlay.style.display = 'none';
       closeBtn.style.display = 'none';
+      suitcaseBtn.style.display = 'flex';
+      suitcaseBtn.classList.remove('fade-out');
       video.currentTime = toTime(states.IDLE[0]);
       video.play();
       video.ontimeupdate = () => {
