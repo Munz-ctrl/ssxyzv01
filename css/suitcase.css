@@ -144,11 +144,12 @@
   position: absolute;
   top: calc(env(safe-area-inset-top, 0) + 27dvh);
   left: 0;
-  width: 100%;
+   width: 80%;
   max-width: 1080px;
   padding: 12px;
   z-index: 1;
   animation: slideInOverlay 0.4s ease forwards;
+  background: rgba(0, 0, 0, 0.16);
 }
 
 @keyframes slideInOverlay {
@@ -169,6 +170,7 @@
   justify-content: start;
   font-size: 12px;
   color: #222;
+  justify-content: space-around;
 }
 
 #itemOverlay img {
@@ -182,12 +184,17 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  font-size: fit-content;
+  color: #fff;
+  stroke: #222;
+  stroke-width: 1px;
 }
 
 #itemOverlay .item-info a {
   color: #0077ff;
   text-decoration: underline;
   font-weight: bold;
+  font-size: fit-content;
 }
 
 #itemGrid { z-index: 2; }
