@@ -99,16 +99,17 @@
 .suitcase-label {
   position: absolute;
   font-family: 'Ubuntu', sans-serif;
-  font-size: 10px;
+  font-size: 7px;
   font-weight: bold;
   color: #fff;
-  background: rgba(44,91,255,0.7);
+  background: rgba(0, 0, 0, 0);
   padding: 3px 8px;
   border-radius: 6px;
   box-shadow: 0 0 6px #6ac3ff44;
   letter-spacing: 0.5px;
   z-index: 2;
   pointer-events: none;
+  animation: labelPulse 1.5s ease-out infinite;
 }
 
 
@@ -117,6 +118,14 @@
   80% { transform: scale(1.4); opacity: 0.5; }
   100% { transform: scale(1.7); opacity: 0; }
 }
+
+
+@keyframes labelPulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
 
 .click-area.fade-out {
   animation: fadeAway 0.5s forwards;
