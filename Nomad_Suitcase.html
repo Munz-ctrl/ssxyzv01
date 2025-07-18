@@ -196,7 +196,7 @@ suitcaseBtn.onclick = () => {
     setTimeout(() => {
       suitcaseBtn.style.display = 'none';
       goToState('OPENING');
-    }, 500);
+    }, 100);
   } else if (state === 'OPENING' || state === 'CLOSING') {
     suitcaseBtn.classList.add('fade-out');
     setTimeout(() => {
