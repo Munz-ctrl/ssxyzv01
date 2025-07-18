@@ -69,20 +69,6 @@ body {
   animation: slideDown 0.4s ease forwards;
 }
 
- #itemOverlay {
-      top: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.6);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 6px;
-      display: none;
-      font-size: 12px;
-      text-align: center;
-    }
-
-  
     #closeSuitcaseBtn {
       bottom: 10px;
       left: 50%;
@@ -104,25 +90,15 @@ video#gameVideo {
   display: block;
 }
 
-    .click-area, #itemGrid, #itemOverlay, #closeSuitcaseBtn {
-      position: absolute;
-      z-index: 2;
-    }
-   
-@keyframes slideDown {
-  from {
-    transform: translateX(-50%) translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
+.click-area, #itemGrid, #itemOverlay, #closeSuitcaseBtn {
+  position: absolute;
+  z-index: 2;
 }
 
-   
   </style>
+
 </head>
+
 <body>
   <div id="gameContainer">
     <video id="gameVideo" src="assets/suitcase/nomad_seq.mp4" preload="auto" playsinline muted></video>
@@ -255,9 +231,17 @@ async function loadItems() {
       img.alt = item.name;
       slot.appendChild(img);
       slot.onclick = () => {
-        overlay.innerHTML = `<strong>${item.name}</strong><br><a href="${item.link}" target="_blank">View</a>`;
-        overlay.style.display = 'block';
-      };
+  overlay.innerHTML = `
+    <div class="overlay-content">
+      <img src="${item.image}" alt="${item.name}">
+      <div class="item-info">
+        <div><strong>${item.name}</strong></div>
+        <a href="${item.link}" target="_blank">View</a>
+      </div>
+    </div>
+  `;
+  overlay.style.display = 'block';
+};
     } else {
       const plus = document.createElement('span');
       plus.textContent = '+';
