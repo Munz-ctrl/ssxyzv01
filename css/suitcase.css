@@ -98,6 +98,8 @@
 
 .suitcase-label {
   position: absolute;
+  bottom: 50%;
+  left: 50%;
   font-family: 'Ubuntu', sans-serif;
   font-size: 7px;
   font-weight: bold;
@@ -122,8 +124,8 @@
 
 @keyframes labelPulse {
   0%   { opacity: 1; }
-  50%  { opacity: 0.5; }
-  100% { opacity: 1; }
+  80%  { opacity: 0.5; }
+  100% { opacity: 0; }
 }
 
 
