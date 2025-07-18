@@ -141,7 +141,7 @@
    #itemOverlay {
   display: none;
   position: absolute;
-  top: calc(env(safe-area-inset-top, 0) + 100%);
+  top: calc(env(safe-area-inset-top, 0) + 1dvh);
   left: 0;
   width: 100%;
   max-width: 1080px;
