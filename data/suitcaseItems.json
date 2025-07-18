@@ -2,13 +2,13 @@
   {
     "id": "item1",
     "name": "HOLY Tank",
-    "image": "/assets/items/holy_tank.png",
+    "image": "assets/suitcase/holy_tank.png",
     "link": "https://example.com/holy-tank"
   },
   {
     "id": "item2",
     "name": "Human Nature Pants",
-    "image": "/assets/items/lace_pants.png",
+    "image": "assets/suitcase/lace_pants.png",
     "link": "https://example.com/lace-pants"
   }
 ]
