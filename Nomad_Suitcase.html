@@ -228,6 +228,7 @@ async function loadItems() {
   const totalSlots = 18;
   itemGrid.innerHTML = '';
 
+  let selectedSlot = null;
   for (let i = 0; i < totalSlots; i++) {
     const slot = document.createElement('div');
     slot.className = 'item-slot';
@@ -239,6 +240,11 @@ async function loadItems() {
       img.alt = item.name;
       slot.appendChild(img);
       slot.onclick = () => {
+        // Remove 'selected' from previous slot
+        if (selectedSlot) selectedSlot.classList.remove('selected');
+        // Add 'selected' to this slot
+        slot.classList.add('selected');
+        selectedSlot = slot;
         overlay.innerHTML = `
           <div class="overlay-content">
             <img src="${item.overlayImage || item.image}" alt="${item.name}">
@@ -250,13 +256,18 @@ async function loadItems() {
         `;
         overlay.style.display = 'block';
       };
-
     } else {
       const plus = document.createElement('span');
       plus.textContent = '+';
       slot.appendChild(plus);
+      slot.onclick = () => {
+        // Remove 'selected' from previous slot
+        if (selectedSlot) selectedSlot.classList.remove('selected');
+        slot.classList.add('selected');
+        selectedSlot = slot;
+        overlay.style.display = 'none'; // No overlay for empty slot
+      };
     }
-
     itemGrid.appendChild(slot);
   }
 }
