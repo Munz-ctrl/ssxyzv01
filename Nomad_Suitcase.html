@@ -151,6 +151,13 @@ function goToState(newState) {
       closeBtn.style.display = 'none';
       suitcaseBtn.style.display = 'flex';
       suitcaseBtn.classList.remove('fade-out');
+      // Reset ping animation
+      const ping = suitcaseBtn.querySelector('.suitcase-ping');
+      if (ping) {
+        ping.style.animation = 'none';
+        void ping.offsetWidth;
+        ping.style.animation = '';
+      }
       video.currentTime = toTime(states.IDLE[0]);
       video.play();
       video.ontimeupdate = () => {
@@ -175,6 +182,7 @@ function goToState(newState) {
       video.pause();
       itemGrid.style.display = 'grid';
       closeBtn.style.display = 'block';
+      loadItems(); // Reload items every time suitcase is opened
       break;
     case 'CLOSING':
       video.ontimeupdate = null;
