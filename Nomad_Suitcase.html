@@ -265,6 +265,7 @@ async function loadItems() {
         overlay.style.display = 'block';
       };
     } else {
+      slot.classList.add('empty');
       const plus = document.createElement('span');
       plus.textContent = '+';
       slot.appendChild(plus);
