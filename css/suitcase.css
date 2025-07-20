@@ -14,6 +14,7 @@
 }
 
 
+
 .item-slot {
   background: #bcbcbc00;
   border-radius: 12px;
@@ -24,6 +25,26 @@
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: none;
+}
+
+.item-slot.empty {
+  background: rgba(255,255,255,0.04);
+  border: 2px dotted #bcbcbc;
+  border-radius: 12px;
+  position: relative;
+}
+
+.item-slot.empty span {
+  font-size: 32px;
+  color: #bcbcbc;
+  font-weight: bold;
+  outline: none;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 @keyframes fadeInScale {
@@ -55,13 +76,7 @@
 }
 
 
-.item-slot span {
-  font-size: 24px;
-  color: rgba(255, 255, 255, 0);
-  font-weight: bold;
-  outline: 2px dotted #ffffff56;
 
-}
 
 .item-slot img {
   width: 100%;
