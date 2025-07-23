@@ -3,7 +3,7 @@
     "id": "item1",
     "name": "HOLY Tank",
     "image": "assets/suitcase/holy_tank.png",
-    "overlayImage": "assets/suitcase/holy_tank_overlay.png",
+    "overlayImage": "assets/suitcase/holy_tank.png",
     "link": "https://example.com/holy-tank"
   },
   {
