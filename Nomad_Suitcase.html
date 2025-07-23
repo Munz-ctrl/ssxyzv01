@@ -82,11 +82,16 @@ body {
       color: white;
       padding: 4px 10px;
       border: none;
-      border-radius: 4px;
+      border-radius: 50%;
       cursor: pointer;
       display: none;
       bottom: calc(env(safe-area-inset-bottom, 0) + 10px);
       z-index: 10;
+      width: 50px;
+      height: 50px;
+      font-size: 1.5em;
+      line-height: 1;
+      text-align: center;
     }
 
 
@@ -103,9 +108,18 @@ video#gameVideo {
   z-index: 2;
 }
 
- 
+.show {
+  display: block !important;
+  opacity: 1;
+  pointer-events: all;
+}
 
-  /* ...existing code... */
+.hide {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
   </style>
 
 </head>
@@ -121,7 +135,7 @@ video#gameVideo {
 
     <div id="itemGrid" class="item-grid"></div>
     <div id="itemOverlay"></div>
-    <button id="closeSuitcaseBtn">Close Suitcase</button>
+    <button id="closeSuitcaseBtn" aria-label="Close Suitcase">&times;</button>
   </div>
 
   <script type="module">
@@ -163,7 +177,7 @@ function goToState(newState) {
     case 'IDLE':
       itemGrid.style.display = 'none';
       overlay.style.display = 'none';
-      closeBtn.style.display = 'none';
+      closeBtn.classList.remove('show');
       suitcaseBtn.style.display = 'flex';
       suitcaseBtn.classList.remove('fade-out');
       // Reset ping animation
@@ -196,14 +210,16 @@ function goToState(newState) {
       video.currentTime = toTime(states.TO_SUITCASE[1]);
       video.pause();
       itemGrid.style.display = 'grid';
-      closeBtn.style.display = 'block';
+      setTimeout(() => {
+        closeBtn.classList.add('show');
+      }, 1000); // Delay to match item grid
       loadItems(); // Reload items every time suitcase is opened
       break;
     case 'CLOSING':
       video.ontimeupdate = null;
       itemGrid.style.display = 'none';
       overlay.style.display = 'none';
-      closeBtn.style.display = 'none';
+      closeBtn.classList.remove('show');
       video.currentTime = toTime(states.EXIT_SUITCASE[0]);
       video.play();
       video.ontimeupdate = () => {
@@ -220,7 +236,7 @@ suitcaseBtn.onclick = () => {
     suitcaseBtn.classList.add('fade-out');
     setTimeout(() => {
       itemGrid.style.display = 'grid';
-      closeBtn.style.display = 'block';
+      closeBtn.classList.add('show');
       loadItems();
     }, 1000); // Delay by 1 second
     setTimeout(() => {
@@ -231,7 +247,7 @@ suitcaseBtn.onclick = () => {
     suitcaseBtn.classList.add('fade-out');
     setTimeout(() => {
       itemGrid.style.display = 'grid';
-      closeBtn.style.display = 'block';
+      closeBtn.classList.add('show');
       loadItems();
     }, 1000); // Delay by 1 second
     setTimeout(() => {
