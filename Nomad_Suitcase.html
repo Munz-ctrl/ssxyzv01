@@ -74,21 +74,6 @@ body {
       cursor: pointer;
     }
     
-    #itemGrid {
-  display: none;
-  position: absolute;
-  top: calc(env(safe-area-inset-top, 0) + 0px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1a1a1a;
-  padding: 12px;
-  border-radius: 0 0 12px 12px;
-  animation: slideDown 0.4s ease forwards;
-  max-width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0) - 24px);
-  box-sizing: border-box;
-  z-index: 10;
-}
-
     #closeSuitcaseBtn {
       position: absolute;
       left: 50%;
@@ -118,17 +103,7 @@ video#gameVideo {
   z-index: 2;
 }
 
-  #itemOverlay {
-    top: calc(env(safe-area-inset-top, 0) + 0px) !important;
-    left: calc(env(safe-area-inset-left, 0) + 0px) !important;
-    right: calc(env(safe-area-inset-right, 0) + 0px) !important;
-    bottom: calc(env(safe-area-inset-bottom, 0) + 0px) !important;
-    box-sizing: border-box;
-    max-width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
-    max-height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
-    margin: auto;
-    z-index: 20;
-  }
+ 
 
   /* ...existing code... */
   </style>
