@@ -1,19 +1,6 @@
-.item-grid {
-  width: 80%; /* scales responsively */
-  max-width: 90%; 
-  max-height: 25dvh; /* max width for larger screens */
 
-  aspect-ratio: 763 / 405;
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 6px;
-  position: absolute;
-  top: 15%;
-  left: 50%; 
-}
 
-    #itemGrid {
+#itemGrid {
   display: none;
   position: absolute;
   top: calc(env(safe-area-inset-top, 0) + 0px);
@@ -26,6 +13,12 @@
   max-width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0) - 24px);
   box-sizing: border-box;
   z-index: 10;
+  width: 80%;
+  aspect-ratio: 763 / 405;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 6px;
 }
 
 .item-slot {
@@ -181,18 +174,7 @@
   }
 }
 
-   #itemOverlay {
-  display: none;
-  position: absolute;
-  top: calc(env(safe-area-inset-top, 0) + 27dvh);
-  left: 0;
-   width: 80%;
-  max-width: 1080px;
-  padding: 12px;
-  z-index: 1;
-  animation: slideInOverlay 0.4s ease forwards;
-  background: rgba(0, 0, 0, 0.16);
-}
+
 
 @keyframes slideInOverlay {
   from {
@@ -213,6 +195,23 @@
   font-size: 12px;
   color: #222;
   justify-content: space-around;
+}
+
+#itemOverlay {
+  display: none;
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0) + 0px) !important;
+  left: calc(env(safe-area-inset-left, 0) + 0px) !important;
+  right: calc(env(safe-area-inset-right, 0) + 0px) !important;
+  bottom: calc(env(safe-area-inset-bottom, 0) + 0px) !important;
+  box-sizing: border-box;
+  max-width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
+  max-height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
+  margin: auto;
+  z-index: 20;
+  padding: 12px;
+  animation: slideInOverlay 0.4s ease forwards;
+  background: rgba(0, 0, 0, 0.16);
 }
 
 #itemOverlay img {
