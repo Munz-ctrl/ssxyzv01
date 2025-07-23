@@ -54,13 +54,12 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* aspect-ratio: 9 / 16; */
-  height: 100dvh;
-  width: 100dvw;
-  max-height: 1920px;
-  max-width: 1080px;
+  aspect-ratio: 9 / 16;
+  width: min(100vw, calc(100vh * 9 / 16), 1080px);
+  height: min(100vh, calc(100vw * 16 / 9), 1920px);
   background: black;
   overflow: hidden;
+  /* Allow it to extend under browser bars if needed */
  }
 
  #suitcaseBtn {
@@ -78,17 +77,20 @@ body {
     #itemGrid {
   display: none;
   position: absolute;
-  top: env(safe-area-inset-top, 0);
+  top: calc(env(safe-area-inset-top, 0) + 0px);
   left: 50%;
   transform: translateX(-50%);
   background: #1a1a1a;
   padding: 12px;
   border-radius: 0 0 12px 12px;
   animation: slideDown 0.4s ease forwards;
+  max-width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0) - 24px);
+  box-sizing: border-box;
+  z-index: 10;
 }
 
     #closeSuitcaseBtn {
-      bottom: 10px;
+      position: absolute;
       left: 50%;
       transform: translateX(-50%);
       background: #222;
@@ -98,12 +100,14 @@ body {
       border-radius: 4px;
       cursor: pointer;
       display: none;
+      bottom: calc(env(safe-area-inset-bottom, 0) + 10px);
+      z-index: 10;
     }
 
 
 video#gameVideo {
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: cover;
   display: block;
   aspect-ratio: 9 / 16;
@@ -114,6 +118,19 @@ video#gameVideo {
   z-index: 2;
 }
 
+  #itemOverlay {
+    top: calc(env(safe-area-inset-top, 0) + 0px) !important;
+    left: calc(env(safe-area-inset-left, 0) + 0px) !important;
+    right: calc(env(safe-area-inset-right, 0) + 0px) !important;
+    bottom: calc(env(safe-area-inset-bottom, 0) + 0px) !important;
+    box-sizing: border-box;
+    max-width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
+    max-height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
+    margin: auto;
+    z-index: 20;
+  }
+
+  /* ...existing code... */
   </style>
 
 </head>
