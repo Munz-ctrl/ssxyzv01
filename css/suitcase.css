@@ -200,18 +200,21 @@
 #itemOverlay {
   display: none;
   position: absolute;
-  top: calc(env(safe-area-inset-top, 0) + 0px) !important;
-  left: calc(env(safe-area-inset-left, 0) + 0px) !important;
-  right: calc(env(safe-area-inset-right, 0) + 0px) !important;
-  bottom: calc(env(safe-area-inset-bottom, 0) + 0px) !important;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   box-sizing: border-box;
-  max-width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0));
-  max-height: calc(100vh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
-  margin: auto;
   z-index: 20;
-  padding: 12px;
+  padding: 18px 20px;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 16px;
   animation: slideInOverlay 0.4s ease forwards;
-  background: rgba(0, 0, 0, 0.16);
+  max-width: 90vw;
+  max-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 32px 0 #0008;
 }
 
 #itemOverlay img {
