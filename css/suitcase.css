@@ -13,7 +13,20 @@
   left: 50%; 
 }
 
-
+    #itemGrid {
+  display: none;
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0) + 0px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a1a1a;
+  padding: 12px;
+  border-radius: 0 0 12px 12px;
+  animation: slideDown 0.4s ease forwards;
+  max-width: calc(100vw - env(safe-area-inset-left, 0) - env(safe-area-inset-right, 0) - 24px);
+  box-sizing: border-box;
+  z-index: 10;
+}
 
 .item-slot {
   background: #bcbcbc00;
