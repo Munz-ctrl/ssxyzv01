@@ -1,9 +1,7 @@
-
-
 #itemGrid {
   display: none;
   position: absolute;
-  top: calc(env(safe-area-inset-top, 0) + 0px);
+  top: calc(env(safe-area-inset-top, 0) + 24px);
   left: 50%;
   transform: translateX(-50%);
   background: #1a1a1a;
@@ -243,3 +241,18 @@
 
 #itemGrid { z-index: 2; }
 #itemOverlay { z-index: 2; }
+
+#closeSuitcaseBtn {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: white;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: none;
+  bottom: calc(env(safe-area-inset-bottom, 0) + 34px);
+  z-index: 10;
+}
