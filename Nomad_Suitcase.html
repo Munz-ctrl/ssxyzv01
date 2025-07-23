@@ -1,5 +1,22 @@
 <html lang="en">
 <head>
+  <style>
+    @media screen and (orientation: landscape) {
+      body::before {
+        content: "Please rotate your device to portrait mode.";
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: #000c;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2em;
+        z-index: 9999;
+        pointer-events: all;
+      }
+    }
+  </style>
   <meta charset="UTF-8">
   <!-- <meta name="viewport" content=" height= 90vh , width= auto, initial-scale=1.0, maximum-scale=1.0, width=1080, user-scalable=no"> -->
 <!-- HEAD section -->
@@ -116,6 +133,11 @@ video#gameVideo {
   </div>
 
   <script type="module">
+
+// Attempt to lock orientation to portrait (works on some browsers)
+if (screen.orientation && screen.orientation.lock) {
+  screen.orientation.lock('portrait').catch(() => {});
+}
 
 
 window.addEventListener('load', () => {
