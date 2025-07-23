@@ -10,7 +10,7 @@
     "id": "item2",
     "name": "Human Nature Pants",
     "image": "assets/suitcase/lace_pants.png",
-    "overlayImage": "assets/suitcase/lace_pants_overlay.png",
+    "overlayImage": "assets/suitcase/lace_pants.png",
     "link": "https://example.com/lace-pants"
   }
 ]
