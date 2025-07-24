@@ -8,7 +8,21 @@
   },
   {
     "id": "item2",
-    "name": "Human Nature Pants",
+    "name": "Human Nature WHITE-LACE ",
+    "image": "assets/suitcase/lace_pants.png",
+    "overlayImage": "assets/suitcase/lace_pants.png",
+    "link": "https://example.com/lace-pants"
+  },
+  {
+    "id": "item3",
+    "name": "RARRI Hank",
+    "image": "assets/suitcase/holy_tank.png",
+    "overlayImage": "assets/suitcase/holy_tank.png",
+    "link": "https://example.com/holy-tank"
+  },
+  {
+    "id": "item4",
+    "name": "Human Nature RED-LEATHER",
     "image": "assets/suitcase/lace_pants.png",
     "overlayImage": "assets/suitcase/lace_pants.png",
     "link": "https://example.com/lace-pants"
