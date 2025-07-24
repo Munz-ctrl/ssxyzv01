@@ -264,10 +264,12 @@
   pointer-events: none;
   transition: opacity 0.3s;
 }
+
 #closeSuitcaseBtn.show {
   opacity: 1;
   pointer-events: auto;
 }
+
 #closeSuitcaseBtn:hover {
   background: #333;
   color: #ff6a6a;
