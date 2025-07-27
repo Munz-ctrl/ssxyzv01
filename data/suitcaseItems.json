@@ -23,8 +23,8 @@
   {
     "id": "item4",
     "name": "Human Nature RED-LEATHER",
-    "image": "assets/suitcase/lace_pants.png",
-    "overlayImage": "assets/suitcase/lace_pants.png",
+    "image": "assets/suitcase/HN_Red.png",
+    "overlayImage": "assets/suitcase/HN_Red.png",
     "link": "https://example.com/lace-pants"
   }
 ]
