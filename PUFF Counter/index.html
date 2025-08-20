@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Puff Counter — minimal</title>
   <style>
     :root{
@@ -10,12 +10,24 @@
       --ring:#2a2e39;
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue";
-      background:linear-gradient(160deg,#0b0c10 0%,#0f111a 60%,#0b0c10 100%); color:var(--ink);
-      display:flex; align-items:center; justify-content:center; padding:24px;
-    }
+    /* Make the page at least as tall as the visible viewport (with browser UI shown) */
+html, body { min-height: 100svh; }
+
+/* Prefer dynamic viewport on browsers that support it (updates when the bar collapses) */
+@supports (height: 100dvh) {
+  html, body { min-height: 100dvh; }
+}
+
+/* Add notch/URL-bar safe spacing at the top */
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue";
+  background:linear-gradient(160deg,#0b0c10 0%,#0f111a 60%,#0b0c10 100%);
+  color:var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  padding: calc(env(safe-area-inset-top, 0px) + 24px) 24px 24px;
+}
+
     .app{
       width:min(900px,100%); background:var(--card); border:1px solid var(--ring); border-radius:16px;
       padding:22px; box-shadow: 0 8px 30px rgba(0,0,0,.35);
@@ -152,7 +164,11 @@
     let state = load();
 
     // Initialize lastPuff if missing (do NOT count as a puff)
-    if (!state.lastPuffISO) state.lastPuffISO = new Date().toISOString();
+    if (!state.lastPuffISO) {
+      state.lastPuffISO = new Date().toISOString();
+      save(); // ✅ make sure the anchor is stored immediately
+    }
+//
 
     // ----------- Derived
     const todayKey = () => dayKey(new Date());
