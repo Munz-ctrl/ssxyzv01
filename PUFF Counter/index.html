@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Puff Counter — minimal</title>
+  <style>
+    :root{
+      --bg:#0b0c10; --card:#111218; --ink:#e8e8ea; --muted:#9aa0a6; --accent:#7df3a3; --danger:#ff6b6b;
+      --ring:#2a2e39;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue";
+      background:linear-gradient(160deg,#0b0c10 0%,#0f111a 60%,#0b0c10 100%); color:var(--ink);
+      display:flex; align-items:center; justify-content:center; padding:24px;
+    }
+    .app{
+      width:min(900px,100%); background:var(--card); border:1px solid var(--ring); border-radius:16px;
+      padding:22px; box-shadow: 0 8px 30px rgba(0,0,0,.35);
+    }
+    header{display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px}
+    header h1{font-size:20px; margin:0; font-weight:700; letter-spacing:.2px}
+    .grid{display:grid; grid-template-columns: 1fr 1fr; gap:14px}
+    @media (max-width:720px){.grid{grid-template-columns:1fr}}
+    .card{
+      background:#0c0e14; border:1px solid var(--ring); border-radius:14px; padding:16px;
+    }
+    .timer{display:flex; align-items:center; justify-content:center; text-align:center; gap:10px; padding:18px 8px}
+    .timer .big{font-variant-numeric:tabular-nums; font-size:56px; line-height:1; font-weight:800}
+    .timer .label{color:var(--muted); font-size:13px}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:12px; margin:8px 0}
+    .kpi{font-size:28px; font-weight:700}
+    .muted{color:var(--muted)}
+    .btn{
+      appearance:none; border:0; border-radius:12px; padding:14px 16px; font-weight:700; cursor:pointer;
+      background:linear-gradient(180deg, var(--accent), #59d489); color:#0a0f0c;
+      box-shadow: 0 6px 16px rgba(125,243,163,.25);
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{background:#191b24; color:var(--ink); border:1px solid var(--ring); box-shadow:none}
+    .btn.danger{background:linear-gradient(180deg, var(--danger), #e75555); color:#2a0b0b}
+    .stack{display:flex; gap:8px; flex-wrap:wrap}
+    .list{max-height:260px; overflow:auto; margin-top:8px; border-top:1px dashed #22252f; padding-top:8px}
+    .log-item{display:grid; grid-template-columns: 1fr auto; gap:10px; padding:8px 0; border-bottom:1px dashed #1b1e29}
+    .pill{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:4px 10px;
+      border:1px solid #293041; border-radius:999px; color:var(--muted);
+    }
+    a.export{color:var(--muted); text-decoration:underline; font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>🟢 Puff Counter</h1>
+      <div class="stack">
+        <button class="btn secondary" id="undoBtn" title="Remove the last logged puff">Undo last</button>
+        <a class="export" id="exportCsv" href="#" download="puff-log.csv">Export CSV</a>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Left: live timer + action -->
+      <section class="card">
+        <div class="timer">
+          <div>
+            <div class="label">Time since last puff</div>
+            <div class="big" id="sinceTimer">00:00:00</div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn" id="puffBtn">I just took a puff</button>
+          <div class="pill"><span>Longest streak</span> <strong id="bestStreak">—</strong></div>
+        </div>
+      </section>
+
+      <!-- Right: today stats -->
+      <section class="card">
+        <div class="row">
+          <div>
+            <div class="muted">Today’s date (local)</div>
+            <div id="todayLabel" class="kpi">—</div>
+          </div>
+          <div>
+            <div class="muted">Puffs today</div>
+            <div id="puffsToday" class="kpi">0</div>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <div class="muted">Last puff at</div>
+            <div id="lastPuffAt">—</div>
+          </div>
+          <div>
+            <div class="muted">Average gap today</div>
+            <div id="avgGap">—</div>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn secondary" id="softReset">Soft reset timer</button>
+          <button class="btn danger" id="hardReset">Erase all data</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Log -->
+    <section class="card" style="margin-top:14px">
+      <div class="row">
+        <div class="muted">Puff log (most recent first)</div>
+        <div class="pill"><span>Total entries</span> <strong id="totalEntries">0</strong></div>
+      </div>
+      <div class="list" id="logList"></div>
+      <div class="muted" style="margin-top:8px; font-size:12px">
+        All data is stored locally in your browser (localStorage). No servers, no tracking.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ----------- Utilities
+    const $ = sel => document.querySelector(sel);
+    const pad = n => String(n).padStart(2,'0');
+    const fmtHMS = ms => {
+      const s = Math.max(0, Math.floor(ms/1000));
+      const h = Math.floor(s/3600);
+      const m = Math.floor((s%3600)/60);
+      const ss = s%60;
+      return `${pad(h)}:${pad(m)}:${pad(ss)}`;
+    };
+    const dayKey = d => {
+      const y=d.getFullYear(), m=pad(d.getMonth()+1), dd=pad(d.getDate());
+      return `${y}-${m}-${dd}`; // Local day key (Asia/Riyadh for you)
+    };
+    const fmtTime = d => new Intl.DateTimeFormat(undefined, {
+      hour:'2-digit', minute:'2-digit', second:'2-digit'
+    }).format(d);
+    const fmtDate = d => new Intl.DateTimeFormat(undefined, {
+      weekday:'short', year:'numeric', month:'short', day:'numeric'
+    }).format(d);
+
+    // ----------- Storage
+    const KEY = 'puffCounter.v1';
+    const load = () => {
+      const raw = localStorage.getItem(KEY);
+      if (!raw) return { lastPuffISO:null, log:[], bestStreakMs:0 };
+      try { return JSON.parse(raw); } catch { return { lastPuffISO:null, log:[], bestStreakMs:0 }; }
+    };
+    const save = () => localStorage.setItem(KEY, JSON.stringify(state));
+
+    // state.log entries: { tsISO: string, gapMs: number }
+    let state = load();
+
+    // Initialize lastPuff if missing (do NOT count as a puff)
+    if (!state.lastPuffISO) state.lastPuffISO = new Date().toISOString();
+
+    // ----------- Derived
+    const todayKey = () => dayKey(new Date());
+    const todaysEntries = () =>
+      state.log.filter(e => dayKey(new Date(e.tsISO)) === todayKey());
+
+    const avgGapToday = () => {
+      const t = todaysEntries();
+      if (!t.length) return null;
+      const sum = t.reduce((a,b)=>a+(b.gapMs||0),0);
+      return sum / t.length;
+    };
+
+    // ----------- UI update
+    const ui = {
+      sinceTimer: $('#sinceTimer'),
+      todayLabel: $('#todayLabel'),
+      puffsToday: $('#puffsToday'),
+      lastPuffAt: $('#lastPuffAt'),
+      avgGap: $('#avgGap'),
+      bestStreak: $('#bestStreak'),
+      totalEntries: $('#totalEntries'),
+      logList: $('#logList'),
+    };
+
+    function render() {
+      const now = new Date();
+      const last = new Date(state.lastPuffISO);
+      const sinceMs = now - last;
+      ui.sinceTimer.textContent = fmtHMS(sinceMs);
+
+      ui.todayLabel.textContent = fmtDate(now);
+      ui.puffsToday.textContent = todaysEntries().length.toString();
+      ui.lastPuffAt.textContent = state.log.length ? fmtTime(new Date(state.log[0].tsISO)) : '—';
+      const avg = avgGapToday();
+      ui.avgGap.textContent = avg ? fmtHMS(avg) : '—';
+      ui.bestStreak.textContent = state.bestStreakMs ? fmtHMS(state.bestStreakMs) : '—';
+      ui.totalEntries.textContent = state.log.length.toString();
+
+      // Log list
+      ui.logList.innerHTML = state.log
+        .slice(0, 500) // cap rendering for speed
+        .map(e=>{
+          const t = new Date(e.tsISO);
+          const date = new Intl.DateTimeFormat(undefined, {
+            month:'short', day:'2-digit'
+          }).format(t);
+          return `
+            <div class="log-item">
+              <div>
+                <div><strong>${fmtTime(t)}</strong> <span class="muted">(${date})</span></div>
+                <div class="muted" style="font-size:12px">Gap since previous: ${e.gapMs ? fmtHMS(e.gapMs) : '—'}</div>
+              </div>
+              <div class="pill">Today: ${dayKey(t)}</div>
+            </div>
+          `;
+        }).join('');
+    }
+
+    // live ticker
+    setInterval(render, 1000);
+    render();
+
+    // ----------- Actions
+    $('#puffBtn').addEventListener('click', ()=>{
+      const now = new Date();
+      const last = new Date(state.lastPuffISO);
+      const gap = now - last;
+
+      // update best streak if this gap is the longest
+      if (gap > (state.bestStreakMs || 0)) state.bestStreakMs = gap;
+
+      // record log (unshift = newest first)
+      state.log.unshift({ tsISO: now.toISOString(), gapMs: isFinite(gap) ? gap : 0 });
+
+      // reset the live timer anchor
+      state.lastPuffISO = now.toISOString();
+
+      save(); render();
+    });
+
+    // Soft reset = restart timer anchor WITHOUT adding a puff (e.g., accidental start)
+    $('#softReset').addEventListener('click', ()=>{
+      state.lastPuffISO = new Date().toISOString();
+      save(); render();
+    });
+
+    // Undo last puff
+    $('#undoBtn').addEventListener('click', ()=>{
+      if (!state.log.length) return;
+      const removed = state.log.shift(); // remove newest
+      // restore lastPuffISO to previous log or keep as now if none
+      const anchor = state.log[0]?.tsISO || new Date().toISOString();
+      state.lastPuffISO = anchor;
+
+      // if we removed the record that created bestStreakMs, recompute
+      let best = 0;
+      for (const e of state.log) if (e.gapMs && e.gapMs>best) best = e.gapMs;
+      state.bestStreakMs = best;
+
+      save(); render();
+    });
+
+    // Export CSV
+    $('#exportCsv').addEventListener('click', (e)=>{
+      e.preventDefault();
+      const rows = [['timestamp_iso','gap_ms','gap_hhmmss','local_time','local_day']];
+      state.log.forEach(e=>{
+        const t = new Date(e.tsISO);
+        rows.push([
+          e.tsISO,
+          e.gapMs ?? '',
+          e.gapMs ? fmtHMS(e.gapMs) : '',
+          fmtTime(t),
+          dayKey(t)
+        ]);
+      });
+      const csv = rows.map(r=>r.map(v =>
+        typeof v === 'string' && v.includes(',') ? `"${v.replace(/"/g,'""')}"` : v
+      ).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'puff-log.csv'; a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Hard reset (wipe all data)
+    $('#hardReset').addEventListener('click', ()=>{
+      if (!confirm('Erase ALL puff data and reset counters?')) return;
+      state = { lastPuffISO: new Date().toISOString(), log:[], bestStreakMs:0 };
+      save(); render();
+    });
+  </script>
+</body>
+</html>
