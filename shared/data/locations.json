@@ -2,12 +2,12 @@
   {
     "id": "Compound",
     "name": "The Compound",
-    "preview2": "/assets/locations/compundPrv.png",
+    "preview2": "/shared/assets/locations/compundPrv.png",
     "coords": [52.3983,4.7795],
-    "visual": "/assets/locations/placeholder_loc.png",
+    "visual": "/shared/assets/locations/placeholder_loc.png",
     "bio": "a ware house full of high frequency and creative energy, located in east Amsterdam",
     "locked": true,
-    "popupBg": "/assets/locations/compundPrv.png"
+    "popupBg": "/shared/assets/locations/compundPrv.png"
 
   },
   {
@@ -15,7 +15,7 @@
     "name": "Converese NYC Flagship",
     "preview2": "",
     "coords": [-10, 130],
-    "visual": "/assets/locations/placeholder_loc2.png",
+    "visual": "/shared/assets/locations/placeholder_loc.png",
     "bio": "Converse Flagship Store in NYC",
     "locked": true,
     "popupBg": "rgba(255, 200, 200, 0.8)"
