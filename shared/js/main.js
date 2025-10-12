@@ -1,7 +1,7 @@
 // main.js
-import { ssxyz } from '/js/ssxyz.js';
-import { createPlayerMarker, generatePopupHTML, attachFlyToBehavior, createPlayerButton } from '/js/playerUtils.js';
-import { supabase } from '/js/supabase.js';
+import { ssxyz } from '/shared/js/ssxyz.js';
+import { createPlayerMarker, generatePopupHTML, attachFlyToBehavior, createPlayerButton } from '/shared/js/playerUtils.js';
+import { supabase } from '/shared/js/supabase.js';
 
 
 
