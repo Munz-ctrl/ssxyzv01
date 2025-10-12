@@ -26,5 +26,12 @@
     "image": "/shared/assets/suitcase/Rarri_Hank.png",
     "overlayImage": "/shared/assets/suitcase/Rarri_Hank.png",
     "link": "https://example.com/holy-tank"
+  },
+  {
+    "id": "item5",
+    "name": "BEAST Tee",
+    "image": "/shared/assets/suitcase/BeastT.png",
+    "overlayImage": "/shared/assets/suitcase/BeastT.png",
+    "link": "https://example.com/holy-tank"
   }
 ]
