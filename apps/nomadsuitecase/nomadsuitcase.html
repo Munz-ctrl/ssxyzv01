@@ -1,0 +1,312 @@
+<html lang="en">
+<head>
+  <style>
+    @media screen and (orientation: landscape) and (max-height: 600px) {
+      body::before {
+        content: " rotate your device to portrait mode.";
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: #000c;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2em;
+        z-index: 9999;
+        pointer-events: all;
+      }
+    }
+  </style>
+  <meta charset="UTF-8">
+  <!-- <meta name="viewport" content=" height= 90vh , width= auto, initial-scale=1.0, maximum-scale=1.0, width=1080, user-scalable=no"> -->
+<!-- HEAD section -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+
+
+
+  <link rel="stylesheet" href="css/suitcase.css">
+  <link rel="stylesheet" href="css/styles.css">
+
+
+  <title>Nomad Suitcase Game</title>
+
+
+  <style>
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100dvw;
+      height: 100dvh;
+      background: #e5e5e5; /* Light grey background */
+      overflow: hidden;
+     touch-action: none;
+     font-family: "Ubuntu", sans-serif;
+      font-weight: 400;
+      font-style: normal;
+   }
+
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: none;
+  touch-action: none;
+}
+
+
+
+ #gameContainer {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 9 / 16;
+  width: min(100vw, calc(100vh * 9 / 16), 1080px);
+  height: min(100vh, calc(100vw * 16 / 9), 1920px);
+  background: black;
+  overflow: hidden;
+  /* Allow it to extend under browser bars if needed */
+ }
+
+ #suitcaseBtn {
+      bottom: 20%;
+      left: 40%;
+      
+      /* transform: translateX(-50%); */
+      width: 60px;
+      height: 60px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+    
+    /* Removed duplicate #closeSuitcaseBtn styling. See suitcase.css for the current version. */
+
+
+video#gameVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  aspect-ratio: 9 / 16;
+}
+
+.click-area, #itemGrid, #itemOverlay, #closeSuitcaseBtn {
+  position: absolute;
+  z-index: 2;
+}
+
+.show {
+  display: block !important;
+  opacity: 1;
+  pointer-events: all;
+}
+
+.hide {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+  </style>
+
+</head>
+
+<body>
+  <div id="gameContainer">
+    <video id="gameVideo" src="assets/suitcase/nomad_seq.mp4" preload="auto" playsinline muted></video>
+
+    <button id="suitcaseBtn" class="click-area">
+      <span class="suitcase-ping"></span>
+      <span class="suitcase-label">OPEN SUITCASE</span>
+    </button>
+
+    <div id="itemGrid" class="item-grid"></div>
+    <div id="itemOverlay"></div>
+    <button id="closeSuitcaseBtn" aria-label="Close Suitcase">&times;</button>
+  </div>
+
+  <script type="module">
+
+// Attempt to lock orientation to portrait (works on some browsers)
+if (screen.orientation && screen.orientation.lock) {
+  screen.orientation.lock('portrait').catch(() => {});
+}
+
+
+window.addEventListener('load', () => {
+  document.body.style.height = window.innerHeight + 'px';
+});
+
+
+
+   const video = document.getElementById('gameVideo');
+const itemGrid = document.getElementById('itemGrid');
+const overlay = document.getElementById('itemOverlay');
+const suitcaseBtn = document.getElementById('suitcaseBtn');
+const closeBtn = document.getElementById('closeSuitcaseBtn');
+
+const states = {
+  IDLE: [44, 299],
+  TO_SUITCASE: [340, 478],
+  SUITCASE_LOOP: [448, 470],
+  EXIT_SUITCASE: [482, 654]
+};
+
+let state = 'IDLE';
+
+function toTime(frame) {
+  return frame / 30;
+}
+
+function goToState(newState) {
+  state = newState;
+  switch (state) {
+    case 'IDLE':
+      itemGrid.style.display = 'none';
+      overlay.style.display = 'none';
+      closeBtn.classList.remove('show');
+      suitcaseBtn.style.display = 'flex';
+      suitcaseBtn.classList.remove('fade-out');
+      // Reset ping animation
+      const ping = suitcaseBtn.querySelector('.suitcase-ping');
+      if (ping) {
+        ping.style.animation = 'none';
+        void ping.offsetWidth;
+        ping.style.animation = '';
+      }
+      video.currentTime = toTime(states.IDLE[0]);
+      video.play();
+      video.ontimeupdate = () => {
+        if (video.currentTime >= toTime(states.IDLE[1])) {
+          video.currentTime = toTime(states.IDLE[0]);
+        }
+      };
+      break;
+    case 'OPENING':
+      video.ontimeupdate = null;
+      video.currentTime = toTime(states.TO_SUITCASE[0]);
+      video.play();
+      video.ontimeupdate = () => {
+        if (video.currentTime >= toTime(states.TO_SUITCASE[1])) {
+          goToState('SUITCASE');
+        }
+      };
+      break;
+    case 'SUITCASE':
+      video.ontimeupdate = null;
+      video.currentTime = toTime(states.TO_SUITCASE[1]);
+      video.pause();
+      itemGrid.style.display = 'grid';
+      setTimeout(() => {
+        closeBtn.classList.add('show');
+      }, 1000); // Delay to match item grid
+      loadItems(); // Reload items every time suitcase is opened
+      break;
+    case 'CLOSING':
+      video.ontimeupdate = null;
+      itemGrid.style.display = 'none';
+      overlay.style.display = 'none';
+      closeBtn.classList.remove('show');
+      video.currentTime = toTime(states.EXIT_SUITCASE[0]);
+      video.play();
+      video.ontimeupdate = () => {
+        if (video.currentTime >= toTime(states.EXIT_SUITCASE[1])) {
+          goToState('IDLE');
+        }
+      };
+      break;
+  }
+}
+
+suitcaseBtn.onclick = () => {
+  if (state === 'IDLE') {
+    suitcaseBtn.classList.add('fade-out');
+    setTimeout(() => {
+      itemGrid.style.display = 'grid';
+      closeBtn.classList.add('show');
+      loadItems();
+    }, 1000); // Delay by 1 second
+    setTimeout(() => {
+      suitcaseBtn.style.display = 'none';
+      goToState('OPENING');
+    }, 100);
+  } else if (state === 'OPENING' || state === 'CLOSING') {
+    suitcaseBtn.classList.add('fade-out');
+    setTimeout(() => {
+      itemGrid.style.display = 'grid';
+      closeBtn.classList.add('show');
+      loadItems();
+    }, 1000); // Delay by 1 second
+    setTimeout(() => {
+      suitcaseBtn.style.display = 'none';
+      goToState('SUITCASE');
+    }, 500);
+  }
+};
+
+closeBtn.onclick = () => {
+  if (state === 'SUITCASE') {
+    goToState('CLOSING');
+  } else if (state === 'OPENING' || state === 'CLOSING') {
+    // Interrupt animation and go straight to idle
+    goToState('IDLE');
+  }
+};
+
+async function loadItems() {
+  const res = await fetch('data/suitcaseItems.json');
+  const items = await res.json();
+  const totalSlots = 18;
+  itemGrid.innerHTML = '';
+
+  let selectedSlot = null;
+  for (let i = 0; i < totalSlots; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'item-slot';
+
+    const item = items[i];
+    if (item) {
+      const img = document.createElement('img');
+      img.src = item.image;
+      img.alt = item.name;
+      slot.appendChild(img);
+      slot.onclick = () => {
+        // Remove 'selected' from previous slot
+        if (selectedSlot) selectedSlot.classList.remove('selected');
+        // Add 'selected' to this slot
+        slot.classList.add('selected');
+        selectedSlot = slot;
+        overlay.innerHTML = `
+          <div class="overlay-content">
+            <img src="${item.overlayImage || item.image}" alt="${item.name}">
+            <div class="item-info">
+              <div><strong>${item.name}</strong></div>
+              <a href="${item.link}" target="_blank">View</a>
+            </div>
+          </div>
+        `;
+        overlay.style.display = 'block';
+      };
+    } else {
+      slot.classList.add('empty');
+      const plus = document.createElement('span');
+      plus.textContent = '+';
+      slot.appendChild(plus);
+      slot.onclick = () => {
+        // Remove 'selected' from previous slot
+        if (selectedSlot) selectedSlot.classList.remove('selected');
+        slot.classList.add('selected');
+        selectedSlot = slot;
+        overlay.style.display = 'none'; // No overlay for empty slot
+      };
+    }
+    itemGrid.appendChild(slot);
+  }
+}
+
+loadItems();
+goToState('IDLE');
+
+  </script>
+</body>
+</html>
