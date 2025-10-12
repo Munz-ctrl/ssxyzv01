@@ -47,7 +47,7 @@ marker.on('click', () => {
 
 function generatePopupHTML(player) {
   let avatarHTML = "";
-  const fallback = '/assets/fallbackIsoAvatar.webp';
+  const fallback = '/shared/assets/fallbackIsoAvatar.webp';
 
  
 
