@@ -24,8 +24,8 @@
 
 
 
-  <link rel="stylesheet" href="css/suitcase.css">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="/shared/css/suitcase.css">
+  <link rel="stylesheet" href="/shared/css/styles.css">
 
 
   <title>Nomad Suitcase Game</title>
@@ -254,7 +254,7 @@ closeBtn.onclick = () => {
 };
 
 async function loadItems() {
-  const res = await fetch('data/suitcaseItems.json');
+  const res = await fetch('/shared/data/suitcaseItems.json');
   const items = await res.json();
   const totalSlots = 18;
   itemGrid.innerHTML = '';
