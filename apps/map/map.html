@@ -5,7 +5,7 @@
 
 
 
-  <script type="module" src="js/main.js"></script>
+  <script type="module" src="/shared/js/main.js"></script>
 
 
   <meta charset="UTF-8" />
@@ -81,7 +81,7 @@
 
 
 
-  <img id="tileToggleBtn" src="assets/icons/tileToggleIcon.png" style="width: 10vh; height: 10vh; opacity: 75%;" />
+  <img id="tileToggleBtn" src="/shared/assets/icons/tileToggleIcon.png" style="width: 10vh; height: 10vh; opacity: 75%;" />
   <button id="infoCircleBtn" class="circle-icon">?</button>
  
 </div>
@@ -100,9 +100,9 @@
 
   <!-- UI Menu -->
   <div id="bottomMenu">
-    <img id="plyrIcon" src="assets/icons/PlyrMenuIcon.png" alt="Players" />
-    <img id="locIcon" src="assets/icons/LocMenuIcon.png" alt="Locations" />
-    <img id="userIcon" src="assets/icons/userBtn.png" alt="User" />
+    <img id="plyrIcon" src="/shared/assets/icons/PlyrMenuIcon.png" alt="Players" />
+    <img id="locIcon" src="/shared/assets/icons/LocMenuIcon.png" alt="Locations" />
+    <img id="userIcon" src="/shared/assets/icons/userBtn.png" alt="User" />
 
   </div>
 
@@ -351,9 +351,9 @@ tileToggleBtn.addEventListener('click', () => {
       }
 
       // 4. Reset all bottom menu icons
-      locIcon.src = '/assets/icons/LocMenuIcon.png';
-      plyrIcon.src = '/assets/icons/PlyrMenuIcon.png';
-      userIcon.src = '/assets/icons/userBtn.png';
+      locIcon.src = '/shared/assets/icons/LocMenuIcon.png';
+      plyrIcon.src = '/shared/assets/icons/PlyrMenuIcon.png';
+      userIcon.src = '/shared/assets/icons/userBtn.png';
 
 
 
@@ -412,25 +412,25 @@ tileToggleBtn.addEventListener('click', () => {
 
         // Set selected PNG and class
         if (buttonId === 'locIcon') {
-          locIcon.src = 'assets/icons/LocMenuIconSelected.png';
+          locIcon.src = '/shared/assets/icons/LocMenuIconSelected.png';
           locIcon.classList.add('selected');
         } else if (buttonId === 'plyrIcon') {
-          plyrIcon.src = 'assets/icons/PlyrMenuIconSelected.png';
+          plyrIcon.src = '/shared/assets/icons/PlyrMenuIconSelected.png';
           plyrIcon.classList.add('selected');
         } else if (buttonId === 'userIcon') {
-          userIcon.src = 'assets/icons/userBtnselected.png';
+          userIcon.src = '/shared/assets/icons/userBtnselected.png';
           userIcon.classList.add('selected');
 
           if (!ssxyz.activePlayer) {
             ssxyz.openLoginPanel();
 
-            userIcon.src = 'assets/icons/userBtnselected.png';
+            userIcon.src = '/shared/assets/icons/userBtnselected.png';
             userIcon.classList.add('selected');
           } else if (ssxyz.activePlayer) {
 
             closeAllPopups(); // Close all first
 
-            userIcon.src = 'assets/icons/userBtnselected.png';
+            userIcon.src = '/shared/assets/icons/userBtnselected.png';
             userIcon.classList.add('selected');
 
             const player = ssxyz.activePlayer;
