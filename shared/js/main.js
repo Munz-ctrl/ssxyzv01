@@ -68,7 +68,7 @@ import { supabase } from '/js/supabase.js';
 })();
 
 
-fetch('data/locations.json')
+fetch('/shared/data/locations.json')
   .then(res => res.json())
   .then(locations => {
     const locationsPanel = document.getElementById('locationsPanel');
