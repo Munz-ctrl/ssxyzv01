@@ -206,7 +206,7 @@ html, body {
     bottom: 2.5%;
     top: auto;
     transform: translateX(-50%);
-    width: min(92%, 480px);
+    width:auto;
   }
   .banner { left: 4%; right: 4%; }
 }
