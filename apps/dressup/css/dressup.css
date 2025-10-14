@@ -6,6 +6,7 @@ html, body {
   width: 100dvw;
   height: 100dvh;
   overflow: hidden;
+  right: 1%;
 }
 
 /* 9:16 centered app container (same as suitcase #gameContainer) */
@@ -226,7 +227,7 @@ html, body {
 /* Responsive tweaks */
 @media (max-width: 860px) {
   .panel {
-    width: 30%;
+    width: 40%;
     right: 50%;
     transform: translateX(50%);
     top: auto;
