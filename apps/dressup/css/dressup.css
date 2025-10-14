@@ -199,7 +199,7 @@ html, body {
 .panel {
   position: absolute;
   right: 2px;
-  top: 35vh;
+  top: 25vh;
   z-index: 4;
   width: auto;
   max-width: 40%;
