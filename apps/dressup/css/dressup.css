@@ -224,7 +224,7 @@ html, body {
 @media (max-width: 860px) {
   .panel {
     
-    transform: translateX(50%);
+    
     top: auto;
     bottom: 22px;
   }
