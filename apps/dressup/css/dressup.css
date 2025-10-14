@@ -40,7 +40,10 @@ html, body {
 }
 
 .panel {
-  position: absolute;        /* was fixed */
+   position: fixed;
+  /* right: min(24px, 3vw); */
+  top: 88px;
+  z-index: 4;
   right: 3%;
   top: 14%;
   z-index: 4;
@@ -98,10 +101,7 @@ html, body {
 
 /* Right overlay panel */
 .panel {
-  position: fixed;
-  /* right: min(24px, 3vw); */
-  top: 88px;
-  z-index: 4;
+ 
   /* width: clamp(260px, 26vw, 340px); */
 }
 
@@ -226,7 +226,7 @@ html, body {
 /* Responsive tweaks */
 @media (max-width: 860px) {
   .panel {
-    width: min(92vw, 480px);
+    width: 30%;
     right: 50%;
     transform: translateX(50%);
     top: auto;
