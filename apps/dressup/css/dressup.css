@@ -224,7 +224,7 @@ html, body {
 
 
 /* Responsive tweaks */
-@media (max-width: 860px) {
+/* @media (max-width: 860px) {
   .panel {
     width: min(92vw, 480px);
     right: 50%;
@@ -233,4 +233,4 @@ html, body {
     bottom: 22px;
   }
   .banner { left: 12px; right: 12px; }
-}
+} */
