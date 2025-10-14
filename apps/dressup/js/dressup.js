@@ -15,7 +15,7 @@ let garmentPublicUrl = null;
 (function initHero() {
   var params = new URLSearchParams(window.location.search);
   var qsHero = params.get('hero');
-  var fallback = hero.getAttribute('data-default-hero') || './assets/munz-base-portrait.jpg';
+  var fallback = hero.getAttribute('data-default-hero') || './assets/munz-base-portrait.png';
   var url = qsHero || fallback;
 
   hero.style.backgroundImage = 'url("' + url + '")';
