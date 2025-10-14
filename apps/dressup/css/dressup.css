@@ -101,10 +101,6 @@ html, body {
 }
 
 /* Right overlay panel */
-.panel {
- 
-  /* width: clamp(260px, 26vw, 340px); */
-}
 
 .panel-card {
   background: var(--panel-bg);
