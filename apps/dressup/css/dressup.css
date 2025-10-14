@@ -52,7 +52,7 @@ html, body {
   left: 3%;
   right: 3%;
   top: 3%;
-  z-index: 3;
+  z-index: 4;
   background: rgba(235, 238, 244, 0.9);
   color: #111;
   border-radius: 14px;
