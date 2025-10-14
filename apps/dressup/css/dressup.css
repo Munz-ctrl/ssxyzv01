@@ -198,11 +198,11 @@ html, body {
 
 .panel {
   position: absolute;
-  right: 3%;
-  top: 2%;
+  right: 2px;
+  top: 35vh;
   z-index: 4;
   width: auto;
-  max-width: 50%;
+  max-width: 40%;
 }
 
 /* Mobile: dock the panel at bottom center */
