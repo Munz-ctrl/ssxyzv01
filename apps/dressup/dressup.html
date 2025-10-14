@@ -48,15 +48,52 @@
     </div>
   </aside>
 
-    <footer class="watermark">
-      <div>DRESS–MUNZ</div>
-      <div>Player-id: Anonymous<br>(reverting to MUNZ character)</div>
+    <footer class="watermark animated-text" id="dressupWatermark">
+      <div id="animatedWatermarkText"></div>
     </footer>
   </div>
 
   <script src="/shared/js/supabase.js"></script>
   <script src="/apps/dressup/js/dressup.js"></script>
+  <script>
+    // Animated watermark text (left-to-right, bottom left)
+    const text = 'DRESS–MUNZ\nPlayer-id: Anonymous (reverting to MUNZ character)';
+    const el = document.getElementById('animatedWatermarkText');
+    let i = 0;
+    function typeAnim() {
+      if (i <= text.length) {
+        el.innerHTML = text.slice(0, i).replace(/\n/g, '<br>');
+        i++;
+      } else {
+        setTimeout(() => { i = 0; typeAnim(); }, 1800);
+        return;
+      }
+      setTimeout(typeAnim, 38);
+    }
+    typeAnim();
+  </script>
+  <style>
+    .animated-text {
+      font-family: 'Ubuntu', sans-serif;
+      font-size: 11px;
+      line-height: 1.2;
+      color: rgba(255,255,255,0.85);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      position: absolute;
+      left: 2%;
+      bottom: 2%;
+      z-index: 3;
+      text-align: left;
+      white-space: pre-line;
+      letter-spacing: 0.02em;
+      width: auto;
+      min-width: 120px;
+      max-width: 220px;
+      pointer-events: none;
+      background: none;
+      animation: none;
+    }
+  </style>
 </body>
 
 </html>
- 
