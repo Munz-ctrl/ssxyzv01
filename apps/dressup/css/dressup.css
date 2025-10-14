@@ -63,13 +63,7 @@ html, body {
 }
 
 /* Right overlay panel */
-.panel {
-  position: absolute;
-  right: 3%;
-  top: 14%;
-  z-index: 4;
-  max-width: 25%;
-}
+
 
 .panel-card {
   background: var(--panel-bg);
@@ -198,13 +192,25 @@ html, body {
   text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
+
+
+
+
+.panel {
+  position: absolute;
+  right: 3%;
+  top: 14%;
+  z-index: 4;
+  width: auto;
+  max-width: 50%;
+}
+
 /* Mobile: dock the panel at bottom center */
 @media (max-width: 860px) {
   .panel {
-    left: 50%;
-    right: auto;
-    bottom: 2.5%;
-    top: auto;
+  
+  
+  
     transform: translateX(-50%);
     width:auto;
   }
