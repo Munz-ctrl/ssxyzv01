@@ -1,4 +1,58 @@
 /* DressUp page — isolated, minimal, reuses variables from styles.css when present */
+/* Page viewport like suitcase */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100dvw;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* 9:16 centered app container (same as suitcase #gameContainer) */
+.app-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 9 / 16;
+  width: min(100vw, calc(100vh * 9 / 16), 1080px);
+  height: min(100vh, calc(100vw * 16 / 9), 1920px);
+  background: black;
+  overflow: hidden;
+}
+
+/* Hero fills the container, not the whole viewport */
+.hero {
+  position: absolute;        /* was fixed */
+  inset: 0;
+  background: #0a0c10 center/cover no-repeat;
+  z-index: 1;
+}
+
+/* Overlays are inside the container */
+.banner {
+  position: absolute;        /* was fixed */
+  left: 3%;
+  right: 3%;
+  top: 3%;
+  z-index: 3;
+  /* keep rest of your banner styles */
+}
+
+.panel {
+  position: absolute;        /* was fixed */
+  right: 3%;
+  top: 14%;
+  z-index: 4;
+  width: clamp(260px, 26%, 340px); /* % of container now */
+}
+
+.watermark {
+  position: absolute;        /* was fixed */
+  left: 2%;
+  bottom: 2%;
+  z-index: 3;
+}
 
 :root {
   --panel-bg: rgba(18, 20, 26, 0.86);
@@ -167,17 +221,7 @@
   margin-top: 6px;
 }
 
-/* Watermark footer */
-.watermark {
-  position: fixed;
-  left: 14px;
-  bottom: 14px;
-  z-index: 3;
-  font-size: 11px;
-  line-height: 1.2;
-  color: rgba(255,255,255,0.75);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-}
+
 
 /* Responsive tweaks */
 @media (max-width: 860px) {
