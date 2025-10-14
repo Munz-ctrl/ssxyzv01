@@ -102,7 +102,7 @@ html, body {
   /* right: min(24px, 3vw); */
   top: 88px;
   z-index: 4;
-  width: clamp(260px, 26vw, 340px);
+  /* width: clamp(260px, 26vw, 340px); */
 }
 
 .panel-card {
