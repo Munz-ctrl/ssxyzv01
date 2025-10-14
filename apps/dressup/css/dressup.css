@@ -227,8 +227,7 @@ html, body {
 /* Responsive tweaks */
 @media (max-width: 860px) {
   .panel {
-    width: 40%;
-    right: 50%;
+    
     transform: translateX(50%);
     top: auto;
     bottom: 22px;
