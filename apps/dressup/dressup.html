@@ -8,7 +8,7 @@
   <!-- Base site styles -->
   <link rel="stylesheet" href="/shared/css/styles.css">
   <!-- Page styles -->
-  <link rel="stylesheet" href="/css/dressup.css">
+  <link rel="stylesheet" href="/apps/dressup/css/dressup.css">
 
   <!-- Favicons / meta optional -->
 </head>
@@ -17,7 +17,7 @@
   <!-- Main full-screen portrait (can be swapped by JS) -->
   <!-- Default hero: set via data-hero or override with ?hero=<url> -->
   <div id="hero" class="hero"
-       data-default-hero="./assets/munz-base-portrait.png"
+       data-default-hero="/apps/dressup/assets/munz-base-portrait.png"
        role="img" aria-label="Munz base image">
     <!-- fallback text for a11y -->
   </div> 
@@ -37,7 +37,7 @@
       </div>
 
       <div class="thumb-wrap">
-        <img id="garmentPreview" src="/shared/assets/holy-tank.png" alt="Current garment preview">
+        <img id="garmentPreview" src="/shared/assets/suitecase/holy-tank.png" alt="Current garment preview">
       </div>
 
       <div class="panel-caption">CURRENT</div>
@@ -67,7 +67,7 @@
 
   <!-- Supabase + page logic -->
   <script src="/shared/js/supabase.js"></script>
-  <script src="/js/dressup.js" type="module"></script>
+  <script src="/apps/dressup/js/dressup.js" type="module"></script>
 </body>
 </html>
  
