@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DressUp — Sunsex</title>
+
+  <!-- Base site styles -->
+  <link rel="stylesheet" href="shared/css/styles.css">
+  <!-- Page styles -->
+  <link rel="stylesheet" href="shared/css/dressup.css">
+
+  <!-- Favicons / meta optional -->
+</head>
+<body class="dressup-body">
+
+  <!-- Main full-screen portrait (can be swapped by JS) -->
+  <!-- Default hero: set via data-hero or override with ?hero=<url> -->
+  <div id="hero" class="hero"
+       data-default-hero="assets/munz-base-portrait.jpg"
+       role="img" aria-label="Munz base image">
+    <!-- fallback text for a11y -->
+  </div> 
+
+  <!-- Top soft banner like your mock -->
+  <div class="banner">
+    <span>Previous pieces / NOMAD SUITCASE ?</span>
+  </div>
+
+  <!-- Overlay panel on the right -->
+  <aside class="panel" aria-label="DressUp controls">
+    <div class="panel-card">
+
+      <div class="panel-header">
+        <div class="panel-plus">+</div>
+        <div class="panel-title">UPLOAD<br>NEW</div>
+      </div>
+
+      <div class="thumb-wrap">
+        <img id="garmentPreview" src="assets/holy-tank.png" alt="Current garment preview">
+      </div>
+
+      <div class="panel-caption">CURRENT</div>
+
+      <div class="slot-row" aria-label="Recent uploads">
+        <button class="slot" data-empty="true" aria-label="Empty slot"></button>
+        <button class="slot" data-empty="true" aria-label="Empty slot"></button>
+        <button class="slot" data-empty="true" aria-label="Empty slot"></button>
+        <button class="slot" data-empty="true" aria-label="Empty slot"></button>
+      </div>
+
+      <div class="panel-actions">
+        <input id="fileInput" type="file" accept="image/*" hidden />
+        <button id="btnUpload" class="btn primary">Upload Garment</button>
+        <button id="btnGenerate" class="btn ghost" disabled>Generate on Munz</button>
+      </div>
+
+      <div id="status" class="status" role="status" aria-live="polite"></div>
+    </div>
+  </aside>
+
+  <!-- Small watermark like your mock -->
+  <footer class="watermark">
+    <div>DRESS–MUNZ</div>
+    <div>Player-id: Anonymous<br>(reverting to MUNZ character)</div>
+  </footer>
+
+  <!-- Supabase + page logic -->
+  <script src="supabase.js"></script>
+  <script src="js/dressup.js" type="module"></script>
+</body>
+</html>
