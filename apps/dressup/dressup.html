@@ -57,7 +57,7 @@
   <script src="/apps/dressup/js/dressup.js"></script>
   <script>
     // Animated watermark text (left-to-right, bottom left)
-    const text = 'DRESS–MUNZ\nPlayer-id: Anonymous (reverting to MUNZ character)';
+    const text = 'DRESS–MUNZ\nPlayer-id: Anonymous \n(reverting to MUNZ character)';
     const el = document.getElementById('animatedWatermarkText');
     let i = 0;
     function typeAnim() {
@@ -65,7 +65,7 @@
         el.innerHTML = text.slice(0, i).replace(/\n/g, '<br>');
         i++;
       } else {
-        setTimeout(() => { i = 0; typeAnim(); }, 1800);
+        setTimeout(() => { i = 0; typeAnim(); }, 8800);
         return;
       }
       setTimeout(typeAnim, 38);
