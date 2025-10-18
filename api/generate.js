@@ -35,10 +35,11 @@ export default async function handler(req, res) {
   }
 
   const START_URL = 'https://api.replicate.com/v1/models/google/nano-banana/predictions';
- const input = {
+const input = {
   prompt: prompt || 'Dress the person image with the uploaded garment. Keep identity, pose and lighting natural; clean seams.',
   image_input: garmentUrl ? [personUrl, garmentUrl] : [personUrl],
-  aspect_ratio: '9:16' // 👈 lock Nano output to your Munz aspect
+  aspect_ratio: '9:16',        // 👈 Force output to portrait 9:16
+  output_format: 'png'         // 👈 Optional — preserves transparency and quality
 };
 
 
