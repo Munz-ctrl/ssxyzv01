@@ -64,17 +64,19 @@ btnGenerate.addEventListener('click', async function () {
   statusEl.textContent = 'Generating… this can take a few seconds.';
 
   try {
-    var personUrl = hero.getAttribute('data-person-url');
+    // inside the Generate click handler:
+var personUrl = hero.getAttribute('data-person-url');
 
-    var res = await fetch('/api/tryon', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        personUrl: personUrl,
-        clothUrl: garmentPublicUrl,
-        clothType: 'upper'
-      })
-    });
+var res = await fetch('/api/generate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    model: 'google/nano-banana',          // keep flexible
+    personUrl: personUrl,
+    garmentUrl: garmentPublicUrl,         // second image for image_input[1]
+    prompt: "Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting."
+  })
+});
 
     if (!res.ok) throw new Error('Try-on API error');
     var payload = await res.json();
