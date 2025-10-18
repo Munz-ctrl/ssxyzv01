@@ -1,5 +1,21 @@
 // DressUp page logic (plain JS)
 
+
+(async () => {
+  try {
+    const sb = window.supabase;
+    if (!sb) return; // script tag fix above will make this truthy
+    const { data: sess } = await sb.auth.getSession();
+    if (!sess?.session?.user) {
+      await sb.auth.signInAnonymously();
+    }
+  } catch (e) {
+    console.warn('Anon auth not required / or failed:', e?.message || e);
+  }
+})();
+
+
+
 const $ = (id) => document.getElementById(id);
 
 const statusEl = $('status');
