@@ -72,7 +72,6 @@ fileInput.addEventListener('change', async function (e) {
   }
 });
 
-// 3) Generate (Replicate-backed API)
 btnGenerate.addEventListener('click', async function () {
   if (!garmentPublicUrl) return;
 
@@ -80,31 +79,38 @@ btnGenerate.addEventListener('click', async function () {
   statusEl.textContent = 'Generating… this can take a few seconds.';
 
   try {
-    // inside the Generate click handler:
-var personUrl = hero.getAttribute('data-person-url');
+    const personUrlRel = hero.getAttribute('data-person-url');
+    // 👇 ensure absolute
+    const personUrl = personUrlRel.startsWith('http')
+      ? personUrlRel
+      : new URL(personUrlRel, window.location.origin).href;
 
-var res = await fetch('/api/generate', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    model: 'google/nano-banana',          // keep flexible
-    personUrl: personUrl,
-    garmentUrl: garmentPublicUrl,         // second image for image_input[1]
-    prompt: "Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting."
-  })
-});
+    // garmentPublicUrl from Supabase is already absolute
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'google/nano-banana',
+        personUrl,
+        garmentUrl: garmentPublicUrl,
+        prompt: "Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting."
+      })
+    });
 
-    if (!res.ok) throw new Error('Try-on API error');
-    var payload = await res.json();
-    var outputUrl = payload && (payload.outputUrl || payload.image || payload.output);
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      console.error('Generate error:', body);
+      throw new Error('Try-on API error');
+    }
 
+    const payload = await res.json();
+    const outputUrl = payload.outputUrl || payload.image || payload.output;
     if (!outputUrl) throw new Error('No output URL returned');
 
-    // soft fade
     hero.style.transition = 'filter .18s ease, opacity .18s ease';
     hero.style.opacity = '0.85';
-    setTimeout(function () {
-      hero.style.backgroundImage = 'url("' + outputUrl + '")';
+    setTimeout(() => {
+      hero.style.backgroundImage = `url("${outputUrl}")`;
       hero.setAttribute('data-person-url', outputUrl);
       hero.style.opacity = '1';
     }, 180);
@@ -117,3 +123,4 @@ var res = await fetch('/api/generate', {
     btnGenerate.disabled = false;
   }
 });
+
