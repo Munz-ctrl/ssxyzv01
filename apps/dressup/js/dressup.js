@@ -1,5 +1,31 @@
 // DressUp page logic (plain JS)
 
+// Put near the top of dressup.js
+function toAbsoluteHttpUrl(maybeUrl) {
+  if (!maybeUrl) return "";
+  // strip CSS url("...") wrappers and quotes
+  let s = String(maybeUrl).trim()
+    .replace(/^url\((.*)\)$/i, "$1")
+    .replace(/^['"]|['"]$/g, "");
+  // make absolute if relative
+  if (!/^https?:\/\//i.test(s)) {
+    s = new URL(s, window.location.origin).href;
+  }
+  return s;
+}
+
+// Ensure the hero dataset is initialized on load (in case it wasn't)
+(function initHero() {
+  var fallback = document.getElementById('hero').getAttribute('data-default-hero') || './assets/munz-base-portrait.jpg';
+  var url = toAbsoluteHttpUrl(fallback);
+  var hero = document.getElementById('hero');
+  hero.style.backgroundImage = 'url("' + url + '")';
+  hero.setAttribute('data-person-url', url);
+})();
+
+
+
+
 
 (async () => {
   try {
