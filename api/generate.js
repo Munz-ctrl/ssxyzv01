@@ -38,7 +38,7 @@ export default async function handler(req, res) {
  const input = {
   prompt: prompt || 'Dress the person image with the uploaded garment. Keep identity, pose and lighting natural; clean seams.',
   image_input: garmentUrl ? [personUrl, garmentUrl] : [personUrl],
-  output_ratio: '9:16' // 👈 lock Nano output to your Munz aspect
+  aspect_ratio: '9:16' // 👈 lock Nano output to your Munz aspect
 };
 
 
