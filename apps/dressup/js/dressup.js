@@ -1,49 +1,32 @@
-// DressUp page logic (plain JS)
+// /dressup/js/dressup.js
 
-// Put near the top of dressup.js
+// ---------- helpers ----------
+function $(id){ return document.getElementById(id); }
+
 function toAbsoluteHttpUrl(maybeUrl) {
-  if (!maybeUrl) return "";
-  // strip CSS url("...") wrappers and quotes
+  if (!maybeUrl) return '';
   let s = String(maybeUrl).trim()
-    .replace(/^url\((.*)\)$/i, "$1")
-    .replace(/^['"]|['"]$/g, "");
-  // make absolute if relative
+    .replace(/^url\((.*)\)$/i, '$1')
+    .replace(/^['"]|['"]$/g, '');
   if (!/^https?:\/\//i.test(s)) {
     s = new URL(s, window.location.origin).href;
   }
   return s;
 }
 
-// Ensure the hero dataset is initialized on load (in case it wasn't)
-(function initHero() {
-  var fallback = document.getElementById('hero').getAttribute('data-default-hero') || './assets/munz-base-portrait.jpg';
-  var url = toAbsoluteHttpUrl(fallback);
-  var hero = document.getElementById('hero');
-  hero.style.backgroundImage = 'url("' + url + '")';
-  hero.setAttribute('data-person-url', url);
-})();
-
-
-
-
-
+// ---------- anon auth (ok for testing) ----------
 (async () => {
   try {
     const sb = window.supabase;
-    if (!sb) return; // script tag fix above will make this truthy
+    if (!sb) return;
     const { data: sess } = await sb.auth.getSession();
-    if (!sess?.session?.user) {
-      await sb.auth.signInAnonymously();
-    }
+    if (!sess?.session?.user) await sb.auth.signInAnonymously();
   } catch (e) {
-    console.warn('Anon auth not required / or failed:', e?.message || e);
+    console.warn('Anon auth skipped/failed:', e?.message || e);
   }
 })();
 
-
-
-const $ = (id) => document.getElementById(id);
-
+// ---------- elements ----------
 const statusEl = $('status');
 const hero = $('hero');
 const btnUpload = $('btnUpload');
@@ -53,40 +36,38 @@ const garmentPreview = $('garmentPreview');
 
 let garmentPublicUrl = null;
 
-// 1) Boot hero image
-(function initHero() {
-  var params = new URLSearchParams(window.location.search);
-  var qsHero = params.get('hero');
-  var fallback = hero.getAttribute('data-default-hero') || './assets/munz-base-portrait.png';
-  var url = qsHero || fallback;
-
+// ---------- init hero once (ABSOLUTE URL) ----------
+(function initHeroOnce() {
+  const params = new URLSearchParams(window.location.search);
+  const qsHero = params.get('hero');
+  const fallback = hero.getAttribute('data-default-hero') || './assets/munz-base-portrait.jpg'; // ensure this file exists
+  const url = toAbsoluteHttpUrl(qsHero || fallback);
   hero.style.backgroundImage = 'url("' + url + '")';
-  hero.setAttribute('data-person-url', url); // keep current base for next gen
+  hero.setAttribute('data-person-url', url);
 })();
 
-// 2) Upload flow
-btnUpload.addEventListener('click', function () {
-  fileInput.click();
-});
+// ---------- upload flow ----------
+btnUpload.addEventListener('click', () => fileInput.click());
 
-fileInput.addEventListener('change', async function (e) {
-  var files = e.target.files;
+fileInput.addEventListener('change', async (e) => {
+  const files = e.target.files;
   if (!files || !files[0]) return;
-  var file = files[0];
+  const file = files[0];
 
   try {
     statusEl.textContent = 'Uploading garment…';
 
-    // Supabase client is exposed by ../supabase.js as window.supabase or export.
-    // If it exports `supabase`, grab from window for safety:
-    var sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
     if (!sb) throw new Error('Supabase client not found');
 
-    var path = 'garments/' + Date.now() + '-' + file.name;
-    var uploadRes = await sb.storage.from('userassets').upload(path, file, { upsert: true });
-    if (uploadRes.error) throw uploadRes.error;
+    const path = 'garments/' + Date.now() + '-' + file.name;
+    const uploadRes = await sb.storage.from('userassets').upload(path, file, { upsert: true });
+    if (uploadRes.error) {
+      console.error('Supabase upload error:', uploadRes.error);
+      throw uploadRes.error;
+    }
 
-    var pub = await sb.storage.from('userassets').getPublicUrl(path);
+    const pub = await sb.storage.from('userassets').getPublicUrl(path);
     garmentPublicUrl = pub.data.publicUrl;
 
     garmentPreview.src = garmentPublicUrl;
@@ -98,39 +79,38 @@ fileInput.addEventListener('change', async function (e) {
   }
 });
 
-btnGenerate.addEventListener('click', async function () {
+// ---------- generate ----------
+btnGenerate.addEventListener('click', async () => {
   if (!garmentPublicUrl) return;
 
   btnGenerate.disabled = true;
   statusEl.textContent = 'Generating… this can take a few seconds.';
 
   try {
-    const personUrlRel = hero.getAttribute('data-person-url');
-    // 👇 ensure absolute
-    const personUrl = personUrlRel.startsWith('http')
-      ? personUrlRel
-      : new URL(personUrlRel, window.location.origin).href;
+    const personUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
 
-    // garmentPublicUrl from Supabase is already absolute
+    const payload = {
+      model: 'google/nano-banana',
+      personUrl,
+      garmentUrl: garmentPublicUrl,
+      prompt: 'Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting.'
+    };
+    console.log('POST /api/generate', payload);
+
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'google/nano-banana',
-        personUrl,
-        garmentUrl: garmentPublicUrl,
-        prompt: "Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting."
-      })
+      body: JSON.stringify(payload)
     });
 
+    const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
       console.error('Generate error:', body);
+      statusEl.textContent = 'Generation failed: ' + (body.details || body.error || res.statusText);
       throw new Error('Try-on API error');
     }
 
-    const payload = await res.json();
-    const outputUrl = payload.outputUrl || payload.image || payload.output;
+    const outputUrl = body.outputUrl || body.image || body.output;
     if (!outputUrl) throw new Error('No output URL returned');
 
     hero.style.transition = 'filter .18s ease, opacity .18s ease';
@@ -144,9 +124,9 @@ btnGenerate.addEventListener('click', async function () {
     statusEl.textContent = 'Done.';
   } catch (err) {
     console.error(err);
-    statusEl.textContent = 'Generation failed: ' + (err.message || err);
+    if (!statusEl.textContent.startsWith('Generation failed'))
+      statusEl.textContent = 'Generation failed: ' + (err.message || err);
   } finally {
     btnGenerate.disabled = false;
   }
 });
-
