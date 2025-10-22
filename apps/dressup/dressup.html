@@ -40,10 +40,7 @@
   </aside>
 
     <footer class="watermark animated-text" id="dressupWatermark">
-      <div style="display:flex;align-items:baseline;gap:6px;">
-        <div id="animatedWatermarkText" aria-hidden="false"></div>
-        <div id="animatedDots" aria-hidden="true">...</div>
-      </div>
+      <div id="animatedWatermarkText"></div>
     </footer>
   </div>
 
@@ -54,26 +51,20 @@
 
   <script>
     // Animated watermark text (left-to-right, bottom left)
-    // We type only into #animatedWatermarkText; #animatedDots remains visible and is not part of the typing animation.
-    const watermarkText = 'ADD_Clothing_on_MUNZ_☂ \n Player-id: Anonymous \n(reverting to MUNZ character)';
-    const typeEl = document.getElementById('animatedWatermarkText');
-    const dotsEl = document.getElementById('animatedDots');
-    let idx = 0;
-
-    function typeOnce() {
-      if (idx <= watermarkText.length) {
-        typeEl.innerHTML = watermarkText.slice(0, idx).replace(/\n/g, '<br>');
-        idx++;
-        setTimeout(typeOnce, 38);
+    const text = 'ADD_Clothing_on_MUNZ_☂ \n Player-id: Anonymous \n(reverting to MUNZ character)';
+    const el = document.getElementById('animatedWatermarkText');
+    let i = 0;
+    function typeAnim() {
+      if (i <= text.length) {
+        el.innerHTML = text.slice(0, i).replace(/\n/g, '<br>');
+        i++;
+      } else {
+        setTimeout(() => { i = 0; typeAnim(); }, 8800);
         return;
       }
-      // after finishing, keep the text visible and restart after a pause
-      setTimeout(() => { idx = 0; typeOnce(); }, 8800);
+      setTimeout(typeAnim, 38);
     }
-
-    // ensure dots are always visible (they're styled via CSS already)
-    if (dotsEl) dotsEl.textContent = '...';
-    typeOnce();
+    typeAnim();
   </script>
   <style>
     .animated-text {
