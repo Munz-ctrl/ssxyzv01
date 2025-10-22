@@ -33,9 +33,21 @@ const btnUpload = $('btnUpload');
 const btnGenerate = $('btnGenerate');
 const fileInput = $('fileInput');
 const garmentPreview = $('garmentPreview');
+const thumbWrap = document.querySelector('.thumb-wrap');
 
 let garmentPublicUrl = null;
 let hasGeneratedOnce = false;
+
+// helper: toggle empty placeholder state on the thumb
+function updateThumbEmpty() {
+  try {
+    const hasSrc = garmentPreview.getAttribute && garmentPreview.getAttribute('src');
+    if (thumbWrap) {
+      if (!hasSrc) thumbWrap.classList.add('empty');
+      else thumbWrap.classList.remove('empty');
+    }
+  } catch (e) { /* ignore */ }
+}
 
 // ---------- init hero once (ABSOLUTE URL) ----------
 (function initHeroOnce() {
@@ -46,6 +58,9 @@ let hasGeneratedOnce = false;
   hero.style.backgroundImage = 'url("' + url + '")';
   hero.setAttribute('data-person-url', url);
 })();
+
+// initialize thumb placeholder state
+updateThumbEmpty();
 
 // ---------- upload flow ----------
 btnUpload.addEventListener('click', () => fileInput.click());
@@ -71,9 +86,10 @@ fileInput.addEventListener('change', async (e) => {
     const pub = await sb.storage.from('userassets').getPublicUrl(path);
     garmentPublicUrl = pub.data.publicUrl;
 
-    garmentPreview.src = garmentPublicUrl;
+  garmentPreview.src = garmentPublicUrl;
     btnGenerate.disabled = false;
     statusEl.textContent = 'Garment ready. Hit “Generate on Munz”.';
+  updateThumbEmpty();
   // previously slotted uploaded garments; slotting removed
   } catch (err) {
     console.error(err);
@@ -151,6 +167,7 @@ if (resetBtn) {
   garmentPreview.removeAttribute('src');
     resetBtn.style.display = 'none';
     hasGeneratedOnce = false;
+    updateThumbEmpty();
   });
 }
 
