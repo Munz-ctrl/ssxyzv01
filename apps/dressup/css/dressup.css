@@ -161,9 +161,9 @@ html, body {
   pointer-events: none;
 }
 .thumb-wrap.empty::before {
-  content: 'Upload or drop';
+  content: '';
   position: absolute;
-  bottom: 8px;
+  bottom: 8px; 
   left: 50%;
   transform: translateX(-50%);
   font-size: 12px;
