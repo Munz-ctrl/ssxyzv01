@@ -241,9 +241,16 @@ html, body {
   bottom: 2%;
   z-index: 3;
   font-size: 11px;
-  line-height: 1.2;
+  line-height: 0.8; /* tighter lines */
   color: rgba(255,255,255,0.75);
   text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* persistent dots after the typed watermark text */
+#animatedWatermarkText::after {
+  content: '...';
+  margin-left: 4px; /* small gap between text and dots */
+  opacity: 0.9;
 }
 
 .panel {
