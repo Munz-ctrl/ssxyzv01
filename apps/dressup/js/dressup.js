@@ -35,6 +35,7 @@ const fileInput = $('fileInput');
 const garmentPreview = $('garmentPreview');
 
 let garmentPublicUrl = null;
+let hasGeneratedOnce = false;
 
 // ---------- init hero once (ABSOLUTE URL) ----------
 (function initHeroOnce() {
@@ -73,6 +74,7 @@ fileInput.addEventListener('change', async (e) => {
     garmentPreview.src = garmentPublicUrl;
     btnGenerate.disabled = false;
     statusEl.textContent = 'Garment ready. Hit “Generate on Munz”.';
+    slotGarment(garmentPublicUrl);
   } catch (err) {
     console.error(err);
     statusEl.textContent = 'Upload failed: ' + (err.message || err);
@@ -122,6 +124,14 @@ btnGenerate.addEventListener('click', async () => {
     }, 180);
 
     statusEl.textContent = 'Done.';
+    // after generation put the generated image into a slot
+    slotGarment(outputUrl);
+    // show reset button after first successful generation
+    if (!hasGeneratedOnce) {
+      hasGeneratedOnce = true;
+      const resetBtn = document.getElementById('btnResetHero');
+      if (resetBtn) resetBtn.style.display = 'inline-block';
+    }
   } catch (err) {
     console.error(err);
     if (!statusEl.textContent.startsWith('Generation failed'))
@@ -130,3 +140,48 @@ btnGenerate.addEventListener('click', async () => {
     btnGenerate.disabled = false;
   }
 });
+
+// Slotting: find first empty slot and place the image
+function slotGarment(imageUrl) {
+  if (!imageUrl) return;
+  const slots = document.querySelectorAll('.slot');
+  for (let i = 0; i < slots.length; i++) {
+    const s = slots[i];
+    if (s.getAttribute('data-empty') === 'true') {
+      s.style.backgroundImage = `url('${imageUrl}')`;
+      s.style.backgroundSize = 'contain';
+      s.style.backgroundRepeat = 'no-repeat';
+      s.style.backgroundPosition = 'center';
+      s.removeAttribute('data-empty');
+      return;
+    }
+  }
+  // if no empty slot, replace the first slot
+  const first = slots[0];
+  if (first) {
+    first.style.backgroundImage = `url('${imageUrl}')`;
+    first.style.backgroundSize = 'contain';
+    first.style.backgroundRepeat = 'no-repeat';
+    first.style.backgroundPosition = 'center';
+    first.removeAttribute('data-empty');
+  }
+}
+
+// Reset hero to default
+const resetBtn = document.getElementById('btnResetHero');
+if (resetBtn) {
+  resetBtn.addEventListener('click', () => {
+    const fallback = hero.getAttribute('data-default-hero');
+    const url = toAbsoluteHttpUrl(fallback);
+    hero.style.backgroundImage = 'url("' + url + '")';
+    hero.setAttribute('data-person-url', url);
+    // clear slots and garmentPreview
+    document.querySelectorAll('.slot').forEach(s => {
+      s.style.backgroundImage = '';
+      s.setAttribute('data-empty', 'true');
+    });
+    garmentPreview.src = '/shared/assets/suitcase/holy_tank.png';
+    resetBtn.style.display = 'none';
+    hasGeneratedOnce = false;
+  });
+}
