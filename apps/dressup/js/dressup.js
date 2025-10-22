@@ -147,8 +147,8 @@ if (resetBtn) {
     const url = toAbsoluteHttpUrl(fallback);
     hero.style.backgroundImage = 'url("' + url + '")';
     hero.setAttribute('data-person-url', url);
-    // reset garment preview image
-    garmentPreview.src = '/shared/assets/suitcase/holy_tank.png';
+  // reset garment preview image (clear)
+  garmentPreview.removeAttribute('src');
     resetBtn.style.display = 'none';
     hasGeneratedOnce = false;
   });
