@@ -111,6 +111,16 @@ html, body {
   text-align: center;
 }
 
+.panel-instruction {
+  font-size: 13px;
+  color: rgba(220, 225, 240, 0.9);
+  line-height: 1.2;
+  padding: 10px 6px;
+  text-align: center;
+  max-width: 220px;
+  margin-inline: auto;
+}
+
 /* Garment preview */
 .thumb-wrap {
   width: 100%;
@@ -144,7 +154,7 @@ html, body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -60%);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3l2-3h6l2 3h3a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='48' height='48' fill='none' stroke='%23ffffff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='7' width='18' height='13' rx='2'/><path d='M16 3l-2 4H10L8 3'/><circle cx='12' cy='13' r='3.2'/></svg>");
   background-repeat: no-repeat;
   background-size: contain;
   opacity: 0.18;
