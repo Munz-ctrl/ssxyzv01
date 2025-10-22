@@ -1,5 +1,7 @@
 /* ========= DressUp (clean) ========= */
 
+/* ========= DressUp (clean) ========= */
+
 /* Viewport */
 html, body {
   margin: 0;
@@ -64,7 +66,6 @@ html, body {
 
 /* Right overlay panel */
 
-
 .panel-card {
   background: var(--panel-bg);
   border-radius: var(--panel-br);
@@ -72,6 +73,7 @@ html, body {
   border: 1px solid rgba(255,255,255,0.06);
   box-shadow: 0 12px 30px rgba(0,0,0,0.45);
 }
+
 
 .panel-header {
   display: flex;
@@ -124,6 +126,40 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+/* Empty placeholder state: faint dashed border + camera icon and hint text */
+.thumb-wrap.empty {
+  border-style: dashed;
+  border-color: rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  position: relative;
+}
+/* small camera SVG as a faint decorative mark */
+.thumb-wrap.empty::after {
+  content: '';
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -60%);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3l2-3h6l2 3h3a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>");
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.18;
+  pointer-events: none;
+}
+.thumb-wrap.empty::before {
+  content: 'Upload or drop';
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.3px;
+  pointer-events: none;
 }
 
 .panel-caption {
@@ -200,11 +236,8 @@ html, body {
   text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
-
-
-
-
 .panel {
+
   position: absolute;
   right: 2px;
   top: 5vh;
@@ -216,10 +249,6 @@ html, body {
 /* Mobile: dock the panel at bottom center */
 @media (max-width: 860px) {
   .panel {
-  
-  
-  
-    
     width:auto;
   }
   .banner { left: 4%; right: 4%; }
