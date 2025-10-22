@@ -97,7 +97,7 @@ html, body {
   color: #bcd0ff;
   font-size: 26px;
   font-weight: 700;
-  border: 1px solid rgba(43,102,255,0.35);
+  border: none; /* removed border to keep only the plus glyph */
 }
 
 .panel-title {
