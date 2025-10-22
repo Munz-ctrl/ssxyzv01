@@ -149,8 +149,8 @@ html, body {
 .thumb-wrap.empty::after {
   content: '';
   position: absolute;
-  width: 88px;
-  height: 88px;
+  width: 100px;
+  height: 100px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -60%);
