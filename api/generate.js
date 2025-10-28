@@ -36,7 +36,7 @@ export default async function handler(req, res) {
 
   const START_URL = 'https://api.replicate.com/v1/models/google/nano-banana/predictions';
 const input = {
-  prompt: prompt || 'Dress the person image with the uploaded garment. Keep identity, pose and lighting natural; clean seams.',
+  prompt: prompt || 'Dress the person image with the newly uploaded garment while keeping all existing clothing and visual details unchanged. Preserve the person’s identity, pose, lighting, and background exactly as in the input image. Only modify the region necessary to add the new garment; keep previous garments intact and seamless.',
   image_input: garmentUrl ? [personUrl, garmentUrl] : [personUrl],
   aspect_ratio: '9:16',        // 👈 Force output to portrait 9:16
   output_format: 'png'         // 👈 Optional — preserves transparency and quality
