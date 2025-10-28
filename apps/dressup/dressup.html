@@ -29,11 +29,18 @@
       <div class="panel-caption">CURRENT</div>
 
       <div class="panel-actions">
-        <input id="fileInput" type="file" accept="image/*" hidden />
-        <button id="btnUpload" class="btn primary">Upload Garment</button>
-        <button id="btnGenerate" class="btn ghost" disabled>Generate on Munz</button>
-        <button id="btnResetHero" class="btn" style="display:none;">Reset</button>
-      </div>
+  <input id="fileInput" type="file" accept="image/*" hidden />
+  <button id="btnUpload" class="btn primary">Upload Garment</button>
+  <button id="btnGenerate" class="btn ghost" disabled>Generate on Munz</button>
+</div>
+
+<!-- New: secondary, thinner action row (hidden until first generation) -->
+<div class="panel-subactions">
+  <button id="btnUndo" class="btn thin" style="display:none;">Step Back</button>
+  <button id="btnSave" class="btn thin" style="display:none;">Save Image</button>
+  <button id="btnResetHero" class="btn thin" style="display:none;">Reset</button>
+</div>
+
 
       <div id="status" class="status" role="status" aria-live="polite"></div>
     </div>
