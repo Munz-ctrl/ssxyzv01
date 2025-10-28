@@ -38,6 +38,11 @@ const thumbWrap = document.querySelector('.thumb-wrap');
 let garmentPublicUrl = null;
 let hasGeneratedOnce = false;
 
+let historyStack = []; // stores previous hero URLs for "Step Back"
+const btnUndo = $('btnUndo');
+const btnSave = $('btnSave');
+
+
 // helper: toggle empty placeholder state on the thumb
 function updateThumbEmpty() {
   try {
@@ -174,23 +179,36 @@ btnGenerate.addEventListener('click', async () => {
     }
 
     // 3) Use the saved URL if available, else fall back to Replicate URL
-    const finalUrl = savedPublicUrl || outputUrl;
+    // 3) Use the saved URL if available, else fall back to Replicate URL
+const finalUrl = savedPublicUrl || outputUrl;
 
-    // Update hero
-    hero.style.transition = 'filter .18s ease, opacity .18s ease';
-    hero.style.opacity = '0.85';
-    setTimeout(() => {
-      hero.style.backgroundImage = `url("${finalUrl}")`;
-      hero.setAttribute('data-person-url', finalUrl);
-      hero.style.opacity = '1';
-    }, 180);
+// Push current hero into history BEFORE swapping
+const currentUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
+if (currentUrl && currentUrl !== finalUrl) {
+  historyStack.push(currentUrl);
+}
 
-    statusEl.textContent = 'Done.';
-    if (!hasGeneratedOnce) {
-      hasGeneratedOnce = true;
-      const resetBtn = document.getElementById('btnResetHero');
-      if (resetBtn) resetBtn.style.display = 'inline-block';
-    }
+// Update hero
+hero.style.transition = 'filter .18s ease, opacity .18s ease';
+hero.style.opacity = '0.85';
+setTimeout(() => {
+  hero.style.backgroundImage = `url("${finalUrl}")`;
+  hero.setAttribute('data-person-url', finalUrl);
+  hero.style.opacity = '1';
+}, 180);
+
+statusEl.textContent = 'Done.';
+
+// Reveal secondary buttons after first generation
+if (!hasGeneratedOnce) {
+  hasGeneratedOnce = true;
+}
+if (btnUndo) btnUndo.style.display = historyStack.length ? 'inline-block' : 'none';
+if (btnSave) btnSave.style.display = 'inline-block';
+const resetBtn = document.getElementById('btnResetHero');
+if (resetBtn) resetBtn.style.display = 'inline-block';
+
+
   } catch (err) {
     console.error(err);
     if (!statusEl.textContent.startsWith('Generation failed'))
@@ -201,20 +219,98 @@ btnGenerate.addEventListener('click', async () => {
 });
 
 
-// Reset hero to default (keeps slots removed)
+// Reset hero to default (and clear history)
 const resetBtn = document.getElementById('btnResetHero');
 if (resetBtn) {
   resetBtn.addEventListener('click', () => {
     const fallback = hero.getAttribute('data-default-hero');
     const url = toAbsoluteHttpUrl(fallback);
-    hero.style.backgroundImage = 'url("' + url + '")';
-    hero.setAttribute('data-person-url', url);
-  // reset garment preview image (clear)
-  garmentPreview.removeAttribute('src');
+
+    hero.style.transition = 'filter .18s ease, opacity .18s ease';
+    hero.style.opacity = '0.85';
+    setTimeout(() => {
+      hero.style.backgroundImage = 'url("' + url + '")';
+      hero.setAttribute('data-person-url', url);
+      hero.style.opacity = '1';
+    }, 180);
+
+    // clear garment preview image (optional)
+    garmentPreview.removeAttribute('src');
+
+    // clear history and hide thin sub-actions
+    historyStack = [];
+    if (btnUndo) btnUndo.style.display = 'none';
+    if (btnSave) btnSave.style.display = 'none';
     resetBtn.style.display = 'none';
     hasGeneratedOnce = false;
+
     updateThumbEmpty();
   });
 }
+
+
+
+// ---------- Step Back (undo one generation) ----------
+if (btnUndo) {
+  btnUndo.addEventListener('click', () => {
+    if (!historyStack.length) return;
+
+    const previousUrl = historyStack.pop();
+    const nowUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
+
+    // swap to previous
+    hero.style.transition = 'filter .18s ease, opacity .18s ease';
+    hero.style.opacity = '0.85';
+    setTimeout(() => {
+      hero.style.backgroundImage = `url("${previousUrl}")`;
+      hero.setAttribute('data-person-url', previousUrl);
+      hero.style.opacity = '1';
+    }, 180);
+
+    // If you want a strict single-step behavior (no redo), do nothing else.
+    // If you wanted toggle behavior, you could push nowUrl back into history here.
+
+    // Update button visibility
+    if (btnUndo) btnUndo.style.display = historyStack.length ? 'inline-block' : 'none';
+  });
+}
+
+// ---------- Save (download current hero image) ----------
+async function downloadCurrentHero() {
+  const url = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
+  if (!url) return;
+
+  const filename = `munz-dressup-${Date.now()}.png`;
+
+  try {
+    // Try to fetch and force a download via Blob (works even if CORS allows GET)
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const blob = await resp.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(a.href);
+    a.remove();
+  } catch (e) {
+    // Fallback: open in a new tab (user can save manually)
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.download = filename; // browsers may ignore download attr cross-origin
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+}
+
+if (btnSave) {
+  btnSave.addEventListener('click', downloadCurrentHero);
+}
+
+
 
 // slotting and reset logic removed
