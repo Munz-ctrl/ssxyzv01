@@ -107,11 +107,22 @@ btnGenerate.addEventListener('click', async () => {
   try {
     const personUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
 
+    // NEW: attempt to include uploaderId (anon or auth uid) for per-user foldering
+    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+    let uploaderId = 'anon';
+    try {
+      if (sb?.auth?.getUser) {
+        const { data } = await sb.auth.getUser();
+        if (data?.user?.id) uploaderId = data.user.id;
+      }
+    } catch (_) { /* silently ignore */ }
+
     const payload = {
       model: 'google/nano-banana',
       personUrl,
       garmentUrl: garmentPublicUrl,
-      prompt: 'Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting.'
+      prompt: 'Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting.',
+      uploaderId // 👈 add to request
     };
     console.log('POST /api/generate', payload);
 
@@ -154,6 +165,7 @@ btnGenerate.addEventListener('click', async () => {
     btnGenerate.disabled = false;
   }
 });
+
 
 // Reset hero to default (keeps slots removed)
 const resetBtn = document.getElementById('btnResetHero');
