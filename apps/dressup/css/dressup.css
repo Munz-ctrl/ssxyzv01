@@ -288,7 +288,7 @@ html, body {
   border: 1px solid rgba(255,255,255,0.14);
   background: rgba(255,255,255,0.05);
   color: var(--ink);
-  font-weight: 600;
+  font-weight: 300;
   letter-spacing: 0.2px;
   font-size: 12px;
   cursor: pointer;
