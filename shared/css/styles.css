@@ -918,7 +918,6 @@ html, body {
   display: inline-block;
   margin-left: 4px;
   font-weight: bold;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
 
 @keyframes dots {
