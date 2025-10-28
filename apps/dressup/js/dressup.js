@@ -107,7 +107,7 @@ btnGenerate.addEventListener('click', async () => {
   try {
     const personUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
 
-    // NEW: attempt to include uploaderId (anon or auth uid) for per-user foldering
+    // Try to identify user for per-user foldering; fall back to 'anon'
     const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
     let uploaderId = 'anon';
     try {
@@ -115,16 +115,15 @@ btnGenerate.addEventListener('click', async () => {
         const { data } = await sb.auth.getUser();
         if (data?.user?.id) uploaderId = data.user.id;
       }
-    } catch (_) { /* silently ignore */ }
+    } catch (_) {}
 
+    // Call your existing API (unchanged)
     const payload = {
       model: 'google/nano-banana',
       personUrl,
       garmentUrl: garmentPublicUrl,
-      prompt: 'Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting.',
-      uploaderId // 👈 add to request
+      prompt: 'Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting.'
     };
-    console.log('POST /api/generate', payload);
 
     const res = await fetch('/api/generate', {
       method: 'POST',
@@ -139,19 +138,54 @@ btnGenerate.addEventListener('click', async () => {
       throw new Error('Try-on API error');
     }
 
+    // 1) Replicate (or API) output URL
     const outputUrl = body.outputUrl || body.image || body.output;
     if (!outputUrl) throw new Error('No output URL returned');
 
+    // 2) Try to save the generated image into Supabase Storage (client-side)
+    let savedPublicUrl = null;
+    try {
+      if (!sb?.storage) throw new Error('Supabase client not found on window');
+
+      // Fetch the image as a Blob from the public Replicate URL
+      const imgRes = await fetch(outputUrl, { mode: 'cors' });
+      if (!imgRes.ok) throw new Error(`download_failed ${imgRes.status}`);
+      const blob = await imgRes.blob();
+
+      const ext = (blob.type && blob.type.includes('png')) ? 'png' :
+                  (blob.type && blob.type.includes('jpeg')) ? 'jpg' : 'png';
+      const key = `generated/${uploaderId}/${Date.now()}.${ext}`;
+
+      // Upload to your existing bucket "userassets"
+      const { error: upErr } = await sb.storage
+        .from('userassets')
+        .upload(key, blob, {
+          contentType: blob.type || 'image/png',
+          upsert: true
+        });
+      if (upErr) throw upErr;
+
+      // Get a public URL to use on the site
+      const { data: pub } = sb.storage.from('userassets').getPublicUrl(key);
+      savedPublicUrl = pub?.publicUrl || null;
+      console.log('Saved to Supabase:', savedPublicUrl);
+    } catch (saveErr) {
+      console.warn('⚠️ Client-side save to Supabase failed; using Replicate URL:', saveErr?.message || saveErr);
+    }
+
+    // 3) Use the saved URL if available, else fall back to Replicate URL
+    const finalUrl = savedPublicUrl || outputUrl;
+
+    // Update hero
     hero.style.transition = 'filter .18s ease, opacity .18s ease';
     hero.style.opacity = '0.85';
     setTimeout(() => {
-      hero.style.backgroundImage = `url("${outputUrl}")`;
-      hero.setAttribute('data-person-url', outputUrl);
+      hero.style.backgroundImage = `url("${finalUrl}")`;
+      hero.setAttribute('data-person-url', finalUrl);
       hero.style.opacity = '1';
     }, 180);
 
     statusEl.textContent = 'Done.';
-    // show reset button after first successful generation
     if (!hasGeneratedOnce) {
       hasGeneratedOnce = true;
       const resetBtn = document.getElementById('btnResetHero');
