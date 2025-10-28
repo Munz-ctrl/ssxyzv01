@@ -273,3 +273,27 @@ html, body {
   }
   .banner { left: 4%; right: 4%; }
 }
+
+/* ---------- Thin secondary action row ---------- */
+.panel-subactions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.btn.thin {
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.05);
+  color: var(--ink);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn.thin:hover {
+  background: rgba(255,255,255,0.12);
+}
