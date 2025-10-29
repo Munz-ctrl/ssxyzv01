@@ -6,6 +6,7 @@
     "overlayImage": "/shared/assets/suitcase/holy_tank.png",
     "link": "https://example.com/holy-tank"
   },
+  
   {
     "id": "item4",
     "name": "Human Nature RED-LEATHER",
@@ -13,6 +14,7 @@
     "overlayImage": "/shared/assets/suitcase/HN_Red.png",
     "link": "https://example.com/lace-pants"
   },
+
   {
     "id": "item2",
     "name": "Human Nature WHITE-LACE ",
@@ -20,6 +22,7 @@
     "overlayImage": "/shared/assets/suitcase/lace_pants.png",
     "link": "https://example.com/lace-pants"
   },
+
   {
     "id": "item3",
     "name": "RARRI Hank",
@@ -27,6 +30,7 @@
     "overlayImage": "/shared/assets/suitcase/Rarri_Hank.png",
     "link": "https://example.com/holy-tank"
   },
+
   {
     "id": "item5",
     "name": "BEAST Tee",
