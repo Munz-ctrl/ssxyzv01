@@ -1,8 +1,53 @@
-<script type="module">
-import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
-import { OrbitControls } from "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>X-Card Garment Turntable – Demo</title>
+<style>
+  :root { --bg:#111; --panel:#1b1b1b; --text:#e8e8e8; --muted:#8d8d8d; }
+  html, body { height:100%; margin:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; }
+  .wrap { display:grid; grid-template-columns: 1fr 340px; height:100vh; }
+  #stage { position:relative; background:#fff; min-height:100vh; }
+  #hud { background:var(--panel); padding:14px; border-left:1px solid #262626; display:flex; flex-direction:column; gap:12px; overflow:auto; }
+  .row { display:flex; align-items:center; gap:10px; }
+  .row label { width:110px; color:var(--muted); }
+  input[type="range"] { width:100%; }
+  input[type="file"] { width:100%; }
+  .btn { background:#2a2a2a; color:#fff; border:1px solid #333; padding:8px 10px; border-radius:8px; cursor:pointer; }
+  .hint { color:var(--muted); font-size:12px; }
+  .title { font-weight:700; font-size:16px; margin-bottom:2px; }
+</style>
+<!-- THREE (non-module) -->
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div id="stage"></div>
 
-let renderer, scene, camera, controls, group, ground, key, amb;
+  <aside id="hud">
+    <div class="title">X-Card Turntable</div>
+    <div class="hint">Upload any front/back photo (PNG/JPG). Transparent PNGs look best.</div>
+
+    <div class="row"><label>Front image</label><input id="frontFile" type="file" accept="image/*"></div>
+    <div class="row"><label>Back image</label><input id="backFile" type="file" accept="image/*"></div>
+    <div class="row"><button id="usePlaceholders" class="btn">Use placeholders</button></div>
+
+    <hr style="border:0;border-top:1px solid #2a2a2a">
+
+    <div class="row"><label>Spin speed</label><input id="speed" type="range" min="0" max="2" step="0.01" value="0.5"><span id="speedVal">0.50</span></div>
+    <div class="row"><label>Shadow</label><input id="shadow" type="range" min="0" max="0.5" step="0.01" value="0.18"><span id="shadowVal">0.18</span></div>
+    <div class="row"><label>Light angle</label><input id="light" type="range" min="-90" max="90" step="1" value="35"><span id="lightVal">35°</span></div>
+    <div class="row"><label>Auto-orbit</label><input id="auto" type="checkbox" checked></div>
+    <div class="row"><button id="reset" class="btn">Reset view</button></div>
+
+    <div class="hint">Tip: drag to orbit. The two planes cross at 90° to form the “X”.</div>
+  </aside>
+</div>
+
+<script>
+let renderer, scene, camera, controls, group, ground, keyLight, ambLight;
 let frontMesh = null, backMesh = null;
 
 const stage = document.getElementById("stage");
@@ -15,58 +60,48 @@ const shadowVal = document.getElementById("shadowVal");
 const lightVal = document.getElementById("lightVal");
 const resetBtn = document.getElementById("reset");
 const frontFile = document.getElementById("frontFile");
-const backFile = document.getElementById("backFile");
+const backFile  = document.getElementById("backFile");
 const usePlaceholdersBtn = document.getElementById("usePlaceholders");
 
 init();
 animate();
 
 function init() {
-  // Renderer
+  // Renderer pinned to the stage
   renderer = new THREE.WebGLRenderer({ antialias:true });
-  document.body.appendChild(renderer.domElement);
-  resizeRenderer();
-
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  stage.appendChild(renderer.domElement);
+  resize();
 
-  // Scene
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xffffff);
-
-  // Camera
-  const aspect = window.innerWidth / window.innerHeight;
-  camera = new THREE.PerspectiveCamera(30, aspect, 0.1, 100);
+  // Scene / Camera
+  scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff);
+  camera = new THREE.PerspectiveCamera(30, stage.clientWidth/stage.clientHeight, 0.1, 100);
   camera.position.set(0, 1.2, 3.2);
 
-  // Controls
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
+  // Controls (non-module variant)
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.05;
   controls.target.set(0, 0.9, 0);
 
   // Lights
-  amb = new THREE.AmbientLight(0xffffff, 0.72);
-  scene.add(amb);
-  key = new THREE.DirectionalLight(0xffffff, 0.9);
-  key.castShadow = true;
-  key.shadow.mapSize.set(1024,1024);
-  key.shadow.radius = 4;
-  scene.add(key);
-  setKeyAngle(parseFloat(lightEl.value));
+  ambLight = new THREE.AmbientLight(0xffffff, 0.72); scene.add(ambLight);
+  keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
+  keyLight.castShadow = true; keyLight.shadow.mapSize.set(2048,2048); keyLight.shadow.radius = 4;
+  scene.add(keyLight); setKeyAngle(parseFloat(lightEl.value));
 
-  // Ground
+  // Ground (soft shadow)
   const smat = new THREE.ShadowMaterial({ opacity: parseFloat(shadowEl.value) });
   ground = new THREE.Mesh(new THREE.PlaneGeometry(20,20), smat);
-  ground.receiveShadow = true;
-  ground.rotation.x = -Math.PI/2;
-  scene.add(ground);
+  ground.receiveShadow = true; ground.rotation.x = -Math.PI/2; scene.add(ground);
 
-  group = new THREE.Group();
-  scene.add(group);
+  // Garment group
+  group = new THREE.Group(); scene.add(group);
 
-  window.addEventListener("resize", resizeRenderer);
+  // UI
+  window.addEventListener("resize", resize);
   speedEl.addEventListener("input", () => speedVal.textContent = (+speedEl.value).toFixed(2));
   shadowEl.addEventListener("input", () => { ground.material.opacity = +shadowEl.value; shadowVal.textContent = shadowEl.value; });
   lightEl.addEventListener("input", () => { setKeyAngle(+lightEl.value); lightVal.textContent = lightEl.value + "°"; });
@@ -75,109 +110,85 @@ function init() {
   backFile.addEventListener("change", handleBackUpload);
   usePlaceholdersBtn.addEventListener("click", loadPlaceholders);
 
-  loadPlaceholders();
+  loadPlaceholders(); // show something immediately
 }
 
-function resizeRenderer() {
-  const w = window.innerWidth * 0.7;  // ~70% width for stage
-  const h = window.innerHeight;
+function resize() {
+  const w = stage.clientWidth || (window.innerWidth - 340);
+  const h = stage.clientHeight || window.innerHeight;
   renderer.setSize(w, h, false);
-  if (camera) {
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  }
-  if (stage && renderer.domElement.parentNode !== stage) {
-    stage.innerHTML = "";
-    stage.appendChild(renderer.domElement);
-  }
+  if (camera) { camera.aspect = w/h; camera.updateProjectionMatrix(); }
 }
 
 function setKeyAngle(deg) {
-  const rad = THREE.MathUtils.degToRad(deg);
+  const rad = THREE.Math.degToRad(deg);
   const r = 2.2;
-  key.position.set(Math.cos(rad)*r, 2.1, Math.sin(rad)*r);
+  keyLight.position.set(Math.cos(rad)*r, 2.1, Math.sin(rad)*r);
 }
 
 function animate() {
   requestAnimationFrame(animate);
-  if (autoEl.checked && group) {
-    const spd = parseFloat(speedEl.value);
-    group.rotation.y += 0.005 * spd;
-  }
+  if (autoEl.checked) group.rotation.y += 0.005 * parseFloat(speedEl.value);
   controls.update();
   renderer.render(scene, camera);
 }
 
+// ---------- X-Card building ----------
 async function handleFrontUpload(e) {
   if (!e.target.files?.length) return;
-  const url = URL.createObjectURL(e.target.files[0]);
-  const tex = await loadTexture(url);
+  const tex = await loadTexture(URL.createObjectURL(e.target.files[0]));
   applyFront(tex);
 }
-
 async function handleBackUpload(e) {
   if (!e.target.files?.length) return;
-  const url = URL.createObjectURL(e.target.files[0]);
-  const tex = await loadTexture(url);
+  const tex = await loadTexture(URL.createObjectURL(e.target.files[0]));
   applyBack(tex);
 }
 
 function applyFront(tex) {
-  if (frontMesh) cleanupMesh(frontMesh);
+  if (frontMesh) disposeMesh(frontMesh);
   frontMesh = makePlaneFromTexture(tex);
-  frontMesh.rotation.y = Math.PI/4;
-  group.add(frontMesh);
+  frontMesh.rotation.y =  Math.PI/4; group.add(frontMesh);
 }
 function applyBack(tex) {
-  if (backMesh) cleanupMesh(backMesh);
+  if (backMesh) disposeMesh(backMesh);
   backMesh = makePlaneFromTexture(tex);
-  backMesh.rotation.y = -Math.PI/4;
-  group.add(backMesh);
+  backMesh.rotation.y = -Math.PI/4; group.add(backMesh);
 }
 
 function makePlaneFromTexture(tex) {
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
-  const H = 1.7;
-  const aspect = tex.image.width / tex.image.height;
-  const W = H * aspect;
+  tex.anisotropy = 8; // colorSpace default is fine in non-module build
+  const H = 1.7, aspect = tex.image.width / tex.image.height, W = H * aspect;
   const geo = new THREE.PlaneGeometry(W, H);
   const mat = new THREE.MeshPhongMaterial({ map: tex, transparent: true, side: THREE.DoubleSide });
   const m = new THREE.Mesh(geo, mat);
-  m.castShadow = true;
-  m.position.y = H * 0.52;
+  m.castShadow = true; m.position.y = H * 0.52;
   return m;
 }
-
-function cleanupMesh(m) {
+function disposeMesh(m) {
   group.remove(m);
-  m.material.map?.dispose();
-  m.material.dispose();
-  m.geometry.dispose();
+  m.material.map && m.material.map.dispose();
+  m.material.dispose(); m.geometry.dispose();
 }
-
 function loadTexture(url) {
-  return new Promise((res, rej) => {
-    new THREE.TextureLoader().load(url, tex => res(tex), undefined, err => rej(err));
-  });
+  return new Promise((res, rej) => new THREE.TextureLoader().load(url, t=>res(t), undefined, rej));
 }
 
-// Placeholder images
+// ---------- Placeholders ----------
 function loadPlaceholders() {
-  Promise.all([ makePlaceholderTexture("FRONT"), makePlaceholderTexture("BACK") ])
+  Promise.all([ placeholderTex("FRONT"), placeholderTex("BACK") ])
     .then(([f,b]) => { applyFront(f); applyBack(b); });
 }
-
-function makePlaceholderTexture(label="FRONT") {
-  const w = 1024, h = 1536;
-  const c = document.createElement("canvas"); c.width=w; c.height=h;
-  const ctx = c.getContext("2d");
-  ctx.clearRect(0,0,w,h);
-  ctx.fillStyle="#e9eef5"; ctx.fillRect(w*0.18,h*0.12,w*0.64,h*0.76);
-  ctx.fillStyle="#2b2b2b";
-  ctx.font="bold 80px system-ui"; ctx.textAlign="center";
-  ctx.fillText(label,w/2,h*0.55);
-  const tex = new THREE.CanvasTexture(c);
-  return Promise.resolve(tex);
+function placeholderTex(label) {
+  const w=1024,h=1536,c=document.createElement("canvas"); c.width=w;c.height=h;
+  const ctx=c.getContext("2d"); ctx.clearRect(0,0,w,h);
+  ctx.fillStyle="#e9eef5"; roundRect(ctx,w*0.18,h*0.12,w*0.64,h*0.76,40); ctx.fill();
+  ctx.clearRect(w*0.43,h*0.12,w*0.14,h*0.05); // collar notch
+  ctx.fillStyle="#2b2b2b"; ctx.font="bold 80px system-ui"; ctx.textAlign="center"; ctx.fillText(label,w/2,h*0.55);
+  return new THREE.CanvasTexture(c);
 }
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
 </script>
+</body>
+</html>
+
