@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>X-Card Garment Turntable – Demo</title>
+<title>X-Card Garment Turntable – Demo (ESM)</title>
 <style>
   :root { --bg:#111; --panel:#1b1b1b; --text:#e8e8e8; --muted:#8d8d8d; }
   html, body { height:100%; margin:0; background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; }
-  .wrap { display:grid; grid-template-columns: 1fr 340px; height:100vh; }
-  #stage { position:relative; background:#fff; min-height:100vh; }
+  .wrap { display:grid; grid-template-columns: 65vw 35vw; height:100vh; width:100vw; overflow:hidden; }
+  #stage { position:relative; background:#fff; height:100vh; }
   #hud { background:var(--panel); padding:14px; border-left:1px solid #262626; display:flex; flex-direction:column; gap:12px; overflow:auto; }
   .row { display:flex; align-items:center; gap:10px; }
   .row label { width:110px; color:var(--muted); }
@@ -18,9 +18,6 @@
   .hint { color:var(--muted); font-size:12px; }
   .title { font-weight:700; font-size:16px; margin-bottom:2px; }
 </style>
-<!-- THREE (non-module) -->
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
-<script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -46,7 +43,10 @@
   </aside>
 </div>
 
-<script>
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+
 let renderer, scene, camera, controls, group, ground, keyLight, ambLight;
 let frontMesh = null, backMesh = null;
 
@@ -67,41 +67,50 @@ init();
 animate();
 
 function init() {
-  // Renderer pinned to the stage
+  // Renderer
   renderer = new THREE.WebGLRenderer({ antialias:true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   stage.appendChild(renderer.domElement);
-  resize();
+  sizeToStage();
 
   // Scene / Camera
-  scene = new THREE.Scene(); scene.background = new THREE.Color(0xffffff);
-  camera = new THREE.PerspectiveCamera(30, stage.clientWidth/stage.clientHeight, 0.1, 100);
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xffffff);
+  camera = new THREE.PerspectiveCamera(30, stage.clientWidth / stage.clientHeight, 0.1, 100);
   camera.position.set(0, 1.2, 3.2);
 
-  // Controls (non-module variant)
-  controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true; controls.dampingFactor = 0.05;
+  // Controls
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
   controls.target.set(0, 0.9, 0);
 
   // Lights
   ambLight = new THREE.AmbientLight(0xffffff, 0.72); scene.add(ambLight);
   keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
-  keyLight.castShadow = true; keyLight.shadow.mapSize.set(2048,2048); keyLight.shadow.radius = 4;
-  scene.add(keyLight); setKeyAngle(parseFloat(lightEl.value));
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(2048,2048);
+  keyLight.shadow.radius = 4;
+  scene.add(keyLight);
+  setKeyAngle(parseFloat(lightEl.value));
 
   // Ground (soft shadow)
   const smat = new THREE.ShadowMaterial({ opacity: parseFloat(shadowEl.value) });
   ground = new THREE.Mesh(new THREE.PlaneGeometry(20,20), smat);
-  ground.receiveShadow = true; ground.rotation.x = -Math.PI/2; scene.add(ground);
+  ground.receiveShadow = true;
+  ground.rotation.x = -Math.PI/2;
+  scene.add(ground);
 
   // Garment group
-  group = new THREE.Group(); scene.add(group);
+  group = new THREE.Group();
+  scene.add(group);
 
   // UI
-  window.addEventListener("resize", resize);
+  new ResizeObserver(sizeToStage).observe(stage);
+  window.addEventListener("resize", sizeToStage);
   speedEl.addEventListener("input", () => speedVal.textContent = (+speedEl.value).toFixed(2));
   shadowEl.addEventListener("input", () => { ground.material.opacity = +shadowEl.value; shadowVal.textContent = shadowEl.value; });
   lightEl.addEventListener("input", () => { setKeyAngle(+lightEl.value); lightVal.textContent = lightEl.value + "°"; });
@@ -110,18 +119,22 @@ function init() {
   backFile.addEventListener("change", handleBackUpload);
   usePlaceholdersBtn.addEventListener("click", loadPlaceholders);
 
-  loadPlaceholders(); // show something immediately
+  loadPlaceholders();
 }
 
-function resize() {
-  const w = stage.clientWidth || (window.innerWidth - 340);
-  const h = stage.clientHeight || window.innerHeight;
+function sizeToStage() {
+  const rect = stage.getBoundingClientRect();
+  const w = Math.max(200, rect.width);
+  const h = Math.max(200, rect.height);
   renderer.setSize(w, h, false);
-  if (camera) { camera.aspect = w/h; camera.updateProjectionMatrix(); }
+  if (camera) {
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
 }
 
 function setKeyAngle(deg) {
-  const rad = THREE.Math.degToRad(deg);
+  const rad = THREE.MathUtils.degToRad(deg);
   const r = 2.2;
   keyLight.position.set(Math.cos(rad)*r, 2.1, Math.sin(rad)*r);
 }
@@ -148,16 +161,19 @@ async function handleBackUpload(e) {
 function applyFront(tex) {
   if (frontMesh) disposeMesh(frontMesh);
   frontMesh = makePlaneFromTexture(tex);
-  frontMesh.rotation.y =  Math.PI/4; group.add(frontMesh);
+  frontMesh.rotation.y =  Math.PI/4;
+  group.add(frontMesh);
 }
 function applyBack(tex) {
   if (backMesh) disposeMesh(backMesh);
   backMesh = makePlaneFromTexture(tex);
-  backMesh.rotation.y = -Math.PI/4; group.add(backMesh);
+  backMesh.rotation.y = -Math.PI/4;
+  group.add(backMesh);
 }
 
 function makePlaneFromTexture(tex) {
-  tex.anisotropy = 8; // colorSpace default is fine in non-module build
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
   const H = 1.7, aspect = tex.image.width / tex.image.height, W = H * aspect;
   const geo = new THREE.PlaneGeometry(W, H);
   const mat = new THREE.MeshPhongMaterial({ map: tex, transparent: true, side: THREE.DoubleSide });
@@ -183,7 +199,7 @@ function placeholderTex(label) {
   const w=1024,h=1536,c=document.createElement("canvas"); c.width=w;c.height=h;
   const ctx=c.getContext("2d"); ctx.clearRect(0,0,w,h);
   ctx.fillStyle="#e9eef5"; roundRect(ctx,w*0.18,h*0.12,w*0.64,h*0.76,40); ctx.fill();
-  ctx.clearRect(w*0.43,h*0.12,w*0.14,h*0.05); // collar notch
+  ctx.clearRect(w*0.43,h*0.12,w*0.14,h*0.05);
   ctx.fillStyle="#2b2b2b"; ctx.font="bold 80px system-ui"; ctx.textAlign="center"; ctx.fillText(label,w/2,h*0.55);
   return new THREE.CanvasTexture(c);
 }
@@ -191,4 +207,3 @@ function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+
 </script>
 </body>
 </html>
-
