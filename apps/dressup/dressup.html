@@ -14,6 +14,16 @@
 </head>
 <body class="dressup-body">
   <div id="appContainer" class="app-container">
+
+    <!-- Player / Hero Display (Phase 1 base) -->
+<div id="currentPlayerInfo" class="player-info-badge">
+    <span id="playerNameLabel">MUNZ</span>
+    <span id="playerIdLabel">#001</span>
+</div>
+
+<!-- Hidden canvas for watermark export (will be used later in Save button step) -->
+<canvas id="downloadCanvas" style="display:none;"></canvas>
+
     <div id="hero" class="hero" data-default-hero="/apps/dressup/assets/munz-base-portrait.png"></div>
 
     <!-- <div class="banner"><span>Previous pieces / NOMAD SUITCASE ?</span></div> -->
@@ -56,23 +66,7 @@
 
   <script src="/apps/dressup/js/dressup.js"></script>
 
-  <script>
-    // Animated watermark text (left-to-right, bottom left)
-    const text = 'ADD_Clothing_on_PLAYER_☂ \n Player-id: Anonymous \n (reverting to PLYR-ID:MUNZ ) \n (@isoMunzir)';
-    const el = document.getElementById('animatedWatermarkText');
-    let i = 0;
-    function typeAnim() {
-      if (i <= text.length) {
-        el.innerHTML = text.slice(0, i).replace(/\n/g, '<br>');
-        i++;
-      } else {
-        setTimeout(() => { i = 0; typeAnim(); }, 8800);
-        return;
-      }
-      setTimeout(typeAnim, 38);
-    }
-    typeAnim();
-  </script>
+  
   <style>
     .animated-text {
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
