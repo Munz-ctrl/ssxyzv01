@@ -1,82 +1,9 @@
-// /dressup/js/dressup.js
+// /apps/dressup/js/dressup.js
 
-// ---- PHASE 1: player / hero setup + dynamic watermark ----
-
-// grab URL params (allows private demo links)
-const params = new URLSearchParams(window.location.search);
-const qsHero     = params.get('hero');    // custom base hero image URL
-const modeParam  = params.get('mode');    // "private" optional
-const qsName     = params.get('pname');   // optional override for display name
-const qsId       = params.get('pid');     // optional override for player id/tag
-const isPrivateMode = (modeParam === 'private');
-
-// read DOM refs we need early
+// ---------- tiny DOM helper ----------
 function $(id){ return document.getElementById(id); }
-const hero            = $('hero');
-const badgeNameEl     = $('playerNameLabel');
-const badgeIdEl       = $('playerIdLabel');
-const animatedWMEl    = $('animatedWatermarkText');
 
-// pull default hero from HTML attribute so it's always in sync
-const htmlDefaultHero = hero ?
-  (hero.getAttribute('data-default-hero') || './assets/munz-base-portrait.jpg')
-  : './assets/munz-base-portrait.jpg';
-
-// currentPlayer is the single source of truth for whose body we're editing
-let currentPlayer = {
-  name: qsName || "MUNZ",        // default label
-  id:   qsId   || "001",         // default id/tag
-  heroUrl: qsHero || htmlDefaultHero
-};
-
-// helper: update the visible badge
-function updatePlayerBadge() {
-  if (badgeNameEl) badgeNameEl.textContent = currentPlayer.name;
-  if (badgeIdEl)   badgeIdEl.textContent   = "#" + currentPlayer.id;
-}
-
-// helper: watermark text logic (used for both on-screen animated text and later for save/download burn-in)
-function getWatermarkText() {
-  // feel free to customize tone here
-  // this shows player + id so investors / brands feel it's "their" session
-  return `ADD_Clothing_on_PLAYER_☂
-Player-id: ${currentPlayer.name} #${currentPlayer.id}
-(@isoMunzir)`;
-}
-
-// animated typing loop for the bottom-left watermark UI
-function runWatermarkTyping() {
-  if (!animatedWMEl) return;
-  let i = 0;
-  function typeAnim() {
-    const fullText = getWatermarkText();
-    if (i <= fullText.length) {
-      // keep \n line breaks
-      animatedWMEl.innerHTML = fullText.slice(0, i).replace(/\n/g, '<br>');
-      i++;
-    } else {
-      // pause, then restart
-      setTimeout(() => { i = 0; typeAnim(); }, 8800);
-      return;
-    }
-    setTimeout(typeAnim, 38);
-  }
-  typeAnim();
-}
-
-// initialize hero div background from currentPlayer.heroUrl
-function initHeroBackground() {
-  if (!hero) return;
-  const absUrl = toAbsoluteHttpUrl(currentPlayer.heroUrl);
-  hero.style.backgroundImage = `url("${absUrl}")`;
-  hero.setAttribute('data-person-url', absUrl);
-}
-
-
-
-
-
-// ---------- helpers ----------
+// ---------- generic URL normalizer (used everywhere) ----------
 function toAbsoluteHttpUrl(maybeUrl) {
   if (!maybeUrl) return '';
   let s = String(maybeUrl).trim()
@@ -88,46 +15,113 @@ function toAbsoluteHttpUrl(maybeUrl) {
   return s;
 }
 
+// ---------- PHASE 1: player / hero setup + dynamic watermark ----------
 
-// run initial UI sync now that helpers exist
+// read URL params so this page can behave like a "private link"
+const params      = new URLSearchParams(window.location.search);
+const qsHero      = params.get('hero');    // custom base hero image URL
+const modeParam   = params.get('mode');    // "private" optional, not used yet
+const qsName      = params.get('pname');   // optional override for display name
+const qsId        = params.get('pid');     // optional override for player id/tag
+const isPrivateMode = (modeParam === 'private'); // not enforced visually yet
+
+// grab DOM refs we need early
+const hero            = $('hero');                 // main portrait div
+const badgeNameEl     = $('playerNameLabel');      // "MUNZ"
+const badgeIdEl       = $('playerIdLabel');        // "#001"
+const animatedWMEl    = $('animatedWatermarkText');// bottom-left typing watermark
+const statusEl        = $('status');
+const btnUpload       = $('btnUpload');
+const btnGenerate     = $('btnGenerate');
+const fileInput       = $('fileInput');
+const garmentPreview  = $('garmentPreview');
+const thumbWrap       = document.querySelector('.thumb-wrap');
+const btnUndo         = $('btnUndo');
+const btnSave         = $('btnSave');
+const resetBtn        = $('btnResetHero');
+
+// read the default hero (Munz) from the HTML itself, so code and markup stay in sync
+const htmlDefaultHero = hero
+  ? (hero.getAttribute('data-default-hero') || '/apps/dressup/assets/munz-base-portrait.png')
+  : '/apps/dressup/assets/munz-base-portrait.png';
+
+// single source of truth for "who is being dressed"
+let currentPlayer = {
+  name: qsName || "MUNZ",  // default label
+  id:   qsId   || "001",   // default tag
+  heroUrl: qsHero || htmlDefaultHero // base portrait
+};
+
+// update the badge in the top-left ("MUNZ #001")
+function updatePlayerBadge() {
+  if (badgeNameEl) badgeNameEl.textContent = currentPlayer.name;
+  if (badgeIdEl)   badgeIdEl.textContent   = "#" + currentPlayer.id;
+}
+
+// build the text we use for watermarking (UI and later for burned-in downloads)
+function getWatermarkText() {
+  // You can rewrite this any time. It's already using player name + id.
+  return `ADD_Clothing_on_PLAYER_☂
+Player-id: ${currentPlayer.name} #${currentPlayer.id}
+(@isoMunzir)`;
+}
+
+// animate that watermark text in the bottom-left footer
+function runWatermarkTyping() {
+  if (!animatedWMEl) return;
+  let i = 0;
+  function typeAnim() {
+    const fullText = getWatermarkText();
+    if (i <= fullText.length) {
+      // support line breaks
+      animatedWMEl.innerHTML = fullText.slice(0, i).replace(/\n/g, '<br>');
+      i++;
+    } else {
+      // pause then restart the typing loop
+      setTimeout(() => { i = 0; typeAnim(); }, 8800);
+      return;
+    }
+    setTimeout(typeAnim, 38);
+  }
+  typeAnim();
+}
+
+// put the correct hero image into the UI and tag it on the element for later use
+function initHeroBackground() {
+  if (!hero) return;
+  const absUrl = toAbsoluteHttpUrl(currentPlayer.heroUrl);
+  hero.style.backgroundImage = `url("${absUrl}")`;
+  hero.setAttribute('data-person-url', absUrl);
+}
+
+// do the initial sync
 updatePlayerBadge();
 runWatermarkTyping();
 initHeroBackground();
 
 
-
-
-
-// ---------- anon auth (ok for testing) ----------
+// ---------- Supabase anon auth (keeps folders per user) ----------
 (async () => {
   try {
     const sb = window.supabase;
     if (!sb) return;
     const { data: sess } = await sb.auth.getSession();
-    if (!sess?.session?.user) await sb.auth.signInAnonymously();
+    if (!sess?.session?.user) {
+      await sb.auth.signInAnonymously();
+    }
   } catch (e) {
     console.warn('Anon auth skipped/failed:', e?.message || e);
   }
 })();
 
-// ---------- elements ----------
-const statusEl = $('status');
-const hero = $('hero');
-const btnUpload = $('btnUpload');
-const btnGenerate = $('btnGenerate');
-const fileInput = $('fileInput');
-const garmentPreview = $('garmentPreview');
-const thumbWrap = document.querySelector('.thumb-wrap');
 
+// ---------- local state for generation flow ----------
 let garmentPublicUrl = null;
 let hasGeneratedOnce = false;
-
-let historyStack = []; // stores previous hero URLs for "Step Back"
-const btnUndo = $('btnUndo');
-const btnSave = $('btnSave');
+let historyStack = []; // previous hero URLs for "Step Back"
 
 
-// helper: toggle empty placeholder state on the thumb
+// helper: toggle empty placeholder look on garment preview thumb
 function updateThumbEmpty() {
   try {
     const hasSrc = garmentPreview.getAttribute && garmentPreview.getAttribute('src');
@@ -135,15 +129,16 @@ function updateThumbEmpty() {
       if (!hasSrc) thumbWrap.classList.add('empty');
       else thumbWrap.classList.remove('empty');
     }
-  } catch (e) { /* ignore */ }
+  } catch (e) {
+    /* ignore */
+  }
 }
 
-
-
-// initialize thumb placeholder state
+// set initial preview state
 updateThumbEmpty();
 
-// ---------- upload flow ----------
+
+// ---------- Upload flow ----------
 btnUpload.addEventListener('click', () => fileInput.click());
 
 fileInput.addEventListener('change', async (e) => {
@@ -167,18 +162,18 @@ fileInput.addEventListener('change', async (e) => {
     const pub = await sb.storage.from('userassets').getPublicUrl(path);
     garmentPublicUrl = pub.data.publicUrl;
 
-  garmentPreview.src = garmentPublicUrl;
+    garmentPreview.src = garmentPublicUrl;
     btnGenerate.disabled = false;
     statusEl.textContent = 'Garment ready. Hit “Generate on Munz”.';
-  updateThumbEmpty();
-  // previously slotted uploaded garments; slotting removed
+    updateThumbEmpty();
   } catch (err) {
     console.error(err);
     statusEl.textContent = 'Upload failed: ' + (err.message || err);
   }
 });
 
-// ---------- generate ----------
+
+// ---------- Generate flow ----------
 btnGenerate.addEventListener('click', async () => {
   if (!garmentPublicUrl) return;
 
@@ -188,7 +183,7 @@ btnGenerate.addEventListener('click', async () => {
   try {
     const personUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
 
-    // Try to identify user for per-user foldering; fall back to 'anon'
+    // Identify user for per-user foldering; fall back to 'anon'
     const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
     let uploaderId = 'anon';
     try {
@@ -198,7 +193,7 @@ btnGenerate.addEventListener('click', async () => {
       }
     } catch (_) {}
 
-    // Call your existing API (unchanged)
+    // Hit our serverless function /api/generate
     const payload = {
       model: 'google/nano-banana',
       personUrl,
@@ -219,16 +214,16 @@ btnGenerate.addEventListener('click', async () => {
       throw new Error('Try-on API error');
     }
 
-    // 1) Replicate (or API) output URL
+    // Replicate (or API) output URL
     const outputUrl = body.outputUrl || body.image || body.output;
     if (!outputUrl) throw new Error('No output URL returned');
 
-    // 2) Try to save the generated image into Supabase Storage (client-side)
+    // Try to save the generated image into Supabase Storage (client-side)
     let savedPublicUrl = null;
     try {
       if (!sb?.storage) throw new Error('Supabase client not found on window');
 
-      // Fetch the image as a Blob from the public Replicate URL
+      // download result
       const imgRes = await fetch(outputUrl, { mode: 'cors' });
       if (!imgRes.ok) throw new Error(`download_failed ${imgRes.status}`);
       const blob = await imgRes.blob();
@@ -237,7 +232,7 @@ btnGenerate.addEventListener('click', async () => {
                   (blob.type && blob.type.includes('jpeg')) ? 'jpg' : 'png';
       const key = `generated/${uploaderId}/${Date.now()}.${ext}`;
 
-      // Upload to your existing bucket "userassets"
+      // upload to Supabase
       const { error: upErr } = await sb.storage
         .from('userassets')
         .upload(key, blob, {
@@ -246,57 +241,54 @@ btnGenerate.addEventListener('click', async () => {
         });
       if (upErr) throw upErr;
 
-      // Get a public URL to use on the site
+      // get a public URL from Supabase
       const { data: pub } = sb.storage.from('userassets').getPublicUrl(key);
       savedPublicUrl = pub?.publicUrl || null;
       console.log('Saved to Supabase:', savedPublicUrl);
     } catch (saveErr) {
-      console.warn('⚠️ Client-side save to Supabase failed; using Replicate URL:', saveErr?.message || saveErr);
+      console.warn('⚠️ Save to Supabase failed; using Replicate URL:', saveErr?.message || saveErr);
     }
 
-    // 3) Use the saved URL if available, else fall back to Replicate URL
-    // 3) Use the saved URL if available, else fall back to Replicate URL
-const finalUrl = savedPublicUrl || outputUrl;
+    // prefer Supabase copy if we got one
+    const finalUrl = savedPublicUrl || outputUrl;
 
-// Push current hero into history BEFORE swapping
-const currentUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
-if (currentUrl && currentUrl !== finalUrl) {
-  historyStack.push(currentUrl);
-}
+    // push current hero into undo history BEFORE swapping
+    const currentUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
+    if (currentUrl && currentUrl !== finalUrl) {
+      historyStack.push(currentUrl);
+    }
 
-// Update hero
-hero.style.transition = 'filter .18s ease, opacity .18s ease';
-hero.style.opacity = '0.85';
-setTimeout(() => {
-  hero.style.backgroundImage = `url("${finalUrl}")`;
-  hero.setAttribute('data-person-url', finalUrl);
-  hero.style.opacity = '1';
-}, 180);
+    // swap hero image with a tiny fade
+    hero.style.transition = 'filter .18s ease, opacity .18s ease';
+    hero.style.opacity = '0.85';
+    setTimeout(() => {
+      hero.style.backgroundImage = `url("${finalUrl}")`;
+      hero.setAttribute('data-person-url', finalUrl);
+      hero.style.opacity = '1';
+    }, 180);
 
-statusEl.textContent = 'Done.';
+    statusEl.textContent = 'Done.';
 
-// Reveal secondary buttons after first generation
-if (!hasGeneratedOnce) {
-  hasGeneratedOnce = true;
-}
-if (btnUndo) btnUndo.style.display = historyStack.length ? 'inline-block' : 'none';
-if (btnSave) btnSave.style.display = 'inline-block';
-const resetBtn = document.getElementById('btnResetHero');
-if (resetBtn) resetBtn.style.display = 'inline-block';
-
+    // first-time reveal of undo / save / reset
+    if (!hasGeneratedOnce) {
+      hasGeneratedOnce = true;
+    }
+    if (btnUndo) btnUndo.style.display = historyStack.length ? 'inline-block' : 'none';
+    if (btnSave) btnSave.style.display = 'inline-block';
+    if (resetBtn) resetBtn.style.display = 'inline-block';
 
   } catch (err) {
     console.error(err);
-    if (!statusEl.textContent.startsWith('Generation failed'))
+    if (!statusEl.textContent.startsWith('Generation failed')) {
       statusEl.textContent = 'Generation failed: ' + (err.message || err);
+    }
   } finally {
     btnGenerate.disabled = false;
   }
 });
 
 
-// Reset hero to default (and clear history)
-const resetBtn = document.getElementById('btnResetHero');
+// ---------- Reset hero to original ----------
 if (resetBtn) {
   resetBtn.addEventListener('click', () => {
     const fallback = hero.getAttribute('data-default-hero');
@@ -310,14 +302,14 @@ if (resetBtn) {
       hero.style.opacity = '1';
     }, 180);
 
-    // clear garment preview image (optional)
+    // clear garment preview
     garmentPreview.removeAttribute('src');
 
-    // clear history and hide thin sub-actions
+    // clear undo history + hide thin actions
     historyStack = [];
     if (btnUndo) btnUndo.style.display = 'none';
     if (btnSave) btnSave.style.display = 'none';
-    resetBtn.style.display = 'none';
+    if (resetBtn) resetBtn.style.display = 'none';
     hasGeneratedOnce = false;
 
     updateThumbEmpty();
@@ -325,8 +317,7 @@ if (resetBtn) {
 }
 
 
-
-// ---------- Step Back (undo one generation) ----------
+// ---------- Step Back (undo last generation) ----------
 if (btnUndo) {
   btnUndo.addEventListener('click', () => {
     if (!historyStack.length) return;
@@ -334,7 +325,6 @@ if (btnUndo) {
     const previousUrl = historyStack.pop();
     const nowUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
 
-    // swap to previous
     hero.style.transition = 'filter .18s ease, opacity .18s ease';
     hero.style.opacity = '0.85';
     setTimeout(() => {
@@ -343,23 +333,24 @@ if (btnUndo) {
       hero.style.opacity = '1';
     }, 180);
 
-    // If you want a strict single-step behavior (no redo), do nothing else.
-    // If you wanted toggle behavior, you could push nowUrl back into history here.
+    // (We are not doing redo logic right now)
 
-    // Update button visibility
     if (btnUndo) btnUndo.style.display = historyStack.length ? 'inline-block' : 'none';
   });
 }
 
+
 // ---------- Save (download current hero image) ----------
+// NOTE: Phase 3 we'll burn in watermark text using <canvas id="downloadCanvas">
+// For now we just download the image as-is.
 async function downloadCurrentHero() {
   const url = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
   if (!url) return;
 
-  const filename = `munz-dressup-${Date.now()}.png`;
+  // filename can also include player info if you want:
+  const filename = `${currentPlayer.name}-${currentPlayer.id}-${Date.now()}.png`;
 
   try {
-    // Try to fetch and force a download via Blob (works even if CORS allows GET)
     const resp = await fetch(url);
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const blob = await resp.blob();
@@ -371,12 +362,11 @@ async function downloadCurrentHero() {
     URL.revokeObjectURL(a.href);
     a.remove();
   } catch (e) {
-    // Fallback: open in a new tab (user can save manually)
     const a = document.createElement('a');
     a.href = url;
     a.target = '_blank';
     a.rel = 'noopener';
-    a.download = filename; // browsers may ignore download attr cross-origin
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -387,6 +377,4 @@ if (btnSave) {
   btnSave.addEventListener('click', downloadCurrentHero);
 }
 
-
-
-// slotting and reset logic removed
+// (end)
