@@ -1,8 +1,82 @@
 // /dressup/js/dressup.js
 
-// ---------- helpers ----------
-function $(id){ return document.getElementById(id); }
+// ---- PHASE 1: player / hero setup + dynamic watermark ----
 
+// grab URL params (allows private demo links)
+const params = new URLSearchParams(window.location.search);
+const qsHero     = params.get('hero');    // custom base hero image URL
+const modeParam  = params.get('mode');    // "private" optional
+const qsName     = params.get('pname');   // optional override for display name
+const qsId       = params.get('pid');     // optional override for player id/tag
+const isPrivateMode = (modeParam === 'private');
+
+// read DOM refs we need early
+function $(id){ return document.getElementById(id); }
+const hero            = $('hero');
+const badgeNameEl     = $('playerNameLabel');
+const badgeIdEl       = $('playerIdLabel');
+const animatedWMEl    = $('animatedWatermarkText');
+
+// pull default hero from HTML attribute so it's always in sync
+const htmlDefaultHero = hero ?
+  (hero.getAttribute('data-default-hero') || './assets/munz-base-portrait.jpg')
+  : './assets/munz-base-portrait.jpg';
+
+// currentPlayer is the single source of truth for whose body we're editing
+let currentPlayer = {
+  name: qsName || "MUNZ",        // default label
+  id:   qsId   || "001",         // default id/tag
+  heroUrl: qsHero || htmlDefaultHero
+};
+
+// helper: update the visible badge
+function updatePlayerBadge() {
+  if (badgeNameEl) badgeNameEl.textContent = currentPlayer.name;
+  if (badgeIdEl)   badgeIdEl.textContent   = "#" + currentPlayer.id;
+}
+
+// helper: watermark text logic (used for both on-screen animated text and later for save/download burn-in)
+function getWatermarkText() {
+  // feel free to customize tone here
+  // this shows player + id so investors / brands feel it's "their" session
+  return `ADD_Clothing_on_PLAYER_☂
+Player-id: ${currentPlayer.name} #${currentPlayer.id}
+(@isoMunzir)`;
+}
+
+// animated typing loop for the bottom-left watermark UI
+function runWatermarkTyping() {
+  if (!animatedWMEl) return;
+  let i = 0;
+  function typeAnim() {
+    const fullText = getWatermarkText();
+    if (i <= fullText.length) {
+      // keep \n line breaks
+      animatedWMEl.innerHTML = fullText.slice(0, i).replace(/\n/g, '<br>');
+      i++;
+    } else {
+      // pause, then restart
+      setTimeout(() => { i = 0; typeAnim(); }, 8800);
+      return;
+    }
+    setTimeout(typeAnim, 38);
+  }
+  typeAnim();
+}
+
+// initialize hero div background from currentPlayer.heroUrl
+function initHeroBackground() {
+  if (!hero) return;
+  const absUrl = toAbsoluteHttpUrl(currentPlayer.heroUrl);
+  hero.style.backgroundImage = `url("${absUrl}")`;
+  hero.setAttribute('data-person-url', absUrl);
+}
+
+
+
+
+
+// ---------- helpers ----------
 function toAbsoluteHttpUrl(maybeUrl) {
   if (!maybeUrl) return '';
   let s = String(maybeUrl).trim()
@@ -13,6 +87,16 @@ function toAbsoluteHttpUrl(maybeUrl) {
   }
   return s;
 }
+
+
+// run initial UI sync now that helpers exist
+updatePlayerBadge();
+runWatermarkTyping();
+initHeroBackground();
+
+
+
+
 
 // ---------- anon auth (ok for testing) ----------
 (async () => {
@@ -54,15 +138,7 @@ function updateThumbEmpty() {
   } catch (e) { /* ignore */ }
 }
 
-// ---------- init hero once (ABSOLUTE URL) ----------
-(function initHeroOnce() {
-  const params = new URLSearchParams(window.location.search);
-  const qsHero = params.get('hero');
-  const fallback = hero.getAttribute('data-default-hero') || './assets/munz-base-portrait.jpg'; // ensure this file exists
-  const url = toAbsoluteHttpUrl(qsHero || fallback);
-  hero.style.backgroundImage = 'url("' + url + '")';
-  hero.setAttribute('data-person-url', url);
-})();
+
 
 // initialize thumb placeholder state
 updateThumbEmpty();
