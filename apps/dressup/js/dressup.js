@@ -19,19 +19,11 @@ function toAbsoluteHttpUrl(maybeUrl) {
 
 // read URL params so this page can behave like a "private link"
 const params      = new URLSearchParams(window.location.search);
-const qsHero      = params.get('hero');     // optional: base hero override
-const qsName      = params.get('pname');    // display name override
-const qsId        = params.get('pid');      // display id/tag override
-
-// mode choices:
-// "dress"  = add clothing to current hero (original behavior)
-// "avatar" = build a new player avatar using a user photo
-const modeParam   = params.get('mode') || 'dress';
-const isAvatarMode = (modeParam === 'avatar');
-
-// (kept for later if you need private links)
-const isPrivateMode = (params.get('private') === '1');
-
+const qsHero      = params.get('hero');    // custom base hero image URL
+const modeParam   = params.get('mode');    // "private" optional, not used yet
+const qsName      = params.get('pname');   // optional override for display name
+const qsId        = params.get('pid');     // optional override for player id/tag
+const isPrivateMode = (modeParam === 'private'); // not enforced visually yet
 
 // grab DOM refs we need early
 const hero            = $('hero');                 // main portrait div
@@ -39,65 +31,19 @@ const badgeNameEl     = $('playerNameLabel');      // "MUNZ"
 const badgeIdEl       = $('playerIdLabel');        // "#001"
 const animatedWMEl    = $('animatedWatermarkText');// bottom-left typing watermark
 const statusEl        = $('status');
-
 const btnUpload       = $('btnUpload');
 const btnGenerate     = $('btnGenerate');
 const fileInput       = $('fileInput');
 const garmentPreview  = $('garmentPreview');
 const thumbWrap       = document.querySelector('.thumb-wrap');
-
 const btnUndo         = $('btnUndo');
 const btnSave         = $('btnSave');
 const resetBtn        = $('btnResetHero');
-
-
-// change panel wording at runtime
-(function configurePanelForMode(){
-  // panel-instruction block in HTML
-  const instrEl = document.querySelector('.panel-instruction');
-  const captionEl = document.querySelector('.panel-caption');
-
-  if (isAvatarMode) {
-    // player creation mode
-    if (instrEl) {
-      instrEl.innerHTML =
-        '>Upload a clear photo of the NEW PLAYER. Face+upper body visible. ' +
-        'We will restage them in the Sunsex avatar scene.';
-    }
-    if (btnUpload)   btnUpload.textContent   = 'Upload Person';
-    if (btnGenerate) btnGenerate.textContent = 'Generate Avatar';
-    if (captionEl)   captionEl.textContent   = 'PERSON INPUT';
-  } else {
-    // normal dress mode
-    if (instrEl) {
-      instrEl.innerHTML =
-        '>make sure to <strong><u>crop the image </u></strong> to 1 Garment<br>' +
-        'Style Player 1 garment at a time.';
-    }
-    if (btnUpload)   btnUpload.textContent   = 'Upload Garment';
-    if (btnGenerate) btnGenerate.textContent = 'Generate on Munz';
-    // captionEl can stay "CURRENT" from HTML or you can set it
-  }
-})();
-
-
-
 
 // read the default hero (Munz) from the HTML itself, so code and markup stay in sync
 const htmlDefaultHero = hero
   ? (hero.getAttribute('data-default-hero') || '/apps/dressup/assets/munz-base-portrait.png')
   : '/apps/dressup/assets/munz-base-portrait.png';
-
-
-// This is the "scene template" the model should mimic (angle, framing, lighting).
-// It's the same base avatar image style we want to clone for new players.
-// If you don't want to use the template scene injection, set this to null.
-const BASE_TEMPLATE_URL = "/apps/dressup/assets/munz-base-portrait.png";
-
-
-
-
-
 
 // single source of truth for "who is being dressed"
 let currentPlayer = {
@@ -105,12 +51,6 @@ let currentPlayer = {
   id:   qsId   || "001",   // default tag
   heroUrl: qsHero || htmlDefaultHero // base portrait
 };
-
-
-
-
-
-
 
 // update the badge in the top-left ("MUNZ #001")
 function updatePlayerBadge() {
@@ -177,10 +117,8 @@ initHeroBackground();
 
 // ---------- local state for generation flow ----------
 let garmentPublicUrl = null;
-let personPublicUrlForAvatar = null; // <-- NEW
 let hasGeneratedOnce = false;
-let historyStack = [];
-
+let historyStack = []; // previous hero URLs for "Step Back"
 
 
 // helper: toggle empty placeholder look on garment preview thumb
@@ -209,17 +147,12 @@ fileInput.addEventListener('change', async (e) => {
   const file = files[0];
 
   try {
+    statusEl.textContent = 'Uploading garment…';
+
     const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
     if (!sb) throw new Error('Supabase client not found');
 
-    // pick upload folder name depending on mode, just for organization
-    const folder = isAvatarMode ? 'people' : 'garments';
-    const path = folder + '/' + Date.now() + '-' + file.name;
-
-    statusEl.textContent = isAvatarMode
-      ? 'Uploading player photo…'
-      : 'Uploading garment…';
-
+    const path = 'garments/' + Date.now() + '-' + file.name;
     const uploadRes = await sb.storage.from('userassets').upload(path, file, { upsert: true });
     if (uploadRes.error) {
       console.error('Supabase upload error:', uploadRes.error);
@@ -227,26 +160,12 @@ fileInput.addEventListener('change', async (e) => {
     }
 
     const pub = await sb.storage.from('userassets').getPublicUrl(path);
-    const publicUrl = pub.data.publicUrl;
+    garmentPublicUrl = pub.data.publicUrl;
 
-    // show whatever was uploaded in the square preview box
-    garmentPreview.src = publicUrl;
-    updateThumbEmpty();
-
-    // store correctly for later
-    if (isAvatarMode) {
-      personPublicUrlForAvatar = publicUrl;
-      garmentPublicUrl = null;
-    } else {
-      garmentPublicUrl = publicUrl;
-      // personPublicUrlForAvatar stays unchanged
-    }
-
+    garmentPreview.src = garmentPublicUrl;
     btnGenerate.disabled = false;
-    statusEl.textContent = isAvatarMode
-      ? 'Player photo ready. Hit “Generate Avatar”.'
-      : 'Garment ready. Hit “Generate on Munz”.';
-
+    statusEl.textContent = 'Garment ready. Hit “Generate on Munz”.';
+    updateThumbEmpty();
   } catch (err) {
     console.error(err);
     statusEl.textContent = 'Upload failed: ' + (err.message || err);
@@ -254,41 +173,17 @@ fileInput.addEventListener('change', async (e) => {
 });
 
 
-
 // ---------- Generate flow ----------
 btnGenerate.addEventListener('click', async () => {
-
-  // figure out what we're sending
-  // - avatar mode needs: templateUrl + person photo
-  // - dress mode needs:  currentHero as personUrl + garmentUrl
-  let personUrl;
-  let garmentUrlToSend = null;
-
-  if (isAvatarMode) {
-    // new avatar creation
-    if (!personPublicUrlForAvatar) {
-      statusEl.textContent = 'Please upload a clear player photo first.';
-      return;
-    }
-    personUrl = toAbsoluteHttpUrl(personPublicUrlForAvatar);
-  } else {
-    // clothing swap mode
-    if (!garmentPublicUrl) {
-      statusEl.textContent = 'Please upload a garment first.';
-      return;
-    }
-    // person is whatever hero currently is
-    personUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
-    garmentUrlToSend = garmentPublicUrl;
-  }
+  if (!garmentPublicUrl) return;
 
   btnGenerate.disabled = true;
-  statusEl.textContent = isAvatarMode
-    ? 'Generating avatar…'
-    : 'Generating outfit…';
+  statusEl.textContent = 'Generating… this can take a few seconds.';
 
   try {
-    // identify current supabase user (for saving output)
+    const personUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
+
+    // Identify user for per-user foldering; fall back to 'anon'
     const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
     let uploaderId = 'anon';
     try {
@@ -298,21 +193,12 @@ btnGenerate.addEventListener('click', async () => {
       }
     } catch (_) {}
 
-    // unified smart prompt (scene = first ref, subject = second, garment = third)
-    const unifiedPrompt =
-      'Use the first reference image as the scene template for camera angle, framing, lighting, and background. ' +
-      'Recreate the subject from the second image with the same identity, body shape, and pose. ' +
-      'If a third image is provided, apply that garment naturally (clean fit, realistic seams, consistent lighting). ' +
-      'Keep everything photoreal, 9:16 portrait, same distance and proportions as the template.';
-
-    // Build request body
+    // Hit our serverless function /api/generate
     const payload = {
       model: 'google/nano-banana',
-      mode: isAvatarMode ? 'avatar' : 'dress',
-      templateUrl: BASE_TEMPLATE_URL || null,
       personUrl,
-      garmentUrl: garmentUrlToSend || null,
-      prompt: unifiedPrompt
+      garmentUrl: garmentPublicUrl,
+      prompt: 'Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting.'
     };
 
     const res = await fetch('/api/generate', {
@@ -328,25 +214,25 @@ btnGenerate.addEventListener('click', async () => {
       throw new Error('Try-on API error');
     }
 
+    // Replicate (or API) output URL
     const outputUrl = body.outputUrl || body.image || body.output;
     if (!outputUrl) throw new Error('No output URL returned');
 
-    // download the output and upload to Supabase like before
+    // Try to save the generated image into Supabase Storage (client-side)
     let savedPublicUrl = null;
     try {
       if (!sb?.storage) throw new Error('Supabase client not found on window');
+
+      // download result
       const imgRes = await fetch(outputUrl, { mode: 'cors' });
       if (!imgRes.ok) throw new Error(`download_failed ${imgRes.status}`);
       const blob = await imgRes.blob();
 
-      const ext =
-        (blob.type && blob.type.includes('png'))  ? 'png' :
-        (blob.type && blob.type.includes('jpeg')) ? 'jpg' : 'png';
+      const ext = (blob.type && blob.type.includes('png')) ? 'png' :
+                  (blob.type && blob.type.includes('jpeg')) ? 'jpg' : 'png';
+      const key = `generated/${uploaderId}/${Date.now()}.${ext}`;
 
-      // different folder depending on mode, just for organization
-      const key = (isAvatarMode ? 'generated_avatar/' : 'generated_outfit/')
-        + uploaderId + '/' + Date.now() + '.' + ext;
-
+      // upload to Supabase
       const { error: upErr } = await sb.storage
         .from('userassets')
         .upload(key, blob, {
@@ -355,6 +241,7 @@ btnGenerate.addEventListener('click', async () => {
         });
       if (upErr) throw upErr;
 
+      // get a public URL from Supabase
       const { data: pub } = sb.storage.from('userassets').getPublicUrl(key);
       savedPublicUrl = pub?.publicUrl || null;
       console.log('Saved to Supabase:', savedPublicUrl);
@@ -362,14 +249,16 @@ btnGenerate.addEventListener('click', async () => {
       console.warn('⚠️ Save to Supabase failed; using Replicate URL:', saveErr?.message || saveErr);
     }
 
+    // prefer Supabase copy if we got one
     const finalUrl = savedPublicUrl || outputUrl;
 
-    // push undo stack, then swap hero img
-    const currentUrlBeforeSwap = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
-    if (currentUrlBeforeSwap && currentUrlBeforeSwap !== finalUrl) {
-      historyStack.push(currentUrlBeforeSwap);
+    // push current hero into undo history BEFORE swapping
+    const currentUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
+    if (currentUrl && currentUrl !== finalUrl) {
+      historyStack.push(currentUrl);
     }
 
+    // swap hero image with a tiny fade
     hero.style.transition = 'filter .18s ease, opacity .18s ease';
     hero.style.opacity = '0.85';
     setTimeout(() => {
@@ -380,6 +269,7 @@ btnGenerate.addEventListener('click', async () => {
 
     statusEl.textContent = 'Done.';
 
+    // first-time reveal of undo / save / reset
     if (!hasGeneratedOnce) {
       hasGeneratedOnce = true;
     }
@@ -396,7 +286,6 @@ btnGenerate.addEventListener('click', async () => {
     btnGenerate.disabled = false;
   }
 });
-
 
 
 // ---------- Reset hero to original ----------
