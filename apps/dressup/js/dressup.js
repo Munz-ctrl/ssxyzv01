@@ -45,6 +45,17 @@ const htmlDefaultHero = hero
   ? (hero.getAttribute('data-default-hero') || '/apps/dressup/assets/munz-base-portrait.png')
   : '/apps/dressup/assets/munz-base-portrait.png';
 
+
+// This is the "scene template" the model should mimic (angle, framing, lighting).
+// It's the same base avatar image style we want to clone for new players.
+// If you don't want to use the template scene injection, set this to null.
+const BASE_TEMPLATE_URL = "/apps/dressup/assets/munz-base-portrait.png";
+
+
+
+
+
+
 // single source of truth for "who is being dressed"
 let currentPlayer = {
   name: qsName || "MUNZ",  // default label
@@ -198,6 +209,8 @@ btnGenerate.addEventListener('click', async () => {
       model: 'google/nano-banana',
       personUrl,
       garmentUrl: garmentPublicUrl,
+      templateUrl: BASE_TEMPLATE_URL || null, // <- new (optional)
+      mode: 'dress', // hint for backend routing logic later if we add modes
       prompt: 'Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting.'
     };
 
