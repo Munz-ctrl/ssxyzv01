@@ -21,26 +21,66 @@ async function assertImage(url) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Use POST' });
 
-  let { personUrl, garmentUrl, prompt } = req.body || {};
-  personUrl = cleanUrl(personUrl);
-  garmentUrl = cleanUrl(garmentUrl);
+    let { personUrl, garmentUrl, templateUrl, prompt, mode } = req.body || {};
 
-  if (!personUrl) return res.status(400).json({ error: 'personUrl required' });
+  personUrl   = cleanUrl(personUrl);
+  garmentUrl  = cleanUrl(garmentUrl);
+  templateUrl = cleanUrl(templateUrl); // may be '' if not provided
 
-  try {
-    await assertImage(personUrl);
-    if (garmentUrl) await assertImage(garmentUrl);
-  } catch (e) {
-    return res.status(422).json({ error: 'preflight_failed', details: e.message });
+
+   if (!personUrl) {
+    return res.status(400).json({ error: 'personUrl required' });
   }
 
+  try {
+    // verify all URLs we plan to send to the model are valid images
+    await assertImage(personUrl);
+
+    if (garmentUrl) {
+      await assertImage(garmentUrl);
+    }
+
+    if (templateUrl) {
+      await assertImage(templateUrl);
+    }
+  } catch (e) {
+    return res.status(422).json({
+      error: 'preflight_failed',
+      details: e.message
+    });
+  }
+
+
   const START_URL = 'https://api.replicate.com/v1/models/google/nano-banana/predictions';
-const input = {
-  prompt: prompt || 'Dress the person image with the newly uploaded garment while keeping all existing clothing and visual details unchanged. Preserve the person’s identity, pose, lighting, and background exactly as in the input image. Only modify the region necessary to add the new garment; keep previous garments intact and seamless.',
-  image_input: garmentUrl ? [personUrl, garmentUrl] : [personUrl],
-  aspect_ratio: '9:16',        // 👈 Force output to portrait 9:16
-  output_format: 'png'         // 👈 Optional — preserves transparency and quality
-};
+
+  // Build ordered image_input for Nano Banana
+  // Priority/order logic:
+  // 1. templateUrl (the "scene style / camera")
+  // 2. personUrl   (the subject / identity)
+  // 3. garmentUrl  (the clothing overlay reference)
+  //
+  // We only include what's defined.
+  const imageInputs = [];
+  if (templateUrl) imageInputs.push(templateUrl);
+  if (personUrl)   imageInputs.push(personUrl);
+  if (garmentUrl)  imageInputs.push(garmentUrl);
+
+  const input = {
+    prompt:
+      prompt ||
+      (
+        templateUrl
+          ? 'Recreate the subject using the same camera angle, framing, lighting, and background style as the first image. Keep the subject’s identity, body shape, and pose consistent with the second image. Add/merge the clothing from the third image cleanly if provided. Maintain photoreal 9:16 portrait.'
+          : 'Dress the person image with the uploaded garment. Keep identity, pose and lighting natural; clean seams.'
+      ),
+
+    image_input: imageInputs,
+
+    // hard-lock framing so every result fits our hero div
+    aspect_ratio: '9:16',
+    output_format: 'png'
+  };
+
 
 
   try {
