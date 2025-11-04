@@ -361,62 +361,34 @@ html, body {
   pointer-events: none;
 }
 
-/* Community block container */
+/* Community block for text-based bar */
 .community-block {
-  min-width: 140px;
-  max-width: 190px;
-  padding: 8px 10px 9px;
-  border-radius: 10px;
-  background: radial-gradient(circle at top left, rgba(55, 104, 255, 0.25), rgba(4, 10, 28, 0.98));
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.65),
-    inset 0 0 0 1px rgba(170, 196, 255, 0.16);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  padding: 0;
+  margin: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
   pointer-events: none;
 }
 
-.community-header-row {
+.community-line {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 11px;
+  color: #f2f2f2;
 }
 
+/* "COMMUNITY" label */
 .community-label {
-  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #dde5ff;
-  opacity: 0.9;
+  letter-spacing: 0.05em;
 }
 
-.credit-bar {
-  position: relative;
-  width: 100%;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(9, 16, 40, 0.85);
-  overflow: hidden;
-}
-
-.credit-bar-fill {
-  width: 0%;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #3cf58a, #68ffcf);
-  box-shadow: 0 0 8px rgba(79, 255, 175, 0.75);
-  transition: width 0.18s ease-out;
-}
-
-.community-count-row {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.community-count {
-  font-size: 11px;
-  color: #c8d4ff;
+/* "[████░░░░░░] 14 left" */
+.community-bar-text {
+  white-space: pre;
   opacity: 0.9;
 }
