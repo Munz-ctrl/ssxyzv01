@@ -40,10 +40,33 @@ const btnUndo         = $('btnUndo');
 const btnSave         = $('btnSave');
 const resetBtn        = $('btnResetHero');
 
+
+
 // read the default hero (Munz) from the HTML itself, so code and markup stay in sync
 const htmlDefaultHero = hero
   ? (hero.getAttribute('data-default-hero') || '/apps/dressup/assets/munz-base-portrait.png')
   : '/apps/dressup/assets/munz-base-portrait.png';
+
+
+// credit HUD elements
+const creditHUD          = $('creditHUD');
+const communityBarFill   = $('communityBarFill');
+const communityCountText = $('communityCountText');
+const personalCreditPill = $('personalCreditPill');
+
+// ---------- credit state (Phase 2 demo) ----------
+
+// how many shared generations remain in the chest
+let communityCredits = 20;   // you can tweak this number for demo
+// purely for bar percentage; set equal to whatever "full chest" means
+let communityMax = 20;
+
+// how many backup personal credits THIS player has
+// personal is only used when communityCredits is 0
+let personalCredits = 0;     // set to >0 when you want to demo sponsor behavior
+
+
+
 
 // single source of truth for "who is being dressed"
 let currentPlayer = {
@@ -120,6 +143,61 @@ let garmentPublicUrl = null;
 let hasGeneratedOnce = false;
 let historyStack = []; // previous hero URLs for "Step Back"
 
+// keep the HUD in sync with internal credit state
+function updateCreditUI() {
+  if (!creditHUD) return;
+
+  // clamp to safe values
+  if (communityCredits < 0) communityCredits = 0;
+  if (personalCredits < 0) personalCredits = 0;
+
+  // community bar fill %
+  if (communityBarFill) {
+    const pct = communityMax > 0
+      ? Math.max(0, Math.min(100, (communityCredits / communityMax) * 100))
+      : 0;
+    communityBarFill.style.width = pct + '%';
+  }
+
+  // "14 left"
+  if (communityCountText) {
+    communityCountText.textContent = `${communityCredits} left`;
+  }
+
+  // personal pill: show only if > 0
+  if (personalCreditPill) {
+    if (personalCredits > 0) {
+      personalCreditPill.textContent = `+${personalCredits} personal`;
+      personalCreditPill.style.display = 'inline-flex';
+    } else {
+      personalCreditPill.textContent = `+0 personal`;
+      personalCreditPill.style.display = 'none';
+    }
+  }
+
+  // enable/disable Generate based on credit + garment
+  if (btnGenerate) {
+    const noCredits = (communityCredits <= 0 && personalCredits <= 0);
+    const noGarment = !garmentPublicUrl;
+    btnGenerate.disabled = noCredits || noGarment;
+  }
+}
+
+// spend logic: community first, then personal
+function spendOneCreditIfAvailable() {
+  if (communityCredits > 0) {
+    communityCredits -= 1;
+    return true;
+  }
+  if (personalCredits > 0) {
+    personalCredits -= 1;
+    return true;
+  }
+  return false;
+}
+
+// run once at load so the HUD isn't empty
+updateCreditUI();
 
 // helper: toggle empty placeholder look on garment preview thumb
 function updateThumbEmpty() {
@@ -173,15 +251,34 @@ fileInput.addEventListener('change', async (e) => {
 });
 
 
+
+
 // ---------- Generate flow ----------
 btnGenerate.addEventListener('click', async () => {
-  if (!garmentPublicUrl) return;
+  // must have a garment
+  if (!garmentPublicUrl) {
+    statusEl.textContent = 'Upload a garment first.';
+    updateCreditUI();
+    return;
+  }
+
+  // must have credits somewhere
+  if (!spendOneCreditIfAvailable()) {
+    statusEl.textContent = 'No credits available.';
+    updateCreditUI();
+    return;
+  }
+
+  // reflect the spent credit immediately in the HUD
+  updateCreditUI();
 
   btnGenerate.disabled = true;
   statusEl.textContent = 'Generating… this can take a few seconds.';
 
   try {
     const personUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
+    // ... keep the rest of your existing logic here (Supabase, fetch /api/generate, etc.)
+
 
     // Identify user for per-user foldering; fall back to 'anon'
     const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
