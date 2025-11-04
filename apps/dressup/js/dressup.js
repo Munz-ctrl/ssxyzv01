@@ -50,9 +50,9 @@ const htmlDefaultHero = hero
 
 // credit HUD elements
 const creditHUD          = $('creditHUD');
-const communityBarFill   = $('communityBarFill');
-const communityCountText = $('communityCountText');
+const communityBarText   = $('communityBarText');
 const personalCreditPill = $('personalCreditPill');
+
 
 // ---------- credit state (Phase 2 demo) ----------
 
@@ -152,16 +152,20 @@ function updateCreditUI() {
   if (personalCredits < 0) personalCredits = 0;
 
   // community bar fill %
-  if (communityBarFill) {
-    const pct = communityMax > 0
-      ? Math.max(0, Math.min(100, (communityCredits / communityMax) * 100))
-      : 0;
-    communityBarFill.style.width = pct + '%';
-  }
+    // community text bar: "[████░░░░░░] 14 left"
+  if (communityBarText) {
+    const SLOTS = 10; // number of blocks inside the brackets
 
-  // "14 left"
-  if (communityCountText) {
-    communityCountText.textContent = `${communityCredits} left`;
+    const clampedCredits = Math.max(0, Math.min(communityCredits, communityMax));
+    const filledSlots = communityMax > 0
+      ? Math.round((clampedCredits / communityMax) * SLOTS)
+      : 0;
+
+    const emptySlots = Math.max(0, SLOTS - filledSlots);
+    const filled = '█'.repeat(filledSlots);
+    const empty  = '░'.repeat(emptySlots);
+
+    communityBarText.textContent = `[${filled}${empty}] ${communityCredits} left`;
   }
 
   // personal pill: show only if > 0
@@ -174,6 +178,7 @@ function updateCreditUI() {
       personalCreditPill.style.display = 'none';
     }
   }
+
 
   // enable/disable Generate based on credit + garment
   if (btnGenerate) {
