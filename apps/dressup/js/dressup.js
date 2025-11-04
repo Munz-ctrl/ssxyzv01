@@ -523,7 +523,7 @@ async function downloadCurrentHero() {
     const fontSize = Math.max(16, Math.round(h * 0.022)); // scale with image
     const lineHeight = Math.round(fontSize * 1.2);
 
-    ctx.font = `${fontSize}px "Ubuntu", system-ui, -apple-system, sans-serif`;
+    ctx.font = `${fontSize}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
     ctx.textBaseline = 'bottom';
     ctx.shadowColor = 'rgba(0,0,0,0.8)';
