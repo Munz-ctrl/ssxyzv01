@@ -65,6 +65,9 @@ let communityMax = 20;
 // personal is only used when communityCredits is 0
 let personalCredits = 0;     // set to >0 when you want to demo sponsor behavior
 
+// Supabase user context for personal credits
+let currentUserId = null;
+let supabaseReady = false;
 
 
 
@@ -123,19 +126,128 @@ runWatermarkTyping();
 initHeroBackground();
 
 
-// ---------- Supabase anon auth (keeps folders per user) ----------
+// ---------- Supabase anon auth + load persisted credits ----------
 (async () => {
   try {
-    const sb = window.supabase;
+    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
     if (!sb) return;
-    const { data: sess } = await sb.auth.getSession();
+
+    // Ensure we have a session (anon if needed)
+    let { data: sess } = await sb.auth.getSession();
     if (!sess?.session?.user) {
-      await sb.auth.signInAnonymously();
+      const { data: signInData, error } = await sb.auth.signInAnonymously();
+      if (error) throw error;
+      sess = { session: signInData.session };
     }
+
+    // Get current user id
+    const { data: userData } = await sb.auth.getUser();
+    currentUserId = userData?.user?.id || null;
+    supabaseReady = true;
+
+    // Load credits for this user + global chest
+    await loadCreditsFromSupabase();
   } catch (e) {
     console.warn('Anon auth skipped/failed:', e?.message || e);
+    supabaseReady = false;
+    // fall back to local defaults
+    updateCreditUI();
   }
 })();
+
+
+// Load community + personal credits from Supabase (if tables exist)
+async function loadCreditsFromSupabase() {
+  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  if (!sb) {
+    updateCreditUI();
+    return;
+  }
+
+  try {
+    // COMMUNITY CHEST
+    const { data: chestRow, error: chestErr } = await sb
+      .from('dressup_chest')
+      .select('*')
+      .eq('id', 'community')
+      .single();
+
+    if (!chestErr && chestRow) {
+      if (typeof chestRow.credits === 'number') {
+        communityCredits = chestRow.credits;
+      }
+      if (typeof chestRow.max_credits === 'number') {
+        communityMax = chestRow.max_credits;
+      } else if (typeof chestRow.credits === 'number') {
+        communityMax = chestRow.credits;
+      }
+    }
+
+    // PERSONAL CREDITS (per Supabase user)
+    if (currentUserId) {
+      const { data: personalRow, error: personalErr } = await sb
+        .from('dressup_personal_credits')
+        .select('*')
+        .eq('user_id', currentUserId)
+        .single();
+
+      if (!personalErr && personalRow && typeof personalRow.credits === 'number') {
+        personalCredits = personalRow.credits;
+      }
+    }
+  } catch (err) {
+    console.warn('loadCreditsFromSupabase failed:', err?.message || err);
+  } finally {
+    updateCreditUI();
+  }
+}
+
+// Write current communityCredits back to Supabase
+async function syncCommunityCredits() {
+  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  if (!sb) return;
+
+  try {
+    const payload = {
+      id: 'community',
+      credits: communityCredits,
+      max_credits: communityMax
+    };
+
+    const { error } = await sb
+      .from('dressup_chest')
+      .upsert(payload, { onConflict: 'id' });
+
+    if (error) throw error;
+  } catch (err) {
+    console.warn('syncCommunityCredits failed:', err?.message || err);
+  }
+}
+
+// Write current personalCredits back to Supabase
+async function syncPersonalCredits() {
+  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  if (!sb || !currentUserId) return;
+
+  try {
+    const payload = {
+      user_id: currentUserId,
+      credits: personalCredits
+    };
+
+    const { error } = await sb
+      .from('dressup_personal_credits')
+      .upsert(payload, { onConflict: 'user_id' });
+
+    if (error) throw error;
+  } catch (err) {
+    console.warn('syncPersonalCredits failed:', err?.message || err);
+  }
+}
+
+
+
+
 
 
 // ---------- local state for generation flow ----------
@@ -190,16 +302,22 @@ function updateCreditUI() {
 
 // spend logic: community first, then personal
 function spendOneCreditIfAvailable() {
+  let spent = false;
+
   if (communityCredits > 0) {
     communityCredits -= 1;
-    return true;
-  }
-  if (personalCredits > 0) {
+    spent = true;
+    // fire-and-forget sync; errors just log to console
+    syncCommunityCredits().catch(() => {});
+  } else if (personalCredits > 0) {
     personalCredits -= 1;
-    return true;
+    spent = true;
+    syncPersonalCredits().catch(() => {});
   }
-  return false;
+
+  return spent;
 }
+
 
 // run once at load so the HUD isn't empty
 updateCreditUI();
