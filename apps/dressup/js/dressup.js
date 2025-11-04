@@ -442,36 +442,141 @@ if (btnUndo) {
 }
 
 
-// ---------- Save (download current hero image) ----------
-// NOTE: Phase 3 we'll burn in watermark text using <canvas id="downloadCanvas">
-// For now we just download the image as-is.
+
+// helper: load image with CORS so we can draw to canvas
+function loadImageWithCors(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous'; // works for Supabase/public URLs if CORS is set
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+
+
+
+
+// ---------- Save (download current hero image with text watermark) ----------
 async function downloadCurrentHero() {
   const url = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
   if (!url) return;
 
-  // filename can also include player info if you want:
   const filename = `${currentPlayer.name}-${currentPlayer.id}-${Date.now()}.png`;
+  const canvas = $('downloadCanvas');
+
+  // if somehow canvas is missing, fall back to raw download
+  if (!canvas) {
+    console.warn('downloadCanvas missing; falling back to direct download');
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const blob = await resp.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    } catch (e) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+    return;
+  }
 
   try {
-    const resp = await fetch(url);
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const blob = await resp.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(a.href);
-    a.remove();
-  } catch (e) {
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener';
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    // 1) Load the current hero image
+    const img = await loadImageWithCors(url);
+
+    const w = img.naturalWidth || img.width || 1080;
+    const h = img.naturalHeight || img.height || 1920;
+
+    canvas.width = w;
+    canvas.height = h;
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+
+    // 2) Draw the base hero image
+    ctx.drawImage(img, 0, 0, w, h);
+
+    // 3) Draw a soft dark strip at the bottom for legibility
+    const pad = Math.round(h * 0.03);         // padding from edges
+    const stripHeight = Math.round(h * 0.12); // height of the dark band
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    ctx.fillRect(pad, h - stripHeight - pad, Math.round(w * 0.7), stripHeight);
+
+    // 4) Draw watermark text lines (using the same generator as the UI)
+    const wmText = getWatermarkText();
+    const lines = wmText.split('\n');
+
+    const fontSize = Math.max(16, Math.round(h * 0.022)); // scale with image
+    const lineHeight = Math.round(fontSize * 1.2);
+
+    ctx.font = `${fontSize}px "Ubuntu", system-ui, -apple-system, sans-serif`;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+    ctx.textBaseline = 'bottom';
+    ctx.shadowColor = 'rgba(0,0,0,0.8)';
+    ctx.shadowBlur = 4;
+
+    const baseX = pad * 1.5;
+    let baseY = h - pad - 6;
+
+    // draw from bottom line up so they sit nicely in the band
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i];
+      ctx.fillText(line, baseX, baseY);
+      baseY -= lineHeight;
+    }
+
+    // 5) Export canvas as PNG and trigger download
+    canvas.toBlob(blob => {
+      if (!blob) {
+        throw new Error('Canvas export failed');
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    }, 'image/png', 0.95);
+
+  } catch (err) {
+    console.warn('Watermarked download failed, falling back to raw image:', err);
+    // Fallback: raw download if CORS or canvas fails
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const blob = await resp.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      URL.revokeObjectURL(a.href);
+      a.remove();
+    } catch (e) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
   }
 }
 
