@@ -84,7 +84,7 @@ function updatePlayerBadge() {
 // build the text we use for watermarking (UI and later for burned-in downloads)
 function getWatermarkText() {
   // You can rewrite this any time. It's already using player name + id.
-  return `ADD_Clothing_on_PLAYER_☂
+  return `SUNSEX_STYLIST_☂
 Player-id: ${currentPlayer.name} #${currentPlayer.id}
 (@isoMunzir)`;
 }
