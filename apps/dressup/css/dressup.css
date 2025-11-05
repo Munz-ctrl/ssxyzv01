@@ -403,6 +403,45 @@ html, body {
 }
 
 
+/* ====== Skin selector (under player badge) ====== */
+.skin-selector {
+  position: absolute;
+  top: 56px;             /* just under the player badge */
+  left: 14px;
+  z-index: 12;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 9px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+}
+
+.skin-label {
+  opacity: 0.8;
+}
+
+.skin-selector select {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.skin-selector select option {
+  color: #000000; /* native dropdown background is light */
+}
+
 
 
 /* ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji" */
