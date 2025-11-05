@@ -332,10 +332,26 @@ function updateCreditUI() {
   }
 
   // personal pill: always show, even at +0
-  if (personalCreditPill) {
-    personalCreditPill.textContent = `+${personalRuns} personal`;
-    personalCreditPill.style.display = 'inline-flex';
-  }
+// personal pill: text-based like community bar
+if (personalCreditPill) {
+  const personalRuns = Math.floor(personalCredits / DRESSUP_COST_UNITS);
+  personalCreditPill.textContent = `+${personalRuns} credits`;
+
+  // Match the community text font and color scheme
+  personalCreditPill.style.display = 'inline-flex';
+  personalCreditPill.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+  personalCreditPill.style.fontSize = '7px';
+  personalCreditPill.style.textTransform = 'none';
+  personalCreditPill.style.letterSpacing = '0.02em';
+  personalCreditPill.style.background = 'none';
+  personalCreditPill.style.border = 'none';
+  personalCreditPill.style.padding = '0';
+  personalCreditPill.style.marginRight = '4px';
+  personalCreditPill.style.fontWeight = '600';
+
+  // color logic: white if 0, green if >0
+  personalCreditPill.style.color = personalRuns > 0 ? '#2af78d' : '#ffffff';
+}
 
   // enable/disable Generate based on runs + garment
   if (btnGenerate) {
