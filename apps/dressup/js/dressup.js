@@ -123,7 +123,7 @@ if (qsId) {
 if (qsSkin) {
   currentSkinName = qsSkin;
 } else {
-  currentSkinName = "Base";
+  currentSkinName = "@isoMunzir";
 }
 
 // Choose hero image: ?hero=... wins, otherwise default
