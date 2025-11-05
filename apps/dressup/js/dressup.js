@@ -17,13 +17,17 @@ function toAbsoluteHttpUrl(maybeUrl) {
 
 // ---------- PHASE 1: player / hero setup + dynamic watermark ----------
 
-const params      = new URLSearchParams(window.location.search);
-const qsHero      = params.get('hero');    // custom base hero image URL
-const modeParam   = params.get('mode');    // "private" optional, not used yet
-const qsName      = params.get('pname');   // optional override for display name
-const qsId        = params.get('pid');     // optional override for player id/tag
-const qsSkin      = params.get('skin');    // optional skin/variant label
-const isPrivateMode = (modeParam === 'private'); // not enforced visually yet
+// Parse URL params so we can override hero image, mode, player and skin
+const params    = new URLSearchParams(window.location.search);
+const qsHero    = params.get('hero');   // custom hero img url
+const qsName    = params.get('pname');  // optional override for display name
+const qsId      = params.get('pid');    // optional override for player id/tag
+const qsSkin    = params.get('skin');   // optional override for skin label
+const modeParam = params.get('mode');   // "private" or null
+
+// We'll keep this now but not actually change UI on private mode yet
+const isPrivateMode = (modeParam === 'private');
+
 
 // grab DOM refs we need early
 const hero            = $('hero');                 // main portrait div
@@ -40,6 +44,20 @@ const btnUndo         = $('btnUndo');
 const btnSave         = $('btnSave');
 const resetBtn        = $('btnResetHero');
 
+const skinSelectorEl = $('skinSelector');
+const skinSelectEl   = $('skinSelect');
+
+// skin list for this player
+let availableSkins = []; // { id, name, hero_url, is_default }
+
+// helper: set hero image + data-person-url consistently
+function setHeroImage(url) {
+  if (!hero) return;
+  const fallback = hero.getAttribute('data-default-hero') || DEFAULT_HERO_IMG;
+  const finalUrl = toAbsoluteHttpUrl(url || fallback);
+  hero.style.backgroundImage = 'url("' + finalUrl + '")';
+  hero.setAttribute('data-person-url', finalUrl);
+}
 
 
 // read the default hero (Munz) from the HTML itself, so code and markup stay in sync
@@ -73,43 +91,158 @@ let supabaseReady = false;
 
 // game context: which player + skin
 let currentPid = null;        // player's PID if we find one for this user
-let currentSkinName = null;   // dress-up skin/variant name (URL or player-based)
 
 
-// single source of truth for "who is being dressed"
+// This object represents whoever is currently being dressed.
+// Later the skin selector dropdown will just update this object.
 let currentPlayer = {
-  name: qsName || "MUNZ",  // default label
-  id:   qsId   || "001",   // default tag
-  heroUrl: qsHero || htmlDefaultHero // base portrait
+  name: "MUNZ",   // default display name
+  id: "001",      // readable id/tag (acts like PID)
+  heroUrl: null   // will be set below
 };
 
+// "Signed in" label for watermark (PID if we have one, otherwise "anonymous")
+let signedInLabel = "anonymous";
 
-// choose initial skin label: explicit ?skin=... wins, otherwise use the player name
-if (!currentSkinName) {
-  currentSkinName = qsSkin || currentPlayer.name || 'base';
+// current skin label (e.g. "Base", "CVS Uniform")
+let currentSkinName = null;
+
+// chose default hero image
+const DEFAULT_HERO_IMG = "/apps/dressup/assets/munz-base-portrait.png"; // update if needed
+
+// apply URL overrides
+if (qsName) currentPlayer.name = qsName;
+if (qsId)   currentPlayer.id   = qsId;
+
+// signed-in label: if a pid is explicitly provided, use it
+if (qsId) {
+  signedInLabel = qsId;
+}
+
+// initial skin label: explicit ?skin=... wins, otherwise use player name or "Base"
+if (qsSkin) {
+  currentSkinName = qsSkin;
+} else {
+  currentSkinName = "Base";
+}
+
+// Choose hero image: ?hero=... wins, otherwise default
+if (qsHero) {
+  currentPlayer.heroUrl = qsHero;
+} else {
+  currentPlayer.heroUrl = DEFAULT_HERO_IMG;
 }
 
 
-// update the badge in the top-left ("MUNZ #001")
+// Load skins for this player from Supabase (if available)
+async function loadSkinsForPlayer(pid) {
+  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  if (!sb || !pid) {
+    buildSkinSelector(); // still build "Base" only
+    return;
+  }
+
+  try {
+    const { data, error } = await sb
+      .from('dressup_skins')
+      .select('id, name, hero_url, is_default')
+      .eq('player_pid', pid)
+      .order('is_default', { ascending: false })
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    availableSkins = Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn('loadSkinsForPlayer failed:', err?.message || err);
+    availableSkins = [];
+  } finally {
+    buildSkinSelector();
+  }
+}
+
+// Apply a specific skin by id or "__base__"
+function applySkinByKey(key) {
+  if (key === '__base__') {
+    currentSkinName = 'Base';
+    setHeroImage(currentPlayer.heroUrl);
+    return;
+  }
+
+  const skin = availableSkins.find(s => s.id === key);
+  if (!skin) return;
+
+  currentSkinName = skin.name;
+  setHeroImage(skin.hero_url);
+}
+
+// Build the dropdown options + choose initial selection
+function buildSkinSelector() {
+  if (!skinSelectEl || !skinSelectorEl) return;
+
+  skinSelectEl.innerHTML = '';
+
+  // Always have a Base option
+  const baseOpt = document.createElement('option');
+  baseOpt.value = '__base__';
+  baseOpt.textContent = 'Base';
+  skinSelectEl.appendChild(baseOpt);
+
+  let selectedKey = '__base__';
+
+  // Add any skins from Supabase
+  availableSkins.forEach(skin => {
+    const opt = document.createElement('option');
+    opt.value = skin.id;
+    opt.textContent = skin.name;
+    skinSelectEl.appendChild(opt);
+
+    if (skin.is_default && selectedKey === '__base__') {
+      selectedKey = skin.id;
+    }
+  });
+
+  // If ?skin=Name is present, override selection by name
+  if (qsSkin && availableSkins.length > 0) {
+    const byName = availableSkins.find(s => s.name.toLowerCase() === qsSkin.toLowerCase());
+    if (byName) selectedKey = byName.id;
+  }
+
+  // Show selector only if we have at least 1 option (Base always counts)
+  skinSelectorEl.style.display = 'flex';
+  skinSelectEl.value = selectedKey;
+  applySkinByKey(selectedKey);
+
+  // keep badge + watermark in sync
+  updatePlayerBadge();
+}
+
+
+
+// Utility: update the little badge in the corner so it matches currentPlayer
 function updatePlayerBadge() {
-  if (badgeNameEl) badgeNameEl.textContent = currentPlayer.name;
-  if (badgeIdEl)   badgeIdEl.textContent   = "#" + currentPlayer.id;
+  const nameEl = document.getElementById("playerNameLabel");
+  const idEl   = document.getElementById("playerIdLabel");
+
+  if (nameEl) nameEl.textContent = currentPlayer.name;
+  if (idEl)   idEl.textContent   = "#" + currentPlayer.id;
 }
 
-// build the text we use for watermarking (UI and later for burned-in downloads)
+// Utility: text used both by animated UI watermark and the saved-image watermark
 function getWatermarkText() {
-  const line1 = 'SUNSEX_STYLIST_☂';
-
-  // signed-in line: PID if we have one, otherwise "anonymous"
-  const signedLabel = currentPid ? currentPid : 'anonymous';
-  const line2 = `Signed in as: ${signedLabel}`;
-
-  // styling line: skin label or player name
-  const skinLabel = currentSkinName || currentPlayer.name || 'base';
+  const line1 = "SUNSEX_STYLIST_☂";
+  const line2 = `Signed in as: ${signedInLabel}`;
+  const skinLabel = currentSkinName || currentPlayer.name || "base";
   const line3 = `Styling: ${skinLabel}`;
-
   return `${line1}\n${line2}\n${line3}`;
 }
+
+
+
+
+// ---------- init hero once (ABSOLUTE URL) ----------
+(function initHeroOnce() {
+  setHeroImage(currentPlayer.heroUrl);
+})();
 
 
 // animate that watermark text in the bottom-left footer
@@ -160,36 +293,52 @@ initHeroBackground();
       sess = { session: signInData.session };
     }
 
-    // Get current user id
-     // Get current user id
-    const { data: userData } = await sb.auth.getUser();
-    currentUserId = userData?.user?.id || null;
-    supabaseReady = true;
+   // Get current user id
+const { data: userData } = await sb.auth.getUser();
+currentUserId = userData?.user?.id || null;
+supabaseReady = true;
 
-    // Try to load this user's player (1 PID per user) for watermark text
-    if (currentUserId) {
-      try {
-        const { data: playerRows, error: playerErr } = await sb
-          .from('players')
-          .select('pid, name')
-          .eq('owner_id', currentUserId)
-          .limit(1);
+// Try to load this user's player (1 PID per user) for watermark + skins
+if (currentUserId) {
+  try {
+    const { data: playerRows, error: playerErr } = await sb
+      .from('players')
+      .select('pid, name')
+      .eq('owner_id', currentUserId)
+      .limit(1);
 
-        if (!playerErr && playerRows && playerRows.length > 0) {
-          const playerRow = playerRows[0];
-          if (playerRow.pid) currentPid = playerRow.pid;
-          if (playerRow.name && !qsName) {
-            // adopt player name if no explicit ?pname= override was provided
-            currentPlayer.name = playerRow.name;
-          }
+    if (!playerErr && playerRows && playerRows.length > 0) {
+      const playerRow = playerRows[0];
+
+      if (playerRow.pid) {
+        currentPid = playerRow.pid;
+
+        // if no explicit ?pid= override, adopt the player's pid
+        if (!qsId) {
+          currentPlayer.id = playerRow.pid;
+          signedInLabel   = playerRow.pid;
         }
-      } catch (e) {
-        console.warn('Failed to load player for dressup watermark:', e?.message || e);
       }
-    }
 
-    // Load credits for this user + global chest
-    await loadCreditsFromSupabase();
+      // if no explicit ?pname= override, adopt the player's name
+      if (playerRow.name && !qsName) {
+        currentPlayer.name = playerRow.name;
+      }
+
+      // reflect any changes immediately
+      updatePlayerBadge();
+    }
+  } catch (e) {
+    console.warn('Failed to load player for dressup watermark:', e?.message || e);
+  }
+}
+
+// Load skins for this player (prefer Supabase pid, else currentPlayer.id)
+await loadSkinsForPlayer(currentPid || currentPlayer.id);
+
+// Load credits for this user + global chest
+await loadCreditsFromSupabase();
+
 
   } catch (e) {
     console.warn('Anon auth skipped/failed:', e?.message || e);
@@ -404,7 +553,20 @@ function updateThumbEmpty() {
 updateThumbEmpty();
 
 
+
+
+
+
+if (skinSelectEl) {
+  skinSelectEl.addEventListener('change', (e) => {
+    applySkinByKey(e.target.value);
+  });
+}
+
+
+
 // ---------- Upload flow ----------
+
 btnUpload.addEventListener('click', () => fileInput.click());
 
 fileInput.addEventListener('change', async (e) => {
@@ -766,6 +928,11 @@ async function downloadCurrentHero() {
 if (btnSave) {
   btnSave.addEventListener('click', downloadCurrentHero);
 }
+
+
+
+
+
 
 // (end)
 
