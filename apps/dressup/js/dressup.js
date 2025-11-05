@@ -17,12 +17,12 @@ function toAbsoluteHttpUrl(maybeUrl) {
 
 // ---------- PHASE 1: player / hero setup + dynamic watermark ----------
 
-// read URL params so this page can behave like a "private link"
 const params      = new URLSearchParams(window.location.search);
 const qsHero      = params.get('hero');    // custom base hero image URL
 const modeParam   = params.get('mode');    // "private" optional, not used yet
 const qsName      = params.get('pname');   // optional override for display name
 const qsId        = params.get('pid');     // optional override for player id/tag
+const qsSkin      = params.get('skin');    // optional skin/variant label
 const isPrivateMode = (modeParam === 'private'); // not enforced visually yet
 
 // grab DOM refs we need early
@@ -49,26 +49,31 @@ const htmlDefaultHero = hero
 
 
 // credit HUD elements
+// credit HUD elements
 const creditHUD          = $('creditHUD');
 const communityBarText   = $('communityBarText');
 const personalCreditPill = $('personalCreditPill');
 
 
-// ---------- credit state (Phase 2 demo) ----------
+// ---------- pricing / cost (global credits) ----------
+// We treat "credits" as global units (like cents). DressUp costs 33 units (~$0.33) per generation.
+// 1 dollar donated ≈ 3 runs (2 community, 1 personal) → 3 * 33 = 99 units.
+const DRESSUP_COST_UNITS = 33;
 
-// how many shared generations remain in the chest
-let communityCredits = 20;   // you can tweak this number for demo
-// purely for bar percentage; set equal to whatever "full chest" means
-let communityMax = 20;
+// ---------- credit state (global units) ----------
+// These are fallback defaults; Supabase will overwrite them when available.
+let communityCredits = 3 * DRESSUP_COST_UNITS;  // e.g. 3 runs in the chest
+let communityMax     = communityCredits;
+let personalCredits  = 0;                       // backup pool for this user (used only when community is empty)
 
-// how many backup personal credits THIS player has
-// personal is only used when communityCredits is 0
-let personalCredits = 0;     // set to >0 when you want to demo sponsor behavior
 
 // Supabase user context for personal credits
 let currentUserId = null;
 let supabaseReady = false;
 
+// game context: which player + skin
+let currentPid = null;        // player's PID if we find one for this user
+let currentSkinName = null;   // dress-up skin/variant name (URL or player-based)
 
 
 // single source of truth for "who is being dressed"
@@ -78,6 +83,13 @@ let currentPlayer = {
   heroUrl: qsHero || htmlDefaultHero // base portrait
 };
 
+
+// choose initial skin label: explicit ?skin=... wins, otherwise use the player name
+if (!currentSkinName) {
+  currentSkinName = qsSkin || currentPlayer.name || 'base';
+}
+
+
 // update the badge in the top-left ("MUNZ #001")
 function updatePlayerBadge() {
   if (badgeNameEl) badgeNameEl.textContent = currentPlayer.name;
@@ -86,11 +98,19 @@ function updatePlayerBadge() {
 
 // build the text we use for watermarking (UI and later for burned-in downloads)
 function getWatermarkText() {
-  // You can rewrite this any time. It's already using player name + id.
-  return `SUNSEX_STYLIST_☂
-Player-id: ${currentPlayer.name} #${currentPlayer.id}
-(@isoMunzir)`;
+  const line1 = 'SUNSEX_STYLIST_☂';
+
+  // signed-in line: PID if we have one, otherwise "anonymous"
+  const signedLabel = currentPid ? currentPid : 'anonymous';
+  const line2 = `Signed in as: ${signedLabel}`;
+
+  // styling line: skin label or player name
+  const skinLabel = currentSkinName || currentPlayer.name || 'base';
+  const line3 = `Styling: ${skinLabel}`;
+
+  return `${line1}\n${line2}\n${line3}`;
 }
+
 
 // animate that watermark text in the bottom-left footer
 function runWatermarkTyping() {
@@ -141,12 +161,36 @@ initHeroBackground();
     }
 
     // Get current user id
+     // Get current user id
     const { data: userData } = await sb.auth.getUser();
     currentUserId = userData?.user?.id || null;
     supabaseReady = true;
 
+    // Try to load this user's player (1 PID per user) for watermark text
+    if (currentUserId) {
+      try {
+        const { data: playerRows, error: playerErr } = await sb
+          .from('players')
+          .select('pid, name')
+          .eq('owner_id', currentUserId)
+          .limit(1);
+
+        if (!playerErr && playerRows && playerRows.length > 0) {
+          const playerRow = playerRows[0];
+          if (playerRow.pid) currentPid = playerRow.pid;
+          if (playerRow.name && !qsName) {
+            // adopt player name if no explicit ?pname= override was provided
+            currentPlayer.name = playerRow.name;
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load player for dressup watermark:', e?.message || e);
+      }
+    }
+
     // Load credits for this user + global chest
     await loadCreditsFromSupabase();
+
   } catch (e) {
     console.warn('Anon auth skipped/failed:', e?.message || e);
     supabaseReady = false;
@@ -263,60 +307,65 @@ function updateCreditUI() {
   if (communityCredits < 0) communityCredits = 0;
   if (personalCredits < 0) personalCredits = 0;
 
-  // community bar fill %
-    // community text bar: "[████░░░░░░] 14 left"
+  // compute how many DressUp generations are available from each pool
+  const communityRuns = Math.floor(communityCredits / DRESSUP_COST_UNITS);
+  const personalRuns  = Math.floor(personalCredits / DRESSUP_COST_UNITS);
+
+  // community ASCII bar: based on runs left vs a max runs value
   if (communityBarText) {
     const SLOTS = 10; // number of blocks inside the brackets
 
-    const clampedCredits = Math.max(0, Math.min(communityCredits, communityMax));
-    const filledSlots = communityMax > 0
-      ? Math.round((clampedCredits / communityMax) * SLOTS)
+    const maxRunsFromMaxCredits = communityMax > 0
+      ? Math.floor(communityMax / DRESSUP_COST_UNITS)
+      : 0;
+
+    const runsMax = Math.max(communityRuns, maxRunsFromMaxCredits);
+    const filledSlots = runsMax > 0
+      ? Math.max(0, Math.min(SLOTS, Math.round((communityRuns / runsMax) * SLOTS)))
       : 0;
 
     const emptySlots = Math.max(0, SLOTS - filledSlots);
     const filled = '█'.repeat(filledSlots);
     const empty  = '░'.repeat(emptySlots);
 
-    communityBarText.textContent = `[${filled}${empty}] ${communityCredits} left`;
+    communityBarText.textContent = `[${filled}${empty}] ${communityRuns} left`;
   }
 
-  // personal pill: show only if > 0
+  // personal pill: always show, even at +0
   if (personalCreditPill) {
-    if (personalCredits > 0) {
-      personalCreditPill.textContent = `+${personalCredits} personal`;
-      personalCreditPill.style.display = 'inline-flex';
-    } else {
-      personalCreditPill.textContent = `+0 personal`;
-      personalCreditPill.style.display = 'none';
-    }
+    personalCreditPill.textContent = `+${personalRuns} personal`;
+    personalCreditPill.style.display = 'inline-flex';
   }
 
-
-  // enable/disable Generate based on credit + garment
+  // enable/disable Generate based on runs + garment
   if (btnGenerate) {
-    const noCredits = (communityCredits <= 0 && personalCredits <= 0);
+    const noRuns = (communityRuns <= 0 && personalRuns <= 0);
     const noGarment = !garmentPublicUrl;
-    btnGenerate.disabled = noCredits || noGarment;
+    btnGenerate.disabled = noRuns || noGarment;
   }
 }
+
 
 // spend logic: community first, then personal
 function spendOneCreditIfAvailable() {
   let spent = false;
 
-  if (communityCredits > 0) {
-    communityCredits -= 1;
+  // try to spend from the community chest first
+  if (communityCredits >= DRESSUP_COST_UNITS) {
+    communityCredits -= DRESSUP_COST_UNITS;
     spent = true;
     // fire-and-forget sync; errors just log to console
     syncCommunityCredits().catch(() => {});
-  } else if (personalCredits > 0) {
-    personalCredits -= 1;
+  } else if (personalCredits >= DRESSUP_COST_UNITS) {
+    // fall back to personal wallet if community is empty
+    personalCredits -= DRESSUP_COST_UNITS;
     spent = true;
     syncPersonalCredits().catch(() => {});
   }
 
   return spent;
 }
+
 
 
 // run once at load so the HUD isn't empty
