@@ -15,14 +15,17 @@ function toAbsoluteHttpUrl(maybeUrl) {
   return s;
 }
 
-// URL params (for future brand-specific overrides)
 const params    = new URLSearchParams(window.location.search);
-const qsHero    = params.get('hero');   // optional fallback hero
-const qsName    = params.get('pname');  // brand name maybe
-const qsId      = params.get('pid');    // brand id / tag
-const qsSkin    = params.get('skin');   // collection name
+const qsHero    = params.get('hero');
+const qsName    = params.get('pname');
+const qsId      = params.get('pid');
+const qsSkin    = params.get('skin');
 const modeParam = params.get('mode');
+const qsBrand   = params.get('brand');  // ?brand=yahweh etc
 const isPrivateMode = (modeParam === 'private');
+
+let brandConfig = null; // will hold active brand from brands.json
+
 
 // DOM refs
 const hero            = $('hero');
@@ -430,53 +433,126 @@ function updateThumbEmpty() {
 }
 updateThumbEmpty();
 
-// ---------- garment grid from suitcaseItems.json ----------
-async function loadGarments() {
+// ---------- garment grid + brand-aware loader ----------
+
+// Render a list of items into the grid
+function populateGarmentGrid(items) {
+  if (!garmentGrid || !Array.isArray(items)) return;
+  garmentGrid.innerHTML = '';
+
+  items.forEach(item => {
+    const slot = document.createElement('div');
+    slot.className = 'slot';
+    slot.dataset.empty = 'false';
+
+    const img = document.createElement('img');
+    img.src = item.image;
+    img.alt = item.name;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'contain';
+
+    slot.appendChild(img);
+    slot.title = item.name;
+
+    slot.addEventListener('click', () => {
+      document
+        .querySelectorAll('#garmentGrid .slot')
+        .forEach(s => s.classList.remove('selected'));
+      slot.classList.add('selected');
+
+      garmentPublicUrl = toAbsoluteHttpUrl(item.overlayImage || item.image);
+      garmentPreview.src = garmentPublicUrl;
+      updateThumbEmpty();
+      updateCreditUI();
+    });
+
+    garmentGrid.appendChild(slot);
+  });
+}
+
+// Fallback loader: global suitcase items
+async function loadGarmentsFromSuitcase() {
   try {
     const res = await fetch('/shared/data/suitcaseItems.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const items = await res.json();
-
     if (!Array.isArray(items)) return;
-    garmentGrid.innerHTML = '';
-
-    items.forEach(item => {
-      const slot = document.createElement('div');
-      slot.className = 'slot';
-      slot.dataset.empty = 'false';
-
-      const img = document.createElement('img');
-      img.src = item.image;
-      img.alt = item.name;
-      img.style.width = '100%';
-      img.style.height = '100%';
-      img.style.objectFit = 'contain';
-
-      slot.appendChild(img);
-      slot.title = item.name;
-
-      slot.addEventListener('click', () => {
-        document
-          .querySelectorAll('#garmentGrid .slot')
-          .forEach(s => s.classList.remove('selected'));
-        slot.classList.add('selected');
-
-        garmentPublicUrl = toAbsoluteHttpUrl(item.overlayImage || item.image);
-        garmentPreview.src = garmentPublicUrl;
-        updateThumbEmpty();
-        updateCreditUI();
-      });
-
-      garmentGrid.appendChild(slot);
-    });
+    populateGarmentGrid(items);
   } catch (err) {
-    console.warn('Failed to load garments:', err?.message || err);
+    console.warn('Failed to load default garments:', err?.message || err);
   }
 }
-if (garmentGrid) loadGarments();
 
-// ---------- Upload flow: USER PHOTO (PERSON) ----------
-btnUpload.addEventListener('click', () => fileInput.click());
+// Brand + garments init using single brands.json
+async function initBrandAndGarments() {
+  try {
+    // 1) Load all brands once
+    let brandsList = null;
+    try {
+      const res = await fetch('/apps/tryon/brands.json');
+      if (res.ok) {
+        brandsList = await res.json();
+      }
+    } catch (e) {
+      console.warn('No brands.json or failed to load:', e?.message || e);
+    }
+
+    // 2) Pick active brand
+    if (Array.isArray(brandsList)) {
+      const targetId = qsBrand || 'default';
+      brandConfig =
+        brandsList.find(b => b.id === targetId) ||
+        brandsList.find(b => b.id === 'default') ||
+        null;
+    }
+
+    // 3) Apply brand identity + theme if found
+    if (brandConfig) {
+      if (brandConfig.displayName) currentPlayer.name = brandConfig.displayName;
+      if (brandConfig.tag)         currentPlayer.id   = brandConfig.tag;
+      if (brandConfig.skinLabel)   currentSkinName    = brandConfig.skinLabel;
+      if (brandConfig.hero)        setHeroImage(brandConfig.hero);
+      updatePlayerBadge();
+
+      if (brandConfig.theme) {
+        const root = document.documentElement;
+        const app  = document.querySelector('.app-container');
+        if (brandConfig.theme.accent) {
+          root.style.setProperty('--accent', brandConfig.theme.accent);
+        }
+        if (brandConfig.theme.background && app) {
+          app.style.background = brandConfig.theme.background;
+        }
+      }
+
+      if (brandConfig.id) {
+        document.body.classList.add(`brand-${brandConfig.id}`);
+      }
+
+      // 4) If brand has items, use them and stop
+      if (Array.isArray(brandConfig.items) && brandConfig.items.length > 0) {
+        populateGarmentGrid(brandConfig.items);
+        return;
+      }
+    }
+
+    // 5) Otherwise fallback to shared suitcase items
+    await loadGarmentsFromSuitcase();
+
+  } catch (err) {
+    console.warn('initBrandAndGarments failed:', err?.message || err);
+    // as a last resort, still try to show suitcase items
+    await loadGarmentsFromSuitcase();
+  }
+}
+
+if (garmentGrid) {
+  initBrandAndGarments();
+}
+
+
+
 
 // ---------- Upload flow: USER PHOTO (PERSON) WITH 9:16 CROP POPUP ----------
 fileInput.addEventListener('change', (e) => {
