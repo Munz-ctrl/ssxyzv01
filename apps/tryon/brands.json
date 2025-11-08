@@ -53,14 +53,14 @@
       {
         "id": "holy_tank",
         "name": "HOLY Tank",
-        "image": "/shared/assets/suitcase/holy_tank.png",
+        "image": "/apps/tryon/assets/telfar/t1.png",
         "overlayImage": "/shared/assets/suitcase/holy_tank.png",
         "link": "https://brand.com/holy-tank"
       },
       {
         "id": "holy_tank",
         "name": "HOLY Tank",
-        "image": "/shared/assets/suitcase/holy_tank.png",
+        "image": "/apps/tryon/assets/telfar/t2.png",
         "overlayImage": "/shared/assets/suitcase/holy_tank.png",
         "link": "https://brand.com/holy-tank"
       }
