@@ -80,7 +80,7 @@ const DRESSUP_COST_UNITS = 33;
 
 // ---------- credit state (global units) ----------
 // These are fallback defaults; Supabase will overwrite them when available.
-let communityCredits = 3 * DRESSUP_COST_UNITS;  // e.g. 3 runs in the chest
+let communityCredits = 5 * DRESSUP_COST_UNITS;  // e.g. 5 runs in the chest
 let communityMax     = communityCredits;
 let personalCredits  = 0;                       // backup pool for this user (used only when community is empty)
 
@@ -911,7 +911,7 @@ async function downloadCurrentHero() {
       document.body.appendChild(a);
       a.click();
       URL.revokeObjectURL(a.href);
-      a.remove();
+      a.remove();6
     } catch (e) {
       const a = document.createElement('a');
       a.href = url;
