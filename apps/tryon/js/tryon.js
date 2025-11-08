@@ -45,18 +45,10 @@ const skinSelectorEl  = $('skinSelector');
 const skinSelectEl    = $('skinSelect');
 const garmentGrid     = $('garmentGrid');
 
-// credit HUD
-const creditHUD          = $('creditHUD');
-const communityBarText   = $('communityBarText');
-const personalCreditPill = $('personalCreditPill');
-
 // constants
 const DEFAULT_HERO_IMG =
   hero?.getAttribute('data-default-hero') ||
   "/shared/assets/fallbackIsoAvatar.webp";
-
-// DressUp cost logic (same as original)
-const DRESSUP_COST_UNITS = 33;
 
 
 // Cropping modal DOM refs
@@ -71,11 +63,6 @@ let pendingFileName = null;
 
 
 
-
-// credit state
-let communityCredits = 3 * DRESSUP_COST_UNITS;
-let communityMax     = communityCredits;
-let personalCredits  = 0;
 
 // Supabase context
 let currentUserId = null;
