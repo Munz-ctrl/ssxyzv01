@@ -28,7 +28,43 @@
         "image": "/shared/assets/suitcase/holy_tank.png",
         "overlayImage": "/shared/assets/suitcase/holy_tank.png",
         "link": "https://brand.com/holy-tank"
+      },
+      {
+        "id": "holy_tank",
+        "name": "HOLY Tank",
+        "image": "/shared/assets/suitcase/holy_tank.png",
+        "overlayImage": "/shared/assets/suitcase/holy_tank.png",
+        "link": "https://brand.com/holy-tank"
       }
+
+    ]
+  },
+  {
+    "id": "TELFAR",
+    "displayName": "TELFAR",
+    "tag": "T01",
+    "skinLabel": "TELFAR TEST DROP",
+    "hero": "/apps/tryon/assets/telfar_base.png",
+    "theme": {
+      "accent": "#ff4444",
+      "background": "#050509"
+    },
+    "items": [
+      {
+        "id": "holy_tank",
+        "name": "HOLY Tank",
+        "image": "/shared/assets/suitcase/holy_tank.png",
+        "overlayImage": "/shared/assets/suitcase/holy_tank.png",
+        "link": "https://brand.com/holy-tank"
+      },
+      {
+        "id": "holy_tank",
+        "name": "HOLY Tank",
+        "image": "/shared/assets/suitcase/holy_tank.png",
+        "overlayImage": "/shared/assets/suitcase/holy_tank.png",
+        "link": "https://brand.com/holy-tank"
+      }
+
     ]
   }
 ]
