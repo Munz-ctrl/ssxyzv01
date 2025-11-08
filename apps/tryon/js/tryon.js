@@ -31,6 +31,7 @@ let brandConfig = null; // will hold active brand from brands.json
 const hero            = $('hero');
 const badgeNameEl     = $('playerNameLabel');
 const badgeIdEl       = $('playerIdLabel');
+const brandLogo       = $('brandLogo');
 const animatedWMEl    = $('animatedWatermarkText');
 const statusEl        = $('status');
 const btnUpload       = $('btnUpload');
@@ -383,13 +384,10 @@ function updateCreditUI() {
     personalCreditPill.style.color = personalRuns > 0 ? '#2af78d' : '#ffffff';
   }
 
-  if (btnGenerate) {
-    const communityRunsLeft = Math.floor(communityCredits / DRESSUP_COST_UNITS);
-    const personalRunsLeft  = Math.floor(personalCredits  / DRESSUP_COST_UNITS);
-    const noRuns   = (communityRunsLeft <= 0 && personalRunsLeft <= 0);
-    const noGarment = !garmentPublicUrl;
-    const noPerson  = !hero?.getAttribute('data-person-url');
-    btnGenerate.disabled = noRuns || noGarment || noPerson;
+    if (btnGenerate) {
+      const noGarment = !garmentPublicUrl;
+      const noPerson  = !hero?.getAttribute('data-person-url');
+      btnGenerate.disabled = noGarment || noPerson;
   }
 }
 updateCreditUI();
@@ -471,7 +469,7 @@ async function loadGarmentsFromSuitcase() {
   }
 }
 
-// Brand + garments init using single brands.json
+// ---------- Brand + garments init ----------
 async function initBrandAndGarments() {
   try {
     // 1) Load all brands once
@@ -726,13 +724,6 @@ btnGenerate.addEventListener('click', async () => {
     return;
   }
 
-  if (!spendOneCreditIfAvailable()) {
-    statusEl.textContent = 'No credits available.';
-    updateCreditUI();
-    return;
-  }
-
-  updateCreditUI();
   btnGenerate.disabled = true;
   statusEl.textContent = 'Generating your try-on…';
 
