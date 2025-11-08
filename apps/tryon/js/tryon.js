@@ -62,9 +62,6 @@ const cropCancelBtn  = $('cropCancelBtn');
 let cropper = null;
 let pendingFileName = null;
 
-
-
-
 // Supabase context
 let currentUserId = null;
 let supabaseReady = false;
@@ -385,9 +382,9 @@ function updateCreditUI() {
   }
 
     if (btnGenerate) {
-      const noGarment = !garmentPublicUrl;
-      const noPerson  = !hero?.getAttribute('data-person-url');
-      btnGenerate.disabled = noGarment || noPerson;
+    if (btnGenerate) {
+      btnGenerate.disabled = !garmentPublicUrl || !hero?.getAttribute('data-person-url');
+    }
   }
 }
 updateCreditUI();
@@ -449,7 +446,6 @@ function populateGarmentGrid(items) {
       garmentPublicUrl = toAbsoluteHttpUrl(item.overlayImage || item.image);
       garmentPreview.src = garmentPublicUrl;
       updateThumbEmpty();
-      updateCreditUI();
     });
 
     garmentGrid.appendChild(slot);
@@ -646,7 +642,6 @@ if (cropConfirmBtn) {
           setHeroImage(personUrl);
 
           statusEl.textContent = 'Photo ready. Now pick a garment from the grid.';
-          updateCreditUI();
 
           // Close modal
           if (cropModal) {
@@ -714,13 +709,11 @@ btnGenerate.addEventListener('click', async () => {
   const personUrl = toAbsoluteHttpUrl(hero?.getAttribute('data-person-url'));
   if (!personUrl) {
     statusEl.textContent = 'Upload your photo first.';
-    updateCreditUI();
     return;
   }
 
   if (!garmentPublicUrl) {
     statusEl.textContent = 'Pick a garment from the collection.';
-    updateCreditUI();
     return;
   }
 
@@ -845,7 +838,6 @@ if (resetBtn) {
     hasGeneratedOnce = false;
 
     updateThumbEmpty();
-    updateCreditUI();
   });
 }
 
