@@ -5,6 +5,7 @@
     "tag": "TRYON",
     "skinLabel": "Fitting Room",
     "hero": "/shared/assets/fallbackIsoAvatar.webp",
+    "brandLogo": "/apps/tryon/assets/yahweh_base.png",
     "theme": {
       "accent": "#ff9a2b",
       "background": "#050509"
@@ -17,6 +18,7 @@
     "tag": "Y01",
     "skinLabel": "Drop 1 – HOLY",
     "hero": "/apps/tryon/assets/yahweh_base.png",
+     "brandLogo": "/apps/tryon/assets/yahweh_base.png",
     "theme": {
       "accent": "#ff4444",
       "background": "#050509"
@@ -45,6 +47,7 @@
     "tag": "T01",
     "skinLabel": "TELFAR TEST DROP",
     "hero": "/apps/tryon/assets/telfar_base.png",
+    "brandLogo": "/apps/tryon/assets/yahweh_base.png",
     "theme": {
       "accent": "#ff4444",
       "background": "#050509"
