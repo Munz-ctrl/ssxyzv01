@@ -1,0 +1,34 @@
+[
+  {
+    "id": "default",
+    "displayName": "SUNSEX",
+    "tag": "TRYON",
+    "skinLabel": "Fitting Room",
+    "hero": "/shared/assets/fallbackIsoAvatar.webp",
+    "theme": {
+      "accent": "#ff9a2b",
+      "background": "#050509"
+    },
+    "items": []  
+  },
+  {
+    "id": "yahweh",
+    "displayName": "YAHWEH",
+    "tag": "Y01",
+    "skinLabel": "Drop 1 – HOLY",
+    "hero": "/apps/tryon/assets/yahweh_base.png",
+    "theme": {
+      "accent": "#ff4444",
+      "background": "#050509"
+    },
+    "items": [
+      {
+        "id": "holy_tank",
+        "name": "HOLY Tank",
+        "image": "/shared/assets/suitcase/holy_tank.png",
+        "overlayImage": "/shared/assets/suitcase/holy_tank.png",
+        "link": "https://brand.com/holy-tank"
+      }
+    ]
+  }
+]
