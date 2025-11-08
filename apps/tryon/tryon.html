@@ -16,6 +16,10 @@
 </head>
 <body class="dressup-body">
   <div id="appContainer" class="app-container">
+    <!-- Brand Logo (top-left) -->
+    <div id="brandLogo" class="brand-logo">
+      <img src="/shared/assets/logo.png" alt="Brand Logo">
+    </div>
 
     <!-- Player / Brand Badge (can be brand or generic) -->
     <div id="currentPlayerInfo" class="player-info-badge">
@@ -42,16 +46,10 @@
       data-default-hero="/shared/assets/fallbackIsoAvatar.webp">
     </div>
 
-    <!-- CREDIT HUD (bottom-right) -->
-    <div id="creditHUD" class="credit-hud">
-      <div id="personalCreditPill" class="personal-pill">+0 credits</div>
-
-      <div class="community-block">
-        <div class="community-line">
-          <span class="community-label">COMMUNITY</span>
-          <span id="communityBarText" class="community-bar-text">[░░░░░░░░░░] 0 left</span>
-        </div>
-      </div>
+    <!-- Upload button container (bottom-right) -->
+    <div class="upload-button-container">
+      <input id="fileInput" type="file" accept="image/*" hidden />
+      <button id="btnUpload" class="btn primary">Upload Your Photo</button>
     </div>
 
     <!-- RIGHT PANEL: Try-On controls -->
