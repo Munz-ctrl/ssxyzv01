@@ -99,14 +99,11 @@
     </footer>
   </div>
 
-    <!-- Supabase client -->
-  <script type="module" src="/shared/js/supabase.js"></script>
-
-  <!-- Cropper.js library -->
-  <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
-
-  <!-- Try-On logic -->
-  <script src="/apps/tryon/js/tryon.js"></script>
+     <!-- Animated watermark (bottom-left) -->
+    <footer class="watermark animated-text" id="tryonWatermark">
+      <div id="animatedWatermarkText"></div>
+    </footer>
+  </div>
 
   <!-- Cropping modal (popup) -->
   <div id="cropModal" class="crop-modal crop-hidden">
@@ -127,11 +124,18 @@
     </div>
   </div>
 
+  <!-- Supabase client -->
+  <script type="module" src="/shared/js/supabase.js"></script>
 
+  <!-- Cropper.js library -->
+  <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
 
+  <!-- Try-On logic -->
+  <script src="/apps/tryon/js/tryon.js"></script>
 
   <!-- Same watermark typography as DressUp -->
   <style>
+   
     .animated-text {
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
       font-size: 11px;
