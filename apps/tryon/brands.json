@@ -46,7 +46,7 @@
     "displayName": "TELFAR",
     "tag": "T01",
     "skinLabel": "TELFAR TEST DROP",
-    "hero": "/apps/tryon/assets/telfar_base.png",
+    "hero": "/apps/tryon/assets/telfar/telfar_base.png",
     "brandLogo": "/apps/tryon/assets/telfar/telfarlogo.png",
     "theme": {
       "accent": "#ff4444",
