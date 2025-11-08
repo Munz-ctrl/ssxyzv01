@@ -613,6 +613,12 @@ if (cropConfirmBtn) {
     try {
       statusEl.textContent = 'Uploading cropped photo…';
 
+      // Disable confirm + cancel to prevent double-click / mid-upload cancel
+      const origConfirmText = cropConfirmBtn.textContent;
+      cropConfirmBtn.disabled = true;
+      cropConfirmBtn.textContent = 'Uploading…';
+      if (cropCancelBtn) cropCancelBtn.disabled = true;
+
       // Get cropped canvas 9:16
       const canvas = cropper.getCroppedCanvas({
         width: 1080,
@@ -625,49 +631,59 @@ if (cropConfirmBtn) {
       if (!sb) throw new Error('Supabase client not found');
 
       canvas.toBlob(async (blob) => {
-        if (!blob) {
-          statusEl.textContent = 'Crop failed.';
-          return;
+        try {
+          if (!blob) {
+            statusEl.textContent = 'Crop failed.';
+            return;
+          }
+
+          const ext = 'png';
+          const safeName = pendingFileName || 'photo';
+          const path = 'tryon/person/' + Date.now() + '-' + safeName.replace(/\.[^.]+$/, '') + '.' + ext;
+
+          const uploadRes = await sb.storage
+            .from('userassets')
+            .upload(path, blob, {
+              upsert: true,
+              contentType: 'image/png'
+            });
+
+          if (uploadRes.error) {
+            console.error('Supabase upload error:', uploadRes.error);
+            statusEl.textContent = 'Upload failed.';
+            return;
+          }
+
+          const pub = await sb.storage.from('userassets').getPublicUrl(path);
+          const personUrl = pub.data.publicUrl;
+
+          // Apply as hero image
+          setHeroImage(personUrl);
+
+          statusEl.textContent = 'Photo ready. Now pick a garment from the grid.';
+          updateCreditUI();
+
+          // Close modal
+          if (cropModal) {
+            cropModal.classList.add('crop-hidden');
+            cropModal.classList.remove('crop-visible');
+          }
+
+          // Cleanup
+          cropper.destroy();
+          cropper = null;
+          pendingFileName = null;
+          cropImage.src = '';
+          fileInput.value = ''; // reset input so same file can be chosen again later
+        } catch (innerErr) {
+          console.error(innerErr);
+          statusEl.textContent = 'Upload failed: ' + (innerErr?.message || innerErr);
+        } finally {
+          // restore buttons
+          cropConfirmBtn.disabled = false;
+          cropConfirmBtn.textContent = origConfirmText;
+          if (cropCancelBtn) cropCancelBtn.disabled = false;
         }
-
-        const ext = 'png';
-        const safeName = pendingFileName || 'photo';
-        const path = 'tryon/person/' + Date.now() + '-' + safeName.replace(/\.[^.]+$/, '') + '.' + ext;
-
-        const uploadRes = await sb.storage
-          .from('userassets')
-          .upload(path, blob, {
-            upsert: true,
-            contentType: 'image/png'
-          });
-
-        if (uploadRes.error) {
-          console.error('Supabase upload error:', uploadRes.error);
-          statusEl.textContent = 'Upload failed.';
-          return;
-        }
-
-        const pub = await sb.storage.from('userassets').getPublicUrl(path);
-        const personUrl = pub.data.publicUrl;
-
-        // Apply as hero image
-        setHeroImage(personUrl);
-
-        statusEl.textContent = 'Photo ready. Now pick a garment from the grid.';
-        updateCreditUI();
-
-        // Close modal
-        if (cropModal) {
-          cropModal.classList.add('crop-hidden');
-          cropModal.classList.remove('crop-visible');
-        }
-
-        // Cleanup
-        cropper.destroy();
-        cropper = null;
-        pendingFileName = null;
-        cropImage.src = '';
-        fileInput.value = ''; // reset input so same file can be chosen again later
       }, 'image/png', 0.95);
 
     } catch (err) {
