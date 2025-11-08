@@ -9,6 +9,10 @@
   <link rel="stylesheet" href="/shared/css/styles.css">
   <!-- Page styles (reuses DressUp styles + small overrides) -->
   <link rel="stylesheet" href="/apps/tryon/css/tryon.css">
+
+    <!-- Cropper.js styles for cropping popup -->
+  <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.css">
+
 </head>
 <body class="dressup-body">
   <div id="appContainer" class="app-container">
@@ -30,6 +34,7 @@
     <!-- Hidden canvas for watermark export -->
     <canvas id="downloadCanvas" style="display:none;"></canvas>
 
+    
     <!-- HERO = USER PHOTO (person) -->
     <div
       id="hero"
@@ -94,11 +99,36 @@
     </footer>
   </div>
 
-  <!-- Supabase client -->
+    <!-- Supabase client -->
   <script type="module" src="/shared/js/supabase.js"></script>
+
+  <!-- Cropper.js library -->
+  <script src="https://unpkg.com/cropperjs@1.6.2/dist/cropper.min.js"></script>
 
   <!-- Try-On logic -->
   <script src="/apps/tryon/js/tryon.js"></script>
+
+  <!-- Cropping modal (popup) -->
+  <div id="cropModal" class="crop-modal crop-hidden">
+    <div class="crop-backdrop"></div>
+    <div class="crop-dialog">
+      <div class="crop-header">
+        <span>Adjust your 9:16 crop</span>
+      </div>
+      <div class="crop-body">
+        <div class="crop-image-wrap">
+          <img id="cropImage" alt="Crop preview">
+        </div>
+      </div>
+      <div class="crop-footer">
+        <button id="cropCancelBtn" class="btn thin">cancel</button>
+        <button id="cropConfirmBtn" class="btn primary">use this crop</button>
+      </div>
+    </div>
+  </div>
+
+
+
 
   <!-- Same watermark typography as DressUp -->
   <style>
