@@ -26,6 +26,7 @@
 /* Updated panel design */
 .panel {
   width: 280px;  /* Smaller width */
+  top: 2px;
 }
 
 .panel-card {
