@@ -8,6 +8,52 @@
   --accent: #ff9a2b;
 }
 
+/* Brand Logo styling */
+.brand-logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  max-width: 120px;
+}
+
+.brand-logo img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Updated panel design */
+.panel {
+  width: 280px;  /* Smaller width */
+}
+
+.panel-card {
+  padding: 15px;  /* Reduced padding */
+}
+
+.panel-instruction {
+  font-size: 13px;  /* Smaller text */
+  margin-bottom: 12px;
+}
+
+.panel-actions {
+  gap: 8px;  /* Reduced gap */
+}
+
+.btn {
+  padding: 8px 12px;  /* Thinner buttons */
+  font-size: 13px;
+}
+
+/* Move upload button to bottom right */
+.upload-button-container {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
 /* Highlight selected garment in grid */
 .slot {
   cursor: pointer;
@@ -139,3 +185,4 @@ body.brand-telfar .btn.primary {
   background-color: #ff4444;
   border-color: #ff4444;
 }
+
