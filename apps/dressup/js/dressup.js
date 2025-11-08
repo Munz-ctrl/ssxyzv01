@@ -273,17 +273,23 @@ function initHeroBackground() {
   hero.setAttribute('data-person-url', absUrl);
 }
 
-// do the initial sync
+// do the initial sync (badge + hero)
+// Watermark typing will start after auth / player load below
 updatePlayerBadge();
-runWatermarkTyping();
 initHeroBackground();
+
 
 
 // ---------- Supabase anon auth + load persisted credits ----------
 (async () => {
   try {
     const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
-    if (!sb) return;
+    if (!sb) {
+      // No Supabase at all → just run with local defaults + "anonymous"
+      updateCreditUI();
+      runWatermarkTyping();
+      return;
+    }
 
     // Ensure we have a session (anon if needed)
     let { data: sess } = await sb.auth.getSession();
@@ -293,60 +299,72 @@ initHeroBackground();
       sess = { session: signInData.session };
     }
 
-   // Get current user id
-const { data: userData } = await sb.auth.getUser();
-currentUserId = userData?.user?.id || null;
-supabaseReady = true;
+    // Get current user id
+    const { data: userData } = await sb.auth.getUser();
+    currentUserId = userData?.user?.id || null;
+    supabaseReady = true;
 
-// Try to load this user's player (1 PID per user) for watermark + skins
-if (currentUserId) {
-  try {
-    const { data: playerRows, error: playerErr } = await sb
-      .from('players')
-      .select('pid, name')
-      .eq('owner_id', currentUserId)
-      .limit(1);
+    // Try to load this user's player (1 PID per user) for watermark + skins
+    if (currentUserId) {
+      let playerLoadedForUser = false;
 
-    if (!playerErr && playerRows && playerRows.length > 0) {
-      const playerRow = playerRows[0];
+      try {
+        const { data: playerRows, error: playerErr } = await sb
+          .from('players')
+          .select('pid, name')
+          .eq('owner_id', currentUserId)
+          .limit(1);
 
-      if (playerRow.pid) {
-        currentPid = playerRow.pid;
+        if (!playerErr && playerRows && playerRows.length > 0) {
+          playerLoadedForUser = true;
+          const playerRow = playerRows[0];
 
-        // if no explicit ?pid= override, adopt the player's pid
-        if (!qsId) {
-          currentPlayer.id = playerRow.pid;
-          signedInLabel   = playerRow.pid;
+          if (playerRow.pid) {
+            currentPid = playerRow.pid;
+
+            // if no explicit ?pid= override, adopt the player's pid
+            if (!qsId) {
+              currentPlayer.id = playerRow.pid;
+              signedInLabel    = playerRow.pid;
+            }
+          }
+
+          // if no explicit ?pname= override, adopt the player's name
+          if (playerRow.name && !qsName) {
+            currentPlayer.name = playerRow.name;
+          }
+
+          updatePlayerBadge();
         }
+      } catch (e) {
+        console.warn('Failed to load player for dressup watermark:', e?.message || e);
       }
 
-      // if no explicit ?pname= override, adopt the player's name
-      if (playerRow.name && !qsName) {
-        currentPlayer.name = playerRow.name;
+      // If user is signed in but has no player yet, show a short anon label
+      if (!playerLoadedForUser && !qsId) {
+        const shortId = String(currentUserId).slice(0, 6);
+        signedInLabel = `user-${shortId}`;
       }
-
-      // reflect any changes immediately
-      updatePlayerBadge();
     }
-  } catch (e) {
-    console.warn('Failed to load player for dressup watermark:', e?.message || e);
-  }
-}
 
-// Load skins for this player (prefer Supabase pid, else currentPlayer.id)
-await loadSkinsForPlayer(currentPid || currentPlayer.id);
+    // Load skins for this player (prefer Supabase pid, else currentPlayer.id)
+    await loadSkinsForPlayer(currentPid || currentPlayer.id);
 
-// Load credits for this user + global chest
-await loadCreditsFromSupabase();
+    // Load credits for this user + global chest
+    await loadCreditsFromSupabase();
 
+    // Now that we know as much as possible about the user, start the watermark loop
+    runWatermarkTyping();
 
   } catch (e) {
     console.warn('Anon auth skipped/failed:', e?.message || e);
     supabaseReady = false;
     // fall back to local defaults
     updateCreditUI();
+    runWatermarkTyping();
   }
 })();
+
 
 
 // Load community + personal credits from Supabase (if tables exist)
