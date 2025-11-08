@@ -128,3 +128,14 @@ body.brand-yahweh .btn.primary {
   background-color: #ff4444;
   border-color: #ff4444;
 }
+
+/* brand specific tryon styles can go here */
+
+body.brand-telfar .panel-card {
+  border-color: #00ca18;
+}
+
+body.brand-telfar .btn.primary {
+  background-color: #ff4444;
+  border-color: #ff4444;
+}
