@@ -940,7 +940,7 @@ async function downloadCurrentHero() {
       document.body.appendChild(a);
       a.click();
       URL.revokeObjectURL(a.href);
-      a.remove();6
+      a.remove();
     } catch (e) {
       const a = document.createElement('a');
       a.href = url;
