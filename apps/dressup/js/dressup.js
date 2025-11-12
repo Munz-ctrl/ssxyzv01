@@ -300,7 +300,7 @@ initHeroBackground();
 
 // start the watermark loop immediately with whatever info we have
 // (Supabase auth below can update the labels; the loop will pick them up)
-runWatermarkTyping();
+// runWatermarkTyping();
 
 
 
