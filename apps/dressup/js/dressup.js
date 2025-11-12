@@ -389,7 +389,7 @@ initHeroBackground();
   }
 })();
 
-
+runWatermarkTyping();
 
 // Load community + personal credits from Supabase (if tables exist)
 async function loadCreditsFromSupabase() {
