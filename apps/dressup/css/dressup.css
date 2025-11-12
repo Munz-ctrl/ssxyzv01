@@ -249,13 +249,6 @@ html, body {
   text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
-/* persistent dots after the typed watermark text */
-#animatedWatermarkText::after {
-  content: '...';
-  margin-left: 4px; /* small gap between text and dots */
-  opacity: 0.9;
-}
-
 .panel {
 
   position: absolute;
