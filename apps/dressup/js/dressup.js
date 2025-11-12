@@ -249,29 +249,18 @@ function getWatermarkText() {
 function runWatermarkTyping() {
   if (!animatedWMEl) return;
   let i = 0;
-  let lastText = ''; // track the text we're typing to detect changes
-  
   function typeAnim() {
     const fullText = getWatermarkText();
-    
-    // if text changed (e.g., player loaded), reset
-    if (fullText !== lastText) {
-      lastText = fullText;
-      i = 0;
-    }
-    
     if (i <= fullText.length) {
       // support line breaks
       animatedWMEl.innerHTML = fullText.slice(0, i).replace(/\n/g, '<br>');
       i++;
-      setTimeout(typeAnim, 38);
     } else {
       // pause then restart the typing loop
-      setTimeout(() => { 
-        i = 0; 
-        typeAnim(); 
-      }, 8800);
+      setTimeout(() => { i = 0; typeAnim(); }, 8800);
+      return;
     }
+    setTimeout(typeAnim, 38);
   }
   typeAnim();
 }
