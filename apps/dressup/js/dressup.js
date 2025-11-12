@@ -104,8 +104,12 @@ let currentPlayer = {
 // "Signed in" label for watermark (PID if we have one, otherwise "anonymous")
 let signedInLabel = "anonymous";
 
+// guard so the watermark typing loop only starts once
+let watermarkLoopStarted = false;
+
 // current skin label (e.g. "Base", "CVS Uniform")
 let currentSkinName = null;
+
 
 // chose default hero image
 const DEFAULT_HERO_IMG = "/apps/dressup/assets/munz-base-portrait.png"; // update if needed
@@ -245,21 +249,25 @@ function getWatermarkText() {
 })();
 
 
-// animate that watermark text in the bottom-left footer
 function runWatermarkTyping() {
   if (!animatedWMEl) return;
+
+  // prevent multiple overlapping loops
+  if (watermarkLoopStarted) return;
+  watermarkLoopStarted = true;
+
   let i = 0;
   let lastText = ''; // track the text we're typing to detect changes
-  
+
   function typeAnim() {
     const fullText = getWatermarkText();
-    
+
     // if text changed (e.g., player loaded), reset
     if (fullText !== lastText) {
       lastText = fullText;
       i = 0;
     }
-    
+
     if (i <= fullText.length) {
       // support line breaks
       animatedWMEl.innerHTML = fullText.slice(0, i).replace(/\n/g, '<br>');
@@ -267,14 +275,16 @@ function runWatermarkTyping() {
       setTimeout(typeAnim, 38);
     } else {
       // pause then restart the typing loop
-      setTimeout(() => { 
-        i = 0; 
-        typeAnim(); 
+      setTimeout(() => {
+        i = 0;
+        typeAnim();
       }, 8800);
     }
   }
+
   typeAnim();
 }
+
 
 // put the correct hero image into the UI and tag it on the element for later use
 function initHeroBackground() {
@@ -284,10 +294,13 @@ function initHeroBackground() {
   hero.setAttribute('data-person-url', absUrl);
 }
 
-// do the initial sync (badge + hero)
-// Watermark typing will start after auth / player load below
+/// do the initial sync (badge + hero)
 updatePlayerBadge();
 initHeroBackground();
+
+// start the watermark loop immediately with whatever info we have
+// (Supabase auth below can update the labels; the loop will pick them up)
+runWatermarkTyping();
 
 
 
