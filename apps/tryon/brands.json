@@ -58,8 +58,8 @@
       {
         "id": "telfar_t1",
         "name": "",
-        "image": "/apps/tryon/assets/telfar/telfar_base - copy.png",
-        "overlayImage": "/apps/tryon/assets/telfar/telfar_base - copy.png",
+        "image": "/apps/tryon/assets/telfar/redt.png",
+        "overlayImage": "/apps/tryon/assets/telfar/redt.png",
         "link": "https://telfar.net/collections/tees/products/infinity-keyhole-t-red",
         "prompt": "A Red short-sleeve tee with ribbed trim, a faded logo print, and a distinctive infinity-shaped keyhole neckline that loops into an abstract figure-eight cutout at the chest."
       },
