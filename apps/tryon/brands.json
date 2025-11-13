@@ -29,14 +29,16 @@
         "name": "HOLY Tank",
         "image": "/shared/assets/suitcase/holy_tank.png",
         "overlayImage": "/shared/assets/suitcase/holy_tank.png",
-        "link": "https://brand.com/holy-tank"
+        "link": "https://brand.com/holy-tank",
+        "prompt": "Sleeveless tank with relaxed fit; showcase natural drape and fabric texture; emphasize shoulder definition and torso silhouette."
       },
       {
-        "id": "holy_tank",
-        "name": "HOLY Tank",
+        "id": "holy_tank_alt",
+        "name": "HOLY Tank Alt",
         "image": "/shared/assets/suitcase/holy_tank.png",
         "overlayImage": "/shared/assets/suitcase/holy_tank.png",
-        "link": "https://brand.com/holy-tank"
+        "link": "https://brand.com/holy-tank",
+        "prompt": "Slim-fit sleeveless tank with pronounced chest taper; highlight side seams and muscle definition; emphasize clean lines."
       }
 
     ]
@@ -54,18 +56,28 @@
     },
     "items": [
       {
-        "id": "holy_tank",
+        "id": "telfar_t1",
         "name": "HOLY Tank",
         "image": "/apps/tryon/assets/telfar/t1.png",
         "overlayImage": "/apps/tryon/assets/telfar/t1.png",
-        "link": ""
+        "link": "",
+        "prompt": "Classic crew-neck tank with oversized fit; showcase relaxed shoulders and boxy silhouette; highlight premium fabric weight."
       },
       {
-        "id": "holy_tank",
+        "id": "telfar_ringer_green",
+        "name": "Star Basic Ringer T - Green/Dark Green",
+        "image": "/apps/tryon/assets/telfar/t3.png",
+        "overlayImage": "/apps/tryon/assets/telfar/t1.png",
+        "link": "",
+        "prompt": "Fitted ringer T-shirt with contrasting collar trim; emphasize chest fit and sleeve length; show color depth and fabric blend."
+      },
+      {
+        "id": "telfar_t2",
         "name": "HOLY Tank",
         "image": "/apps/tryon/assets/telfar/t2.png",
         "overlayImage": "/apps/tryon/assets/telfar/t2.png",
-        "link": "https://brand.com/holy-tank"
+        "link": "https://brand.com/holy-tank",
+        "prompt": "Modern silhouette tank with geometric cutouts; highlight waist definition and armhole design; emphasize architectural details."
       }
 
     ]
