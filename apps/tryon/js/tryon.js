@@ -38,7 +38,10 @@
   let brandConfig = null; let availableSkins = [];
   let currentPlayer = { name: qsName || 'SUNSEX', id: qsId || 'TRYON', heroUrl: qsHero || DEFAULT_HERO_IMG };
   let currentSkinName = qsSkin || 'Fitting Room'; let signedInLabel = qsId || 'anonymous';
-  let garmentPublicUrl = null; let historyStack = []; let hasGeneratedOnce = false;
+  let garmentPublicUrl = null; // public URL for selected garment overlay/image
+  let selectedGarmentPrompt = ''; // prompt addition read from selected item JSON
+  let selectedGarmentName = null; // friendly name of selected item
+  let historyStack = []; let hasGeneratedOnce = false;
 
   function setHeroImage(url){ if(!hero) return; const fallback = hero.getAttribute('data-default-hero') || DEFAULT_HERO_IMG; const finalUrl = toAbsoluteHttpUrl(url||fallback); hero.style.backgroundImage = `url(\"${finalUrl}\")`; hero.setAttribute('data-person-url', finalUrl); }
   (function(){ setHeroImage(currentPlayer.heroUrl); })();
@@ -60,7 +63,23 @@
   }
   if(garmentGrid) initBrandAndGarments();
 
-  function populateGarmentGrid(items){ if(!garmentGrid || !Array.isArray(items)) return; garmentGrid.innerHTML=''; items.forEach(item=>{ const slot=document.createElement('div'); slot.className='slot'; slot.dataset.empty='false'; const img=document.createElement('img'); img.src = item.image; img.alt=item.name; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='contain'; slot.appendChild(img); slot.title=item.name; slot.addEventListener('click', ()=>{ document.querySelectorAll('#garmentGrid .slot').forEach(s=>s.classList.remove('selected')); slot.classList.add('selected'); garmentPublicUrl = toAbsoluteHttpUrl(item.overlayImage || item.image); if(garmentPreview) garmentPreview.src = garmentPublicUrl; if(thumbWrap) thumbWrap.classList.remove('empty'); if(btnGenerate) btnGenerate.disabled = !hero?.getAttribute('data-person-url'); }); garmentGrid.appendChild(slot); }); }
+  function populateGarmentGrid(items){ if(!garmentGrid || !Array.isArray(items)) return; garmentGrid.innerHTML=''; items.forEach(item=>{ const slot=document.createElement('div'); slot.className='slot'; slot.dataset.empty='false'; const img=document.createElement('img'); img.src = item.image; img.alt=item.name; img.style.width='100%'; img.style.height='100%'; img.style.objectFit='contain'; slot.appendChild(img); slot.title=item.name; slot.addEventListener('click', ()=>{ // clear previous selection
+    document.querySelectorAll('#garmentGrid .slot').forEach(s=>s.classList.remove('selected'));
+    slot.classList.add('selected');
+
+    // set selected garment info
+    garmentPublicUrl = toAbsoluteHttpUrl(item.overlayImage || item.image);
+    selectedGarmentName = item.name || item.id || null;
+    // support multiple possible prompt field names in the items JSON
+    selectedGarmentPrompt = item.prompt || item.promptAddition || item.prompt_add || '';
+
+    // update UI
+    if(garmentPreview) garmentPreview.src = garmentPublicUrl;
+    if(thumbWrap) thumbWrap.classList.remove('empty');
+    if(statusEl) statusEl.textContent = selectedGarmentPrompt ? `${selectedGarmentName} selected — prompt snippet loaded.` : `${selectedGarmentName} selected.`;
+    // enable generate only when a person image exists
+    if(btnGenerate) btnGenerate.disabled = !hero?.getAttribute('data-person-url');
+  }); garmentGrid.appendChild(slot); }); }
 
   function updateThumbEmpty(){ try{ const hasSrc = garmentPreview.getAttribute && garmentPreview.getAttribute('src'); if(thumbWrap) thumbWrap.classList.toggle('empty', !hasSrc); }catch(_){ } }
   updateThumbEmpty();
@@ -74,11 +93,15 @@
   btnUpload?.addEventListener('click', ()=>fileInput.click());
 
   // Generate
-  btnGenerate?.addEventListener('click', async ()=>{ const personUrl = toAbsoluteHttpUrl(hero?.getAttribute('data-person-url')); if(!personUrl){ statusEl && (statusEl.textContent='Upload your photo first.'); return; } if(!garmentPublicUrl){ statusEl && (statusEl.textContent='Pick a garment from the collection.'); return; } btnGenerate.disabled=true; statusEl && (statusEl.textContent='Generating your try-on…'); try{ const payload = { model:'google/nano-banana', personUrl, garmentUrl: garmentPublicUrl, prompt:'Dress the uploaded person image with the selected garment.' }; const res = await fetch('/api/generate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) }); const body = await res.json().catch(()=>({})); if(!res.ok){ statusEl && (statusEl.textContent = 'Generation failed: ' + (body.details || body.error || res.statusText)); throw new Error('Try-on API error'); } const outputUrl = body.outputUrl || body.image || body.output; if(!outputUrl) throw new Error('No output URL returned'); let finalUrl = outputUrl; try{ const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null); if(sb?.storage){ const imgRes = await fetch(outputUrl, { mode:'cors' }); if(imgRes.ok){ const blob = await imgRes.blob(); const ext = (blob.type && blob.type.includes('png'))?'png':'jpg'; const key = `generated/tryon/${Date.now()}.${ext}`; const { error } = await sb.storage.from('userassets').upload(key, blob, { contentType: blob.type || 'image/png', upsert:true }); if(!error){ const { data } = sb.storage.from('userassets').getPublicUrl(key); if(data?.publicUrl) finalUrl = data.publicUrl; } } } }catch(e){ console.warn('save to supabase failed', e); }
+  btnGenerate?.addEventListener('click', async ()=>{ const personUrl = toAbsoluteHttpUrl(hero?.getAttribute('data-person-url')); if(!personUrl){ statusEl && (statusEl.textContent='Upload your photo first.'); return; } if(!garmentPublicUrl){ statusEl && (statusEl.textContent='Pick a garment from the collection.'); return; } btnGenerate.disabled=true; statusEl && (statusEl.textContent='Generating your try-on…'); try{ const basePrompt = 'Dress the uploaded person image with the selected garment.'; const combinedPrompt = selectedGarmentPrompt ? `${basePrompt} ${selectedGarmentPrompt}` : basePrompt; const payload = { model:'google/nano-banana', personUrl, garmentUrl: garmentPublicUrl, prompt: combinedPrompt, itemName: selectedGarmentName || null }; const res = await fetch('/api/generate', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) }); const body = await res.json().catch(()=>({})); if(!res.ok){ statusEl && (statusEl.textContent = 'Generation failed: ' + (body.details || body.error || res.statusText)); throw new Error('Try-on API error'); } const outputUrl = body.outputUrl || body.image || body.output; if(!outputUrl) throw new Error('No output URL returned'); let finalUrl = outputUrl; try{ const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null); if(sb?.storage){ const imgRes = await fetch(outputUrl, { mode:'cors' }); if(imgRes.ok){ const blob = await imgRes.blob(); const ext = (blob.type && blob.type.includes('png'))?'png':'jpg'; const key = `generated/tryon/${Date.now()}.${ext}`; const { error } = await sb.storage.from('userassets').upload(key, blob, { contentType: blob.type || 'image/png', upsert:true }); if(!error){ const { data } = sb.storage.from('userassets').getPublicUrl(key); if(data?.publicUrl) finalUrl = data.publicUrl; } } } }catch(e){ console.warn('save to supabase failed', e); }
     const currentUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url')); if(currentUrl && currentUrl !== finalUrl) historyStack.push(currentUrl); hero.style.transition='filter .18s ease, opacity .18s ease'; hero.style.opacity='0.85'; setTimeout(()=>{ hero.style.backgroundImage = `url(\"${finalUrl}\")`; hero.setAttribute('data-person-url', finalUrl); hero.style.opacity = '1'; },180); statusEl && (statusEl.textContent='Done.'); hasGeneratedOnce=true; btnUndo && (btnUndo.style.display = historyStack.length ? 'inline-block' : 'none'); btnSave && (btnSave.style.display='inline-block'); resetBtn && (resetBtn.style.display='inline-block'); }catch(err){ console.error(err); statusEl && (statusEl.textContent='Generation failed: '+(err.message||err)); } finally{ btnGenerate.disabled=false; } });
 
   // Reset / Undo / Download
-  resetBtn?.addEventListener('click', ()=>{ const url = toAbsoluteHttpUrl(DEFAULT_HERO_IMG); hero.style.transition='filter .18s ease, opacity .18s ease'; hero.style.opacity='0.85'; setTimeout(()=>{ hero.style.backgroundImage = `url(\"${url}\")`; hero.setAttribute('data-person-url', url); hero.style.opacity = '1'; },180); garmentPreview.removeAttribute('src'); garmentPublicUrl = null; document.querySelectorAll('#garmentGrid .slot').forEach(s=>s.classList.remove('selected')); historyStack = []; btnUndo && (btnUndo.style.display='none'); btnSave && (btnSave.style.display='none'); resetBtn && (resetBtn.style.display='none'); hasGeneratedOnce=false; updateThumbEmpty(); if(btnGenerate) btnGenerate.disabled=true; });
+  resetBtn?.addEventListener('click', ()=>{ const url = toAbsoluteHttpUrl(DEFAULT_HERO_IMG); hero.style.transition='filter .18s ease, opacity .18s ease'; hero.style.opacity='0.85'; setTimeout(()=>{ hero.style.backgroundImage = `url(\"${url}\")`; hero.setAttribute('data-person-url', url); hero.style.opacity = '1'; },180); garmentPreview.removeAttribute('src'); garmentPublicUrl = null; // clear selected garment metadata
+    selectedGarmentPrompt = '';
+    selectedGarmentName = null;
+    if(statusEl) statusEl.textContent = 'Reset to default. Upload a photo and pick an item to try on.';
+    document.querySelectorAll('#garmentGrid .slot').forEach(s=>s.classList.remove('selected')); historyStack = []; btnUndo && (btnUndo.style.display='none'); btnSave && (btnSave.style.display='none'); resetBtn && (resetBtn.style.display='none'); hasGeneratedOnce=false; updateThumbEmpty(); if(btnGenerate) btnGenerate.disabled=true; });
 
   btnUndo?.addEventListener('click', ()=>{ if(!historyStack.length) return; const previousUrl = historyStack.pop(); hero.style.transition='filter .18s ease, opacity .18s ease'; hero.style.opacity='0.85'; setTimeout(()=>{ hero.style.backgroundImage = `url(\"${previousUrl}\")`; hero.setAttribute('data-person-url', previousUrl); hero.style.opacity='1'; },180); btnUndo && (btnUndo.style.display = historyStack.length ? 'inline-block' : 'none'); });
 
