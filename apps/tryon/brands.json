@@ -56,6 +56,14 @@
     },
     "items": [
       {
+        "id": "Star Basic Ringer T - Green/Dark Green",
+        "name": "Star Basic Ringer T - Green/Dark Green",
+        "image": "/apps/tryon/assets/telfar/jba.png",
+        "overlayImage": "/apps/tryon/assets/telfar/jba.png",
+        "link": "https://telfar.net/collections/tees/products/star-basic-ringer-t-green-dark-green",
+        "prompt": "a brown baggy tshirt with red graphic star and telfar logo on the front"
+      },
+      {
         "id": "telfar_t1",
         "name": "",
         "image": "/apps/tryon/assets/telfar/redt.png",
@@ -71,14 +79,7 @@
         "link": "https://telfar.net/collections/tees/products/infinity-keyhole-t-drab",
         "prompt": "An olive brown short-sleeve tee with ribbed trim, a faded logo print, and a distinctive infinity-shaped keyhole neckline that loops into an abstract figure-eight cutout at the chest."
       },
-      {
-        "id": "Star Basic Ringer T - Green/Dark Green",
-        "name": "Star Basic Ringer T - Green/Dark Green",
-        "image": "/apps/tryon/assets/telfar/jba.png",
-        "overlayImage": "/apps/tryon/assets/telfar/jba.png",
-        "link": "https://telfar.net/collections/tees/products/star-basic-ringer-t-green-dark-green",
-        "prompt": "a brown baggy tshirt with red graphic star and telfar logo on the front"
-      },
+      
       {
         "id": "OMG Africa T - Brown",
         "name": "OMG Africa T - Brown",
