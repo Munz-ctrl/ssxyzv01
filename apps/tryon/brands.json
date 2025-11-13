@@ -57,14 +57,22 @@
     "items": [
       {
         "id": "telfar_t1",
-        "name": "HOLY Tank",
+        "name": "",
         "image": "/apps/tryon/assets/telfar/t1.png",
         "overlayImage": "/apps/tryon/assets/telfar/t1.png",
         "link": "",
-        "prompt": "Classic crew-neck tank with oversized fit; showcase relaxed shoulders and boxy silhouette; highlight premium fabric weight."
+        "prompt": "An olive short-sleeve tee with ribbed trim, a faded logo print, and a distinctive infinity-shaped keyhole neckline that loops into an abstract figure-eight cutout at the chest."
       },
       {
-        "id": "telfar_ringer_green",
+        "id": "telfar_t1",
+        "name": "",
+        "image": "/apps/tryon/assets/telfar/t1.png",
+        "overlayImage": "/apps/tryon/assets/telfar/t1.png",
+        "link": "",
+        "prompt": "An olive short-sleeve tee with ribbed trim, a faded logo print, and a distinctive infinity-shaped keyhole neckline that loops into an abstract figure-eight cutout at the chest."
+      },
+      {
+        "id": "Star Basic Ringer T - Green/Dark Green",
         "name": "Star Basic Ringer T - Green/Dark Green",
         "image": "/apps/tryon/assets/telfar/t3.png",
         "overlayImage": "/apps/tryon/assets/telfar/t1.png",
@@ -72,8 +80,8 @@
         "prompt": "Fitted ringer T-shirt with contrasting collar trim; emphasize chest fit and sleeve length; show color depth and fabric blend."
       },
       {
-        "id": "telfar_t2",
-        "name": "HOLY Tank",
+        "id": "OMG Africa T - Brown",
+        "name": "OMG Africa T - Brown",
         "image": "/apps/tryon/assets/telfar/t2.png",
         "overlayImage": "/apps/tryon/assets/telfar/t2.png",
         "link": "https://brand.com/holy-tank",
