@@ -37,5 +37,21 @@
     "image": "/shared/assets/suitcase/BeastT.png",
     "overlayImage": "/shared/assets/suitcase/BeastT.png",
     "link": "https://example.com/holy-tank"
+  },
+
+  {
+    "id": "Agency-Training-Shorts",
+    "name": "Agency Training Shorts ",
+    "image": "/shared/assets/suitcase/rydershorts.png",
+    "overlayImage": "/shared/assets/suitcase/rydershorts.png",
+    "link": "https://ryderstudios.us/products/training-shorts?pr_prod_strat=jac&pr_rec_id=6dc1631d5&pr_rec_pid=7500651200625&pr_ref_pid=7502675542129&pr_seq=uniform&variant=42605361332337"
+  },
+  {
+    "id": "agency-hunting-cap",
+    "name": "Agency Hunting Cap ",
+    "image": "/shared/assets/suitcase/rydergovhat.png",
+    "overlayImage": "/shared/assets/suitcase/rydergovhat.png",
+    "link": "https://ryderstudios.us/collections/shop-all/products/agency-hunting-cap"
   }
+
 ]
