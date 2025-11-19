@@ -278,9 +278,11 @@ async function loadItems() {
         selectedSlot = slot;
         overlay.innerHTML = `
           <div class="overlay-content">
-            <img src="${item.overlayImage || item.image}" alt="${item.name}">
+            <a href="${item.link}" target="_blank" tabindex="0">
+              <img src="${item.overlayImage || item.image}" alt="${item.name}">
+            </a>
             <div class="item-info">
-              <a href="${item.link}" target="_blank" class="item-link"><strong>${item.name}</strong></a>
+              <a href="${item.link}" target="_blank" class="item-link" tabindex="0"><strong>${item.name}</strong></a>
             </div>
           </div>
         `;
