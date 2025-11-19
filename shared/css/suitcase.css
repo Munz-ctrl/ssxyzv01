@@ -188,18 +188,18 @@
 /* Overlay content is a full clickable link; layout is sized for portrait. Positioning is set by JS so the overlay sits under the grid. */
 #itemOverlay .overlay-content.full-link {
   position: relative;
-  left: auto;
+  right: 25%;
   top: auto;
   transform: none;
   width: min(92vw, 340px);
   max-width: 340px;
   min-width: 180px;
   box-sizing: border-box;
-  padding: 16px 12px 14px 12px;
+  
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  
   overflow: hidden;
   background: none;
   border-radius: 16px;
