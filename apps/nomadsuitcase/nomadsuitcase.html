@@ -142,6 +142,7 @@ window.addEventListener('load', () => {
    const video = document.getElementById('gameVideo');
 const itemGrid = document.getElementById('itemGrid');
 const overlay = document.getElementById('itemOverlay');
+  const gameContainer = document.getElementById('gameContainer');
 const suitcaseBtn = document.getElementById('suitcaseBtn');
 const closeBtn = document.getElementById('closeSuitcaseBtn');
 
@@ -285,6 +286,19 @@ async function loadItems() {
           </a>
         `;
         overlay.style.display = 'block';
+
+        // Position the overlay directly under the item grid so it fits the portrait frame.
+        // Compute coordinates relative to the game container (parent of both grid and overlay)
+        overlay.style.position = 'absolute';
+        const gridRect = itemGrid.getBoundingClientRect();
+        const containerRect = gameContainer.getBoundingClientRect();
+        const left = gridRect.left + gridRect.width / 2 - containerRect.left;
+        const top = gridRect.bottom - containerRect.top + 10; // 10px gap below grid
+        overlay.style.left = `${left}px`;
+        overlay.style.top = `${top}px`;
+        overlay.style.transform = 'translateX(-50%)';
+        // trigger slide-in animation on the overlay element
+        overlay.style.animation = 'slideInOverlay 0.32s ease forwards';
       };
     } else {
       slot.classList.add('empty');
