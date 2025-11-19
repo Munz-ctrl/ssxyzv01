@@ -277,12 +277,12 @@ async function loadItems() {
         slot.classList.add('selected');
         selectedSlot = slot;
         overlay.innerHTML = `
-          <div class="overlay-content">
+          <a href="${item.link}" target="_blank" class="overlay-content full-link">
             <img src="${item.overlayImage || item.image}" alt="${item.name}">
             <div class="item-info">
-              <a href="${item.link}" target="_blank" class="item-link"><strong>${item.name}</strong></a>
+              <span class="item-name">${item.name}</span>
             </div>
-          </div>
+          </a>
         `;
         overlay.style.display = 'block';
       };
