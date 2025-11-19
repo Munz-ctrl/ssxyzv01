@@ -40,28 +40,6 @@
 }
 
 .item-slot.empty span {
-#itemOverlay {
-  display: none;
-  position: absolute;
-  left: 50%;
-  top: calc(100% + 12px); /* below the grid */
-  transform: translateX(-50%);
-  box-sizing: border-box;
-  z-index: 20;
-  padding: 0;
-  background: transparent;
-  border-radius: 10px;
-  animation: slideInOverlay 0.32s ease forwards;
-  width: min(92vw, 340px);
-  max-width: 340px;
-  min-width: 180px;
-  max-height: 38vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: none;
-  border: 1px solid rgba(255,255,255,0.10);
-  backdrop-filter: blur(6px);
   font-size: 32px;
   color: #bcbcbc;
   font-weight: bold;
@@ -219,17 +197,6 @@
   gap: 6px;
   overflow: hidden;
 }
-#itemOverlay .overlay-content {
-  position: relative;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 14px 10px 10px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  overflow: visible;
-}
 
 /* Keep overlay background removed but ensure the box contains its children cleanly.
    Add a subtle outline so the box reads as a contained element without a solid fill. */
@@ -266,23 +233,6 @@
   box-shadow: 0 8px 20px rgba(0,0,0,0.28);
   z-index: 3;
 }
-#itemOverlay img {
-  position: relative;
-  width: 100%;
-  max-width: 180px;
-  height: auto;
-  object-fit: contain;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
-  z-index: 3;
-  cursor: pointer;
-  transition: box-shadow 0.2s, transform 0.2s;
-}
-
-#itemOverlay img:hover {
-  box-shadow: 0 8px 24px rgba(0,0,0,0.28);
-  transform: scale(1.04);
-}
 
 #itemOverlay .item-info {
   position: relative;
@@ -296,21 +246,6 @@
   padding: 6px 4px 0 4px;
   box-sizing: border-box;
   word-wrap: break-word;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-#itemOverlay .item-info {
-  position: relative;
-  width: 100%;
-  color: #fff;
-  font-size: clamp(13px, 2.5vw, 18px);
-  line-height: 1.15;
-  z-index: 2;
-  text-align: center;
-  margin-top: 0;
-  padding: 4px 2px 0 2px;
-  box-sizing: border-box;
-  word-break: break-word;
   overflow-wrap: anywhere;
   white-space: normal;
 }
@@ -344,31 +279,12 @@
 }
 
 #itemGrid { z-index: 2; }
-#itemOverlay .item-link {
-  color: #ffffff;
-  text-decoration: none;
-  font-weight: 800;
-  display: inline-block;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-  transition: transform 160ms ease, box-shadow 160ms ease, color 160ms ease, font-size 0.2s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-  font-size: inherit;
-  max-width: 100%;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
+#itemOverlay { z-index: 2; }
 
-#itemOverlay .item-link:hover,
-#itemOverlay .item-link:focus {
-  transform: translateY(-2px) scale(1.04);
-  text-decoration: underline;
-  color: #cfeeff;
-  font-size: 1.08em;
-}
+#closeSuitcaseBtn {
+  position: absolute;
+  left: 25%;
+  bottom: 30%;
   width: 22px;
   height: 22px;
   background: #222;
