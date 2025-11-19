@@ -187,69 +187,95 @@
 
 #itemOverlay .overlay-content {
   position: relative;
-  width: min(86vw, 320px);
-  height: auto;
-  padding: 6px;
+  width: min(88vw, 360px);
+  max-width: 360px;
+  box-sizing: border-box;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
 }
 
-/* Make overlay background transparent and remove heavy shadow */
+/* Keep overlay background removed but ensure the box contains its children cleanly.
+   Add a subtle outline so the box reads as a contained element without a solid fill. */
 #itemOverlay {
   display: none;
   position: absolute;
-  top: 30%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   box-sizing: border-box;
   z-index: 20;
   padding: 0;
   background: transparent;
-  border-radius: 8px;
+  border-radius: 10px;
   animation: slideInOverlay 0.32s ease forwards;
   max-width: 92vw;
-  max-height: 70vh;
+  max-height: 72vh;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: none;
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
 }
 
-/* Diagonal stacked layout with slight overlap */
+/* Vertical layout: image on top, text below. Remove rotations. */
 #itemOverlay img {
-  position: absolute;
-  left: 6px;
-  top: 6px;
-  width: min(46vw, 160px);
+  position: relative;
+  width: min(72vw, 220px);
+  max-width: 220px;
   height: auto;
   object-fit: contain;
   border-radius: 10px;
-  transform: rotate(-8deg);
-  box-shadow: 0 10px 24px rgba(0,0,0,0.32);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.28);
   z-index: 3;
 }
 
 #itemOverlay .item-info {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: calc(100% - 120px);
+  position: relative;
+  width: 100%;
   color: #fff;
-  font-size: 18px;
-  line-height: 1.05;
-  transform: rotate(6deg);
+  font-size: 16px;
+  line-height: 1.1;
   z-index: 2;
-  text-align: left;
+  text-align: center;
+  margin-top: -8px; /* slight overlap so image and text feel connected */
+  padding: 6px 4px 0 4px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
+/* Make the name clearly clickable and add subtle pulse animation */
 #itemOverlay .item-link {
-  color: #fff;
+  color: #ffffff;
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 800;
   display: inline-block;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  transition: transform 160ms ease, box-shadow 160ms ease, color 160ms ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  animation: pulseName 2.8s ease-in-out infinite;
 }
 
-#itemOverlay .item-link:hover {
+#itemOverlay .item-link:hover,
+#itemOverlay .item-link:focus {
+  transform: translateY(-2px) scale(1.02);
   text-decoration: underline;
-  color: #9fd8ff;
+  color: #cfeeff;
+}
+
+@keyframes pulseName {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+  100% { transform: scale(1); }
 }
 
 #itemGrid { z-index: 2; }
