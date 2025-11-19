@@ -280,8 +280,7 @@ async function loadItems() {
           <div class="overlay-content">
             <img src="${item.overlayImage || item.image}" alt="${item.name}">
             <div class="item-info">
-              <div><strong>${item.name}</strong></div>
-              <a href="${item.link}" target="_blank">View</a>
+              <a href="${item.link}" target="_blank" class="item-link"><strong>${item.name}</strong></a>
             </div>
           </div>
         `;
