@@ -185,12 +185,12 @@
   }
 }
 
-/* Overlay content is now a full clickable link, stacked vertically, sized for portrait, and placed under the item grid. */
+/* Overlay content is a full clickable link; layout is sized for portrait. Positioning is set by JS so the overlay sits under the grid. */
 #itemOverlay .overlay-content.full-link {
-  position: absolute;
-  left: 50%;
-  top: calc(100% + 12px); /* below the grid */
-  transform: translateX(-50%);
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
   width: min(92vw, 340px);
   max-width: 340px;
   min-width: 180px;
@@ -207,19 +207,7 @@
   text-decoration: none;
   z-index: 30;
   border: none;
-  animation: slideInOverlay 0.32s ease forwards;
   transition: box-shadow 0.2s;
-}
-
-@keyframes slideInOverlay {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
 }
 
 #itemOverlay img {
@@ -271,23 +259,21 @@
 #itemOverlay {
   display: none;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: auto; /* positioned by JS when shown so it sits under the grid */
+  left: auto;
+  transform: none;
   box-sizing: border-box;
   z-index: 20;
   padding: 0;
   background: transparent;
   border-radius: 10px;
-  animation: slideInOverlay 0.32s ease forwards;
   max-width: 92vw;
   max-height: 72vh;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: none;
-  border: 1px solid rgba(255,255,255,0.06);
-  backdrop-filter: blur(6px);
+  border: none;
 }
 
 /* Vertical layout: image on top, text below. Remove rotations. */
