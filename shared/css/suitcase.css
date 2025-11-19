@@ -186,15 +186,13 @@
 }
 
 #itemOverlay .overlay-content {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: start;
-  font-size: 12px;
-  color: #222;
-  justify-content: space-around;
+  position: relative;
+  width: min(86vw, 320px);
+  height: auto;
+  padding: 6px;
 }
 
+/* Make overlay background transparent and remove heavy shadow */
 #itemOverlay {
   display: none;
   position: absolute;
@@ -203,40 +201,55 @@
   transform: translate(-50%, -50%);
   box-sizing: border-box;
   z-index: 20;
-  padding: 18px 20px;
-  background: rgba(0, 0, 0, 0.85);
-  border-radius: 16px;
-  animation: slideInOverlay 0.4s ease forwards;
-  max-width: 90vw;
-  max-height: 60vh;
+  padding: 0;
+  background: transparent;
+  border-radius: 8px;
+  animation: slideInOverlay 0.32s ease forwards;
+  max-width: 92vw;
+  max-height: 70vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 32px 0 #0008;
+  box-shadow: none;
 }
 
+/* Diagonal stacked layout with slight overlap */
 #itemOverlay img {
-  width: 72px;
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  width: min(46vw, 160px);
   height: auto;
   object-fit: contain;
-  border-radius: 8px;
+  border-radius: 10px;
+  transform: rotate(-8deg);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.32);
+  z-index: 3;
 }
 
 #itemOverlay .item-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: fit-content;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: calc(100% - 120px);
   color: #fff;
-  stroke: #222;
-  stroke-width: 1px;
+  font-size: 18px;
+  line-height: 1.05;
+  transform: rotate(6deg);
+  z-index: 2;
+  text-align: left;
 }
 
-#itemOverlay .item-info a {
-  color: #0077ff;
+#itemOverlay .item-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-block;
+}
+
+#itemOverlay .item-link:hover {
   text-decoration: underline;
-  font-weight: bold;
-  font-size: fit-content;
+  color: #9fd8ff;
 }
 
 #itemGrid { z-index: 2; }
