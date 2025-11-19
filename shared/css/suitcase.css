@@ -185,17 +185,77 @@
   }
 }
 
-#itemOverlay .overlay-content {
-  position: relative;
-  width: min(88vw, 360px);
-  max-width: 360px;
+/* Overlay content is now a full clickable link, stacked vertically, sized for portrait, and placed under the item grid. */
+#itemOverlay .overlay-content.full-link {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 12px); /* below the grid */
+  transform: translateX(-50%);
+  width: min(92vw, 340px);
+  max-width: 340px;
+  min-width: 180px;
   box-sizing: border-box;
-  padding: 12px;
+  padding: 16px 12px 14px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 10px;
   overflow: hidden;
+  background: rgba(30,30,30,0.92);
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+  text-decoration: none;
+  z-index: 30;
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: box-shadow 0.2s;
+}
+
+#itemOverlay .overlay-content.full-link:hover {
+  box-shadow: 0 10px 32px rgba(0,0,0,0.28);
+}
+
+#itemOverlay img {
+  position: relative;
+  width: min(70vw, 180px);
+  max-width: 180px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  z-index: 2;
+}
+
+#itemOverlay .item-info {
+  position: relative;
+  width: 100%;
+  color: #fff;
+  font-size: clamp(15px, 3vw, 22px);
+  line-height: 1.15;
+  z-index: 2;
+  text-align: center;
+  margin-top: 0;
+  padding: 0 2px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  font-weight: 700;
+}
+
+#itemOverlay .item-name {
+  display: block;
+  width: 100%;
+  color: #fff;
+  cursor: pointer;
+  padding: 4px 0 0 0;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+#itemOverlay .overlay-content.full-link:active .item-name,
+#itemOverlay .overlay-content.full-link:hover .item-name {
+  background: rgba(255,255,255,0.08);
+  color: #cfeeff;
 }
 
 /* Keep overlay background removed but ensure the box contains its children cleanly.
