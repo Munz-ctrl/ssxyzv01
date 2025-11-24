@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/",               "destination": "/apps/map/map.html" },
     { "source": "/map",            "destination": "/apps/map/map.html" },
     { "source": "/nomadsuitcase",  "destination": "/apps/nomadsuitcase/nomadsuitcase.html" },
     { "source": "/edit-profile",   "destination": "/apps/edit/edit-profile.html" },
