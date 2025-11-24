@@ -10,7 +10,6 @@
 
   ],
   "redirects": [
-    { "source": "/index.html",           "destination": "/map",            "permanent": true },
     { "source": "/Nomad_Suitcase.html",  "destination": "/nomadsuitcase",  "permanent": true },
     { "source": "/edit-profile.html",    "destination": "/edit-profile",   "permanent": true },
     { "source": "/dressup.html",    "destination": "/dressup",   "permanent": true }
