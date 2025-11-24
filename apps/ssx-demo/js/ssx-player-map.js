@@ -1,6 +1,30 @@
 // apps/ssx-demo/js/ssx-player-map.js
 import { supabase } from '/shared/js/supabase.js';
 
+
+function extractPlayerCoords(player) {
+  if (!player) return null;
+
+  // Supabase returns JSON as object/array already, but in case it's a string, try parse.
+  let coords = player.coords;
+  if (typeof coords === 'string') {
+    try {
+      coords = JSON.parse(coords);
+    } catch {
+      coords = null;
+    }
+  }
+
+  if (Array.isArray(coords) && coords.length === 2) {
+    const [lat, lng] = coords;
+    if (typeof lat === 'number' && typeof lng === 'number') {
+      return [lat, lng];
+    }
+  }
+  return null;
+}
+
+
 const DEMO_PLAYER_PID = 'MUNZ';
 
 let map;
