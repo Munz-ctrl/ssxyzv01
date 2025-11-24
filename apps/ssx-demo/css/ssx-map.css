@@ -135,28 +135,38 @@ html, body.ssx-map-body {
 
 /* Popup text */
 
-.pm-popup-title {
-  font-weight: 600;
-  font-size: 13px;
-  margin-bottom: 4px;
+/* Title sprite overlay (top center) */
+.pm-title-sprite {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 900;
+  pointer-events: none;
 }
 
-.pm-popup-sub {
-  font-size: 11px;
+.pm-title-sprite img {
+  height: 40px;
+  object-fit: contain;
   opacity: 0.8;
 }
 
-.pm-popup-content {
+/* Cursor coordinates overlay (bottom-left) */
+.pm-coord-readout {
+  position: absolute;
+  left: 10px;
+  bottom: 16px;
+  z-index: 1100;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   font-size: 11px;
-  margin-top: 4px;
+  color: rgba(245, 245, 245, 0.9);
+  pointer-events: none;
 }
 
-/* Footer over map */
-
+/* Slight adjustment so map footer doesn’t overlap coords too badly */
 .home-footer {
-  position: fixed;
-  left: 16px;
-  right: 16px;
-  bottom: 10px;
-  z-index: 1200;
+  bottom: 6px;
 }
