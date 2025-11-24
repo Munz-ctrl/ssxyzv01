@@ -3,9 +3,9 @@
     { "source": "/map",           "destination": "/apps/map/map.html" },
     { "source": "/nomadsuitcase", "destination": "/apps/nomadsuitcase/nomadsuitcase.html" },
     { "source": "/edit-profile",  "destination": "/apps/edit/edit-profile.html" },
-    { "source": "/yen",           "destination": "/apps/yen/yen.html" },
     { "source": "/puffcounter",   "destination": "/apps/puffcounter/index.html" }
   ],
+  
   "redirects": [
     { "source": "/Nomad_Suitcase.html", "destination": "/nomadsuitcase", "permanent": true },
     { "source": "/edit-profile.html",   "destination": "/edit-profile",   "permanent": true }
