@@ -1,0 +1,119 @@
+/* Player map layout */
+
+.ssx-map-body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #151621 0, #050509 55%, #000000 100%);
+  color: #f5f5f5;
+  font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Text",
+               Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+#player-map-shell {
+  position: relative;
+  min-height: 100vh;
+  padding: 14px clamp(12px, 4vw, 28px);
+  padding-bottom: 40px; /* leave room for footer */
+  box-sizing: border-box;
+}
+
+/* Header */
+
+.pm-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.pm-back-btn {
+  border-radius: 999px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(0, 0, 0, 0.85);
+  color: #f5f5f5;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.pm-header-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pm-header-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.pm-header-title {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.pm-header-sub {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.pm-cta {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 6px 10px;
+  font-size: 11px;
+  color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+/* Map container */
+
+#playerMap {
+  width: 100%;
+  height: calc(100vh - 80px); /* header + padding */
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+/* Leaflet tweaks */
+
+.leaflet-container {
+  background: #050509;
+}
+
+/* Memory markers (simple for now) */
+
+.pm-marker {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 20%, #ffffff, #ff2455 55%, #310013 100%);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 10px rgba(255, 36, 85, 0.7);
+}
+
+.pm-popup-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.pm-popup-sub {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.pm-popup-content {
+  font-size: 11px;
+  margin-top: 4px;
+}
