@@ -170,7 +170,6 @@ function updateHeader(player) {
 async function bootstrap() {
   initMap();
 
-  // For now, always use the demo player pid.
   const playerPid = DEMO_PLAYER_PID;
 
   const player = await fetchPlayer(playerPid);
@@ -195,14 +194,37 @@ async function bootstrap() {
 
   renderMemoriesOnMap(memories, locationsById);
 
-  // If player has a home location and no memories, center there
-  if (player && !memories.length) {
-    const { home_lat, home_lng } = player;
-    if (typeof home_lat === 'number' && typeof home_lng === 'number') {
-      map.setView([home_lat, home_lng], 5);
+  // Player pin: use home_lat/home_lng if available
+  if (player && typeof player.home_lat === 'number' && typeof player.home_lng === 'number') {
+    const pinCoords = [player.home_lat, player.home_lng];
+
+    const playerIcon = L.divIcon({
+      className: '',
+      html: `
+        <div class="pm-player-pin">
+          <img src="/shared/assets/fallbackIsoAvatar.webp" alt="${player.name || player.pid}">
+        </div>
+      `,
+      iconSize: [52, 52],
+      iconAnchor: [26, 46]
+    });
+
+    const pinMarker = L.marker(pinCoords, { icon: playerIcon }).addTo(map);
+    pinMarker.bindPopup(
+      `<div class="pm-popup">
+        <div class="pm-popup-title">${player.name || player.pid}</div>
+        <div class="pm-popup-sub">current home position</div>
+      </div>`,
+      { closeButton: false, offset: [0, -8] }
+    );
+
+    // If there are no memories yet, center on player pin
+    if (!memories.length) {
+      map.setView(pinCoords, 5);
     }
   }
 }
+
 
 bootstrap().catch((err) => {
   console.error('Error bootstrapping player map', err);
