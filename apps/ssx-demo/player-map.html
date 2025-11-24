@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sunsex · Player Map</title>
+
+  <!-- Fonts + Leaflet -->
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <!-- Shared base styles + home footer + SSX map styles -->
+  <link rel="stylesheet" href="/shared/css/styles.css" />
+  <link rel="stylesheet" href="/shared/css/home.css" />
+  <link rel="stylesheet" href="/apps/ssx-demo/css/ssx-map.css" />
+</head>
+<body class="ssx-map-body">
+
+  <div id="player-map-shell">
+    <header class="pm-header">
+      <button class="pm-back-btn" onclick="history.back()">
+        ←
+      </button>
+      <div class="pm-header-main">
+        <div class="pm-header-label">Player Map</div>
+        <div class="pm-header-title" id="pmPlayerName">MUNZ</div>
+        <div class="pm-header-sub" id="pmHeaderSub">
+          guest mode · demo player · personal locations &amp; memories
+        </div>
+      </div>
+      <button class="pm-cta" id="pmAddMemoryBtn" disabled>
+        Add memory (login to unlock)
+      </button>
+    </header>
+
+    <div id="playerMap"></div>
+  </div>
+
+  <!-- Global bottom status / reuse from home -->
+  <footer class="home-footer animated-text">
+    <span class="home-footer-main">
+      SUNSEX_MIRROR_☂ · viewing map for player: MUNZ (demo)
+    </span>
+    <span class="home-footer-dots">...</span>
+  </footer>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Map logic -->
+  <script type="module" src="/apps/ssx-demo/js/ssx-player-map.js"></script>
+</body>
+</html>
