@@ -40,6 +40,15 @@ function initMap() {
 
   // For player map, default to light tiles
   lightTiles.addTo(map);
+
+    const coordEl = document.getElementById('pmCoordReadout');
+  if (coordEl) {
+    map.on('mousemove', (e) => {
+      const { lat, lng } = e.latlng;
+      coordEl.textContent = `lat ${lat.toFixed(4)}, lng ${lng.toFixed(4)}`;
+    });
+  }
+
 }
 
 /**
