@@ -1,0 +1,208 @@
+/* ===== Root home layout ===== */
+
+.home-body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #171821 0, #050509 55%, #000000 100%);
+  color: #f5f5f5;
+  font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Text",
+               Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+}
+
+.home-shell {
+  position: relative;
+  min-height: 100vh;
+  padding: 20px clamp(16px, 5vw, 40px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+
+.home-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+.home-logo {
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.home-tagline {
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* Islands grid */
+
+.home-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+  grid-template-rows: auto auto;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.home-island {
+  position: relative;
+  border-radius: 999px;
+  padding: 18px 22px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 14px 40px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  isolation: isolate;
+}
+
+/* Slightly irregular blob shapes */
+.home-island::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 0, 64, 0.4), transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.12), transparent 55%);
+  opacity: 0.4;
+  mix-blend-mode: screen;
+  z-index: -1;
+}
+
+.home-island.primary {
+  grid-row: 1 / span 2;
+  border-radius: 45% 55% 52% 48% / 55% 45% 55% 45%;
+}
+
+.home-island.secondary {
+  border-radius: 52% 48% 60% 40% / 40% 60% 40% 60%;
+}
+
+.home-island.tertiary {
+  border-radius: 60% 40% 52% 48% / 48% 52% 40% 60%;
+}
+
+/* Hover */
+
+.home-island:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  transition: all 0.18s ease-out;
+}
+
+/* Text inside islands */
+
+.island-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.island-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.island-sub {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.island-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.pill-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  font-size: 11px;
+  text-decoration: none;
+  color: #f5f5f5;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pill-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Footer / global status */
+
+.home-footer {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 10px;
+  z-index: 50;
+  font-size: 11px;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.home-footer-main {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-footer-dots {
+  min-width: 24px;
+  text-align: left;
+  animation: dotsPulse 1.4s infinite steps(3, end);
+}
+
+@keyframes dotsPulse {
+  0%   { content: "."; }
+  33%  { content: ".."; }
+  66%  { content: "..."; }
+}
+
+/* reuse typography vibe from DressUp watermark */
+.animated-text {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+               "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Responsive: single column on small screens */
+
+@media (max-width: 900px) {
+  .home-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+  }
+
+  .home-island.primary {
+    grid-row: auto;
+  }
+}
