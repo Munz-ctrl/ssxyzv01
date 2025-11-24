@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sunsex · MVP Demo (Munz)</title>
+
+  <!-- shared base styles + demo styles -->
+  <link rel="stylesheet" href="/shared/css/styles.css">
+  <link rel="stylesheet" href="/shared/css/home.css">
+  <link rel="stylesheet" href="/apps/ssx-demo/css/ssx-demo.css">
+</head>
+<body class="ssx-body">
+  <div class="ssx-shell">
+
+    <header class="ssx-header">
+      <div class="ssx-logo">sunsex.xyz</div>
+      <div class="ssx-sub">MVP demo · viewing as MUNZ (guest)</div>
+    </header>
+
+    <main class="ssx-main">
+      <!-- Left: avatar + identity -->
+      <section class="ssx-card ssx-card-avatar">
+        <div class="ssx-card-label">Player</div>
+        <h1 class="ssx-player-name">MUNZ</h1>
+        <p class="ssx-player-tagline">default demo profile · isometric mirror</p>
+
+        <div class="ssx-avatar-ring">
+          <img src="/shared/assets/fallbackIsoAvatar.webp"
+               alt="Munz isometric avatar"
+               class="ssx-avatar-img">
+        </div>
+
+        <div class="ssx-xp-row">
+          <span class="ssx-xp-label">XP</span>
+          <div class="ssx-xp-bar">
+            <div class="ssx-xp-fill" style="width: 38%;"></div>
+          </div>
+          <span class="ssx-xp-value">LVL 01</span>
+        </div>
+      </section>
+
+      <!-- Right: actions into subsystems -->
+      <section class="ssx-card ssx-card-actions">
+        <div class="ssx-card-label">Explore</div>
+        <h2 class="ssx-card-title">Your mirror world</h2>
+        <p class="ssx-card-copy">
+          This demo runs as player <strong>MUNZ</strong>. When real players log in,
+          this screen becomes their hub: avatar, items, missions, and map access.
+        </p>
+
+        <div class="ssx-actions-grid">
+          <a href="/map" class="ssx-action-pill primary">
+            <span class="pill-title">Open Global Map</span>
+            <span class="pill-sub">view zones, locations &amp; other players</span>
+          </a>
+
+          <a href="/apps/nomadsuitcase/nomadsuitcase.html" class="ssx-action-pill">
+            <span class="pill-title">Inventory (Suitcase)</span>
+            <span class="pill-sub">current items &amp; visual loot</span>
+          </a>
+
+          <a href="/apps/dressup/dressup.html" class="ssx-action-pill">
+            <span class="pill-title">Dress-Up Avatar</span>
+            <span class="pill-sub">experimental try-on for Munz</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="home-footer animated-text">
+      <span class="home-footer-main">
+        SUNSEX_MIRROR_☂ · guest mode · viewing demo player: MUNZ
+      </span>
+      <span class="home-footer-dots">...</span>
+    </footer>
+  </div>
+
+  <script type="module" src="/apps/ssx-demo/js/ssx-dashboard.js"></script>
+</body>
+</html>
