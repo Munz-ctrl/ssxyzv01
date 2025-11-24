@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/",            "destination": "/index.html" },
     { "source": "/map",            "destination": "/apps/map/map.html" },
     { "source": "/nomadsuitcase",  "destination": "/apps/nomadsuitcase/nomadsuitcase.html" },
     { "source": "/edit-profile",   "destination": "/apps/edit/edit-profile.html" },
@@ -10,6 +11,7 @@
 
   ],
   "redirects": [
+     { "source": "/index.html",  "destination": "/",  "permanent": true },
     { "source": "/Nomad_Suitcase.html",  "destination": "/nomadsuitcase",  "permanent": true },
     { "source": "/edit-profile.html",    "destination": "/edit-profile",   "permanent": true },
     { "source": "/dressup.html",    "destination": "/dressup",   "permanent": true }
