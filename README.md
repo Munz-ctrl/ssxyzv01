@@ -6,6 +6,19 @@ FOR cHATgpt REF this is our file structure
 ├── edit-profile.html
 ├── index.html
 ├── css/styles.css
+├── api/
+│   └── generate.js
+├── apps/
+│   ├── dressup/
+│   ├── edit/
+│   ├── map/
+│   ├── nomadsuitcase/
+│   ├── puffcounter/
+│   └── tryon/
+├── shared/
+│   ├── supabase.js
+│   ├── ssxyz.js
+│   └── main.js
 ├── js/
 │   ├── supabase.js
 │   ├── ssxyz.js
@@ -14,4 +27,6 @@ FOR cHATgpt REF this is our file structure
 │   ├── avatars/
 │   ├── icons/
 │   └── ...
+
+
 
