@@ -227,35 +227,67 @@ async function bootstrap() {
 
   renderMemoriesOnMap(memories, locationsById);
 
-  // Player pin: use home_lat/home_lng if available
-  if (player && typeof player.home_lat === 'number' && typeof player.home_lng === 'number') {
-    const pinCoords = [player.home_lat, player.home_lng];
+  // Player pins: current location (coords) + optional home marker
+  if (player) {
+    const currentCoords = extractPlayerCoords(player);
+    const hasHome =
+      typeof player.home_lat === 'number' &&
+      typeof player.home_lng === 'number';
 
-    const playerIcon = L.divIcon({
-      className: '',
-      html: `
-        <div class="pm-player-pin">
-          <img src="/shared/assets/fallbackIsoAvatar.webp" alt="${player.name || player.pid}">
-        </div>
-      `,
-      iconSize: [52, 52],
-      iconAnchor: [26, 46]
-    });
+    // Current location pin (main player pin)
+    if (currentCoords) {
+      const playerIcon = L.divIcon({
+        className: '',
+        html: `
+          <div class="pm-player-pin">
+            <img src="/shared/assets/fallbackIsoAvatar.webp" alt="${player.name || player.pid}">
+          </div>
+        `,
+        iconSize: [52, 52],
+        iconAnchor: [26, 46]
+      });
 
-    const pinMarker = L.marker(pinCoords, { icon: playerIcon }).addTo(map);
-    pinMarker.bindPopup(
-      `<div class="pm-popup">
-        <div class="pm-popup-title">${player.name || player.pid}</div>
-        <div class="pm-popup-sub">current home position</div>
-      </div>`,
-      { closeButton: false, offset: [0, -8] }
-    );
+      const pinMarker = L.marker(currentCoords, { icon: playerIcon }).addTo(map);
+      pinMarker.bindPopup(
+        `<div class="pm-popup">
+          <div class="pm-popup-title">${player.name || player.pid}</div>
+          <div class="pm-popup-sub">current location</div>
+        </div>`,
+        { closeButton: false, offset: [0, -8] }
+      );
 
-    // If there are no memories yet, center on player pin
-    if (!memories.length) {
-      map.setView(pinCoords, 5);
+      // If there are no memories, center on current location
+      if (!memories.length) {
+        map.setView(currentCoords, 5);
+      }
+    }
+
+    // Separate home marker, if defined
+    if (hasHome) {
+      const homeCoords = [player.home_lat, player.home_lng];
+
+      const homeIcon = L.divIcon({
+        className: '',
+        html: `
+          <div class="pm-loc-icon">
+            <img src="/shared/assets/locations/placeholder_loc2.png" alt="Home">
+          </div>
+        `,
+        iconSize: [46, 46],
+        iconAnchor: [23, 30]
+      });
+
+      const homeMarker = L.marker(homeCoords, { icon: homeIcon }).addTo(map);
+      homeMarker.bindPopup(
+        `<div class="pm-popup">
+          <div class="pm-popup-title">Home</div>
+          <div class="pm-popup-sub">saved home position for ${player.name || player.pid}</div>
+        </div>`,
+        { closeButton: false, offset: [0, -8] }
+      );
     }
   }
+
 }
 
 
