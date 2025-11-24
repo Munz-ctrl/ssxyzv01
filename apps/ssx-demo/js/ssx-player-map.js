@@ -105,11 +105,16 @@ function renderMemoriesOnMap(memories, locationsById) {
 
     const coords = [loc.lat, loc.lng];
 
+    const preview =
+      loc.preview_url ||
+      loc.visual_url ||
+      '/shared/assets/locations/placeholder_loc2.png';
+
     const icon = L.divIcon({
-      className: '',
-      html: `<div class="pm-marker"></div>`,
-      iconSize: [24, 24],
-      iconAnchor: [12, 12]
+      className: 'pm-loc-icon',
+      html: `<img src="${preview}" alt="${loc.name || loc.id}">`,
+      iconSize: [70, 70],
+      iconAnchor: [35, 60]
     });
 
     const marker = L.marker(coords, { icon }).addTo(map);
@@ -128,14 +133,14 @@ function renderMemoriesOnMap(memories, locationsById) {
 
     marker.bindPopup(popupHtml, {
       closeButton: false,
-      offset: [0, -4]
+      offset: [0, -8]
     });
 
     bounds.extend(coords);
   });
 
   if (bounds.isValid()) {
-    map.fitBounds(bounds, { padding: [40, 40] });
+    map.fitBounds(bounds, { padding: [60, 60] });
   }
 }
 
