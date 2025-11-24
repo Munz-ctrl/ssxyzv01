@@ -5,9 +5,10 @@
     { "source": "/edit-profile",  "destination": "/apps/edit/edit-profile.html" },
     { "source": "/puffcounter",   "destination": "/apps/puffcounter/index.html" }
   ],
-  
+
   "redirects": [
     { "source": "/Nomad_Suitcase.html", "destination": "/nomadsuitcase", "permanent": true },
-    { "source": "/edit-profile.html",   "destination": "/edit-profile",   "permanent": true }
+    { "source": "/edit-profile.html",   "destination": "/edit-profile",   "permanent": true },
+    { "source": "/apps/dressup/dressup.html",   "destination": "/ssx-stylist",   "permanent": true }
   ]
 }
