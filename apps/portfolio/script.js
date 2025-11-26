@@ -1,39 +1,20 @@
-// Simple project data – plug your real files here:
-const projects = [
-  {
-    title: "Panther Morph – Sneaker Spot",
-    meta: "Commercial · CGI / VFX",
-    thumb: "media/panther-thumb.jpg",          // JPG/PNG thumbnail
-    video: "media/panther-preview.mp4",        // short muted preview OR null if using GIF
-    link: "#",                                 // later can link to case-study page
-  },
-  {
-    title: "Isometric City – Sunsex World",
-    meta: "Experimental · Isometric Environment",
-    thumb: "media/sunsex-city-thumb.jpg",
-    video: "media/sunsex-city-preview.mp4",
-    link: "#"
-  },
-  {
-    title: "AR Filter – Fashion Drop",
-    meta: "Social AR · Instagram / TikTok",
-    thumb: "media/ar-filter-thumb.gif",        // can use GIF only, video: null
-    video: null,
-    link: "#"
-  }
-];
-
 const gridEl = document.getElementById("project-grid");
+const isTouchDevice =
+  "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
-// Detect basic "touch" capability (rough but fine to start)
-const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+// Fetch projects from JSON
+fetch("projects.json")
+  .then((res) => res.json())
+  .then((projects) => {
+    projects.forEach((project) => renderProjectCard(project));
+  })
+  .catch((err) => {
+    console.error("Failed to load projects.json", err);
+  });
 
-// Build cards
-projects.forEach((project) => {
+function renderProjectCard(project) {
   const card = document.createElement("article");
   card.className = "project-card";
-
-  // let CSS/JS know whether there is a video
   card.dataset.hasVideo = project.video ? "true" : "false";
 
   const media = document.createElement("div");
@@ -87,9 +68,7 @@ projects.forEach((project) => {
     card.classList.add("project-card--video-active");
     const playPromise = videoEl.play();
     if (playPromise && playPromise.catch) {
-      playPromise.catch(() => {
-        // Autoplay blocked – silently ignore, fallback shows thumbnail
-      });
+      playPromise.catch(() => {});
     }
   };
 
@@ -101,19 +80,17 @@ projects.forEach((project) => {
   };
 
   if (!isTouchDevice) {
-    // Desktop: hover to preview
+    // Desktop hover preview
     card.addEventListener("mouseenter", activateVideo);
     card.addEventListener("mouseleave", deactivateVideo);
   } else {
-    // Mobile / touch: first tap = preview, second tap (soon) can open link
+    // Mobile: first tap = preview, second tap = open link (if exists)
     let isActive = false;
 
     card.addEventListener("click", (e) => {
-      // If you want label click to navigate while preview is active, you can check e.target here
       e.preventDefault();
 
       if (!project.video) {
-        // No video, just go to link (when you add real case-study pages)
         if (project.link && project.link !== "#") {
           window.location.href = project.link;
         }
@@ -124,11 +101,10 @@ projects.forEach((project) => {
         isActive = true;
         activateVideo();
       } else {
-        // Second tap: navigate if link exists
         if (project.link && project.link !== "#") {
           window.location.href = project.link;
         }
       }
     });
   }
-});
+}
