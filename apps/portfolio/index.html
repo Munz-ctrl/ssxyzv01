@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Portfolio – Grid</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Fonts (swap to whatever you like) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <div class="brand">
+        <span class="brand__logo">Virtuosus</span>
+        <span class="brand__subtitle">CGI • VFX • Mixed Reality</span>
+      </div>
+      <nav class="site-nav">
+        <a href="#work" class="site-nav__link">Work</a>
+        <a href="#about" class="site-nav__link">About</a>
+        <a href="#contact" class="site-nav__link">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero__inner">
+        <h1 class="hero__title">
+          Cinematic CGI &amp; VFX <span class="hero__accent">for music, fashion &amp; brands</span>
+        </h1>
+        <p class="hero__text">
+          Selected projects from campaigns, music videos and experimental work.
+          Hover on desktop or tap on mobile to preview.
+        </p>
+      </div>
+    </section>
+
+    <!-- GRID -->
+    <section id="work" class="grid-section">
+      <div class="grid-section__inner">
+        <div id="project-grid" class="project-grid">
+          <!-- Cards injected or you can hard-code them -->
+          <!-- Example static card: -->
+          <!--
+          <article class="project-card" data-has-video="true">
+            <div class="project-card__media">
+              <video
+                class="project-card__video"
+                src="media/project-1-preview.mp4"
+                muted
+                loop
+                playsinline
+                preload="metadata"
+              ></video>
+              <img
+                class="project-card__thumb"
+                src="media/project-1-still.jpg"
+                alt="Project title"
+                loading="lazy"
+              />
+              <div class="project-card__overlay"></div>
+              <div class="project-card__label">
+                <h2 class="project-card__title">Project Title</h2>
+                <p class="project-card__meta">Music Video · VFX Supervision</p>
+              </div>
+            </div>
+          </article>
+          -->
+        </div>
+      </div>
+    </section>
+
+    <!-- About / Contact placeholders -->
+    <section id="about" class="about-section">
+      <div class="about-section__inner">
+        <h2>About</h2>
+        <p>
+          Short bio goes here. Mention key clients (Tyler the Creator, Lil Uzi, etc.),
+          what you specialize in, and that you’re open to studio roles &amp; freelance.
+        </p>
+      </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+      <div class="contact-section__inner">
+        <h2>Contact</h2>
+        <p>
+          For commissions, studio roles or collaborations:
+          <a href="mailto:hello@yourdomain.com">hello@yourdomain.com</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
