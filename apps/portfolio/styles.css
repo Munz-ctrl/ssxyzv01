@@ -158,15 +158,30 @@ body {
 
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* always 2 columns on small screens */
+  gap: 14px;
 }
 
+@media (min-width: 768px) {
+  .project-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* tablets / small laptops */
+    gap: 18px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .project-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* big screens */
+    gap: 22px;
+  }
+}
+
+/* 
 @media (min-width: 1024px) {
   .project-grid {
     gap: 22px;
   }
-}
+} */
 
 /* PROJECT CARD */
 
