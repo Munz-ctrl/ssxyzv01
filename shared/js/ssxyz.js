@@ -1,5 +1,10 @@
 // /js/ssxyz.js
-import { createPlayerMarker, generatePopupHTML, attachFlyToBehavior, createPlayerButton } from '/shared/js/playerUtils.js';
+import {
+  createPlayerMarker,
+  generatePopupHTML,
+  attachFlyToBehavior,
+  createPlayerButton
+} from '/shared/js/playerUtils.js';
 import { supabase } from '/shared/js/supabase.js';
 
 export const ssxyz = {
@@ -9,23 +14,25 @@ export const ssxyz = {
 
   selectedMarker: null,
 
-
+  /**
+   * Create a new player for the currently authenticated Supabase user.
+   * Requires a valid auth session (no anonymous sign-in).
+   */
   createNewPlayer: async function () {
-    const pid = document.getElementById('newPlayerID').value.trim();
-    const name = document.getElementById('newPlayerName').value.trim();
+    const pid       = document.getElementById('newPlayerID').value.trim();
+    const name      = document.getElementById('newPlayerName').value.trim();
     const coordsRaw = document.getElementById('newPlayerCoords').value.trim();
 
-
-   
-
-
+    // Must have a logged-in Supabase user (email or other real auth)
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData?.user?.id) {
-      alert("❌ Failed to retrieve user ID");
+      alert("❌ You must be logged in to create a player.");
+      console.error(userError);
       return;
     }
-    const owner_id = userData.user.id;
 
+    const owner_id = userData.user.id;
+    const email    = userData.user.email || null;
 
     if (!pid || !name || !coordsRaw) {
       alert("Please fill out all required fields.");
@@ -38,28 +45,29 @@ export const ssxyz = {
       return;
     }
 
-
-
-
     const player = {
-      pid, name, pin, coords,
+      pid,
+      name,
+      coords,
       mission: [],
       special: "",
       special2: "",
       avatar: "",
-
-      owner_id
+      owner_id,
+      auth_type: 'email', // new players are email-auth by default
+      email
     };
 
-
+    // Set as active in the current session
     ssxyz.activePlayer = player;
 
+    // Add marker to map
     const marker = createPlayerMarker(player);
     marker.bindPopup(generatePopupHTML(player));
-    marker.options.player = player; // 🔐 store player data in marker
-    ssxyz.playerMarkers.push(marker); // ✅ this is the fix!
+    marker.options.player = player; // store player data on marker
+    ssxyz.playerMarkers.push(marker);
 
-
+    // Add to avatar row UI
     const playerAvatarRow = document.getElementById('playerAvatarRow');
     const btn = createPlayerButton(player);
     playerAvatarRow.appendChild(btn);
@@ -68,9 +76,7 @@ export const ssxyz = {
 
     closeAllPopups();
 
-
-
-
+    // Persist to Supabase
     const { error: insertError } = await supabase.from('players').insert([player]);
     if (insertError) {
       alert("❌ Failed to save player");
@@ -78,77 +84,23 @@ export const ssxyz = {
       return;
     }
 
-
-    alert(`✅ Player ${pid} created and logged in.`);
+    alert(`✅ Player ${pid} created and linked to your account.`);
   },
 
-  // getCurrentLocation: function () {
-  //   if (!navigator.geolocation) {
-  //     alert("Geolocation is not supported by your browser.");
-  //     return;
-  //   }
-
-  //   navigator.geolocation.getCurrentPosition(
-  //     position => {
-  //       const lat = position.coords.latitude.toFixed(5);
-  //       const lng = position.coords.longitude.toFixed(5);
-  //       document.getElementById('newPlayerCoords').value = `${lat},${lng}`;
-  //       alert(`📍 Found you at: ${lat}, ${lng}`);
-  //     },
-  //     error => {
-  //       alert("⚠️ Could not get your location.");
-  //       console.error(error);
-  //     }
-  //   );
-  // },
-
-
-
-
-
-  handleLogin: async function (selectedPlayer = null) {
-  const { error: authError } = await supabase.auth.signInAnonymously();
-  if (authError) {
-    alert("⚠️ Supabase login failed");
-    console.error(authError);
-    return;
-  }
-
-  if (!selectedPlayer) {
-    alert("⚠️ No player selected.");
-    return;
-  }
-
-  const enteredPin = document.getElementById('loginPin')?.value;
-  if (selectedPlayer.pin && selectedPlayer.pin !== enteredPin) {
-    alert("❌ Incorrect PIN.");
-    return;
-  }
-
-  ssxyz.activePlayer = selectedPlayer;
-  ssxyz.updateAllPopups();
-
-  localStorage.setItem('playerPid', selectedPlayer.pid);
-  localStorage.setItem('playerPin', selectedPlayer.pin);
-
-  alert(`✅ Logged in as ${selectedPlayer.pid}`);
-  closeAllPopups();
-  ssxyz.updateUserPanelAfterLogin();
-},
-
-
-
-
-
+  /**
+   * Explicit logout: clears Supabase session and active player.
+   */
   logout: async function () {
-    localStorage.removeItem('playerPid');
-    localStorage.removeItem('playerPin');
+    // No more PID/PIN soft login – just clear Supabase session
     await supabase.auth.signOut();
     ssxyz.activePlayer = null;
     alert("👋 Logged out.");
     location.reload(); // Optional: refresh to clear UI
   },
 
+  /**
+   * Refresh all player popups using the latest data / active state.
+   */
   updateAllPopups: function () {
     ssxyz.playerMarkers.forEach(marker => {
       const player = marker.options?.player;
@@ -156,73 +108,54 @@ export const ssxyz = {
         marker.setPopupContent(generatePopupHTML(player));
       }
     });
-  },
-
-
-
-
+  }
 };
 
-
+/**
+ * Auto-login: based only on current Supabase auth user.
+ * If the logged-in user owns a player, set that as active.
+ */
 ssxyz.autoLoginIfPossible = async function () {
   const { data: userData, error } = await supabase.auth.getUser();
   if (error || !userData?.user?.id) return;
 
   const userId = userData.user.id;
 
-  // First, try to find a linked authenticated player
-  let { data: player, error: playerError } = await supabase
+  // Look for a player linked via owner_id (email-auth or otherwise)
+  const { data: player, error: playerError } = await supabase
     .from('players')
     .select('*')
     .eq('owner_id', userId)
     .single();
 
-  if (player) {
+  if (player && !playerError) {
     ssxyz.activePlayer = player;
     ssxyz.updateAllPopups();
     console.log(`🔐 Auto-logged in as ${player.pid} via Supabase Auth`);
-    return;
   }
-
-  // Fallback: soft login from localStorage
-  const pid = localStorage.getItem('playerPid');
-  const pin = localStorage.getItem('playerPin');
-  if (!pid || !pin) return;
-
-  const { data: softPlayer, error: softError } = await supabase
-    .from('players')
-    .select('*')
-    .eq('pid', pid)
-    .single();
-
-  if (softPlayer && softPlayer.pin === pin) {
-    ssxyz.activePlayer = softPlayer;
-    ssxyz.updateAllPopups();
-    console.log(`🔑 Auto-logged in via soft login: ${softPlayer.pid}`);
-  }
+  // No more localStorage / PIN soft login fallback
 };
 
-
-
+/**
+ * Render the create-player panel (UI only).
+ * Note: PIN field has been removed – players are bound to Supabase auth instead.
+ */
 ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
   const container = document.getElementById(targetId);
   const coords = document.getElementById('newPlayerCoords')?.value || '';
   container.innerHTML = `
     <div class="tab-content">
       <input type="text" id="newPlayerID" placeholder="Player ID" />
-    
-      <input type="password" id="newPlayerPin" placeholder="Security Pin" />
 
-      <span id="newPlayerCoordsText" style="display:inline-block; margin:6px 0; padding:4px 8px; background:#f5f5f5; border-radius:4px;">
+      <span id="newPlayerCoordsText"
+            style="display:inline-block; margin:6px 0; padding:4px 8px; background:#f5f5f5; border-radius:4px;">
         ${coords || 'Lat , Lang'}
       </span>
-     
+
       <button onclick="ssxyz.createNewPlayerWithLocation()">Create and place</button>
     </div>
   `;
 };
-
-
 
 ssxyz.flyToPlayer = function (player, marker) {
   if (!player || !marker) return;
@@ -231,14 +164,13 @@ ssxyz.flyToPlayer = function (player, marker) {
     animate: true,
     duration: 2.5
   });
-  
+
   setTimeout(() => {
     marker.openPopup();
   }, 2700);
 };
 
-
-ssxyz.setAnyMarkerUnclickable = function(marker) {
+ssxyz.setAnyMarkerUnclickable = function (marker) {
   if (!marker) return;
 
   // Re-enable previous marker if different
@@ -260,193 +192,94 @@ ssxyz.setAnyMarkerUnclickable = function(marker) {
   }
 };
 
-
-
-
-
-
 ssxyz.openLoginPanel = async function () {
-
   closeAllPopups();
 
   const container = document.getElementById('userPanelContent');
-  
-  
+
   container.innerHTML = ` 
-
- <div id="userPanelHeader" class="panel-header">
-
-    <div class="login-tabs">
- 
-    <button id="loginTabBtn" class="tab-btn activtab">Login</button>
-    <button id="createTabBtn" class="tab-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
+    <div id="userPanelHeader" class="panel-header">
+      <div class="login-tabs">
+        <button id="loginTabBtn" class="tab-btn activtab">Login</button>
+        <button id="createTabBtn" class="tab-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
           Create Player <span style="font-size: 8px; font-weight: bold;">(Coming Soon)</span>
-       </button>
- 
+        </button>
+      </div>
+
+      <div id="searchWrapper" style="margin-right: 1vw; display: flex; align-items: center; justify-content: flex-end;">
+        <label style="font-size: 9px;">select player:</label>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <span style="display: inline-block; width: 14px; height: 14px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                 fill="#444" width="100%" height="100%">
+              <path d="M10 2a8 8 0 105.293 14.293l5.707 5.707 1.414-1.414-5.707-5.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
+            </svg>
+          </span>
+          <input id="playerSearchInput"
+                 type="text"
+                 placeholder="Search..."
+                 style="max-width: 18vw; font-size: 10px; padding: 2px;" />
+        </div>
+      </div>
     </div>
 
+    <div id="loginTabContent"
+         style="display: flex; flex-wrap: nowrap; align-items: stretch; justify-content: space-around;">
+      <!-- Avatar row -->
+      <div id="searchAvatarRow" class="player-row"></div>
 
-
-    <div id="searchWrapper" style="  margin-right: 1vw; display: flex; align-items: center; justify-content: flex-end;">
-     <label style="font-size: 9px;">select player:</label>
-     <div style="display: flex; align-items: center; gap: 4px;">
-         <span style="display: inline-block; width: 14px; height: 14px;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#444" width="100%" height="100%">
-           <path d="M10 2a8 8 0 105.293 14.293l5.707 5.707 1.414-1.414-5.707-5.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
-          </svg>
-         </span>
-        <input id="playerSearchInput" type="text" placeholder="Search..." style="max-width: 18vw; font-size: 10px; padding: 2px;" />
-     </div>
+      <!-- Dynamic form content -->
+      <div id="loginFieldsContainer" class="tab-content"></div>
     </div>
-  </div>
-  
 
- 
-
-<div id="loginTabContent" style="display: flex; flex-wrap: nowrap; align-items: stretch; justify-content: space-around;">
-  
-  <!-- Avatar row -->
-   <div id="searchAvatarRow" class="player-row"   ></div>
-
-    <!-- Dynamic form content -->
-    <div id="loginFieldsContainer" class="tab-content">  </div>
-
-</div>
-
-
-<div id="createTabContent" class="tab-content"></div>  
-  
+    <div id="createTabContent" class="tab-content"></div>
   `;
-  
 
-// ---- re activate create tab here 
-
-//<div id="createTabContent" class="tab-content"></div>  
-
-//   <div class="login-tabs">
-//     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
-//     <button id="createTabBtn" class="tab-btn">Create New Player</button>
-//   </div>
-
-//   <div id="loginTabContent" class="tab-content" style="flex-wrap: nowrap; align-items: center; justify-content: start; gap: 4px; padding: 4px;">
-
-//   <span style="font-size: 9px; white-space: nowrap;">Choose player to log in:</span>
-
-//   <div class="coord-row" style="flex: 1; gap: 6px;">
-//     <div style="display: flex; align-items: center; gap: 4px;">
-//      <span style="display: inline-block; width: 14px; height: 14px; margin-right: 4px;">
-//   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#444" width="100%" height="100%">
-//     <path d="M10 2a8 8 0 105.293 14.293l5.707 5.707 1.414-1.414-5.707-5.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/>
-//   </svg>
-// </span>
-
-//       <input id="playerSearchInput" type="text" placeholder=" Search Player ID..." style="max-width: 15vw; font-size: 10px; padding: 2px;" />
-//     </div>
-
-//     <div id="searchAvatarRow" class="player-row" style="max-width: 45vw; overflow-x: auto; gap: 4px;"></div>
-//   </div>
-
-// </div>
-
-
-
-//   <div id="loginFieldsContainer" class="tab-content"></div>
-//   <div id="createTabContent" class="tab-content"></div>
-// `;
-
-  
-//   <div id="loginTabContent" class="tab-content" style="flex-direction: row; align-items: center; justify-content: center; gap: 4px;">
-//   <p>Choose a player to log-in </p>
-//   <input id="playerSearchInput" type="text" placeholder=" Search player's ID..." style="max-width: 10vw; padding: 4px;" />
-//   <div id="searchAvatarRow" class="player-row" style="max-width: 30vw; overflow-x: auto;"></div>
-// </div>
-  
-  // container.innerHTML = `
-  //   <div class="login-tabs">
-  //     <button id="loginTabBtn" class="tab-btn activtab">Login</button>
-  //     <button id="createTabBtn" class="tab-btn">Create New Player</button>
-  //   </div>
-  //   <div id="loginTabContent" class="tab-content" style="justify-self: center; ">
-
-  //      <input list="playerList" id="loginPlayerInput" placeholder="Player ID" style="justify-content: center; " />
-  //      <datalist id="playerList"></datalist>
-  //   </div>
-  //     <div id="loginFieldsContainer" class="tab-content"></div>
-  //   </div>
-    
-  //   <div id="createTabContent" class="tab-content"></div>
-  // `;
-  
-
- const { data: players, error } = await supabase.from('players').select('*');
+  const { data: players, error } = await supabase.from('players').select('*');
 
   if (!players || error) {
     alert("❌ Could not load players");
+    console.error(error);
     return;
   }
 
-
-  //new data search box code //
-
   const input = document.getElementById('playerSearchInput');
-  const row = document.getElementById('searchAvatarRow');
+  const row   = document.getElementById('searchAvatarRow');
 
-let selectedPlayer = null;
+  let selectedPlayer = null;
 
-function renderAvatarRow(query = '') {
-  row.innerHTML = '';
-  if (!query.trim()) return; // Don't render anything unless input exists
+  function renderAvatarRow(query = '') {
+    row.innerHTML = '';
+    if (!query.trim()) return; // Don't render anything unless input exists
 
-  const matches = players.filter(p => p.pid.toLowerCase().includes(query.toLowerCase()));
-  matches.forEach(p => {
-    const btn = createPlayerButton(p);
-    btn.onclick = () => {
-      selectedPlayer = p;
-      window.selectedPlayerForLogin = p;
+    const matches = players.filter(p =>
+      (p.pid || '').toLowerCase().includes(query.toLowerCase())
+    );
 
-      document.querySelectorAll('.playerBtn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      renderLoginFields(p);
-    };
-    row.appendChild(btn);
+    matches.forEach(p => {
+      const btn = createPlayerButton(p);
+      btn.onclick = () => {
+        selectedPlayer = p;
+        window.selectedPlayerForLogin = p;
+
+        document
+          .querySelectorAll('.playerBtn')
+          .forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        renderLoginFields(p);
+      };
+      row.appendChild(btn);
+    });
+  }
+
+  input.addEventListener('input', () => {
+    renderAvatarRow(input.value);
+    document.getElementById('loginFieldsContainer').innerHTML = ''; // Clear when typing
   });
-}
-
-
-input.addEventListener('input', () => {
-  renderAvatarRow(input.value);
-  document.getElementById('loginFieldsContainer').innerHTML = ''; // Clear when typing
-});
-
-// Initial render
-// renderAvatarRow('');
-
-
-
-
-
-  // 
-
-
-
- 
-  // const datalist = document.getElementById('playerList');
-
-  // players.forEach(p => {
-  //   const option = document.createElement('option');
-  //   option.value = p.pid;
-  //   datalist.appendChild(option);
-  // });
-
-  // input.addEventListener('input', () => {
-  //   const selected = players.find(p => p.pid === input.value);
-  //   renderLoginFields(selected);
-  // });
-
 
   // Tab switching
   document.getElementById('loginTabBtn').onclick = () => {
-    input.value = null; // Clear selected player
+    input.value = null;
     document.getElementById('loginFieldsContainer').innerHTML = '';
     document.getElementById('loginTabContent').style.display = 'inline-block';
     document.getElementById('createTabContent').style.display = 'none';
@@ -454,48 +287,30 @@ input.addEventListener('input', () => {
     document.getElementById('loginTabBtn').classList.add('activtab');
     document.getElementById('createTabBtn').classList.remove('activtab');
 
-
     document.getElementById('searchWrapper').style.display = 'flex';
     document.getElementById('searchAvatarRow').style.display = 'inline-block';
-
-
-    
-
-
   };
 
   document.getElementById('createTabBtn').onclick = () => {
-
-
-    
-    // document.getElementById('searchWrapper').style.display = 'none';
-    // document.getElementById('searchAvatarRow').style.display = 'none';
-    // Hide login fields when switching to Create tab
     document.getElementById('loginFieldsContainer').innerHTML = '';
-    input.value = null; // Clear selected player
+    input.value = null;
     ssxyz.renderCreatePlayerPanel('createTabContent');
+
     document.getElementById('loginTabContent').style.display = 'none';
     document.getElementById('createTabContent').style.display = 'block';
     document.getElementById('createTabBtn').classList.add('activtab');
     document.getElementById('loginTabBtn').classList.remove('activtab');
 
-
-     document.getElementById('searchWrapper').style.display = 'none';
+    document.getElementById('searchWrapper').style.display = 'none';
     document.getElementById('searchAvatarRow').style.display = 'none';
-   
   };
 
   document.getElementById('userPanel').style.display = 'block';
   document.getElementById('userPanel').classList.add('activePanel');
-
-  
 };
 
-
-
-
 ssxyz.handleEmailLogin = async function () {
-  const email = document.getElementById('loginEmail').value.trim();
+  const email    = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value.trim();
 
   if (!email || !password) {
@@ -503,10 +318,14 @@ ssxyz.handleEmailLogin = async function () {
     return;
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
 
   if (error || !data?.user?.id) {
-    alert("❌ Login failed: " + error.message);
+    alert("❌ Login failed: " + (error?.message || 'Unknown error'));
+    console.error(error);
     return;
   }
 
@@ -519,6 +338,7 @@ ssxyz.handleEmailLogin = async function () {
 
   if (!player || playerError) {
     alert("❌ No player linked to this email.");
+    console.error(playerError);
     return;
   }
 
@@ -529,8 +349,6 @@ ssxyz.handleEmailLogin = async function () {
 
   ssxyz.updateUserPanelAfterLogin();
 };
-
-
 
 ssxyz.getCoordsAsync = function () {
   return new Promise((resolve, reject) => {
@@ -554,20 +372,18 @@ ssxyz.getCoordsAsync = function () {
   });
 };
 
-
 ssxyz.createNewPlayerWithLocation = async function () {
   try {
     const coords = await ssxyz.getCoordsAsync();
     document.getElementById('newPlayerCoords').value = coords;
-    await ssxyz.createNewPlayer(); // run the existing creation
+    await ssxyz.createNewPlayer();
   } catch (err) {
-    console.warn("Location not found, player not created.");
+    console.warn("Location not found, player not created.", err);
   }
 };
 
-
 ssxyz.upgradeToEmail = async function () {
-  const email = prompt("Enter your email:");
+  const email    = prompt("Enter your email:");
   const password = prompt("Create a password:");
 
   if (!email || !password) {
@@ -575,7 +391,6 @@ ssxyz.upgradeToEmail = async function () {
     return;
   }
 
-  // ❗ Sign up instead of updateUser
   const { data, error } = await supabase.auth.signUp({ email, password });
 
   if (error) {
@@ -586,13 +401,11 @@ ssxyz.upgradeToEmail = async function () {
 
   const userId = data?.user?.id;
 
-  // ❗ If email confirmation is required, userId may be null
   if (!userId) {
     alert("✅ Confirmation email sent! Please confirm your email before logging in.");
     return;
   }
 
-  // Link the new email-auth user to the existing player
   const { error: updateError } = await supabase
     .from('players')
     .update({
@@ -611,8 +424,8 @@ ssxyz.upgradeToEmail = async function () {
 };
 
 ssxyz.uploadImage = async function (file, filename, uploaderId = "") {
-  const bucket = uploaderId ? 'userassets' : 'avatars'; // ✅ dynamic support
-  const path = uploaderId ? `userassets/${uploaderId}/${filename}` : filename;
+  const bucket = uploaderId ? 'userassets' : 'avatars';
+  const path   = uploaderId ? `userassets/${uploaderId}/${filename}` : filename;
 
   const { data, error } = await supabase.storage
     .from(bucket)
@@ -627,9 +440,6 @@ ssxyz.uploadImage = async function (file, filename, uploaderId = "") {
   const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
   return urlData.publicUrl;
 };
- 
-
-
 
 function renderLoginFields(player) {
   const container = document.getElementById('loginFieldsContainer');
@@ -640,46 +450,58 @@ function renderLoginFields(player) {
 
   if (player.auth_type === 'email') {
     container.innerHTML = `
-    <div class="tab-content">
-      <p>Authenticated Player: sign in using email</p>
-      <input id="loginEmail" type="email" placeholder="Email" style="width:100%; margin: 6px 0;" />
-      <input id="loginPassword" type="password" placeholder="Password" style="width:100%; margin: 6px 0;" />
-      <button  style="width:100%;" onclick="ssxyz.handleEmailLogin()">Login</button>
-    </div>
-  `;
-  } else if (player.auth_type === 'anon') {
+      <div class="tab-content">
+        <p>Authenticated Player: sign in using email</p>
+        <input id="loginEmail"
+               type="email"
+               placeholder="Email"
+               style="width:100%; margin: 6px 0;" />
+        <input id="loginPassword"
+               type="password"
+               placeholder="Password"
+               style="width:100%; margin: 6px 0;" />
+        <button style="width:100%;" onclick="ssxyz.handleEmailLogin()">Login</button>
+      </div>
+    `;
+  } else {
+    // Legacy / unlinked player – no PIN login anymore
     container.innerHTML = `
-    <div class="tab-content">
-      <p>un-authenticated Player: enter pin</p>
-      <input id="loginPin" type="password" placeholder="Security Pin" style="width:100%;" />
-<button style="width:100%;" onclick='ssxyz.handleLogin(window.selectedPlayerForLogin)'>Login</button>
-    </div>
-  `;
+      <div class="tab-content">
+        <p>This player is not email-linked yet.</p>
+        <p style="font-size: 10px; opacity: 0.7;">
+          Please upgrade this player to email in the profile tools.
+        </p>
+      </div>
+    `;
   }
 }
 
-//<p>*make sure you authenticate your player with an email for player longevity, security, and additional features</p>
-
 ssxyz.updateUserPanelAfterLogin = function () {
   const container = document.getElementById('userPanelContent');
-  const player = ssxyz.activePlayer;
+  const player    = ssxyz.activePlayer;
   if (!player) return;
 
-  const authLabel = player.auth_type === 'email' ? "Email Authenticated" : "Soft Login";
+  const authLabel = player.auth_type === 'email'
+    ? "Email Authenticated"
+    : "Unlinked";
 
   container.innerHTML = `
-  <div class="tab-content">
-    
-    <p> PID: <b>${player.pid}</b> <small style="opacity: 0.6; font-size: 6px;">(${authLabel})</small></p>
-    <p>Welcome, <b>${player.name}</b>!</p>
-    <button onclick="ssxyz.flyToPlayer(player, ssxyz.playerMarkers.find(m => m.options.player?.pid === player.pid))">Fly To Player</button><br><br>
-    <button onclick="ssxyz.upgradeToEmail()"> Authenticate</button><br><br>
-    <button onclick="ssxyz.logout()"> Log Out </button>
-  </div>
+    <div class="tab-content">
+      <p>PID: <b>${player.pid}</b>
+        <small style="opacity: 0.6; font-size: 6px;">(${authLabel})</small>
+      </p>
+      <p>Welcome, <b>${player.name}</b>!</p>
+      <button onclick="ssxyz.flyToPlayer(ssxyz.activePlayer,
+        ssxyz.playerMarkers.find(m => m.options.player?.pid === ssxyz.activePlayer.pid))">
+        Fly To Player
+      </button><br><br>
+      <button onclick="ssxyz.upgradeToEmail()">Authenticate</button><br><br>
+      <button onclick="ssxyz.logout()">Log Out</button>
+    </div>
   `;
 };
 
-ssxyz.disableInteractionForActiveMarker = function(activePid) {
+ssxyz.disableInteractionForActiveMarker = function (activePid) {
   ssxyz.playerMarkers.forEach(marker => {
     const el = marker.getElement();
     if (!el) return;
@@ -691,7 +513,5 @@ ssxyz.disableInteractionForActiveMarker = function(activePid) {
   });
 };
 
-
-
 window.ssxyz = ssxyz;
-ssxyz.autoLoginIfPossible(); // 🧠 Auto-login from localStorage
+ssxyz.autoLoginIfPossible(); // 🧠 Auto-login via Supabase session (no PID/PIN)
