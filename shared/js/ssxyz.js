@@ -122,20 +122,20 @@ ssxyz.autoLoginIfPossible = async function () {
 
   const userId = userData.user.id;
 
-  // Look for a player linked via owner_id (email-auth or otherwise)
+  // Only auto-login if there is a player linked to this auth user
   const { data: player, error: playerError } = await supabase
     .from('players')
     .select('*')
     .eq('owner_id', userId)
     .single();
 
-  if (player && !playerError) {
-    ssxyz.activePlayer = player;
-    ssxyz.updateAllPopups();
-    console.log(`🔐 Auto-logged in as ${player.pid} via Supabase Auth`);
-  }
-  // No more localStorage / PIN soft login fallback
+  if (!player || playerError) return;
+
+  ssxyz.activePlayer = player;
+  ssxyz.updateAllPopups();
+  console.log(`🔐 Auto-logged in as ${player.pid} via Supabase Auth`);
 };
+
 
 /**
  * Render the create-player panel (UI only).
