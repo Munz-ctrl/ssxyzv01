@@ -147,16 +147,14 @@ ssxyz.renderCreatePlayerPanel = function (targetId = 'userPanelContent') {
   container.innerHTML = `
     <div class="tab-content">
       <input type="text" id="newPlayerID" placeholder="Player ID" />
-
-      <span id="newPlayerCoordsText"
-            style="display:inline-block; margin:6px 0; padding:4px 8px; background:#f5f5f5; border-radius:4px;">
+      <span id="newPlayerCoordsText" style="display:inline-block; margin:6px 0; padding:4px 8px; background:#f5f5f5; border-radius:4px;">
         ${coords || 'Lat , Lang'}
       </span>
-
       <button onclick="ssxyz.createNewPlayerWithLocation()">Create and place</button>
     </div>
   `;
 };
+
 
 ssxyz.flyToPlayer = function (player, marker) {
   if (!player || !marker) return;
@@ -479,28 +477,21 @@ function renderLoginFields(player) {
 
 ssxyz.updateUserPanelAfterLogin = function () {
   const container = document.getElementById('userPanelContent');
-  const player    = ssxyz.activePlayer;
+  const player = ssxyz.activePlayer;
   if (!player) return;
 
-  const authLabel = player.auth_type === 'email'
-    ? "Email Authenticated"
-    : "Unlinked";
+  const authLabel = "Email Authenticated";
 
   container.innerHTML = `
     <div class="tab-content">
-      <p>PID: <b>${player.pid}</b>
-        <small style="opacity: 0.6; font-size: 6px;">(${authLabel})</small>
-      </p>
+      <p> PID: <b>${player.pid}</b> <small style="opacity: 0.6; font-size: 6px;">(${authLabel})</small></p>
       <p>Welcome, <b>${player.name}</b>!</p>
-      <button onclick="ssxyz.flyToPlayer(ssxyz.activePlayer,
-        ssxyz.playerMarkers.find(m => m.options.player?.pid === ssxyz.activePlayer.pid))">
-        Fly To Player
-      </button><br><br>
-      <button onclick="ssxyz.upgradeToEmail()">Authenticate</button><br><br>
-      <button onclick="ssxyz.logout()">Log Out</button>
+      <button onclick="ssxyz.flyToPlayer(player, ssxyz.playerMarkers.find(m => m.options.player?.pid === player.pid))">Fly To Player</button><br><br>
+      <button onclick="ssxyz.logout()"> Log Out </button>
     </div>
   `;
 };
+
 
 ssxyz.disableInteractionForActiveMarker = function (activePid) {
   ssxyz.playerMarkers.forEach(marker => {
