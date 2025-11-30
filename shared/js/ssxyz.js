@@ -45,7 +45,7 @@ export const ssxyz = {
       return;
     }
 
-    const player = {
+        const player = {
       pid,
       name,
       coords,
@@ -54,9 +54,10 @@ export const ssxyz = {
       special2: "",
       avatar: "",
       owner_id,
-      auth_type: 'email', // new players are email-auth by default
-      email
+      auth_type: 'email',
+      email: userData.user.email || null
     };
+
 
     // Set as active in the current session
     ssxyz.activePlayer = player;
@@ -469,7 +470,7 @@ function renderLoginFields(player) {
       <div class="tab-content">
         <p>This player is not email-linked yet.</p>
         <p style="font-size: 10px; opacity: 0.7;">
-          Please upgrade this player to email in the profile tools.
+          If this is you CONTACT US.
         </p>
       </div>
     `;
