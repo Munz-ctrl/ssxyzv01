@@ -4,7 +4,8 @@
     { "source": "/nomadsuitcase", "destination": "/apps/nomadsuitcase/nomadsuitcase.html" },
     { "source": "/edit-profile",  "destination": "/apps/edit/edit-profile.html" },
     { "source": "/puffcounter",   "destination": "/apps/puffcounter/index.html" },
-    { "source": "/ssx-stylist",   "destination": "/apps/dressup/dressup.html" }
+    { "source": "/ssx-stylist", "destination": "/apps/tools/dressup/dressup.html" },
+    { "source": "/dressup", "destination": "/apps/tools/dressup/dressup.html" }
   ],
 
   "redirects": [
