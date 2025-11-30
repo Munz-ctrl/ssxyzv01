@@ -979,4 +979,4 @@ if (btnSave) {
 // (end)
 
 
-// Trial link : https://sunsex.xyz/apps/dressup/dressup.html?hero=/apps/dressup/assets/O-base-portrait.png&pname=O&pid=O01&mode=private 
+// Trial link : https://sunsex.xyz/apps/tools/dressup/dressup.html?hero=/apps/tools/dressup/assets/O-base-portrait.png&pname=O&pid=O01&mode=private 
