@@ -62,8 +62,8 @@ function setHeroImage(url) {
 
 // read the default hero (Munz) from the HTML itself, so code and markup stay in sync
 const htmlDefaultHero = hero
-  ? (hero.getAttribute('data-default-hero') || '/apps/dressup/assets/munz-base-portrait.png')
-  : '/apps/dressup/assets/munz-base-portrait.png';
+  ? (hero.getAttribute('data-default-hero') || '/apps/tools/dressup/assets/munz-base-portrait.png')
+  : '/apps/tools/dressup/assets/munz-base-portrait.png';
 
 
 // credit HUD elements
@@ -112,7 +112,7 @@ let currentSkinName = null;
 
 
 // chose default hero image
-const DEFAULT_HERO_IMG = "/apps/dressup/assets/munz-base-portrait.png"; // update if needed
+const DEFAULT_HERO_IMG = "/apps/tools/dressup/assets/munz-base-portrait.png"; // update if needed
 
 // apply URL overrides
 if (qsName) currentPlayer.name = qsName;
