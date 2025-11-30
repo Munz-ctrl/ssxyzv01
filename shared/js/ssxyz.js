@@ -91,12 +91,11 @@ export const ssxyz = {
   /**
    * Explicit logout: clears Supabase session and active player.
    */
-  logout: async function () {
-    // No more PID/PIN soft login – just clear Supabase session
+    logout: async function () {
     await supabase.auth.signOut();
     ssxyz.activePlayer = null;
     alert("👋 Logged out.");
-    location.reload(); // Optional: refresh to clear UI
+    location.reload();
   },
 
   /**
