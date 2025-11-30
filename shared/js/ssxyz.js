@@ -13,15 +13,10 @@ export const ssxyz = {
   createNewPlayer: async function () {
     const pid = document.getElementById('newPlayerID').value.trim();
     const name = document.getElementById('newPlayerName').value.trim();
-    const pin = document.getElementById('newPlayerPin').value.trim();
     const coordsRaw = document.getElementById('newPlayerCoords').value.trim();
 
 
-    const { error: authError } = await supabase.auth.signInAnonymously();
-    if (authError) {
-      alert("❌ Supabase anonymous login failed");
-      return;
-    }
+   
 
 
     const { data: userData, error: userError } = await supabase.auth.getUser();
