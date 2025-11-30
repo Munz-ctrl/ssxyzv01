@@ -338,13 +338,13 @@ async function loadPlayerData() {
         .eq('pid', playerId);
 
       if (error) {
-        console.error("❌ Failed to save edits:", error);
-        alert('❌ Edit failed. You may not be the owner of this player.');
-      } if (!error) {
-         alert('✅ Player updated!');
-        localStorage.setItem('playerPid', playerId);
-        location.href = 'index.html';
-      }
+  console.error("❌ Failed to save edits:", error);
+  alert('❌ Edit failed. You may not be the owner of this player.');
+} else {
+  alert('✅ Player updated!');
+  location.href = 'index.html';
+}
+
 
 
       console.log("Current user ID:", userData.user.id);
@@ -352,12 +352,11 @@ async function loadPlayerData() {
     }
 
     document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-      localStorage.removeItem('playerPid');
-      localStorage.removeItem('playerPin');
-      await supabase.auth.signOut();
-      alert('👋 Logged out.');
-      location.href = 'index.html';
-    });
+  await supabase.auth.signOut();
+  alert('👋 Logged out.');
+  location.href = 'index.html';
+});
+
 
     document.getElementById('backBtn')?.addEventListener('click', () => {
       location.href = 'index.html';
