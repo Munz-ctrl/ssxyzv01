@@ -315,17 +315,17 @@ initHeroBackground();
       return;
     }
 
-    // Ensure we have a session (anon if needed)
-    let { data: sess } = await sb.auth.getSession();
-    if (!sess?.session?.user) {
-      const { data: signInData, error } = await sb.auth.signInAnonymously();
-      if (error) throw error;
-      sess = { session: signInData.session };
+    // Get current session (must have been created via real login)
+    const { data: sess } = await sb.auth.getSession();
+    const user = sess?.session?.user || null;
+    if (!user) {
+      // Not logged in → just show default credits + watermark
+      updateCreditUI();
+      runWatermarkTyping();
+      return;
     }
 
-    // Get current user id
-    const { data: userData } = await sb.auth.getUser();
-    currentUserId = userData?.user?.id || null;
+    currentUserId = user.id;
     supabaseReady = true;
 
     // Try to load this user's player (1 PID per user) for watermark + skins
