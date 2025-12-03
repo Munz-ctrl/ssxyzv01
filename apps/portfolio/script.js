@@ -7,10 +7,12 @@ fetch("projects.json")
   .then((res) => res.json())
   .then((projects) => {
     projects.forEach((project) => renderProjectCard(project));
+    initStacking(); // 👈 run after cards exist
   })
   .catch((err) => {
     console.error("Failed to load projects.json", err);
   });
+
 
 function renderProjectCard(project) {
   const card = document.createElement("article");
@@ -70,75 +72,6 @@ card.dataset.stackThumb =
   gridEl.appendChild(card);
 
 
-
-  // ----- SCROLL → STACKED MINI CARDS LOGIC (desktop only) -----
-
-const stackColumn = document.getElementById("stack-column");
-const stackedMap = new Map(); // originalCard -> miniCard
-
-function setupStacking() {
-  if (!stackColumn) return;
-
-  const cards = Array.from(document.querySelectorAll(".project-card"));
-
-  // Nothing to do if no cards or on small screens
-  if (!cards.length) return;
-
-  const isDesktop = window.innerWidth >= 1024;
-  if (!isDesktop) {
-    // Clean up any stack if we go back to mobile
-    stackedMap.forEach((mini) => mini.remove());
-    stackedMap.clear();
-    cards.forEach((card) => {
-      card.classList.remove("project-card--stacked-original");
-    });
-    return;
-  }
-
-  function handleScroll() {
-    const triggerY = 140; // when card's bottom passes this from top, it goes to stack
-
-    cards.forEach((card) => {
-      const rect = card.getBoundingClientRect();
-      const isAbove = rect.bottom < triggerY;
-
-     if (isAbove) {
-  if (!stackedMap.has(card)) {
-    // Create a tiny stack element that only shows a PNG
-    const mini = document.createElement("div");
-    mini.className = "stack-card";
-
-    const img = document.createElement("img");
-    img.className = "stack-card__image";
-    img.src = card.dataset.stackThumb || "";
-    img.alt = card.dataset.projectId || "Project preview";
-
-    mini.appendChild(img);
-
-    stackColumn.appendChild(mini);
-    stackedMap.set(card, mini);
-    card.classList.add("project-card--stacked-original");
-  }
-} else {
-  if (stackedMap.has(card)) {
-    const mini = stackedMap.get(card);
-    mini.remove();
-    stackedMap.delete(card);
-    card.classList.remove("project-card--stacked-original");
-  }
-}
-
-    });
-  }
-
-  // Initial pass + listeners
-  handleScroll();
-  window.addEventListener("scroll", handleScroll, { passive: true });
-  window.addEventListener("resize", () => {
-    // Re-run setup on resize so stack turns off on smaller viewports
-    setupStacking();
-  });
-}
 
 // Wait until cards are rendered, then enable stacking
 window.addEventListener("load", () => {
