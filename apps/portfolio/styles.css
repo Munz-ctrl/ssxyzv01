@@ -158,31 +158,27 @@ body {
 
 .project-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr); /* single column on base layout */
+  grid-template-columns: minmax(0, 1fr); /* SINGLE COLUMN */
   gap: 16px;
+  flex: 1 1 auto;
 }
 
 
 @media (min-width: 768px) {
   .project-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)); /* tablets / small laptops */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
   }
 }
 
 @media (min-width: 1200px) {
   .project-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr)); /* big screens */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 22px;
   }
 }
 
-/* 
-@media (min-width: 1024px) {
-  .project-grid {
-    gap: 22px;
-  }
-} */
+
 
 /* PROJECT CARD */
 
@@ -295,72 +291,10 @@ body {
 }
 
 /* main grid flex item */
-.project-grid {
-  flex: 1 1 auto;
-}
 
-/* side stack column */
-.stack-column {
-  display: none; /* hidden on mobile by default */
-}
+
 
 /* Enable side stack only on wider screens */
-@media (min-width: 1024px) {
-  .grid-layout {
-    align-items: flex-start;
-  }
-
-  .stack-column {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 220px;
-    position: sticky;
-    top: 96px; /* just under header/hero */
-    height: 70vh;
-    pointer-events: none; /* we'll re-enable for cards inside */
-  }
-}
-
-/* ORIGINAL CARD when it has moved to stack */
-.project-card--stacked-original {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--transition-fast);
-}
-
-/* MINI STACKED CARD STYLE */
-
-.stack-card {
-  pointer-events: auto;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: radial-gradient(circle at top left, #111827, #020617 60%, #000);
-  border: 1px solid rgba(148, 163, 184, 0.6);
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.65);
-  transform-origin: top right;
-  transform: scale(0.36);
-  opacity: 0.9;
-  position: relative;
-}
-
-.stack-card__image {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-}
-
-/* overlap a bit for a "stacked" feel */
-.stack-card + .stack-card {
-  margin-top: -110px;
-}
-
-.stack-card .project-card__title {
-  font-size: 0.7rem;
-}
-
-
 
 
 
@@ -404,4 +338,72 @@ body {
 
 .contact-section a:hover {
   border-color: rgba(56, 189, 248, 0.8);
+}
+
+
+
+
+
+/* GRID + STACK LAYOUT */
+
+.grid-layout {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+
+.stack-column {
+  display: none; /* only show on desktop */
+}
+
+@media (min-width: 1024px) {
+  .grid-layout {
+    align-items: flex-start;
+  }
+
+  .stack-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 220px;
+    position: sticky;
+    top: 96px; /* under header */
+    height: 70vh;
+    pointer-events: none;
+  }
+}
+
+/* Original card when it's moved to stack */
+.project-card--stacked-original {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+
+/* MINI STACK PNG */
+
+.stack-card {
+  pointer-events: auto;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: radial-gradient(circle at top left, #111827, #020617 60%, #000);
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.65);
+  transform-origin: top right;
+  transform: scale(0.36);
+  opacity: 0.9;
+  position: relative;
+}
+
+/* overlap for stacked vibe */
+.stack-card + .stack-card {
+  margin-top: -110px;
+}
+
+.stack-card__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
