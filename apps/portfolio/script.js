@@ -20,10 +20,10 @@ function renderProjectCard(project) {
   card.dataset.hasVideo = project.video ? "true" : "false";
 
   // Give each card a stable ID based on title (for debugging / linking)
-card.dataset.projectId = project.title;
+ card.dataset.projectId = project.title;
 
-// Image to use in the side stack (fallback to thumb)
-card.dataset.stackThumb =
+ // Image to use in the side stack (fallback to thumb)
+ card.dataset.stackThumb =
   project.stackThumb || project.stackImage || project.stackPng || project.thumb;
 
 
@@ -119,4 +119,67 @@ card.dataset.stackThumb =
       }
     });
   }
+}
+
+// ----- SCROLL → STACKED MINI CARDS LOGIC (desktop only) -----
+
+function initStacking() {
+  const stackColumn = document.getElementById("stack-column");
+  if (!stackColumn) return;
+
+  const cards = Array.from(document.querySelectorAll(".project-card"));
+  if (!cards.length) return;
+
+  const stackedMap = new Map(); // originalCard -> miniCard
+
+  function handleScroll() {
+    const isDesktop = window.innerWidth >= 1024;
+
+    if (!isDesktop) {
+      // Clean up any stack if we go back to mobile
+      stackedMap.forEach((mini) => mini.remove());
+      stackedMap.clear();
+      cards.forEach((card) => {
+        card.classList.remove("project-card--stacked-original");
+      });
+      return;
+    }
+
+    const triggerY = 140; // when card's bottom passes this from top, it goes to stack
+
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const isAbove = rect.bottom < triggerY;
+
+      if (isAbove) {
+        if (!stackedMap.has(card)) {
+          // Create a tiny stack element that only shows a PNG
+          const mini = document.createElement("div");
+          mini.className = "stack-card";
+
+          const img = document.createElement("img");
+          img.className = "stack-card__image";
+          img.src = card.dataset.stackThumb || "";
+          img.alt = card.dataset.projectId || "Project preview";
+
+          mini.appendChild(img);
+          stackColumn.appendChild(mini);
+
+          stackedMap.set(card, mini);
+          card.classList.add("project-card--stacked-original");
+        }
+      } else {
+        if (stackedMap.has(card)) {
+          const mini = stackedMap.get(card);
+          mini.remove();
+          stackedMap.delete(card);
+          card.classList.remove("project-card--stacked-original");
+        }
+      }
+    });
+  }
+
+  handleScroll();
+  window.addEventListener("scroll", handleScroll, { passive: true });
+  window.addEventListener("resize", handleScroll);
 }
