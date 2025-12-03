@@ -43,38 +43,18 @@
 
     <!-- GRID -->
     <section id="work" class="grid-section">
-      <div class="grid-section__inner">
-        <div id="project-grid" class="project-grid">
-          <!-- Cards injected or you can hard-code them -->
-          <!-- Example static card: -->
-          <!--
-          <article class="project-card" data-has-video="true">
-            <div class="project-card__media">
-              <video
-                class="project-card__video"
-                src="media/project-1-preview.mp4"
-                muted
-                loop
-                playsinline
-                preload="metadata"
-              ></video>
-              <img
-                class="project-card__thumb"
-                src="media/project-1-still.jpg"
-                alt="Project title"
-                loading="lazy"
-              />
-              <div class="project-card__overlay"></div>
-              <div class="project-card__label">
-                <h2 class="project-card__title">Project Title</h2>
-                <p class="project-card__meta">Music Video · VFX Supervision</p>
-              </div>
-            </div>
-          </article>
-          -->
-        </div>
+  <div class="grid-section__inner">
+    <div class="grid-layout">
+      <div id="project-grid" class="project-grid">
+        <!-- Cards injected -->
       </div>
-    </section>
+
+      <!-- Sticky stacked mini-cards on the side (desktop only) -->
+      <aside id="stack-column" class="stack-column"></aside>
+    </div>
+  </div>
+</section>
+
 
     <!-- About / Contact placeholders -->
     <section id="about" class="about-section">
