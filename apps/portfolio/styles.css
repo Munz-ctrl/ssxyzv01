@@ -22,17 +22,26 @@ html,
 body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  overflow: hidden; /* 🔒 no normal page scroll */
   background: radial-gradient(circle at top, #0b1120 0, #020617 55%, #000 100%);
   color: var(--fg);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
 }
 
+.app-shell {
+  height: 100%;
+}
+
+
 /* HEADER */
 
 .site-header {
-  position: sticky;
+  position: fixed;   /* always on top, not part of scroll */
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 20;
   backdrop-filter: blur(18px);
   background: linear-gradient(
@@ -42,6 +51,7 @@ body {
   );
   border-bottom: 1px solid rgba(148, 163, 184, 0.15);
 }
+
 
 .site-header__inner {
   max-width: 1120px;
@@ -148,17 +158,27 @@ body {
 /* GRID SECTION */
 
 .grid-section {
-  padding: 8px 18px 40px;
+  padding: 80px 18px 24px;   /* 80px ≈ header height */
+  height: 100vh;             /* full viewport */
+  box-sizing: border-box;
 }
 
 .grid-section__inner {
   max-width: 1120px;
   margin: 0 auto;
+  height: 100%;
+}
+
+.grid-layout {
+  display: flex;
+  align-items: center;  /* center viewer vertically */
+  gap: 24px;
+  height: 100%;
 }
 
 .project-viewer {
   flex: 1 1 auto;
-  min-height: calc(100vh - 160px); /* big viewport card on mobile */
+  height: 100%;         /* fill remaining height */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -331,12 +351,6 @@ body {
 
 
 /* GRID + STACK LAYOUT */
-
-.grid-layout {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-}
 
 
 .stack-column {
