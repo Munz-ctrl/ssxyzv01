@@ -124,17 +124,64 @@ function createProjectCard(project) {
 
 /* ---------- viewer + side rail logic ---------- */
 
-function showCurrentProject() {
+function showCurrentProject(direction = 0) {
   if (!projectsData.length) return;
 
   const project = projectsData[0]; // top of stack = active
 
-  viewerEl.innerHTML = "";
-  const card = createProjectCard(project);
-  viewerEl.appendChild(card);
+  const oldCard = viewerEl.querySelector(".project-card");
+  const newCard = createProjectCard(project);
+
+  // If there's no existing card, just show instantly
+  if (!oldCard || direction === 0) {
+    viewerEl.innerHTML = "";
+    viewerEl.appendChild(newCard);
+    updateRailActive();
+    return;
+  }
+
+  // Start positions for animation
+  if (direction > 0) {
+    // moving forward: new card comes from bottom
+    newCard.style.transform = "translateY(110%)";
+  } else if (direction < 0) {
+    // moving backward: new card comes from top
+    newCard.style.transform = "translateY(-110%)";
+  }
+  newCard.style.opacity = "0";
+
+  viewerEl.appendChild(newCard);
+
+  // Animate old card out
+  requestAnimationFrame(() => {
+    if (direction > 0) {
+      oldCard.style.transform = "translateY(-110%)";
+    } else {
+      oldCard.style.transform = "translateY(110%)";
+    }
+    oldCard.style.opacity = "0";
+  });
+
+  // Animate new card in on next frame
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      newCard.style.transform = "translateY(0)";
+      newCard.style.opacity = "1";
+    });
+  });
+
+  // Remove old card after transition
+  const cleanup = () => {
+    oldCard.removeEventListener("transitionend", cleanup);
+    if (oldCard.parentNode === viewerEl) {
+      viewerEl.removeChild(oldCard);
+    }
+  };
+  oldCard.addEventListener("transitionend", cleanup);
 
   updateRailActive();
 }
+
 
 
 function buildSideRail(projects) {
@@ -208,7 +255,7 @@ function stepProject(delta) {
   isTransitioning = true;
 
   buildSideRail(projectsData);
-  showCurrentProject();
+  showCurrentProject(delta);
 
   setTimeout(() => {
     isTransitioning = false;
