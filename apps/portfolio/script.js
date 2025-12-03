@@ -73,15 +73,6 @@ card.dataset.stackThumb =
 
 
 
-// Wait until cards are rendered, then enable stacking
-window.addEventListener("load", () => {
-  // tiny timeout to ensure fetch-render finished
-  setTimeout(setupStacking, 200);
-});
-
-
-
-
   // --- Interaction logic ---
 
   const activateVideo = () => {
