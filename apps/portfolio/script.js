@@ -4,17 +4,18 @@ const isTouchDevice =
   "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
 let projectsData = [];
-let currentIndex = 0;
+
 let isTransitioning = false;
 
 // Fetch projects from JSON
 fetch("projects.json")
   .then((res) => res.json())
-  .then((projects) => {
+    .then((projects) => {
     projectsData = projects;
     buildSideRail(projectsData);
-    showProject(0); // start on first project
+    showCurrentProject(); // start on top of stack
   })
+
   .catch((err) => {
     console.error("Failed to load projects.json", err);
   });
@@ -123,20 +124,18 @@ function createProjectCard(project) {
 
 /* ---------- viewer + side rail logic ---------- */
 
-function showProject(newIndex) {
+function showCurrentProject() {
   if (!projectsData.length) return;
-  if (newIndex < 0 || newIndex >= projectsData.length) return;
 
-  currentIndex = newIndex;
-  const project = projectsData[currentIndex];
+  const project = projectsData[0]; // top of stack = active
 
-  // Replace current card in the viewer
   viewerEl.innerHTML = "";
   const card = createProjectCard(project);
   viewerEl.appendChild(card);
 
   updateRailActive();
 }
+
 
 function buildSideRail(projects) {
   if (!stackColumn) return;
@@ -155,22 +154,30 @@ function buildSideRail(projects) {
     btn.appendChild(img);
 
     btn.addEventListener("click", () => {
-      if (index !== currentIndex) {
-        showProject(index);
-      }
+      if (index === 0) return; // already active
+
+      // Rotate array so clicked item becomes index 0
+      projectsData = projectsData
+        .slice(index)
+        .concat(projectsData.slice(0, index));
+
+      buildSideRail(projectsData);
+      showCurrentProject();
     });
 
     stackColumn.appendChild(btn);
   });
 }
 
+
 function updateRailActive() {
   if (!stackColumn) return;
   const thumbs = stackColumn.querySelectorAll(".stack-thumb");
 
   thumbs.forEach((thumb, idx) => {
-    thumb.classList.toggle("stack-thumb--active", idx === currentIndex);
-  });
+  thumb.classList.toggle("stack-thumb--active", idx === 0);
+});
+
 
   // Keep active thumb roughly centered in the rail
   const active = stackColumn.querySelector(".stack-thumb--active");
@@ -186,13 +193,23 @@ function updateRailActive() {
 function stepProject(delta) {
   if (isTransitioning || !projectsData.length) return;
 
-  const target = currentIndex + delta;
-  if (target < 0 || target >= projectsData.length) return;
+  if (delta > 0) {
+    // Scroll down: take first item and move to bottom
+    const first = projectsData.shift();
+    projectsData.push(first);
+  } else if (delta < 0) {
+    // Scroll up: take last item and move to top
+    const last = projectsData.pop();
+    projectsData.unshift(last);
+  } else {
+    return;
+  }
 
   isTransitioning = true;
-  showProject(target);
 
-  // simple debounce to avoid crazy fast scrolling
+  buildSideRail(projectsData);
+  showCurrentProject();
+
   setTimeout(() => {
     isTransitioning = false;
   }, 350);
