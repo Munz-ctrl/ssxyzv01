@@ -1,31 +1,34 @@
-const gridEl = document.getElementById("project-grid");
+const viewerEl = document.getElementById("project-viewer");
+const stackColumn = document.getElementById("stack-column");
 const isTouchDevice =
   "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+let projectsData = [];
+let currentIndex = 0;
+let isTransitioning = false;
 
 // Fetch projects from JSON
 fetch("projects.json")
   .then((res) => res.json())
   .then((projects) => {
-    projects.forEach((project) => renderProjectCard(project));
-    initStacking(); // 👈 run after cards exist
+    projectsData = projects;
+    buildSideRail(projectsData);
+    showProject(0); // start on first project
   })
   .catch((err) => {
     console.error("Failed to load projects.json", err);
   });
 
 
-function renderProjectCard(project) {
+
+function createProjectCard(project) {
   const card = document.createElement("article");
   card.className = "project-card";
   card.dataset.hasVideo = project.video ? "true" : "false";
 
-  // Give each card a stable ID based on title (for debugging / linking)
- card.dataset.projectId = project.title;
-
- // Image to use in the side stack (fallback to thumb)
- card.dataset.stackThumb =
-  project.stackThumb || project.stackImage || project.stackPng || project.thumb;
-
+  card.dataset.projectId = project.title;
+  card.dataset.stackThumb =
+    project.stackThumb || project.stackImage || project.stackPng || project.thumb;
 
   const media = document.createElement("div");
   media.className = "project-card__media";
@@ -69,12 +72,8 @@ function renderProjectCard(project) {
 
   media.appendChild(label);
   card.appendChild(media);
-  gridEl.appendChild(card);
 
-
-
-  // --- Interaction logic ---
-
+  // --- Interaction logic (same as before) ---
   const activateVideo = () => {
     if (!videoEl) return;
     card.classList.add("project-card--video-active");
@@ -92,11 +91,9 @@ function renderProjectCard(project) {
   };
 
   if (!isTouchDevice) {
-    // Desktop hover preview
     card.addEventListener("mouseenter", activateVideo);
     card.addEventListener("mouseleave", deactivateVideo);
   } else {
-    // Mobile: first tap = preview, second tap = open link (if exists)
     let isActive = false;
 
     card.addEventListener("click", (e) => {
@@ -119,7 +116,10 @@ function renderProjectCard(project) {
       }
     });
   }
+
+  return card;
 }
+
 
 // ----- SCROLL → STACKED MINI CARDS LOGIC (desktop only) -----
 
