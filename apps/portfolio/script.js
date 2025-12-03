@@ -20,6 +20,10 @@ function renderProjectCard(project) {
   // Give each card a stable ID based on title (for debugging / linking)
 card.dataset.projectId = project.title;
 
+// Image to use in the side stack (fallback to thumb)
+card.dataset.stackThumb =
+  project.stackThumb || project.stackImage || project.stackPng || project.thumb;
+
 
   const media = document.createElement("div");
   media.className = "project-card__media";
@@ -98,30 +102,32 @@ function setupStacking() {
       const rect = card.getBoundingClientRect();
       const isAbove = rect.bottom < triggerY;
 
-      if (isAbove) {
-        if (!stackedMap.has(card)) {
-          // Create a tiny clone for the side stack
-          const mini = card.cloneNode(true);
-          mini.classList.add("stack-card");
+     if (isAbove) {
+  if (!stackedMap.has(card)) {
+    // Create a tiny stack element that only shows a PNG
+    const mini = document.createElement("div");
+    mini.className = "stack-card";
 
-          // Optional: remove hover-video behavior for minis
-          mini.querySelectorAll("video").forEach((v) => {
-            v.removeAttribute("autoplay");
-            v.pause && v.pause();
-          });
+    const img = document.createElement("img");
+    img.className = "stack-card__image";
+    img.src = card.dataset.stackThumb || "";
+    img.alt = card.dataset.projectId || "Project preview";
 
-          stackColumn.appendChild(mini);
-          stackedMap.set(card, mini);
-          card.classList.add("project-card--stacked-original");
-        }
-      } else {
-        if (stackedMap.has(card)) {
-          const mini = stackedMap.get(card);
-          mini.remove();
-          stackedMap.delete(card);
-          card.classList.remove("project-card--stacked-original");
-        }
-      }
+    mini.appendChild(img);
+
+    stackColumn.appendChild(mini);
+    stackedMap.set(card, mini);
+    card.classList.add("project-card--stacked-original");
+  }
+} else {
+  if (stackedMap.has(card)) {
+    const mini = stackedMap.get(card);
+    mini.remove();
+    stackedMap.delete(card);
+    card.classList.remove("project-card--stacked-original");
+  }
+}
+
     });
   }
 
