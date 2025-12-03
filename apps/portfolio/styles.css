@@ -5,7 +5,7 @@
   --muted: #9ca3af;
   --accent: #38bdf8;
   --border-subtle: rgba(148, 163, 184, 0.25);
-  --radius-lg: 22px;
+  --radius-lg: 5%;
   --radius-xl: 30px;
   --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.65);
   --transition-fast: 0.18s ease-out;
