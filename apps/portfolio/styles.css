@@ -332,7 +332,7 @@ body {
 /* MINI STACKED CARD STYLE */
 
 .stack-card {
-  pointer-events: auto; /* clickable */
+  pointer-events: auto;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: radial-gradient(circle at top left, #111827, #020617 60%, #000);
@@ -344,29 +344,21 @@ body {
   position: relative;
 }
 
+.stack-card__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
 /* overlap a bit for a "stacked" feel */
 .stack-card + .stack-card {
   margin-top: -110px;
 }
 
-/* reuse media aspect ratio */
-.stack-card .project-card__media {
-  aspect-ratio: 16 / 9;
-}
-
-/* tweak label for tiny size */
-.stack-card .project-card__label {
-  padding: 6px 8px;
-}
-
 .stack-card .project-card__title {
   font-size: 0.7rem;
 }
-
-.stack-card .project-card__meta {
-  font-size: 0.64rem;
-}
-
 
 
 
