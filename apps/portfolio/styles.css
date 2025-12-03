@@ -156,27 +156,15 @@ body {
   margin: 0 auto;
 }
 
-.project-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr); /* SINGLE COLUMN */
-  gap: 16px;
+.project-viewer {
   flex: 1 1 auto;
+  min-height: calc(100vh - 160px); /* big viewport card on mobile */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 8px;
 }
 
-
-@media (min-width: 768px) {
-  .project-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .project-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 22px;
-  }
-}
 
 
 
@@ -195,6 +183,9 @@ body {
     transform var(--transition-med),
     box-shadow var(--transition-med),
     border-color var(--transition-fast);
+
+  width: 100%;
+  max-width: 480px;
 }
 
 .project-card:hover {
@@ -284,11 +275,6 @@ body {
 
 /* GRID + STACK LAYOUT  (desktop only) */
 
-.grid-layout {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-}
 
 /* main grid flex item */
 
@@ -354,23 +340,27 @@ body {
 
 
 .stack-column {
-  display: none; /* only show on desktop */
+  display: flex;                 /* show on mobile too */
+  flex-direction: column;
+  gap: 8px;
+  width: 56px;                   /* narrow rail on phones */
+  max-height: 65vh;
+  overflow-y: auto;
+  padding-block: 8px;
+  pointer-events: auto;
+}
+
+@media (min-width: 768px) {
+  .stack-column {
+    width: 72px;
+  }
 }
 
 @media (min-width: 1024px) {
-  .grid-layout {
-    align-items: flex-start;
-  }
-
   .stack-column {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 220px;
     position: sticky;
-    top: 96px; /* under header */
-    height: 70vh;
-    pointer-events: none;
+    top: 96px;                   /* under header on desktop */
+    max-height: 70vh;
   }
 }
 
@@ -382,28 +372,38 @@ body {
 }
 
 /* MINI STACK PNG */
-
-.stack-card {
-  pointer-events: auto;
-  border-radius: var(--radius-lg);
+.stack-thumb {
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 12px;
   overflow: hidden;
-  background: radial-gradient(circle at top left, #111827, #020617 60%, #000);
-  border: 1px solid rgba(148, 163, 184, 0.6);
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.65);
-  transform-origin: top right;
-  transform: scale(0.36);
-  opacity: 0.9;
+  width: 100%;
+  aspect-ratio: 3 / 4;
   position: relative;
+  opacity: 0.7;
+  transform: scale(0.96);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.5);
 }
 
-/* overlap for stacked vibe */
-.stack-card + .stack-card {
-  margin-top: -110px;
-}
-
-.stack-card__image {
+.stack-thumb__image {
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
+}
+
+.stack-thumb--active {
+  opacity: 1;
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.6);
+  border-color: rgba(96, 165, 250, 0.9);
 }
