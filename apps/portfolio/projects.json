@@ -3,7 +3,7 @@
     "title": "JORDAN - BLACKCATS",
     "meta": "Commercial · CGI / VFX",
     "thumb": "media/blkctthumb.gif",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/panther-preview.mp4",
     "link": "#"
   },
@@ -11,7 +11,7 @@
     "title": "MAGIC JOHNSON",
     "meta": "Commercial · CGI / VFX",
     "thumb": "media/sunsex-city-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/MJ.mov",
     "link": "#"
   },
@@ -19,7 +19,7 @@
     "title": "Tyler the Creator – CGI Moment",
     "meta": "Music Artist · CGI / Compositing",
     "thumb": "media/tyler-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/tyler-preview.mp4",
     "link": "#"
   },
@@ -27,7 +27,7 @@
     "title": "Lil Uzi – Visual Snippet",
     "meta": "Music Video · VFX",
     "thumb": "media/uzi-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/uzi-preview.mp4",
     "link": "#"
   },
@@ -35,7 +35,7 @@
     "title": "AR Filter – Fashion Drop",
     "meta": "Social AR · Instagram / TikTok",
     "thumb": "media/ar-filter-thumb.gif",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": null,
     "link": "#"
   },
@@ -43,7 +43,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
@@ -51,7 +51,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
@@ -59,7 +59,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
@@ -67,7 +67,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
@@ -75,7 +75,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
@@ -83,7 +83,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
@@ -91,7 +91,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
@@ -99,7 +99,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
@@ -107,7 +107,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
@@ -115,14 +115,7 @@
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
     "thumb": "media/sunsex-torrent-thumb.jpg",
-    "stackThumb": "",
-    "video": "media/sunsex-torrent-preview.mp4",
-    "link": "#"
-  },
-  {
-    "title": "Sunsex Torrent – Game Lookdev",
-    "meta": "Realtime · Isometric Game World",
-    "thumb": "media/sunsex-torrent-thumb.jpg",
+    "stackThumb": "media/defualtThump.png",
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   }
