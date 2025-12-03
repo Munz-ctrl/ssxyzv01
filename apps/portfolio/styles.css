@@ -6,7 +6,7 @@
   --accent: #95dfff;
   --border-subtle: rgba(50, 50, 50, 0.25);
   --radius-lg: 5%;
-  --radius-xl: 30px;
+  --radius-xl: 10%;
   --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.65);
   --transition-fast: 0.18s ease-out;
   --transition-med: 0.25s ease-out;
@@ -158,9 +158,10 @@ body {
 
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); /* always 2 columns on small screens */
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr); /* single column on base layout */
+  gap: 16px;
 }
+
 
 @media (min-width: 768px) {
   .project-grid {
