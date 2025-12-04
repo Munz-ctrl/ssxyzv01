@@ -10,11 +10,18 @@ let isTransitioning = false;
 // Fetch projects from JSON
 fetch("projects.json")
   .then((res) => res.json())
-    .then((projects) => {
+  .then((projects) => {
     projectsData = projects;
+
+    // each project starts with first media as main
+    projectsData.forEach((p) => {
+      p.mainIndex = 0;
+    });
+
     buildSideRail(projectsData);
     showCurrentProject(); // start on top of stack
   })
+
 
   .catch((err) => {
     console.error("Failed to load projects.json", err);
@@ -54,17 +61,26 @@ function createProjectCard(project) {
     });
   }
 
-  // 3) optional extra media later:
-  // if (Array.isArray(project.extraMedia)) {
-  //   project.extraMedia.forEach((src) => {
-  //     const ext = src.split(".").pop().toLowerCase();
-  //     const isVideoExt = ["mp4", "mov", "webm"].includes(ext);
-  //     mediaItems.push({ type: isVideoExt ? "video" : "image", src });
-  //   });
-  // }
+  // 3) optional extra media (from projects.json)
+  if (Array.isArray(project.extraMedia)) {
+    project.extraMedia.forEach((src) => {
+      const ext = src.split(".").pop().toLowerCase();
+      const isVideoExt = ["mp4", "mov", "webm"].includes(ext);
+      mediaItems.push({
+        type: isVideoExt ? "video" : "image",
+        src,
+      });
+    });
+  }
 
-  const mainItem = mediaItems[0] || null;
-  const secondaryItems = mediaItems.slice(1);
+
+   const mainIndex = typeof project.mainIndex === "number" ? project.mainIndex : 0;
+  const mainItem = mediaItems[mainIndex] || mediaItems[0] || null;
+
+  const secondaryItems = mediaItems
+    .map((item, idx) => ({ ...item, idx }))
+    .filter((item) => item.idx !== mainIndex);
+
 
   // choose a layout hint: landscape vs portrait (optional future field)
   const layoutHint = project.layout || "landscape"; // or "portrait"
@@ -128,19 +144,18 @@ function createProjectCard(project) {
 
       thumbBtn.appendChild(mEl);
 
-      // click: make this the main media
+           // click: make this the main media for this project
       thumbBtn.addEventListener("click", (e) => {
         e.stopPropagation();
 
-        // swap main & clicked item
-        const currentMain = mediaItems[0];
-        mediaItems[0] = item;
-        mediaItems[idx + 1] = currentMain;
+        // update which index is main for this project
+        project.mainIndex = item.idx;
 
-        // re-render this card in-place via new card
+        // re-render this card in-place with new main
         const freshCard = createProjectCard(project);
         card.replaceWith(freshCard);
       });
+
 
       strip.appendChild(thumbBtn);
     });
@@ -168,7 +183,7 @@ function createProjectCard(project) {
 
   card.appendChild(details);
 
-  
+
 
   // --- Interaction logic (hover / tap to play primary video) ---
   const activateVideo = () => {
