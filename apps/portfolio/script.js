@@ -150,6 +150,26 @@ function createProjectCard(project) {
 
   card.appendChild(media);
 
+
+    // ---- DETAILS (text block) ----
+  const details = document.createElement("div");
+  details.className = "project-card__details";
+
+  const titleEl = document.createElement("h2");
+  titleEl.className = "project-card__title";
+  titleEl.textContent = project.title;
+
+  const metaEl = document.createElement("p");
+  metaEl.className = "project-card__meta";
+  metaEl.textContent = project.meta;
+
+  details.appendChild(titleEl);
+  details.appendChild(metaEl);
+
+  card.appendChild(details);
+
+  
+
   // --- Interaction logic (hover / tap to play primary video) ---
   const activateVideo = () => {
     if (!mainVideoEl) return;
