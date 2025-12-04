@@ -32,64 +32,139 @@ function createProjectCard(project) {
     project.stackPng ||
     project.thumb;
 
+  // --- normalize media items for this project ---
+  const mediaItems = [];
+
+  // 1) primary thumb (can be image OR video file)
+  if (project.thumb) {
+    const ext = project.thumb.split(".").pop().toLowerCase();
+    const isVideoExt = ["mp4", "mov", "webm"].includes(ext);
+
+    mediaItems.push({
+      type: isVideoExt ? "video" : "image",
+      src: project.thumb,
+    });
+  }
+
+  // 2) explicit video (if different from thumb)
+  if (project.video && project.video !== project.thumb) {
+    mediaItems.push({
+      type: "video",
+      src: project.video,
+    });
+  }
+
+  // 3) optional extra media later:
+  // if (Array.isArray(project.extraMedia)) {
+  //   project.extraMedia.forEach((src) => {
+  //     const ext = src.split(".").pop().toLowerCase();
+  //     const isVideoExt = ["mp4", "mov", "webm"].includes(ext);
+  //     mediaItems.push({ type: isVideoExt ? "video" : "image", src });
+  //   });
+  // }
+
+  const mainItem = mediaItems[0] || null;
+  const secondaryItems = mediaItems.slice(1);
+
+  // choose a layout hint: landscape vs portrait (optional future field)
+  const layoutHint = project.layout || "landscape"; // or "portrait"
+  card.classList.add(`project-card--layout-${layoutHint}`);
+
+  // ---- MEDIA WRAPPER ----
   const media = document.createElement("div");
   media.className = "project-card__media";
 
-  let videoEl = null;
+  let mainVideoEl = null;
 
-  if (project.video) {
-    videoEl = document.createElement("video");
-    videoEl.className = "project-card__video";
-    videoEl.src = project.video;
-    videoEl.muted = true;
-    videoEl.loop = true;
-    videoEl.playsInline = true;
-    videoEl.preload = "metadata";
-    media.appendChild(videoEl);
+  if (mainItem) {
+    const main = document.createElement("div");
+    main.className = "project-card__media-main";
+
+    if (mainItem.type === "video") {
+      mainVideoEl = document.createElement("video");
+      mainVideoEl.className = "project-card__video";
+      mainVideoEl.src = mainItem.src;
+      mainVideoEl.muted = true;
+      mainVideoEl.loop = true;
+      mainVideoEl.playsInline = true;
+      mainVideoEl.preload = "metadata";
+      main.appendChild(mainVideoEl);
+    } else {
+      const imgEl = document.createElement("img");
+      imgEl.className = "project-card__thumb";
+      imgEl.src = mainItem.src;
+      imgEl.alt = project.title;
+      imgEl.loading = "lazy";
+      main.appendChild(imgEl);
+    }
+
+    media.appendChild(main);
   }
 
-  const imgEl = document.createElement("img");
-  imgEl.className = "project-card__thumb";
-  imgEl.src = project.thumb;
-  imgEl.alt = project.title;
-  imgEl.loading = "lazy";
-  media.appendChild(imgEl);
+  // optional secondary strip (thumbnails, extra angles, etc.)
+  if (secondaryItems.length) {
+    const strip = document.createElement("div");
+    strip.className = "project-card__media-strip";
 
-  const overlay = document.createElement("div");
-  overlay.className = "project-card__overlay";
-  media.appendChild(overlay);
+    secondaryItems.forEach((item, idx) => {
+      const thumbBtn = document.createElement("button");
+      thumbBtn.className = "project-card__media-thumb";
 
-  const label = document.createElement("div");
-  label.className = "project-card__label";
+      let mEl;
+      if (item.type === "video") {
+        mEl = document.createElement("video");
+        mEl.className = "project-card__media-thumb-video";
+        mEl.src = item.src;
+        mEl.muted = true;
+        mEl.loop = true;
+        mEl.playsInline = true;
+        mEl.preload = "metadata";
+      } else {
+        mEl = document.createElement("img");
+        mEl.className = "project-card__media-thumb-image";
+        mEl.src = item.src;
+        mEl.alt = `${project.title} – alt ${idx + 1}`;
+      }
 
-  const titleEl = document.createElement("h2");
-  titleEl.className = "project-card__title";
-  titleEl.textContent = project.title;
-  label.appendChild(titleEl);
+      thumbBtn.appendChild(mEl);
 
-  const metaEl = document.createElement("p");
-  metaEl.className = "project-card__meta";
-  metaEl.textContent = project.meta;
-  label.appendChild(metaEl);
+      // click: make this the main media
+      thumbBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
 
-  media.appendChild(label);
+        // swap main & clicked item
+        const currentMain = mediaItems[0];
+        mediaItems[0] = item;
+        mediaItems[idx + 1] = currentMain;
+
+        // re-render this card in-place via new card
+        const freshCard = createProjectCard(project);
+        card.replaceWith(freshCard);
+      });
+
+      strip.appendChild(thumbBtn);
+    });
+
+    media.appendChild(strip);
+  }
+
   card.appendChild(media);
 
-  // --- Interaction logic (same as before) ---
+  // --- Interaction logic (hover / tap to play primary video) ---
   const activateVideo = () => {
-    if (!videoEl) return;
+    if (!mainVideoEl) return;
     card.classList.add("project-card--video-active");
-    const playPromise = videoEl.play();
+    const playPromise = mainVideoEl.play();
     if (playPromise && playPromise.catch) {
       playPromise.catch(() => {});
     }
   };
 
   const deactivateVideo = () => {
-    if (!videoEl) return;
+    if (!mainVideoEl) return;
     card.classList.remove("project-card--video-active");
-    videoEl.pause();
-    videoEl.currentTime = 0;
+    mainVideoEl.pause();
+    mainVideoEl.currentTime = 0;
   };
 
   if (!isTouchDevice) {
