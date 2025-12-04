@@ -5,6 +5,7 @@
     "thumb": "media/MJ.mov",
     "stackThumb": "media/abtmunz.png",
     "video": "media/panther-preview.mp4",
+    "extraMedia": ["media/tyler-alt1.jpg", "media/tyler-alt2.mp4"],
     "link": "#"
   },
   {
