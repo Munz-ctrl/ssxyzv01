@@ -123,7 +123,6 @@ function createProjectCard(project) {
 }
 
 /* ---------- viewer + side rail logic ---------- */
-
 function showCurrentProject(direction = 0) {
   if (!projectsData.length) return;
 
@@ -132,7 +131,7 @@ function showCurrentProject(direction = 0) {
   const oldCard = viewerEl.querySelector(".project-card");
   const newCard = createProjectCard(project);
 
-  // If there's no existing card, just show instantly
+  // First card: just drop it in
   if (!oldCard || direction === 0) {
     viewerEl.innerHTML = "";
     viewerEl.appendChild(newCard);
@@ -140,37 +139,33 @@ function showCurrentProject(direction = 0) {
     return;
   }
 
-  // Start positions for animation
+  // Place new card slightly offset + transparent
+  const offset = 24; // px, subtle shift
   if (direction > 0) {
-    // moving forward: new card comes from bottom
-    newCard.style.transform = "translateY(110%)";
+    // next card: comes from below
+    newCard.style.transform = `translateY(${offset}px)`;
   } else if (direction < 0) {
-    // moving backward: new card comes from top
-    newCard.style.transform = "translateY(-110%)";
+    // previous card: comes from above
+    newCard.style.transform = `translateY(-${offset}px)`;
   }
   newCard.style.opacity = "0";
 
   viewerEl.appendChild(newCard);
 
-  // Animate old card out
+  // Animate both cards in one frame
   requestAnimationFrame(() => {
     if (direction > 0) {
-      oldCard.style.transform = "translateY(-110%)";
+      oldCard.style.transform = `translateY(-${offset}px)`;
     } else {
-      oldCard.style.transform = "translateY(110%)";
+      oldCard.style.transform = `translateY(${offset}px)`;
     }
     oldCard.style.opacity = "0";
+
+    newCard.style.transform = "translateY(0)";
+    newCard.style.opacity = "1";
   });
 
-  // Animate new card in on next frame
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      newCard.style.transform = "translateY(0)";
-      newCard.style.opacity = "1";
-    });
-  });
-
-  // Remove old card after transition
+  // Clean up old card after transition
   const cleanup = () => {
     oldCard.removeEventListener("transitionend", cleanup);
     if (oldCard.parentNode === viewerEl) {
@@ -181,6 +176,7 @@ function showCurrentProject(direction = 0) {
 
   updateRailActive();
 }
+
 
 
 
