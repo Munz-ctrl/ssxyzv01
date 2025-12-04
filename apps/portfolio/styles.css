@@ -178,12 +178,15 @@ body {
 
 .project-viewer {
   flex: 1 1 auto;
-  height: 100%;         /* fill remaining height */
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   padding-right: 8px;
+  position: relative;           /* ✅ allows absolute cards to overlap */
+  overflow: hidden;
 }
+
 
 
 
