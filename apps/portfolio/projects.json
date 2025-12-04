@@ -8,10 +8,10 @@
     "link": "#"
   },
   {
-    "title": "MAGIC JOHNSON",
-    "meta": "Commercial · CGI / VFX",
-    "thumb": "media/MJ.mov",
-    "stackThumb": "media/defualtThump.png",
+    "title": "Virtuosus",
+    "meta": " Project manager · Lead 3D Artist",
+    "thumb": "media/virtT.png",
+    "stackThumb": "media/virtT.png",
     "video": "media/MJ.mov",
     "link": "#"
   },
@@ -64,11 +64,11 @@
     "link": "#"
   },
   {
-    "title": "Sunsex Torrent – Game Lookdev",
-    "meta": "Realtime · Isometric Game World",
-    "thumb": "media/sunsex-torrent-thumb.jpg",
+    "title": "MAGIC JOHNSON",
+    "meta": "Commercial · CGI / VFX",
+    "thumb": "media/MJ.mov",
     "stackThumb": "media/defualtThump.png",
-    "video": "media/sunsex-torrent-preview.mp4",
+    "video": "media/MJ.mov",
     "link": "#"
   }
 ]
