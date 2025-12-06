@@ -1,6 +1,6 @@
 :root {
   --bg: #a8a8a8;
-  --bg-elevated: #101117;
+  --bg-elevated: #7a7a7a;
   --fg: #f5f5f5;
   --muted: #414854;
   --accent: #95dfff;
@@ -80,7 +80,7 @@ body {
 
 .brand__subtitle {
   font-size: 0.7rem;
-  color: var(--muted);
+  color: rgb(255, 145, 0);
 }
 
 .site-nav {
