@@ -233,8 +233,8 @@ body {
   align-items: center;
   justify-content: center;
   background: #d2d2d2;
-  overflow: hidden;
-  border-radius: 16px 16px 0 0;
+  /* overflow: hidden; */
+  border-radius: 2vw;
 }
 
 /* big slot that centers its child */
