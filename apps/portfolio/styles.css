@@ -259,10 +259,10 @@ body {
 
 /* IG-style pager dots */
 .project-card__pager {
-  position: absolute;              /* ✅ pinned, not tied to card height */
+  position: fixed;              /* ✅ pinned, not tied to card height */
   left: 50%;
   transform: translateX(-50%);
-  bottom: 90px;                 /* tweak as you like */
+  bottom: 20%;                 /* tweak as you like */
   z-index: 30;
 
   display: flex;
