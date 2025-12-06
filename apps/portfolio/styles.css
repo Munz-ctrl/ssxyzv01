@@ -312,11 +312,11 @@ body {
 
 .project-card__details {
   flex: 0 0 auto;
-  margin-top: 10px;
+  margin-top: -10%;
   padding: 10px 12px;
   border-radius: 12px;
-  background: rgba(120, 120, 120, 0.633);
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: rgba(0, 0, 0, 0.605);
+  /* border: 1px solid rgba(148, 163, 184, 0.25); */
   display: flex;
   width: 100%;
   flex-direction: column;
