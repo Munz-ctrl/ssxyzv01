@@ -287,12 +287,22 @@ function showCurrentProject(direction = 0) {
   if (!projectsData.length) return;
 
   const project = projectsData[0]; // top of stack = active
-
   clearMediaTimer();
 
+  const oldCard = viewerEl.querySelector(".project-card");
   const card = createProjectCard(project);
 
-  // Always exactly one card in the viewer (desktop + mobile)
+  // Start new card slightly offset + transparent
+  card.style.opacity = "0";
+  if (direction > 0) {
+    card.style.transform = "translateY(20px)";
+  } else if (direction < 0) {
+    card.style.transform = "translateY(-20px)";
+  } else {
+    card.style.transform = "translateY(8px)";
+  }
+
+  // Replace content with the new card
   viewerEl.innerHTML = "";
   viewerEl.appendChild(card);
 
@@ -300,6 +310,13 @@ function showCurrentProject(direction = 0) {
   setupMediaAdvance(project, card);
   renderPager(project);
 
+  // Let the browser paint once, then animate to resting state
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      card.style.opacity = "1";
+      card.style.transform = "translateY(0)";
+    });
+  });
 }
 
 
