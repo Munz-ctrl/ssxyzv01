@@ -356,7 +356,7 @@ function stepProject(delta) {
 
   setTimeout(() => {
     isTransitioning = false;
-  }, 222);
+  }, 1111);
 }
 
 // Desktop wheel navigation over main viewer
