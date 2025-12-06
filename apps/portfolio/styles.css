@@ -388,7 +388,7 @@ body {
 .stack-thumb__image {
   max-width: 95%;
   max-height: 95%;
-  display: block;
+  display: inline-block;
   object-fit: fill;
 }
 
