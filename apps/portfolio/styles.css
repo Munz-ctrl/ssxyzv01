@@ -259,7 +259,7 @@ body {
 
 /* IG-style pager dots */
 .project-card__pager {
-  position: fixed;              /* ✅ pinned, not tied to card height */
+  position: absolute;              /* ✅ pinned, not tied to card height */
   left: 50%;
   transform: translateX(-50%);
   bottom: 90px;                 /* tweak as you like */
