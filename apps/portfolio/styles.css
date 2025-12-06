@@ -252,6 +252,7 @@ body {
   position: absolute;
   inset: 0;
   max-width: 100%;
+  min-width: fit-content;
   width: auto;
   max-height: 100%;
   object-fit: cover;      /* auto handles portrait vs landscape */
