@@ -262,9 +262,9 @@ body {
 /* IG-style pager dots */
 .project-card__pager {
   position: fixed;              /* ✅ pinned to viewport, not parent */
-  left: 50%;
+  left: 45%;
   transform: translateX(-50%);
-  bottom: 20%;                 /* tweak as you like */
+  bottom: 10%;                 /* tweak as you like */
   z-index: 30;
 
   display: flex;
