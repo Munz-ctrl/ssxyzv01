@@ -315,12 +315,13 @@ body {
 .project-card__title {
   font-size: 0.9rem;
   margin: 0;
+  color: rgb(255, 145, 0);
 }
 
 .project-card__meta {
   font-size: 0.78rem;
   margin: 0;
-  color: var(--muted);
+  color: rgb(196, 196, 196);
 }
 
 
