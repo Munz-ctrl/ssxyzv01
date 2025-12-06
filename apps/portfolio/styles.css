@@ -392,7 +392,7 @@ body {
   transform: scale(0.9);        /* a bit smaller in the column */
   transition:
     opacity var(--transition-fast),
-    transform var(--transition-fast),
+    transform 0.45s ease-in-out,
     box-shadow var(--transition-fast),
     border-color var(--transition-fast);
   /* box-shadow: 0 6px 16px rgba(0, 0, 0, 0.55);
@@ -409,7 +409,7 @@ body {
 
 .stack-thumb--active {
   opacity: 1;
-  transform: scale(1.25);
+  transform: scale(2.22);
   /* box-shadow: 0 2px 3px rgba(13, 29, 54, 0.6); */
   border-color: rgba(16, 32, 53, 0.9);
 }
