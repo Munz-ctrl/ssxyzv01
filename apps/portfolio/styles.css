@@ -347,6 +347,7 @@ body {
 .stack-column {
   display: flex;
   flex-direction: column;
+  z-index: 10;
   gap: 8px;
   width: 52px;                  /* a bit slimmer */
   max-height: 65vh;
