@@ -22,7 +22,7 @@
     "thumb": "media/virtT.png",
     "stackThumb": "media/yzyt.png",
     "video": "media/MJ.mov",
-    "extraMedia": ["media/virtT.png", "media/MJ.mov"],
+    "extraMedia": [ "media/podvid.mp4"],
     "link": "#"
   },
   {
