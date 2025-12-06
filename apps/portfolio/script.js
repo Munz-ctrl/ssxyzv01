@@ -266,61 +266,44 @@ function showCurrentProject(direction = 0) {
   if (!projectsData.length) return;
 
   const project = projectsData[0]; // top of stack = active
-
   clearMediaTimer();
 
-  const oldCard = viewerEl.querySelector(".project-card");
-  const newCard = createProjectCard(project);
+  const isNarrow = window.innerWidth < 768; // mobile / narrow screens
 
-  // First card: just drop it in
-    if (!oldCard || direction === 0) {
+  if (isNarrow) {
+    // MOBILE: single card only, no stacked history
+    const card = createProjectCard(project);
     viewerEl.innerHTML = "";
-    viewerEl.appendChild(newCard);
+    viewerEl.appendChild(card);
     updateRailActive();
-    setupMediaAdvance(project, newCard);
+    setupMediaAdvance(project, card);
     return;
   }
 
+  // DESKTOP / WIDE: keep a small "fan" of recent cards (max 3)
+  const card = createProjectCard(project);
+    // optional subtle entrance offset if you still want it:
+    // card.style.transform = direction > 0 ? "translateY(16px)" : "translateY(-16px)";
+    // card.style.opacity = "0";
 
-  // Place new card slightly offset + transparent
-  const offset = 24; // px, subtle shift
-  if (direction > 0) {
-    // next card: comes from below
-    newCard.style.transform = `translateY(${offset}px)`;
-  } else if (direction < 0) {
-    // previous card: comes from above
-    newCard.style.transform = `translateY(-${offset}px)`;
+  viewerEl.appendChild(card);
+
+  // Enforce a maximum number of visible cards in the viewer
+  const cards = viewerEl.querySelectorAll(".project-card");
+  const maxCards = 3; // 🔢 adjust if you ever want only 2
+
+  while (cards.length > maxCards) {
+    viewerEl.removeChild(cards[0]); // remove oldest one on the left
   }
-  newCard.style.opacity = "0";
 
-  viewerEl.appendChild(newCard);
-
-  // Animate both cards in one frame
-  requestAnimationFrame(() => {
-    if (direction > 0) {
-      oldCard.style.transform = `translateY(-${offset}px)`;
-    } else {
-      oldCard.style.transform = `translateY(${offset}px)`;
-    }
-    oldCard.style.opacity = "0";
-
-    newCard.style.transform = "translateY(0)";
-    newCard.style.opacity = "1";
-  });
-
-  // Clean up old card after transition
-  const cleanup = () => {
-    oldCard.removeEventListener("transitionend", cleanup);
-    if (oldCard.parentNode === viewerEl) {
-      viewerEl.removeChild(oldCard);
-    }
-  };
-  oldCard.addEventListener("transitionend", cleanup);
+  // If you kept the entrance offset above, you can ease it in:
+  // requestAnimationFrame(() => {
+  //   card.style.transform = "translateY(0)";
+  //   card.style.opacity = "1";
+  // });
 
   updateRailActive();
-
-    updateRailActive();
-  setupMediaAdvance(project, newCard);
+  setupMediaAdvance(project, card);
 }
 
 
