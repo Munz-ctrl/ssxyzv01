@@ -187,7 +187,7 @@ body {
   justify-content: center;
   padding-right: 8px;
   position: relative;           /* ✅ allows absolute cards to overlap */
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 
