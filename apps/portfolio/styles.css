@@ -305,9 +305,10 @@ body {
   margin-top: 10px;
   padding: 10px 12px;
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.94);
+  background: rgba(120, 120, 120, 0.633);
   border: 1px solid rgba(148, 163, 184, 0.25);
   display: flex;
+  width: 100%;
   flex-direction: column;
   gap: 4px;
 }
