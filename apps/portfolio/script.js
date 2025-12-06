@@ -118,50 +118,31 @@ function createProjectCard(project) {
   }
 
   // optional secondary strip (thumbnails, extra angles, etc.)
-  if (secondaryItems.length) {
-    const strip = document.createElement("div");
-    strip.className = "project-card__media-strip";
+   // IG-style dots pager instead of strip
+  if (mediaItems.length > 1) {
+    const pager = document.createElement("div");
+    pager.className = "project-card__pager";
 
-    secondaryItems.forEach((item, idx) => {
-      const thumbBtn = document.createElement("button");
-      thumbBtn.className = "project-card__media-thumb";
+    mediaItems.forEach((item, idx) => {
+      const dot = document.createElement("button");
+      dot.className = "project-card__dot";
+      if (idx === mainIndex) dot.classList.add("project-card__dot--active");
 
-      let mEl;
-      if (item.type === "video") {
-        mEl = document.createElement("video");
-        mEl.className = "project-card__media-thumb-video";
-        mEl.src = item.src;
-        mEl.muted = true;
-        mEl.loop = true;
-        mEl.playsInline = true;
-        mEl.preload = "metadata";
-      } else {
-        mEl = document.createElement("img");
-        mEl.className = "project-card__media-thumb-image";
-        mEl.src = item.src;
-        mEl.alt = `${project.title} – alt ${idx + 1}`;
-      }
-
-      thumbBtn.appendChild(mEl);
-
-           // click: make this the main media for this project
-      thumbBtn.addEventListener("click", (e) => {
+      dot.addEventListener("click", (e) => {
         e.stopPropagation();
+        if (idx === mainIndex) return;
 
-        // update which index is main for this project
-        project.mainIndex = item.idx;
-
-        // re-render this card in-place with new main
+        project.mainIndex = idx;
         const freshCard = createProjectCard(project);
         card.replaceWith(freshCard);
       });
 
-
-      strip.appendChild(thumbBtn);
+      pager.appendChild(dot);
     });
 
-    media.appendChild(strip);
+    media.appendChild(pager);
   }
+
 
   card.appendChild(media);
 
