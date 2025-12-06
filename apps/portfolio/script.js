@@ -266,47 +266,18 @@ function showCurrentProject(direction = 0) {
   if (!projectsData.length) return;
 
   const project = projectsData[0]; // top of stack = active
+
   clearMediaTimer();
 
-  const isNarrow = window.innerWidth < 768; // mobile / narrow screens
-
-  if (isNarrow) {
-    // MOBILE: single card only, no stacked history
-    const card = createProjectCard(project);
-    viewerEl.innerHTML = "";
-    viewerEl.appendChild(card);
-    updateRailActive();
-    setupMediaAdvance(project, card);
-    return;
-  }
-
-  // DESKTOP / WIDE: keep a small "fan" of recent cards (max 3)
   const card = createProjectCard(project);
-    // optional subtle entrance offset if you still want it:
-    // card.style.transform = direction > 0 ? "translateY(16px)" : "translateY(-16px)";
-    // card.style.opacity = "0";
 
+  // Always exactly one card in the viewer (desktop + mobile)
+  viewerEl.innerHTML = "";
   viewerEl.appendChild(card);
-
-  // Enforce a maximum number of visible cards in the viewer
-  const cards = viewerEl.querySelectorAll(".project-card");
-  const maxCards = 3; // 🔢 adjust if you ever want only 2
-
-  while (cards.length > maxCards) {
-    viewerEl.removeChild(cards[0]); // remove oldest one on the left
-  }
-
-  // If you kept the entrance offset above, you can ease it in:
-  // requestAnimationFrame(() => {
-  //   card.style.transform = "translateY(0)";
-  //   card.style.opacity = "1";
-  // });
 
   updateRailActive();
   setupMediaAdvance(project, card);
 }
-
-
 
 
 
@@ -385,7 +356,7 @@ function stepProject(delta) {
 
   setTimeout(() => {
     isTransitioning = false;
-  }, 350);
+  }, 222);
 }
 
 // Desktop wheel navigation over main viewer
@@ -425,4 +396,10 @@ viewerEl.addEventListener("touchend", (e) => {
   }
 
   touchStartY = null;
+});
+
+window.addEventListener("resize", () => {
+  if (!projectsData.length) return;
+  // Re-render the current top project to fit new viewport
+  showCurrentProject(0);
 });
