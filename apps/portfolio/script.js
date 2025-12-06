@@ -7,6 +7,54 @@ let projectsData = [];
 
 let isTransitioning = false;
 
+let mediaTimer = null;
+
+function clearMediaTimer() {
+  if (mediaTimer) {
+    clearTimeout(mediaTimer);
+    mediaTimer = null;
+  }
+}
+
+// central place to build mediaItems for a project
+function getMediaItems(project) {
+  const mediaItems = [];
+
+  // 1) primary thumb (image OR video)
+  if (project.thumb) {
+    const ext = project.thumb.split(".").pop().toLowerCase();
+    const isVideoExt = ["mp4", "mov", "webm"].includes(ext);
+
+    mediaItems.push({
+      type: isVideoExt ? "video" : "image",
+      src: project.thumb,
+    });
+  }
+
+  // 2) explicit video if different
+  if (project.video && project.video !== project.thumb) {
+    mediaItems.push({
+      type: "video",
+      src: project.video,
+    });
+  }
+
+  // 3) optional extra media
+  if (Array.isArray(project.extraMedia)) {
+    project.extraMedia.forEach((src) => {
+      const ext = src.split(".").pop().toLowerCase();
+      const isVideoExt = ["mp4", "mov", "webm"].includes(ext);
+      mediaItems.push({
+        type: isVideoExt ? "video" : "image",
+        src,
+      });
+    });
+  }
+
+  return mediaItems;
+}
+
+
 // Fetch projects from JSON
 fetch("projects.json")
   .then((res) => res.json())
@@ -40,38 +88,7 @@ function createProjectCard(project) {
     project.thumb;
 
   // --- normalize media items for this project ---
-  const mediaItems = [];
-
-  // 1) primary thumb (can be image OR video file)
-  if (project.thumb) {
-    const ext = project.thumb.split(".").pop().toLowerCase();
-    const isVideoExt = ["mp4", "mov", "webm"].includes(ext);
-
-    mediaItems.push({
-      type: isVideoExt ? "video" : "image",
-      src: project.thumb,
-    });
-  }
-
-  // 2) explicit video (if different from thumb)
-  if (project.video && project.video !== project.thumb) {
-    mediaItems.push({
-      type: "video",
-      src: project.video,
-    });
-  }
-
-  // 3) optional extra media (from projects.json)
-  if (Array.isArray(project.extraMedia)) {
-    project.extraMedia.forEach((src) => {
-      const ext = src.split(".").pop().toLowerCase();
-      const isVideoExt = ["mp4", "mov", "webm"].includes(ext);
-      mediaItems.push({
-        type: isVideoExt ? "video" : "image",
-        src,
-      });
-    });
-  }
+  const mediaItems = getMediaItems(project);
 
 
    const mainIndex = typeof project.mainIndex === "number" ? project.mainIndex : 0;
@@ -128,14 +145,19 @@ function createProjectCard(project) {
       dot.className = "project-card__dot";
       if (idx === mainIndex) dot.classList.add("project-card__dot--active");
 
-      dot.addEventListener("click", (e) => {
+            dot.addEventListener("click", (e) => {
         e.stopPropagation();
         if (idx === mainIndex) return;
 
         project.mainIndex = idx;
+
         const freshCard = createProjectCard(project);
         card.replaceWith(freshCard);
+
+        clearMediaTimer();
+        setupMediaAdvance(project, freshCard);
       });
+
 
       pager.appendChild(dot);
     });
@@ -166,52 +188,78 @@ function createProjectCard(project) {
 
 
 
-  // --- Interaction logic (hover / tap to play primary video) ---
-  const activateVideo = () => {
-    if (!mainVideoEl) return;
-    card.classList.add("project-card--video-active");
-    const playPromise = mainVideoEl.play();
+  return card;
+}
+
+
+
+function advanceMedia(project, direction = 1) {
+  const mediaItems = getMediaItems(project);
+  if (mediaItems.length <= 1) return;
+
+  const len = mediaItems.length;
+  const current = typeof project.mainIndex === "number" ? project.mainIndex : 0;
+  project.mainIndex = (current + direction + len) % len;
+
+  const currentCard = viewerEl.querySelector(".project-card");
+  if (!currentCard) return;
+
+  const freshCard = createProjectCard(project);
+  currentCard.replaceWith(freshCard);
+
+  setupMediaAdvance(project, freshCard);
+}
+
+function setupMediaAdvance(project, card) {
+  clearMediaTimer();
+
+  const mediaItems = getMediaItems(project);
+  if (!mediaItems.length) return;
+
+  // Autoplay any videos on this card
+  const videos = card.querySelectorAll("video");
+  videos.forEach((videoEl) => {
+    videoEl.muted = true;
+    videoEl.playsInline = true;
+    const playPromise = videoEl.play();
     if (playPromise && playPromise.catch) {
       playPromise.catch(() => {});
     }
-  };
+  });
 
-  const deactivateVideo = () => {
-    if (!mainVideoEl) return;
-    card.classList.remove("project-card--video-active");
-    mainVideoEl.pause();
-    mainVideoEl.currentTime = 0;
-  };
-
-  if (!isTouchDevice) {
-    card.addEventListener("mouseenter", activateVideo);
-    card.addEventListener("mouseleave", deactivateVideo);
-  } else {
-    let isActive = false;
-
-    card.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      if (!project.video) {
-        if (project.link && project.link !== "#") {
-          window.location.href = project.link;
-        }
-        return;
-      }
-
-      if (!isActive) {
-        isActive = true;
-        activateVideo();
-      } else {
-        if (project.link && project.link !== "#") {
-          window.location.href = project.link;
-        }
-      }
-    });
+  if (mediaItems.length <= 1) {
+    // only one media – nothing to auto-advance
+    return;
   }
 
-  return card;
+  const mainIndex =
+    typeof project.mainIndex === "number" ? project.mainIndex : 0;
+  const mainItem = mediaItems[mainIndex];
+
+  if (mainItem.type === "video") {
+    // advance when video ends
+    const mainVideo = card.querySelector(".project-card__video");
+    if (!mainVideo) return;
+
+    mainVideo.loop = false;
+
+    const onEnded = () => {
+      mainVideo.removeEventListener("ended", onEnded);
+      advanceMedia(project, 1);
+    };
+
+    mainVideo.addEventListener("ended", onEnded);
+  } else {
+    // image / gif: advance every 5 seconds
+    mediaTimer = setTimeout(() => {
+      advanceMedia(project, 1);
+    }, 5000);
+  }
 }
+
+
+
+
 
 /* ---------- viewer + side rail logic ---------- */
 function showCurrentProject(direction = 0) {
@@ -219,16 +267,20 @@ function showCurrentProject(direction = 0) {
 
   const project = projectsData[0]; // top of stack = active
 
+  clearMediaTimer();
+
   const oldCard = viewerEl.querySelector(".project-card");
   const newCard = createProjectCard(project);
 
   // First card: just drop it in
-  if (!oldCard || direction === 0) {
+    if (!oldCard || direction === 0) {
     viewerEl.innerHTML = "";
     viewerEl.appendChild(newCard);
     updateRailActive();
+    setupMediaAdvance(project, newCard);
     return;
   }
+
 
   // Place new card slightly offset + transparent
   const offset = 24; // px, subtle shift
@@ -266,7 +318,11 @@ function showCurrentProject(direction = 0) {
   oldCard.addEventListener("transitionend", cleanup);
 
   updateRailActive();
+
+    updateRailActive();
+  setupMediaAdvance(project, newCard);
 }
+
 
 
 
