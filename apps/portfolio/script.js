@@ -1,5 +1,9 @@
 const viewerEl = document.getElementById("project-viewer");
 const stackColumn = document.getElementById("stack-column");
+
+const pagerEl = document.getElementById("media-pager");
+
+
 const isTouchDevice =
   "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
@@ -136,34 +140,7 @@ function createProjectCard(project) {
 
   // optional secondary strip (thumbnails, extra angles, etc.)
    // IG-style dots pager instead of strip
-  if (mediaItems.length > 1) {
-    const pager = document.createElement("div");
-    pager.className = "project-card__pager";
-
-    mediaItems.forEach((item, idx) => {
-      const dot = document.createElement("button");
-      dot.className = "project-card__dot";
-      if (idx === mainIndex) dot.classList.add("project-card__dot--active");
-
-            dot.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (idx === mainIndex) return;
-
-        project.mainIndex = idx;
-
-        const freshCard = createProjectCard(project);
-        card.replaceWith(freshCard);
-
-        clearMediaTimer();
-        setupMediaAdvance(project, freshCard);
-      });
-
-
-      pager.appendChild(dot);
-    });
-
-    media.appendChild(pager);
-  }
+  
 
 
   card.appendChild(media);
@@ -208,6 +185,9 @@ function advanceMedia(project, direction = 1) {
   currentCard.replaceWith(freshCard);
 
   setupMediaAdvance(project, freshCard);
+    
+  renderPager(project);
+
 }
 
 function setupMediaAdvance(project, card) {
@@ -258,6 +238,47 @@ function setupMediaAdvance(project, card) {
 }
 
 
+function renderPager(project) {
+  if (!pagerEl) return;
+
+  const mediaItems = getMediaItems(project);
+  pagerEl.innerHTML = "";
+
+  if (mediaItems.length <= 1) {
+    pagerEl.style.display = "none";
+    return;
+  }
+
+  pagerEl.style.display = "flex";
+
+  const mainIndex =
+    typeof project.mainIndex === "number" ? project.mainIndex : 0;
+
+  mediaItems.forEach((item, idx) => {
+    const dot = document.createElement("button");
+    dot.className = "project-card__dot";
+    if (idx === mainIndex) dot.classList.add("project-card__dot--active");
+
+    dot.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (idx === mainIndex) return;
+
+      project.mainIndex = idx;
+
+      const currentCard = viewerEl.querySelector(".project-card");
+      if (!currentCard) return;
+
+      const freshCard = createProjectCard(project);
+      currentCard.replaceWith(freshCard);
+
+      clearMediaTimer();
+      setupMediaAdvance(project, freshCard);
+      renderPager(project);
+    });
+
+    pagerEl.appendChild(dot);
+  });
+}
 
 
 
@@ -277,6 +298,8 @@ function showCurrentProject(direction = 0) {
 
   updateRailActive();
   setupMediaAdvance(project, card);
+  renderPager(project);
+
 }
 
 
