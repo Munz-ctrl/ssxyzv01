@@ -259,10 +259,12 @@ body {
 
 /* IG-style pager dots */
 .project-card__pager {
-  position: absolute;
-  bottom: 8px;
+  position: fixed;              /* ✅ pinned, not tied to card height */
   left: 50%;
   transform: translateX(-50%);
+  bottom: 90px;                 /* tweak as you like */
+  z-index: 30;
+
   display: flex;
   gap: 6px;
   padding: 4px 8px;
@@ -270,6 +272,14 @@ body {
   background: rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(6px);
 }
+
+
+@media (min-width: 900px) {
+  .project-card__pager {
+    bottom: 40px;
+  }
+}
+
 
 .project-card__dot {
   width: 6px;
