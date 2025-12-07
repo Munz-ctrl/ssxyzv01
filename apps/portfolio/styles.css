@@ -330,16 +330,17 @@ body {
   font-size: 0.9rem;
   margin: 0;
   color: rgb(252, 252, 252);
-  stroke: #414854;
-  background: rgba(0, 0, 0, 0.193);
+  stroke: #171717;
+  stroke-width: 1px;
+  /* background: rgba(0, 0, 0, 0.193); */
 }
 
 .project-card__meta {
   font-size: 0.78rem;
   margin: 0;
-  stroke: #ffffff;
-  color: rgb(196, 196, 196);
-  background: rgba(0, 0, 0, 0.193);
+  
+  color: rgb(45, 45, 45);
+  /* background: rgba(0, 0, 0, 0.193); */
 }
 
 
