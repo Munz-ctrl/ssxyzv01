@@ -318,7 +318,7 @@ body {
   margin-top: -10%;
   padding: 10px 12px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.605);
+  /* background: rgba(0, 0, 0, 0.193); */
   /* border: 1px solid rgba(148, 163, 184, 0.25); */
   display: flex;
   width: 100%;
@@ -329,13 +329,15 @@ body {
 .project-card__title {
   font-size: 0.9rem;
   margin: 0;
-  color: rgb(255, 145, 0);
+  color: rgb(252, 252, 252);
+  background: rgba(0, 0, 0, 0.193);
 }
 
 .project-card__meta {
   font-size: 0.78rem;
   margin: 0;
   color: rgb(196, 196, 196);
+  background: rgba(0, 0, 0, 0.193);
 }
 
 
