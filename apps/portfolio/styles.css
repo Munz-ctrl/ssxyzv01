@@ -233,7 +233,7 @@ body {
   align-items: center;
   justify-content: center;
   background: #d2d2d2;
-  /* overflow: hidden; */
+  overflow: hidden;
   border-radius: 2vw;
 }
 
