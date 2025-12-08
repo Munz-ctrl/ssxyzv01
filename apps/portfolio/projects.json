@@ -46,7 +46,15 @@
     "video": "media/ajmet.MOV",
     "link": "#"
   },
-  
+  {
+    "title": "Select projects ↴ ",
+    "meta": "Past clients include: tyler the creator , lil uzi , ye , hulu , clarks , gbny , daily paper , stranger things , ovo , JD sports , Tom brady , Dame Dash , RCA records , Atlantic records ... etc",
+    "thumb": "media/excgif.gif",
+    "stackThumb": "media/exc.png",
+    "video": "",
+    "extraMedia": [ "media/excgif.gif"],
+    "link": "#"
+  },
   {
     "title": "AD Creation YEEZY",
     "meta": "Commisioned by Ye's team to create compelling visual ads, + Secondary role in graphic design",
