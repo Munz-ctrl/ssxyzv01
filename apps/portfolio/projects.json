@@ -59,6 +59,15 @@
     "link": "#"
   },
   {
+    "title": "Ai integration in contentcreation",
+    "meta": "I worked with several brands to create a custom ai pipelines and webapps that they can use in content creation and common internal workflows",
+    "thumb": "media/blkctthumb.gif",
+    "stackThumb": "media/ai.png",
+    "extraMedia": ["media/ajmet.MOV", "media/MJ.mov"],
+    "video": "media/ajmet.MOV",
+    "link": "#"
+  },
+  {
     "title": "Virtual avatars",
     "meta": "Consistant and high-quality 3D avatars for social media and metaverse presence",
     "thumb": "media/avatar-thumb.jpg",
@@ -66,15 +75,7 @@
     "video": "media/sunsex-torrent-preview.mp4",
     "link": "#"
   },
-  {
-    "title": "JORDAN - BLACKCATS",
-    "meta": "Commercial · CGI / VFX",
-    "thumb": "media/blkctthumb.gif",
-    "stackThumb": "media/blkctthumb.gif",
-    "extraMedia": ["media/ajmet.MOV", "media/MJ.mov"],
-    "video": "media/ajmet.MOV",
-    "link": "#"
-  },
+  
   {
     "title": "Sunsex Torrent – Game Lookdev",
     "meta": "Realtime · Isometric Game World",
