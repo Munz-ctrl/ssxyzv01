@@ -54,7 +54,7 @@
     "meta": "in all veriety of fields and all bases (modeling, texturing, lighting, rendering, compositing)",
   
     "stackThumb": "media/3d.png",
-    "extraMedia": ["media/ajmet.MOV", "media/MJ.mov"],
+    "extraMedia": [ "media/blkctthumb.gif", "media/ajmet.MOV", "media/MJ.mov"],
     "video": null,
     "link": "#"
   },
