@@ -238,7 +238,7 @@ function setupMediaAdvance(project, card) {
     // image / gif: advance every 5 seconds
     mediaTimer = setTimeout(() => {
       advanceMedia(project, 1);
-    }, 4000);
+    }, 7000);
   }
 }
 
