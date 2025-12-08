@@ -8,6 +8,7 @@
    
     "link": "#"
   },
+
   {
     "title": "Art Direction | Pipeline Building | Project Management",
     "meta": "As the lead artist and project manager at Virtuosus, I oversee the full creative pipeline—from concept and design to final CGI, VFX, and interactive experiences. I guide projects end-to-end, balancing artistic direction with clear communication, efficient workflow management, and high-quality delivery. My role combines hands-on visual creation with team coordination to bring ambitious ideas to life smoothly and on schedule.",
@@ -16,6 +17,35 @@
     "video": "media/MJ.mov",
     "link": "#"
   },
+
+  {
+    "title": "3D Master",
+    "meta": "in all veriety of fields and all bases (modeling, texturing, lighting, rendering, compositing)",
+  
+    "stackThumb": "media/3d.png",
+    "extraMedia": [ "media/blkctthumb.gif", "media/ajmet.MOV", "media/MJ.mov"],
+    "video": null,
+    "link": "#"
+  },
+  {
+    "title": "AR Filters 4 Fashion Drop",
+    "meta": "Social AR · Instagram / TikTok",
+    "thumb": "media/ar-filter-thumb.gif",
+    "stackThumb": "media/ar.png",
+    "video": null,
+    "link": "#"
+  },
+
+  {
+    "title": "Ai integration in contentcreation",
+    "meta": "I worked with several brands to create a custom ai pipelines and webapps that they can use in content creation and common internal workflows",
+    "thumb": "media/blkctthumb.gif",
+    "stackThumb": "media/ai.png",
+    "extraMedia": ["media/ajmet.MOV", "media/MJ.mov"],
+    "video": "media/ajmet.MOV",
+    "link": "#"
+  },
+  
   {
     "title": "AD Creation YEEZY",
     "meta": "Commisioned by Ye's team to create compelling visual ads, + Secondary role in graphic design",
@@ -42,32 +72,6 @@
     "link": "#"
   },
   {
-    "title": "AR Filters 4 Fashion Drop",
-    "meta": "Social AR · Instagram / TikTok",
-    "thumb": "media/ar-filter-thumb.gif",
-    "stackThumb": "media/ar.png",
-    "video": null,
-    "link": "#"
-  },
-  {
-    "title": "3D Master",
-    "meta": "in all veriety of fields and all bases (modeling, texturing, lighting, rendering, compositing)",
-  
-    "stackThumb": "media/3d.png",
-    "extraMedia": [ "media/blkctthumb.gif", "media/ajmet.MOV", "media/MJ.mov"],
-    "video": null,
-    "link": "#"
-  },
-  {
-    "title": "Ai integration in contentcreation",
-    "meta": "I worked with several brands to create a custom ai pipelines and webapps that they can use in content creation and common internal workflows",
-    "thumb": "media/blkctthumb.gif",
-    "stackThumb": "media/ai.png",
-    "extraMedia": ["media/ajmet.MOV", "media/MJ.mov"],
-    "video": "media/ajmet.MOV",
-    "link": "#"
-  },
-  {
     "title": "Virtual avatars",
     "meta": "Consistant and high-quality 3D avatars for social media and metaverse presence",
     "thumb": "media/avatar-thumb.jpg",
@@ -85,12 +89,12 @@
     "link": "#"
   },
   {
-    "title": "MAGIC JOHNSON",
-    "meta": "Commercial · CGI / VFX",
+    "title": "CONTACT",
+    "meta": "Email: 77PhoenixLane@gmail.com / instagram: @munzir_here . avaiable for freelance and full time work . based in New York , Working Globaly   ",
     "thumb": "media/MJ.mov",
-    "stackThumb": "media/defualtThump.png",
+    "stackThumb": "media/contact.png",
     
-    "video": "media/MJ.mov",
+    "video": "",
     "link": "#"
   }
 ]
