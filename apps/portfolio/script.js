@@ -9,6 +9,9 @@ const isTouchDevice =
 
 let projectsData = [];
 
+let currentIndex = 0; // which project is active
+
+
 let isTransitioning = false;
 
 let mediaTimer = null;
@@ -70,6 +73,8 @@ fetch("projects.json")
       p.mainIndex = 0;
     });
 
+
+     currentIndex = 0;    
     buildSideRail(projectsData);
     showCurrentProject(); // start on top of stack
   })
@@ -286,7 +291,8 @@ function renderPager(project) {
 function showCurrentProject(direction = 0) {
   if (!projectsData.length) return;
 
-  const project = projectsData[0]; // top of stack = active
+  const project = projectsData[currentIndex]; // active project by index
+
   clearMediaTimer();
 
   const oldCard = viewerEl.querySelector(".project-card");
@@ -328,7 +334,7 @@ function buildSideRail(projects) {
   projects.forEach((project, index) => {
     const btn = document.createElement("button");
     btn.className = "stack-thumb";
-    if (index === 0) btn.classList.add("stack-thumb--active");
+    if (index === currentIndex) btn.classList.add("stack-thumb--active");
 
     const img = document.createElement("img");
     img.className = "stack-thumb__image";
@@ -338,15 +344,13 @@ function buildSideRail(projects) {
     btn.appendChild(img);
 
     btn.addEventListener("click", () => {
-      if (index === 0) return; // already active
+      if (index === currentIndex) return; // already active
 
-      // Rotate array so clicked item becomes index 0
-      projectsData = projectsData
-        .slice(index)
-        .concat(projectsData.slice(0, index));
+      const direction = index > currentIndex ? 1 : -1; // for slide feel
+      currentIndex = index;
 
-      buildSideRail(projectsData);
-      showCurrentProject();
+      showCurrentProject(direction);
+      updateRailActive();
     });
 
     stackColumn.appendChild(btn);
@@ -354,13 +358,14 @@ function buildSideRail(projects) {
 }
 
 
+
 function updateRailActive() {
   if (!stackColumn) return;
   const thumbs = stackColumn.querySelectorAll(".stack-thumb");
 
   thumbs.forEach((thumb, idx) => {
-  thumb.classList.toggle("stack-thumb--active", idx === 0);
-});
+    thumb.classList.toggle("stack-thumb--active", idx === currentIndex);
+  });
 
 
   // Keep active thumb roughly centered in the rail
@@ -376,27 +381,20 @@ function updateRailActive() {
 
 function stepProject(delta) {
   if (isTransitioning || !projectsData.length) return;
+  if (delta === 0) return;
 
-  if (delta > 0) {
-    // Scroll down: take first item and move to bottom
-    const first = projectsData.shift();
-    projectsData.push(first);
-  } else if (delta < 0) {
-    // Scroll up: take last item and move to top
-    const last = projectsData.pop();
-    projectsData.unshift(last);
-  } else {
-    return;
-  }
+  const len = projectsData.length;
+  const direction = delta > 0 ? 1 : -1;
+
+  currentIndex = (currentIndex + direction + len) % len;
 
   isTransitioning = true;
 
-  buildSideRail(projectsData);
-  showCurrentProject(delta);
+  showCurrentProject(direction);
 
   setTimeout(() => {
     isTransitioning = false;
-  }, 111);
+  }, 180);
 }
 
 // Desktop wheel navigation over main viewer
