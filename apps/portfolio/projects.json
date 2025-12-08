@@ -52,8 +52,9 @@
     {
     "title": "3D Master",
     "meta": "in all veriety of fields and all bases (modeling, texturing, lighting, rendering, compositing)",
-    "thumb": "media/ar-filter-thumb.gif",
+  
     "stackThumb": "media/3d.png",
+    "extraMedia": ["media/ajmet.MOV", "media/MJ.mov"],
     "video": null,
     "link": "#"
   },
