@@ -42,10 +42,18 @@
     "link": "#"
   },
   {
-    "title": "AR Filter – Fashion Drop",
+    "title": "AR Filters 4 Fashion Drop",
     "meta": "Social AR · Instagram / TikTok",
     "thumb": "media/ar-filter-thumb.gif",
     "stackThumb": "media/ar.png",
+    "video": null,
+    "link": "#"
+  },
+    {
+    "title": "3D Master",
+    "meta": "in all veriety of fields and all bases (modeling, texturing, lighting, rendering, compositing)",
+    "thumb": "media/ar-filter-thumb.gif",
+    "stackThumb": "media/3d.png",
     "video": null,
     "link": "#"
   },
