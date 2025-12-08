@@ -1,10 +1,10 @@
 [
   {
     "title": "MUNZIR",
-    "meta": " 3D artist and designer focused on CGI VFX and isometric worldbuilding. I create bold visual systems for brands artists and new digital worlds. My work blends realism, style and experimentation ",
-    "thumb": "media/munzslide.gif",
+    "meta": " 3D artist and designer focused on creating bold visual systems for brands, artists and new digital worlds. My work blends realism, style and experimentation ",
+    "thumb": "",
     "stackThumb": "media/abtmunz2.png",
-    "extraMedia": [ "media/roles2.png", ""],
+    "extraMedia": [ "media/munzslide.gif"],
     "video": "",
    
     "link": "#"
@@ -12,12 +12,24 @@
 
   {
     "title": "Art Direction | Pipeline Building | Project Management",
-    "meta": "As the lead artist and project manager at Virtuosus, I oversee the full creative pipeline—from concept and design to final CGI, VFX, and interactive experiences. I guide projects end-to-end, balancing artistic direction with clear communication, efficient workflow management, and high-quality delivery. My role combines hands-on visual creation with team coordination to bring ambitious ideas to life smoothly and on schedule.",
+    "meta": "As the lead artist, project manager and co founder at Virtuosus, I oversee the full creative pipeline—from concept and design to final CGI, VFX, and interactive experiences. I guide projects end-to-end, balancing artistic direction with clear communication, efficient workflow management, and high-quality delivery. My role combines hands-on visual creation with team coordination to bring ambitious ideas to life smoothly and on schedule.",
     "thumb": "",
     "stackThumb": "media/virtT.png",
     "video": "media/MJ.mov",
     "link": "#"
   },
+
+  {
+    "title": "Skillset Overview",
+    "meta": " +9 years of experience in 3D art, VFX, motion graphics, and interactive media. Proficient in industry-standard software including Cinema 4D, Houdini, After Effects, and Unity. Skilled in 3D modeling, texturing, lighting, rendering, compositing, and animation. Strong understanding of design principles, storytelling, and visual communication. Experienced in project management and team collaboration.",
+    "thumb": "",
+    "stackThumb": "media/skill.png",
+    "extraMedia": [ "media/roles2.png", "media/skills.png"],
+    "video": "",
+   
+    "link": "#"
+  },
+
 
   {
     "title": "3D Master",
@@ -49,7 +61,7 @@
   {
     "title": "Select projects ↴ ",
     "meta": "Past clients include: tyler the creator , lil uzi , ye , hulu , clarks , gbny , daily paper , stranger things , ovo , JD sports , Tom brady , Dame Dash , RCA records , Atlantic records ... etc",
-    "thumb": "media/excgif.gif",
+    "thumb": "",
     "stackThumb": "media/exc.png",
     "video": "",
     "extraMedia": [ "media/excgif.gif"],
