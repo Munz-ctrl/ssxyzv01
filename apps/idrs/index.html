@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>IRDS – Innovative Relief and Development Solutions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --green: #1f8f4d;
+      --green-soft: #e6f4ec;
+      --gold: #d9a441;
+      --dark: #1f2933;
+      --light: #f9fafb;
+      --gray: #6b7280;
+      --radius-lg: 18px;
+      --shadow-soft: 0 14px 30px rgba(15, 23, 42, 0.13);
+      --max-width: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #f0fdf4 0, #f9fafb 45%, #eef2ff 100%);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      background: rgba(249, 250, 251, 0.86);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+    }
+
+    .nav {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0.7rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .logo-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      background: conic-gradient(from 210deg, #16a34a, #22c55e, #166534);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.95rem;
+      box-shadow: 0 8px 18px rgba(22, 163, 74, 0.45);
+    }
+
+    .logo-text span {
+      display: block;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray);
+    }
+
+    .logo-text strong {
+      font-size: 0.98rem;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.8rem;
+      font-size: 0.92rem;
+    }
+
+    .nav-links a {
+      padding: 0.4rem 0.65rem;
+      border-radius: 999px;
+      color: var(--gray);
+      transition: background 160ms ease, color 160ms ease, transform 120ms ease;
+    }
+
+    .nav-links a:hover {
+      background: rgba(22, 163, 74, 0.06);
+      color: var(--dark);
+      transform: translateY(-1px);
+    }
+
+    .pill {
+      background: var(--green);
+      color: white !important;
+      padding: 0.45rem 0.95rem;
+      border-radius: 999px;
+      font-weight: 600;
+      box-shadow: 0 10px 24px rgba(22, 163, 74, 0.35);
+    }
+
+    main {
+      flex: 1;
+    }
+
+    .hero {
+      max-width: var(--max-width);
+      margin: 1.75rem auto 2.5rem;
+      padding: 1.7rem 1.25rem 2rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 1.7rem;
+      grid-template-columns: minmax(0, 1.4fr);
+    }
+
+    @media (min-width: 840px) {
+      .hero-grid {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        align-items: center;
+      }
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.06);
+      color: var(--green);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .eyebrow-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, #bbf7d0, #16a34a);
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 2.6vw + 1.6rem, 2.7rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.7rem;
+    }
+
+    h1 span {
+      color: var(--green);
+    }
+
+    .hero-sub {
+      color: var(--gray);
+      font-size: 0.98rem;
+      max-width: 32rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 0.55rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: transform 120ms ease, box-shadow 150ms ease, background 150ms ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: white;
+      box-shadow: 0 12px 28px rgba(22, 163, 74, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 32px rgba(22, 163, 74, 0.5);
+    }
+
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.02);
+      color: var(--dark);
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+    }
+
+    .hero-note {
+      font-size: 0.78rem;
+      color: var(--gray);
+    }
+
+    .hero-card {
+      border-radius: var(--radius-lg);
+      background: radial-gradient(circle at top left, #dcfce7 0, #f9fafb 40%, #e0f2fe 100%);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -30% -40%;
+      height: 220px;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(34, 197, 94, 0.28), transparent 60%),
+        radial-gradient(circle at 80% 0%, rgba(59, 130, 246, 0.2), transparent 65%),
+        radial-gradient(circle at 50% 120%, rgba(234, 179, 8, 0.28), transparent 60%);
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .hero-card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--green);
+      margin-bottom: 0.45rem;
+    }
+
+    .hero-card h2 {
+      font-size: 1.18rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .hero-card p {
+      font-size: 0.9rem;
+      color: var(--gray);
+      margin-bottom: 0.9rem;
+    }
+
+    .tier-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 1.1rem;
+    }
+
+    .tier {
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.03);
+      font-size: 0.78rem;
+      color: var(--dark);
+    }
+
+    .impact {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      font-size: 0.78rem;
+      color: var(--gray);
+    }
+
+    .impact strong {
+      color: var(--dark);
+      font-size: 0.9rem;
+    }
+
+    .badge-soft {
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(22, 163, 74, 0.12);
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid rgba(34, 197, 94, 0.35);
+    }
+
+    .section {
+      max-width: var(--max-width);
+      margin: 0 auto 2rem;
+      padding: 0 1.25rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .section-header h2 {
+      font-size: 1.3rem;
+      letter-spacing: -0.02em;
+    }
+
+    .section-header p {
+      font-size: 0.88rem;
+      color: var(--gray);
+      max-width: 25rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    @media (min-width: 720px) {
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .card {
+      border-radius: 16px;
+      background: rgba(249, 250, 251, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 1rem;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+    }
+
+    .card h3 {
+      font-size: 0.98rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .card p {
+      font-size: 0.86rem;
+      color: var(--gray);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .chip {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+
+    .where-grid {
+      display: grid;
+      gap: 0.8rem;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    .pill-small {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.28rem;
+      padding: 0.22rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.03);
+      font-size: 0.77rem;
+      color: var(--gray);
+      margin-bottom: 0.6rem;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    footer {
+      border-top: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      padding: 1.4rem 1.25rem 1.6rem;
+      margin-top: 1.5rem;
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      opacity: 0.8;
+    }
+
+    .footer-links a {
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 3px;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <nav class="nav">
+      <div class="logo">
+        <div class="logo-mark">IR</div>
+        <div class="logo-text">
+          <span>Innovative Relief &amp; Development</span>
+          <strong>IRDS – Sudan</strong>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#mission">Mission</a>
+        <a href="#themes">Themes of Work</a>
+        <a href="#where">Where We Work</a>
+        <a href="#partners">Partners</a>
+        <a href="#plant">Plant a Tree in Sudan</a>
+        <a href="#donate" class="pill">Donate</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            IRDS • Sudan
+          </div>
+          <h1>
+            Rebuilding livelihoods, <span>one community</span> and
+            <span>one tree</span> at a time.
+          </h1>
+          <p class="hero-sub">
+            IRDS is a Sudanese NGO supporting families affected by conflict with
+            livelihoods, small business development, animal health and WASH
+            programs across Darfur and beyond. Our new <strong>Plant a Tree in Sudan</strong>
+            campaign links climate action directly to local recovery.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="document.getElementById('plant').scrollIntoView({behavior:'smooth'});">
+              Plant a Tree in Sudan
+              <span>🌱</span>
+            </button>
+            <button class="btn btn-ghost" onclick="document.getElementById('mission').scrollIntoView({behavior:'smooth'});">
+              Learn about our work
+            </button>
+          </div>
+          <p class="hero-note">
+            This is a visual demo. Donation buttons and language options can be
+            connected to your existing systems.
+          </p>
+        </div>
+
+        <!-- Plant a Tree preview card -->
+        <aside class="hero-card" id="donate">
+          <div class="hero-card-inner">
+            <div class="hero-card-title">New Campaign</div>
+            <h2>Plant a Tree in Sudan</h2>
+            <p>
+              Support communities in Darfur and other regions by restoring
+              degraded land, protecting farms and providing shade and fruit for
+              families.
+            </p>
+            <div class="tier-row">
+              <span class="tier">10 USD · 1 Tree</span>
+              <span class="tier">45 USD · 5 Trees</span>
+              <span class="tier">150 USD · 20 Trees</span>
+            </div>
+            <div class="impact">
+              <div>
+                <strong>Impact preview</strong><br />
+                Trees are planted through existing IRDS livelihood projects,
+                creating local jobs and long-term resilience.
+              </div>
+              <span class="badge-soft">Phase 1 · Online launch</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- MISSION -->
+    <section class="section" id="mission">
+      <div class="section-header">
+        <div>
+          <h2>Our mission</h2>
+        </div>
+        <p>
+          IRDS works with vulnerable Sudanese communities to reduce suffering
+          and increase self-reliance through practical, locally-led programs.
+        </p>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <h3>Locally rooted</h3>
+          <p>
+            Registered in Sudan and operating across Darfur and other states,
+            IRDS partners with community leaders and local authorities to design
+            realistic, sustainable interventions.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Evidence-based programs</h3>
+          <p>
+            From small business development to animal health and WASH, our work
+            builds on more than a decade of field experience with UN and NGO
+            partners.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Climate &amp; livelihoods together</h3>
+          <p>
+            The Plant a Tree initiative adds a climate lens to our livelihood
+            programs, helping communities adapt to droughts, soil degradation
+            and displacement.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- THEMES -->
+    <section class="section" id="themes">
+      <div class="section-header">
+        <h2>Themes of work</h2>
+        <p>
+          Key technical areas where IRDS is already active. The new tree
+          campaign can connect to these themes instead of standing alone.
+        </p>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <h3>Small Business Development</h3>
+          <p>
+            Training and start-up support for micro-enterprises so families can
+            rebuild income after conflict.
+          </p>
+          <div class="chip-row">
+            <span class="chip">Youth enterprises</span>
+            <span class="chip">Women-led groups</span>
+          </div>
+        </article>
+        <article class="card">
+          <h3>Livelihoods &amp; Agriculture</h3>
+          <p>
+            Seeds, tools and farming support to improve food security and
+            household resilience.
+          </p>
+          <div class="chip-row">
+            <span class="chip">Farmer groups</span>
+            <span class="chip">Cash-for-work</span>
+          </div>
+        </article>
+        <article class="card">
+          <h3>Animal Health &amp; WASH</h3>
+          <p>
+            Veterinary outreach, water access and hygiene promotion in
+            hard-to-reach communities.
+          </p>
+          <div class="chip-row">
+            <span class="chip">Mobile vets</span>
+            <span class="chip">Community water points</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- WHERE WE WORK -->
+    <section class="section" id="where">
+      <div class="section-header">
+        <h2>Where we work</h2>
+        <p>
+          IRDS has a strong track record implementing programs across multiple
+          Darfur states and other regions in Sudan.
+        </p>
+      </div>
+      <div class="where-grid">
+        <div class="card">
+          <div class="pill-small"><span class="dot"></span> North Darfur</div>
+          <p>Livelihoods, WASH, post-conflict recovery.</p>
+        </div>
+        <div class="card">
+          <div class="pill-small"><span class="dot"></span> West Darfur</div>
+          <p>Community peacebuilding and income generation.</p>
+        </div>
+        <div class="card">
+          <div class="pill-small"><span class="dot"></span> Central Darfur</div>
+          <p>Support to displaced families and host communities.</p>
+        </div>
+        <div class="card">
+          <div class="pill-small"><span class="dot"></span> Other states</div>
+          <p>
+            Programs in South Kordofan, Khartoum and other areas, implemented
+            with UNDP and international partners.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLANT A TREE -->
+    <section class="section" id="plant">
+      <div class="section-header">
+        <h2>Plant a Tree in Sudan</h2>
+        <p>
+          A clear, standalone campaign that still feels part of IRDS – with a
+          simple giving flow, transparent impact and strong visuals.
+        </p>
+      </div>
+      <div class="grid-3">
+        <article class="card">
+          <h3>Why trees?</h3>
+          <p>
+            Trees protect farmland from wind and sand, restore soil, provide
+            fruit and shade, and create dignified local jobs for youth and
+            women.
+          </p>
+        </article>
+        <article class="card">
+          <h3>How it works</h3>
+          <p>
+            Donors select a package, IRDS plants trees through existing field
+            projects, and communities care for them. We report back with simple
+            updates and photos.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Next steps</h3>
+          <p>
+            In the live version this section will connect to your payment
+            gateway, issue receipts and (optionally) send “gift a tree”
+            certificates by email.
+          </p>
+        </article>
+      </div>
+      <div style="margin-top:1.2rem; display:flex; flex-wrap:wrap; gap:0.8rem; align-items:center;">
+        <button class="btn btn-primary">
+          Demo – Plant 5 Trees
+        </button>
+        <button class="btn btn-ghost">
+          View full campaign page (coming soon)
+        </button>
+      </div>
+    </section>
+
+    <!-- PARTNERS -->
+    <section class="section" id="partners">
+      <div class="section-header">
+        <h2>Our partners</h2>
+        <p>
+          IRDS has implemented projects with UNDP and other international
+          partners since 2010.
+        </p>
+      </div>
+      <div class="card">
+        <p style="font-size:0.86rem; color:var(--gray);">
+          Logos and partner names will appear here in the production version
+          (UNDP, DCPSF and others). We can also add a short “Interested in
+          partnering?” call-to-action linked to a contact form.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div>
+        © <span id="year"></span> IRDS – Innovative Relief and Development Solutions
+      </div>
+      <div class="footer-links">
+        <a href="#mission">Mission</a>
+        <a href="#plant">Plant a Tree in Sudan</a>
+        <a href="#partners">Partners</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
