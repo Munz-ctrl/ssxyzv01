@@ -1216,15 +1216,99 @@ if (avatarUploadSlots && avatarUploadSlots.length) {
 }
 
 if (avatarCreateBtn) {
-  avatarCreateBtn.addEventListener('click', () => {
+  avatarCreateBtn.addEventListener('click', async () => {
     if (!currentUserId) {
       avatarStatusEl.textContent = 'Log in to create your own avatar.';
       return;
     }
-    // TODO: hook to Nano Banana Pro avatar pipeline.
-    avatarStatusEl.textContent = 'Avatar creator coming soon (backend not wired yet).';
+
+    // 1) collect selected avatar photos
+    const filled = avatarSlots.filter(slot => slot && slot.file);
+    if (!filled.length) {
+      avatarStatusEl.textContent = 'Upload at least 1–3 clear photos of yourself.';
+      return;
+    }
+
+    avatarStatusEl.textContent = 'Uploading photos…';
+
+    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+    if (!sb?.storage) {
+      avatarStatusEl.textContent = 'Supabase storage not available.';
+      return;
+    }
+
+    try {
+      const uploadedUrls = [];
+
+      for (let i = 0; i < avatarSlots.length; i++) {
+        const slot = avatarSlots[i];
+        if (!slot || !slot.file) continue;
+
+        const file = slot.file;
+        const path = `avatars/${currentUserId}/${Date.now()}-${i}-${file.name}`;
+        const uploadRes = await sb.storage.from('userassets').upload(path, file, { upsert: true });
+        if (uploadRes.error) {
+          console.error('Supabase avatar upload error:', uploadRes.error);
+          throw uploadRes.error;
+        }
+
+        const pub = sb.storage.from('userassets').getPublicUrl(path);
+        const publicUrl = pub?.data?.publicUrl || pub?.publicUrl;
+        if (publicUrl) uploadedUrls.push(publicUrl);
+      }
+
+      if (!uploadedUrls.length) {
+        avatarStatusEl.textContent = 'Photo upload failed, try again.';
+        return;
+      }
+
+      avatarStatusEl.textContent = 'Generating avatar…';
+
+      const primaryUrl = uploadedUrls[0];
+      const extraRefs  = uploadedUrls.slice(1);
+
+      // Use Munz base as template
+      const templateUrl = DEFAULT_HERO_IMG;
+
+      const payload = {
+        mode: 'avatar',            // 👈 tells backend to use nano-banana-pro
+        personUrl: primaryUrl,
+        extraRefs,
+        avatarTemplateUrl: templateUrl,
+        prompt:
+          'Using the Munz base portrait as an isometric avatar template, make a similar isometric avatar image for ' +
+          'the character in the uploaded pictures. Maintain photorealism, identity, skin tone and overall style, with a clean simple background.'
+      };
+
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        console.error('Avatar generate error:', body);
+        avatarStatusEl.textContent =
+          'Avatar generation failed: ' + (body.details || body.error || res.statusText);
+        return;
+      }
+
+      const outputUrl = body.outputUrl || body.image || body.output;
+      if (!outputUrl) {
+        avatarStatusEl.textContent = 'No avatar image returned.';
+        return;
+      }
+
+      setHeroImage(outputUrl);
+      avatarStatusEl.textContent = 'New avatar ready.';
+    } catch (err) {
+      console.error(err);
+      avatarStatusEl.textContent = 'Error creating avatar: ' + (err.message || err);
+    }
   });
 }
+
 
 
 
