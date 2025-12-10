@@ -321,7 +321,7 @@ body {
   /* background: rgba(0, 0, 0, 0.193); */
   /* border: 1px solid rgba(148, 163, 184, 0.25); */
   display: flex;
-  width: 100vw;
+  width: inherit;
   flex-direction: column;
   gap: 4px;
 }
