@@ -19,7 +19,33 @@
     "extraMedia": [ "media/v.mp4"],
     "link": "#"
   },
-
+ {
+    "title": "Tyler the Creator – CGI Moment",
+    "meta": "Music Artist · CGI / Compositing",
+    "thumb": "",
+    "stackThumb": "media/tylrt.png",
+    "video": "media/tylr.MP4",
+    "link": "#"
+  },
+  {
+    "title": "AD Creation YEEZY",
+    "meta": "Commisioned by Ye's team to create compelling visual ads, + Secondary role in graphic design",
+    "thumb": "media/podvid.MP4",
+    "stackThumb": "media/yzyt.png",
+    "video": "media/podvid.MP4",
+    "extraMedia": [ "media/vul.MP4" ,"media/yep.png"],
+    "link": "#"
+  },
+ 
+  {
+    "title": "Lil Uzi – Visual Snippet",
+    "meta": "Music Video · VFX",
+    "thumb": "media/uzi-thumb.jpg",
+    "stackThumb": "media/luvt.png",
+    "video": "media/uzi-preview.mp4",
+    "link": "#"
+  },
+  
   {
     "title": "Skillset Overview",
     "meta": " +9 years of experience in 3D art, VFX, motion graphics, and interactive media. Proficient in industry-standard software including Cinema 4D, Houdini, After Effects, and Unity. Skilled in 3D modeling, texturing, lighting, rendering, compositing, and animation. Strong understanding of design principles, storytelling, and visual communication. Experienced in project management and team collaboration.",
@@ -32,33 +58,7 @@
   },
 
 
-  {
-    "title": "3D Master",
-    "meta": "in all veriety of fields and all bases (modeling, texturing, lighting, rendering, compositing)",
   
-    "stackThumb": "media/3d.png",
-    "extraMedia": [ "media/blkctthumb.gif", "media/ajmet.MOV", "media/MJ.mov"],
-    "video": null,
-    "link": "#"
-  },
-  {
-    "title": "AR Filters 4 Fashion Drop",
-    "meta": "Social AR · Instagram / TikTok",
-    "thumb": "media/ar-filter-thumb.gif",
-    "stackThumb": "media/ar.png",
-    "video": null,
-    "link": "#"
-  },
-
-  {
-    "title": "Ai integration in contentcreation",
-    "meta": "I worked with several brands to create a custom ai pipelines and webapps that they can use in content creation and common internal workflows",
-    "thumb": "media/blkctthumb.gif",
-    "stackThumb": "media/ai.png",
-    "extraMedia": ["media/aia.png", "media/MJ.mov"],
-    "video": "media/ajmet.MOV",
-    "link": "#"
-  },
   {
     "title": "",
     "meta": "Past clients include: tyler the creator , lil uzi , ye , hulu , clarks , gbny , daily paper , stranger things , ovo , JD sports , Tom brady , Dame Dash , RCA records , Atlantic records ... etc. Scroll below to see selected works  ↴ .  ",
@@ -68,39 +68,7 @@
     "extraMedia": [ "media/excgif.gif"],
     "link": "#"
   },
-  {
-    "title": "AD Creation YEEZY",
-    "meta": "Commisioned by Ye's team to create compelling visual ads, + Secondary role in graphic design",
-    "thumb": "media/podvid.MP4",
-    "stackThumb": "media/yzyt.png",
-    "video": "media/podvid.MP4",
-    "extraMedia": [ "media/vul.MP4" ,"media/yep.png"],
-    "link": "#"
-  },
-  {
-    "title": "Tyler the Creator – CGI Moment",
-    "meta": "Music Artist · CGI / Compositing",
-    "thumb": "",
-    "stackThumb": "media/tylrt.png",
-    "video": "media/tylr.MP4",
-    "link": "#"
-  },
-  {
-    "title": "Lil Uzi – Visual Snippet",
-    "meta": "Music Video · VFX",
-    "thumb": "media/uzi-thumb.jpg",
-    "stackThumb": "media/luvt.png",
-    "video": "media/uzi-preview.mp4",
-    "link": "#"
-  },
-  {
-    "title": "Virtual avatars",
-    "meta": "Consistant and high-quality 3D avatars for social media and metaverse presence",
-    "thumb": "media/avatar-thumb.jpg",
-    "stackThumb": "media/avatar.png",
-    "video": "media/sunsex-torrent-preview.mp4",
-    "link": "#"
-  },
+  
   
   {
     "title": "Sunsex Torrent – Game Lookdev",
