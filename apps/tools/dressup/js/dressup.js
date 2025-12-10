@@ -413,24 +413,28 @@ initHeroBackground();
   try {
     const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
     if (!sb) {
-      // No Supabase at all → just run with local defaults + "anonymous"
-      updateCreditUI();
-      runWatermarkTyping();
-      return;
-    }
+  updateCreditUI();
+  updateAuthDependentUI();
+  runWatermarkTyping();
+  return;
+}
+
 
     // Get current session (must have been created via real login)
     const { data: sess } = await sb.auth.getSession();
     const user = sess?.session?.user || null;
-    if (!user) {
-      // Not logged in → just show default credits + watermark
-      updateCreditUI();
-      runWatermarkTyping();
-      return;
-    }
+   if (!user) {
+  updateCreditUI();
+  updateAuthDependentUI();
+  runWatermarkTyping();
+  return;
+}
+
 
     currentUserId = user.id;
     supabaseReady = true;
+
+    updateAuthDependentUI();
 
     // Try to load this user's player (1 PID per user) for watermark + skins
     if (currentUserId) {
@@ -593,6 +597,31 @@ async function syncPersonalCredits() {
 let garmentPublicUrl = null;
 let hasGeneratedOnce = false;
 let historyStack = []; // previous hero URLs for "Step Back"
+
+
+
+function updateAuthDependentUI() {
+  const loggedIn = !!currentUserId;
+
+  // STYLE tab: multi-item toggle
+  if (multiItemToggle) {
+    multiItemToggle.disabled = !loggedIn;
+  }
+  if (multiItemLockLabel) {
+    multiItemLockLabel.textContent = loggedIn
+      ? 'Multi-item enabled'
+      : 'Log in to unlock';
+  }
+
+  // AVATAR tab: guest vs authed sections
+  if (avatarGuestSection && avatarAuthedSection) {
+    avatarGuestSection.style.display  = loggedIn ? 'none'  : 'block';
+    avatarAuthedSection.style.display = loggedIn ? 'block' : 'none';
+  }
+}
+
+
+
 
 // keep the HUD in sync with internal credit state
 function updateCreditUI() {
