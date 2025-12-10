@@ -15,6 +15,7 @@ html, body {
 :root {
   --panel-bg: rgba(34, 34, 34, 0.86);
   --panel-br: 18px;
+  
   --ink: #e9eaec;
   --ink-dim: #b9bec7;
   --accent: #2b66ff;
@@ -69,6 +70,7 @@ html, body {
 .panel-card {
   background: var(--panel-bg);
   border-radius: var(--panel-br);
+  height: fit-content;
   padding: 14px;
   border: 1px solid rgba(255,255,255,0.06);
   box-shadow: 0 12px 30px rgba(0,0,0,0.45);
