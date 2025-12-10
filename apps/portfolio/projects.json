@@ -16,7 +16,7 @@
     "thumb": "",
     "stackThumb": "media/virtT.png",
     "video": "media/MJ.mov",
-    "extraMedia": [ "media/v.MP4"],
+    "extraMedia": [ "media/v.MP4" , "media/v.mp4"],
     "link": "#"
   },
 
