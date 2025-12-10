@@ -13,7 +13,7 @@ html, body {
 
 /* Theme */
 :root {
-  --panel-bg: rgba(18, 20, 26, 0.86);
+  --panel-bg: rgba(34, 34, 34, 0.86);
   --panel-br: 18px;
   --ink: #e9eaec;
   --ink-dim: #b9bec7;
