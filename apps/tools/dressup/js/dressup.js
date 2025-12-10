@@ -37,6 +37,27 @@ const animatedWMEl    = $('animatedWatermarkText');// bottom-left typing waterma
 const statusEl        = $('status');
 const btnUpload       = $('btnUpload');
 const btnGenerate     = $('btnGenerate');
+
+
+const multiItemToggle    = $('multiItemToggle');
+const multiItemLockLabel = $('multiItemLockLabel');
+const multiSlotsContainer = $('multiSlots');
+
+const styleTabEl  = $('styleTab');
+const avatarTabEl = $('avatarTab');
+const tabButtons  = document.querySelectorAll('.panel-tab');
+
+const avatarGuestSection  = $('avatarGuestSection');
+const avatarAuthedSection = $('avatarAuthedSection');
+const avatarStatusEl      = $('avatarStatus');
+const avatarCreateBtn     = $('btnCreateAvatar');
+const avatarLoginBtn      = $('btnAvatarLoginPrompt');
+const avatarPresetButtons = document.querySelectorAll('.avatar-pill');
+const avatarUploadSlots   = document.querySelectorAll('.avatar-upload-slot');
+
+
+
+
 const fileInput       = $('fileInput');
 const garmentPreview  = $('garmentPreview');
 const thumbWrap       = document.querySelector('.thumb-wrap');
@@ -109,6 +130,89 @@ let watermarkLoopStarted = false;
 
 // current skin label (e.g. "Base", "CVS Uniform")
 let currentSkinName = null;
+
+
+// which part of UI is using fileInput right now: "style" vs "avatar"
+let currentUploadContext = 'style';
+let activeAvatarSlot = 0;
+
+// avatar slot URLs (for later Nano avatar pipeline)
+const avatarSlots = [null, null, null, null, null];
+
+
+// ---------- STYLE: multi-item garment state ----------
+
+const MAX_GARMENTS = 6;
+let multiModeEnabled = false;
+
+// each slot holds { url, supabasePath } or null
+let garmentSlots = new Array(MAX_GARMENTS).fill(null);
+let activeGarmentSlot = 0;
+
+// helper: mark slots visually
+function refreshMultiSlotsUI() {
+  if (!multiSlotsContainer) return;
+  const slotEls = multiSlotsContainer.querySelectorAll('.multi-slot');
+  slotEls.forEach((el) => {
+    const idx = Number(el.dataset.index || 0);
+    const slotData = garmentSlots[idx];
+    el.classList.toggle('has-image', !!slotData);
+    el.classList.toggle('active', idx === activeGarmentSlot);
+    if (slotData && slotData.url) {
+      el.style.backgroundImage = `url("${slotData.url}")`;
+    } else {
+      el.style.backgroundImage = 'none';
+    }
+  });
+}
+
+// ---------- AVATAR: public presets ----------
+
+const AVATAR_PRESETS = {
+  'munz-base': {
+    label: 'Munz',
+    heroUrl: htmlDefaultHero
+  },
+  'munz-naked': {
+    label: 'Munz (skin)',
+    // TODO: drop in your real naked-skin asset
+    heroUrl: '/apps/tools/dressup/assets/munz-base-naked.png'
+  },
+  'invisible': {
+    label: 'Invisible',
+    heroUrl: null // we treat this as "hide hero" for now
+  },
+  'ayani': {
+    label: 'Ayani',
+    heroUrl: '/apps/tools/dressup/assets/ayani-base-portrait.png'
+  }
+};
+
+function applyAvatarPreset(id) {
+  const preset = AVATAR_PRESETS[id];
+  if (!preset) return;
+
+  // visual selection
+  avatarPresetButtons.forEach(btn => {
+    btn.classList.toggle('avatar-pill-active', btn.dataset.avatarId === id);
+  });
+
+  if (id === 'invisible') {
+    // hide hero visually, but keep data-person-url as last valid one
+    hero.style.backgroundImage = 'none';
+    // optional: disable generate button when invisible
+    if (btnGenerate) btnGenerate.disabled = true;
+    return;
+  }
+
+  if (preset.heroUrl) {
+    setHeroImage(preset.heroUrl);
+    if (btnGenerate && garmentPreview.src) {
+      btnGenerate.disabled = false;
+    }
+  }
+}
+
 
 
 // chose default hero image
@@ -609,38 +713,67 @@ if (skinSelectEl) {
 
 // ---------- Upload flow ----------
 
-btnUpload.addEventListener('click', () => fileInput.click());
+if (btnUpload && fileInput) {
+  btnUpload.addEventListener('click', () => {
+    currentUploadContext = 'style';
+    activeGarmentSlot = 0; // main slot
+    fileInput.click();
+  });
+}
 
-fileInput.addEventListener('change', async (e) => {
-  const files = e.target.files;
-  if (!files || !files[0]) return;
-  const file = files[0];
 
-  try {
-    statusEl.textContent = 'Uploading garment…';
+if (fileInput) {
+  fileInput.addEventListener('change', async (evt) => {
+    const file = evt.target.files && evt.target.files[0];
+    if (!file) return;
 
-    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
-    if (!sb) throw new Error('Supabase client not found');
-
-    const path = 'garments/' + Date.now() + '-' + file.name;
-    const uploadRes = await sb.storage.from('userassets').upload(path, file, { upsert: true });
-    if (uploadRes.error) {
-      console.error('Supabase upload error:', uploadRes.error);
-      throw uploadRes.error;
+    if (currentUploadContext === 'avatar') {
+      // Phase 1: just preview the avatar slot, store URL for later
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        avatarSlots[activeAvatarSlot] = { url: dataUrl, file };
+        const slotEl = Array.from(avatarUploadSlots || []).find(
+          el => Number(el.dataset.index || 0) === activeAvatarSlot
+        );
+        if (slotEl) {
+          slotEl.classList.add('has-image');
+          slotEl.style.backgroundImage = `url("${dataUrl}")`;
+        }
+      };
+      reader.readAsDataURL(file);
+      avatarStatusEl.textContent = '';
+      return;
     }
 
-    const pub = await sb.storage.from('userassets').getPublicUrl(path);
-    garmentPublicUrl = pub.data.publicUrl;
+    // default: STYLE / garment upload (existing logic)
+    try {
+      statusEl.textContent = 'Uploading garment…';
+      const { publicUrl } = await uploadGarmentToSupabase(file); // your existing helper
 
-    garmentPreview.src = garmentPublicUrl;
-    btnGenerate.disabled = false;
-    statusEl.textContent = 'Garment ready. Hit “Generate on Munz”.';
-    updateThumbEmpty();
-  } catch (err) {
-    console.error(err);
-    statusEl.textContent = 'Upload failed: ' + (err.message || err);
-  }
-});
+      garmentPreview.src = publicUrl;
+      thumbWrap.classList.remove('empty');
+      btnGenerate.disabled = false;
+
+      // main single-garment URL (keeps DressUp working)
+      garmentPublicUrl = publicUrl;
+
+      // multi-slot bookkeeping if enabled
+      if (multiModeEnabled) {
+        garmentSlots[activeGarmentSlot] = { url: publicUrl };
+        refreshMultiSlotsUI();
+      }
+
+      statusEl.textContent = 'Garment ready.';
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = 'Upload failed, try again.';
+    } finally {
+      fileInput.value = '';
+    }
+  });
+}
+
 
 
 
@@ -973,6 +1106,96 @@ if (btnSave) {
 
 
 
+// ---------- Tab switching (STYLE / AVATAR) ----------
+
+if (tabButtons && tabButtons.length) {
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tab;
+      tabButtons.forEach(b => b.classList.toggle('active', b === btn));
+
+      if (styleTabEl) {
+        styleTabEl.classList.toggle('active', target === 'style');
+      }
+      if (avatarTabEl) {
+        avatarTabEl.classList.toggle('active', target === 'avatar');
+      }
+    });
+  });
+}
+
+// ---------- Multi-item UI events ----------
+
+if (multiItemToggle) {
+  multiItemToggle.addEventListener('change', () => {
+    multiModeEnabled = !!multiItemToggle.checked;
+    if (multiSlotsContainer) {
+      multiSlotsContainer.hidden = !multiModeEnabled;
+    }
+    refreshMultiSlotsUI();
+  });
+}
+
+if (multiSlotsContainer) {
+  multiSlotsContainer.addEventListener('click', (evt) => {
+    const slot = evt.target.closest('.multi-slot');
+    if (!slot) return;
+    const idx = Number(slot.dataset.index || 0);
+    activeGarmentSlot = idx;
+    refreshMultiSlotsUI();
+
+    // reuse the same file input as the main upload
+    if (fileInput) {
+      // mark this upload as "garment"
+      currentUploadContext = 'garment';
+      fileInput.click();
+    }
+  });
+}
+
+// ---------- Avatar tab events ----------
+
+if (avatarPresetButtons && avatarPresetButtons.length) {
+  avatarPresetButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.avatarId;
+      applyAvatarPreset(id);
+    });
+  });
+}
+
+if (avatarLoginBtn) {
+  avatarLoginBtn.addEventListener('click', () => {
+    // For now: redirect back to dashboard or root where login lives.
+    // You can swap this URL later for a dedicated login route.
+    window.location.href = '/dashboard.html';
+  });
+}
+
+if (avatarUploadSlots && avatarUploadSlots.length) {
+  avatarUploadSlots.forEach(slot => {
+    slot.addEventListener('click', () => {
+      if (!currentUserId) {
+        avatarStatusEl.textContent = 'Log in to upload photos.';
+        return;
+      }
+      currentUploadContext = 'avatar';
+      activeAvatarSlot = Number(slot.dataset.index || 0);
+      if (fileInput) fileInput.click();
+    });
+  });
+}
+
+if (avatarCreateBtn) {
+  avatarCreateBtn.addEventListener('click', () => {
+    if (!currentUserId) {
+      avatarStatusEl.textContent = 'Log in to create your own avatar.';
+      return;
+    }
+    // TODO: hook to Nano Banana Pro avatar pipeline.
+    avatarStatusEl.textContent = 'Avatar creator coming soon (backend not wired yet).';
+  });
+}
 
 
 
