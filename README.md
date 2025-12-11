@@ -91,3 +91,33 @@ FOR cHATgpt REF this is our file structure
     "extraMedia": [ "media/vul.MP4" ,"media/yep.png"],
     "link": "#"
   },
+
+
+
+
+
+
+
+  ...... for dressup html 
+
+  
+        <div class="panel-caption">CURRENT</div>
+
+        <!-- New: multi-item toggle row -->
+        <div class="multi-toggle-row">
+          <label class="multi-toggle-label">
+            <input id="multiItemToggle" type="checkbox" disabled>
+            <span>Add more than one clothing item</span>
+            <span id="multiItemLockLabel" class="lock-label">Log in to unlock</span>
+          </label>
+        </div>
+
+        <!-- New: multi-item slots (for logged-in users, up to 6) -->
+        <div id="multiSlots" class="multi-slots" hidden>
+          <button type="button" class="multi-slot" data-index="0"><span>+</span></button>
+          <button type="button" class="multi-slot" data-index="1"><span>+</span></button>
+          <button type="button" class="multi-slot" data-index="2"><span>+</span></button>
+          <button type="button" class="multi-slot" data-index="3"><span>+</span></button>
+          <button type="button" class="multi-slot" data-index="4"><span>+</span></button>
+          <button type="button" class="multi-slot" data-index="5"><span>+</span></button>
+        </div>
