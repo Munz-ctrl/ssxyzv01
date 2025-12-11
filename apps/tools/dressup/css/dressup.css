@@ -474,9 +474,38 @@ html, body {
   background-repeat: no-repeat;
 }
 
+
+
+.avatar-login-inline .avatar-login-row {
+  margin-top: 6px;
+}
+
+.avatar-login-inline input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  font-size: 12px;
+}
+
+
+
+
+
+
+
+
 .btn-locked {
   opacity: 0.8;
 }
+
+
+
+
+
+
 
 
 
