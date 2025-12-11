@@ -119,16 +119,44 @@
         </div>
 
         <!-- Guest view -->
-        <div id="avatarGuestSection" class="avatar-section avatar-guest">
-          <p class="avatar-copy">
-            Log in to create your own avatar from 3–5 photos.
-          </p>
-          <button type="button"
-                  id="btnAvatarLoginPrompt"
-                  class="btn ghost btn-locked">
-            Log in to unlock avatar creator
-          </button>
-        </div>
+        <!-- Guest view -->
+<div id="avatarGuestSection" class="avatar-section avatar-guest">
+  <p class="avatar-copy">
+    Log in to create your own avatar from 3–5 photos.
+  </p>
+
+  <!-- Toggle to reveal login -->
+  <button type="button"
+          id="btnAvatarLoginPrompt"
+          class="btn ghost btn-locked">
+    Log in to unlock avatar creator
+  </button>
+
+  <!-- Inline email/password login -->
+  <div id="dressupLoginForm" class="avatar-login-inline" style="display:none; margin-top:10px;">
+    <div class="avatar-login-row">
+      <input type="email"
+             id="dressupLoginEmail"
+             placeholder="Email"
+             autocomplete="email" />
+    </div>
+    <div class="avatar-login-row">
+      <input type="password"
+             id="dressupLoginPassword"
+             placeholder="Password"
+             autocomplete="current-password" />
+    </div>
+    <div class="avatar-login-row">
+      <button type="button"
+              id="btnDressupLogin"
+              class="btn thin">
+        Sign in
+      </button>
+    </div>
+    <div id="dressupLoginStatus" class="status small"></div>
+  </div>
+</div>
+
 
         <!-- Logged-in view -->
         <div id="avatarAuthedSection"
