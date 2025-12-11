@@ -55,6 +55,13 @@ const avatarLoginBtn      = $('btnAvatarLoginPrompt');
 const avatarPresetButtons = document.querySelectorAll('.avatar-pill');
 const avatarUploadSlots   = document.querySelectorAll('.avatar-upload-slot');
 
+const loginFormEl      = $('dressupLoginForm');
+const loginEmailInput  = $('dressupLoginEmail');
+const loginPassInput   = $('dressupLoginPassword');
+const dressupLoginBtn  = $('btnDressupLogin');
+const loginStatusEl    = $('dressupLoginStatus');
+
+
 
 
 
@@ -70,6 +77,11 @@ const skinSelectEl   = $('skinSelect');
 
 // skin list for this player
 let availableSkins = []; // { id, name, hero_url, is_default }
+
+
+
+
+
 
 // helper: set hero image + data-person-url consistently
 function setHeroImage(url) {
@@ -415,6 +427,7 @@ initHeroBackground();
     if (!sb) {
   updateCreditUI();
   updateAuthDependentUI();
+ 
   runWatermarkTyping();
   return;
 }
@@ -1193,13 +1206,57 @@ if (avatarPresetButtons && avatarPresetButtons.length) {
   });
 }
 
-if (avatarLoginBtn) {
+if (avatarLoginBtn && loginFormEl) {
   avatarLoginBtn.addEventListener('click', () => {
-    // For now: redirect back to dashboard or root where login lives.
-    // You can swap this URL later for a dedicated login route.
-    window.location.href = '/dashboard.html';
+    const isVisible = loginFormEl.style.display === 'block';
+    loginFormEl.style.display = isVisible ? 'none' : 'block';
   });
 }
+
+if (dressupLoginBtn) {
+  dressupLoginBtn.addEventListener('click', async () => {
+    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+    if (!sb?.auth) {
+      loginStatusEl.textContent = 'Auth not ready, try again.';
+      return;
+    }
+
+    const email = (loginEmailInput?.value || '').trim();
+    const password = (loginPassInput?.value || '').trim();
+
+    if (!email || !password) {
+      loginStatusEl.textContent = 'Enter email and password.';
+      return;
+    }
+
+    dressupLoginBtn.disabled = true;
+    dressupLoginBtn.textContent = 'Signing in…';
+    loginStatusEl.textContent = '';
+
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+      if (error || !data?.user) {
+        loginStatusEl.textContent = error?.message || 'Login failed.';
+        dressupLoginBtn.disabled = false;
+        dressupLoginBtn.textContent = 'Sign in';
+        return;
+      }
+
+      loginStatusEl.textContent = 'Signed in. Reloading…';
+      // Let the existing Supabase init logic re-run and wire credits + avatar
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      loginStatusEl.textContent = err?.message || 'Login error.';
+      dressupLoginBtn.disabled = false;
+      dressupLoginBtn.textContent = 'Sign in';
+    }
+  });
+}
+
+
+
 
 if (avatarUploadSlots && avatarUploadSlots.length) {
   avatarUploadSlots.forEach(slot => {
