@@ -117,6 +117,10 @@ let communityCredits = 5 * DRESSUP_COST_UNITS;  // e.g. 5 runs in the chest
 let communityMax     = communityCredits;
 let personalCredits  = 0;                       // backup pool for this user (used only when community is empty)
 
+let garmentPublicUrl = null;
+let hasGeneratedOnce = false;
+let historyStack = []; // previous hero URLs for "Step Back"
+
 
 // Supabase user context for personal credits
 let currentUserId = null;
@@ -607,10 +611,6 @@ async function syncPersonalCredits() {
 
 
 // ---------- local state for generation flow ----------
-let garmentPublicUrl = null;
-let hasGeneratedOnce = false;
-let historyStack = []; // previous hero URLs for "Step Back"
-
 
 
 function updateAuthDependentUI() {
