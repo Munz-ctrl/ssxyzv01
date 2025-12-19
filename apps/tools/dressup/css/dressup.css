@@ -73,8 +73,8 @@ html, body {
   border-radius: var(--panel-br);
   min-height: fit-content;
   padding: 14px;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+  border: 1px solid rgba(255, 255, 255, 0.067);
+  /* box-shadow: 0 12px 30px rgba(0, 0, 0, 0); */
 }
 
 
@@ -301,12 +301,13 @@ html, body {
 /* ---------- Panel tabs (STYLE / AVATAR) ---------- */
 
 .panel-tabs {
+  width: 100%;
   display: inline-flex;
   gap: 6px;
-  margin-bottom: 10px;
-  padding: 3px;
+  /* margin-bottom: 10px; */
+  /* padding: 3px; */
   background: rgba(11, 13, 20, 0.92);
-  border-radius: 999px;
+  border-radius: 9px;
   border: 1px solid rgba(255,255,255,0.08);
 }
 
@@ -314,21 +315,25 @@ html, body {
   border: none;
   background: transparent;
   color: var(--ink-dim);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: x-small;
+  /* letter-spacing: 0.18em; */
   text-transform: uppercase;
   padding: 6px 12px;
-  border-radius: 999px;
+  border-radius: 9px;
   cursor: pointer;
 }
 
 .panel-tab.active {
   background: rgba(255,255,255,0.08);
   color: var(--ink);
+  
 }
 
 .panel-tab-content {
-  margin-top: 8px;
+  margin: 8px;
+  border: 1px solid #00000000;
+  box-shadow: none;
+  background: rgba(0, 0, 0, 0);
 }
 
 .panel-tab-content:not(.active) {
