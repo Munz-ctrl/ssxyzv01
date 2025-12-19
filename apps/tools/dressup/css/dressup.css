@@ -35,10 +35,11 @@ html, body {
   left: 50%;
   transform: translate(-50%, -50%);
   aspect-ratio: 9 / 16;
-  width: min(100vw, calc(100vh * 9 / 16), 1080px);
+  width: 100vw;
+  max-width: 550px;
   height: min(100vh, calc(100vw * 16 / 9), 1920px);
   background: #000;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* Background portrait image fills container */
