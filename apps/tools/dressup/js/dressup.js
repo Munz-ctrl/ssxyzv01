@@ -189,14 +189,14 @@ const AVATAR_PRESETS = {
     label: 'Munz',
     heroUrl: htmlDefaultHero
   },
-  'munz-naked': {
-    label: 'Munz (skin)',
-    // TODO: drop in your real naked-skin asset
-    heroUrl: '/apps/tools/dressup/assets/munz-base-naked.png'
-  },
+  // 'munz-naked': {
+  //   label: 'Munz (skin)',
+  //   // TODO: drop in your real naked-skin asset
+  //   heroUrl: '/apps/tools/dressup/assets/munz-base-naked.png'
+  // },
   'invisible': {
     label: 'Invisible',
-    heroUrl: null // we treat this as "hide hero" for now
+    heroUrl: '/apps/tools/dressup/assets/inv-base01.png' // we treat this as "hide hero" for now
   },
   'ayani': {
     label: 'Ayani',
