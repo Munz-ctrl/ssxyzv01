@@ -115,7 +115,7 @@ html, body {
 }
 
 .panel-instruction {
-  font-size: 13px;
+  font-size: x-small;
   color: rgba(220, 225, 240, 0.9);
   line-height: 1.2;
   padding: 10px 6px;
