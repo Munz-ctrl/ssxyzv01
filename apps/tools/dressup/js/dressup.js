@@ -265,6 +265,7 @@ function applyAvatarPreset(id) {
   if (id === 'invisible') {
     // hide hero visually, but keep data-person-url as last valid one
     // hero.style.backgroundImage = 'none';
+    setHeroImage(preset.heroUrl);
     // optional: disable generate button when invisible
     if (btnGenerate) btnGenerate.disabled = true;
     return;
