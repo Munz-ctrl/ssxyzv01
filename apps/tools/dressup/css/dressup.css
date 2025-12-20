@@ -119,8 +119,8 @@ html, body {
   color: rgba(220, 225, 240, 0.9);
   line-height: 1.2;
   padding: 10px 6px;
-  text-align: center;
-  max-width: 220px;
+  text-align: left;
+  max-width: 90vw;
   margin-inline: auto;
 }
 
