@@ -200,7 +200,7 @@ const AVATAR_PRESETS = {
     heroUrl: '/apps/tools/dressup/assets/ayani-base-portriat.png'
   },
    'invisible': {
-    label: 'invisible',
+    label: 'Invisible',
     heroUrl: 'apps/tools/dressup/assets/inv-base01.png'
   }
 };
