@@ -194,13 +194,14 @@ const AVATAR_PRESETS = {
   //   // TODO: drop in your real naked-skin asset
   //   heroUrl: '/apps/tools/dressup/assets/munz-base-naked.png'
   // },
-  'invisible': {
-    label: 'Invisible',
-    heroUrl: 'apps/tools/dressup/assets/inv-base01.png' // we treat this as "hide hero" for now
-  },
+ 
   'ayani': {
     label: 'Ayani',
     heroUrl: '/apps/tools/dressup/assets/ayani-base-portriat.png'
+  },
+   'invisible': {
+    label: 'invisible',
+    heroUrl: 'apps/tools/dressup/assets/inv-base01.png'
   }
 };
 
