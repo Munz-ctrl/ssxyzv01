@@ -1380,7 +1380,7 @@ if (avatarCreateBtn) {
         extraRefs,
         avatarTemplateUrl: templateUrl,
         prompt:
-         'switch character in "munz-base-portrait.png" with the character in the uploaded pictures, maintain photorealism'
+         'switch character in the scene with the character in the uploaded pictures, maintain photorealism'
       };
 
       const res = await fetch('/api/generate', {
