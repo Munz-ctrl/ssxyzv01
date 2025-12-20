@@ -79,6 +79,29 @@ const skinSelectEl   = $('skinSelect');
 let availableSkins = []; // { id, name, hero_url, is_default }
 
 
+async function uploadGarmentToSupabase(file) {
+  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  if (!sb) throw new Error('Supabase client not found');
+
+  // If your current build requires login, use currentUserId if available
+  // otherwise fallback to 'anon' like your working build.
+  let uploaderId = 'anon';
+  try {
+    const { data } = await sb.auth.getUser();
+    if (data?.user?.id) uploaderId = data.user.id;
+  } catch (_) {}
+
+  const safeName = (file.name || 'garment.png').replace(/\s+/g, '-');
+  const path = `garments/${uploaderId}/${Date.now()}-${safeName}`;
+
+  const { error } = await sb.storage.from('userassets').upload(path, file, { upsert: true });
+  if (error) throw error;
+
+  const { data: pub } = sb.storage.from('userassets').getPublicUrl(path);
+  if (!pub?.publicUrl) throw new Error('Public URL not returned');
+
+  return { publicUrl: pub.publicUrl, path };
+}
 
 
 
@@ -201,7 +224,7 @@ const AVATAR_PRESETS = {
   },
    'invisible': {
     label: 'Invisible',
-    heroUrl: 'apps/tools/dressup/assets/inv-base01.png'
+    heroUrl: '/apps/tools/dressup/assets/inv-base01.png'
   }
 };
 
