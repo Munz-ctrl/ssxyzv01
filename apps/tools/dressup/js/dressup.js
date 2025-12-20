@@ -1380,8 +1380,7 @@ if (avatarCreateBtn) {
         extraRefs,
         avatarTemplateUrl: templateUrl,
         prompt:
-          'Using the Munz base portrait as an isometric avatar template, make a similar isometric avatar image for ' +
-          'the character in the uploaded pictures. Maintain photorealism, identity, skin tone and overall style, with a clean simple background.'
+         'switch character in "munz-base-portrait.png" with the character in the uploaded pictures, maintain photorealism'
       };
 
       const res = await fetch('/api/generate', {
