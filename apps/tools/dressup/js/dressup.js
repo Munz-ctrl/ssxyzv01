@@ -200,7 +200,7 @@ const AVATAR_PRESETS = {
   },
   'ayani': {
     label: 'Ayani',
-    heroUrl: '/apps/tools/dressup/assets/ayani-base-portrait.png'
+    heroUrl: '/apps/tools/dressup/assets/ayani-base-portriat.png'
   }
 };
 
