@@ -104,6 +104,31 @@ async function uploadGarmentToSupabase(file) {
 }
 
 
+function getSb() {
+  return window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+}
+
+async function applyAuthState() {
+  const sb = getSb();
+  if (!sb?.auth) {
+    currentUserId = null;
+    updateAuthDependentUI();
+    return;
+  }
+
+  const { data } = await sb.auth.getSession();
+  const user = data?.session?.user || null;
+
+  currentUserId = user?.id || null;
+  supabaseReady = !!user;
+
+  updateAuthDependentUI();
+
+  // If signed in, load user-linked data once here (skins/credits/watermark labels)
+  if (currentUserId) {
+    await hydrateUserContext(); // we’ll add this next
+  }
+}
 
 
 // helper: set hero image + data-person-url consistently
@@ -446,97 +471,89 @@ initHeroBackground();
 // (Supabase auth below can update the labels; the loop will pick them up)
 // runWatermarkTyping();
 
+async function hydrateUserContext() {
+  const sb = getSb();
+  if (!sb || !currentUserId) return;
+
+  // reset flags
+  let playerLoadedForUser = false;
+
+  try {
+    const { data: playerRows, error: playerErr } = await sb
+      .from('players')
+      .select('pid, name')
+      .eq('owner_id', currentUserId)
+      .limit(1);
+
+    if (!playerErr && playerRows && playerRows.length > 0) {
+      playerLoadedForUser = true;
+      const playerRow = playerRows[0];
+
+      if (playerRow.pid) {
+        currentPid = playerRow.pid;
+
+        if (!qsId) {
+          currentPlayer.id = playerRow.pid;
+          signedInLabel = playerRow.pid;
+        }
+      }
+
+      if (playerRow.name && !qsName) {
+        currentPlayer.name = playerRow.name;
+      }
+
+      updatePlayerBadge();
+    }
+  } catch (e) {
+    console.warn('Failed to load player for dressup watermark:', e?.message || e);
+  }
+
+  if (!playerLoadedForUser && !qsId) {
+    const shortId = String(currentUserId).slice(0, 6);
+    signedInLabel = `user-${shortId}`;
+  }
+
+  await loadSkinsForPlayer(currentPid || currentPlayer.id);
+  await loadCreditsFromSupabase();
+
+  // watermark loop already running; it will pick up new text automatically
+}
 
 
-// ---------- Supabase anon auth + load persisted credits ----------
+// ---------- Supabase session bootstrap + reactive auth ----------
 (async () => {
   try {
-    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
-    if (!sb) {
-  updateCreditUI();
-  updateAuthDependentUI();
- 
-  runWatermarkTyping();
-  return;
-}
-
-
-    // Get current session (must have been created via real login)
-    const { data: sess } = await sb.auth.getSession();
-    const user = sess?.session?.user || null;
-   if (!user) {
-  updateCreditUI();
-  updateAuthDependentUI();
-  runWatermarkTyping();
-  return;
-}
-
-
-    currentUserId = user.id;
-    supabaseReady = true;
-
-    updateAuthDependentUI();
-
-    // Try to load this user's player (1 PID per user) for watermark + skins
-    if (currentUserId) {
-      let playerLoadedForUser = false;
-
-      try {
-        const { data: playerRows, error: playerErr } = await sb
-          .from('players')
-          .select('pid, name')
-          .eq('owner_id', currentUserId)
-          .limit(1);
-
-        if (!playerErr && playerRows && playerRows.length > 0) {
-          playerLoadedForUser = true;
-          const playerRow = playerRows[0];
-
-          if (playerRow.pid) {
-            currentPid = playerRow.pid;
-
-            // if no explicit ?pid= override, adopt the player's pid
-            if (!qsId) {
-              currentPlayer.id = playerRow.pid;
-              signedInLabel    = playerRow.pid;
-            }
-          }
-
-          // if no explicit ?pname= override, adopt the player's name
-          if (playerRow.name && !qsName) {
-            currentPlayer.name = playerRow.name;
-          }
-
-          updatePlayerBadge();
-        }
-      } catch (e) {
-        console.warn('Failed to load player for dressup watermark:', e?.message || e);
-      }
-
-      // If user is signed in but has no player yet, show a short anon label
-      if (!playerLoadedForUser && !qsId) {
-        const shortId = String(currentUserId).slice(0, 6);
-        signedInLabel = `user-${shortId}`;
-      }
+    const sb = getSb();
+    if (!sb?.auth) {
+      updateCreditUI();
+      updateAuthDependentUI();
+      runWatermarkTyping();
+      return;
     }
 
-    // Load skins for this player (prefer Supabase pid, else currentPlayer.id)
-    await loadSkinsForPlayer(currentPid || currentPlayer.id);
+    // initial apply
+    await applyAuthState();
 
-    // Load credits for this user + global chest
-    await loadCreditsFromSupabase();
+    // react to future sign-in / sign-out without reloading
+    if (!window.__dressupAuthBound) {
+      window.__dressupAuthBound = true;
+      sb.auth.onAuthStateChange(async () => {
+        await applyAuthState();
+        // keep watermark in sync (loop is guarded)
+        runWatermarkTyping();
+      });
+    }
 
-    // Now that we know as much as possible about the user, start the watermark loop
     runWatermarkTyping();
-
   } catch (e) {
-    console.warn('Anon auth skipped/failed:', e?.message || e);
+    console.warn('Supabase bootstrap failed:', e?.message || e);
     supabaseReady = false;
-    // fall back to local defaults
     updateCreditUI();
+    updateAuthDependentUI();
     runWatermarkTyping();
   }
 })();
+
 
 runWatermarkTyping();
 
@@ -1267,9 +1284,14 @@ if (dressupLoginBtn) {
         return;
       }
 
-      loginStatusEl.textContent = 'Signed in. Reloading…';
-      // Let the existing Supabase init logic re-run and wire credits + avatar
-      window.location.reload();
+     loginStatusEl.textContent = 'Signed in.';
+     await applyAuthState();
+     loginFormEl.style.display = 'none';
+
+      dressupLoginBtn.disabled = false;
+      dressupLoginBtn.textContent = 'Sign in';
+
+
     } catch (err) {
       console.error(err);
       loginStatusEl.textContent = err?.message || 'Login error.';
