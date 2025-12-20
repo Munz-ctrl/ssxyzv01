@@ -196,7 +196,7 @@ const AVATAR_PRESETS = {
   // },
   'invisible': {
     label: 'Invisible',
-    heroUrl: '/apps/tools/dressup/assets/inv-base01.png' // we treat this as "hide hero" for now
+    heroUrl: 'apps/tools/dressup/assets/inv-base01.png' // we treat this as "hide hero" for now
   },
   'ayani': {
     label: 'Ayani',
