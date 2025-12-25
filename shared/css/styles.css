@@ -912,7 +912,7 @@ html, body {
 
 
 
-.animated-text::after {
+.animated-text::before {
   content: '...';
   animation: dots 1.5s infinite;
   display: inline-block;
