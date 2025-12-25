@@ -310,6 +310,7 @@ html, body {
   background: rgba(11, 13, 20, 0.92);
   border-radius: 9px;
   border: 1px solid rgba(255,255,255,0.08);
+  justify-content: space-evenly;
 }
 
 .panel-tab {
