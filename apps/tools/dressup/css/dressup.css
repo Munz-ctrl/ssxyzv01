@@ -244,6 +244,8 @@ html, body {
 /* Watermark */
 .watermark {
   position: absolute;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
   left: 2%;
   bottom: 2%;
   z-index: 3;
