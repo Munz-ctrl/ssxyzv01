@@ -37,7 +37,7 @@ html, body {
   aspect-ratio: 9 / 16;
   width: 100vw;
   max-width: 550px;
-  height: min(100vh, calc(100vw * 16 / 9), 1920px);
+  height: min(100vh, 1920px);
   background: #000;
   overflow: visible;
 }
