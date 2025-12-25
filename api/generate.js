@@ -101,7 +101,7 @@ export default async function handler(req, res) {
     image_input = garmentUrl ? [personUrl, garmentUrl] : [personUrl];
 
     finalPrompt = prompt || (
-      'Dress the person image with the newly uploaded garment while keeping all existing clothing and visual ' +
+      'Dress the person image with the newly uploaded garment while keeping all other existing clothing and visual ' +
       'details unchanged. Preserve the person’s identity, pose, lighting, and background exactly as in the input image. ' +
       'Only modify the region necessary to add the new garment; keep previous garments intact and seamless.'
     );
