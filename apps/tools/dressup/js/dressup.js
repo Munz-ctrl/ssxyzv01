@@ -901,10 +901,11 @@ btnGenerate.addEventListener('click', async () => {
 
     // Hit our serverless function /api/generate
     const payload = {
+      mode: 'dressup',
       model: 'google/nano-banana',
       personUrl,
       garmentUrl: garmentPublicUrl,
-      prompt: 'Dress the person image with the uploaded garment. Keep identity, isometric portrait, photoreal, clean seams, natural lighting.'
+      prompt: 'Dress the person with the uploaded garment. Keep their identity, isometric portrait, and photoreallism. blend and harmonize new garments to the original natural lighting. '
     };
 
     const res = await fetch('/api/generate', {
@@ -1380,7 +1381,7 @@ if (avatarCreateBtn) {
         extraRefs,
         avatarTemplateUrl: templateUrl,
         prompt:
-         'switch character in the scene with the character in the uploaded pictures, maintain photorealism'
+         'switch character in the scene with the character in the uploaded pictures, maintain photorealism, match standing pose and lighting, high detail. ' 
       };
 
       const res = await fetch('/api/generate', {
