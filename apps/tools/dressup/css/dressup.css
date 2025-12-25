@@ -245,7 +245,17 @@ html, body {
 .watermark {
   position: absolute;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+ 
 
+
+  text-Transform: 'none';
+  letter-Spacing: '0.02em';
+  background: 'none';
+ border: 'none';
+ padding: '0';
+ margin-Right: '4px';
+ font-Weight: 600;
+ 
   left: 2%;
   bottom: 2%;
   z-index: 3;
