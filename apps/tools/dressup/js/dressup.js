@@ -405,7 +405,7 @@ function updatePlayerBadge() {
 function getWatermarkText() {
   const line1 = "SUNSEX_STYLIST_☂";
   const line2 = `Signed in as: ${signedInLabel}`;
-  const skinLabel = currentSkinName || currentPlayer.name || "base";
+  const skinLabel = currentSkinName || currentPlayer.name || "slot1";
   const line3 = `Styling: ${skinLabel}`;
   return `${line1}\n${line2}\n${line3}`;
 }
