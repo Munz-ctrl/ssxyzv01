@@ -633,7 +633,7 @@ async function hydrateUserContext() {
   }
 })();
 
-await loadPublicFeaturedSkins();
+loadPublicFeaturedSkins();
 
 runWatermarkTyping();
 
