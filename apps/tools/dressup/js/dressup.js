@@ -503,6 +503,8 @@ function applyMySkinById(id) {
 }
 
 
+
+
 // (removed) legacy dropdown listener
 
 
@@ -529,6 +531,17 @@ function applySkinByKey(key) {
   currentSkinName = skin.name;
   setHeroImage(skin.hero_url);
 }
+
+
+if (mySkinSelectEl && !window.__mySkinSelectBound) {
+  window.__mySkinSelectBound = true;
+  mySkinSelectEl.addEventListener('change', (e) => {
+    applyMySkinById(e.target.value);
+  });
+}
+
+
+
 
 // Build the dropdown options + choose initial selection
 function buildSkinSelector() {
@@ -751,9 +764,7 @@ await loadCreditsFromSupabase();
   }
 })();
 
-loadPublicFeaturedSkins();
 
-runWatermarkTyping();
 
 // Load community + personal credits from Supabase (if tables exist)
 async function loadCreditsFromSupabase() {
