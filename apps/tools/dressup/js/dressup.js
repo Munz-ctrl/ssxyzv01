@@ -907,6 +907,9 @@ if (btnUpload) btnUpload.disabled = true;
       prompt: 'Dress the person with the uploaded garment. Keep their identity, isometric portrait, and photoreallism. blend and harmonize new garments to the original natural lighting. '
     };
 
+    console.log('[DressUp → /api/generate]', payload);
+
+
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1386,6 +1389,9 @@ if (avatarCreateBtn) {
         prompt:
          'switch character in the scene with the character in the uploaded pictures, maintain photorealism, match standing pose and lighting, high detail. ' 
       };
+
+      console.log('[Avatar → /api/generate]', payload);
+
 
       const res = await fetch('/api/generate', {
         method: 'POST',
