@@ -52,7 +52,7 @@ const avatarAuthedSection = $('avatarAuthedSection');
 const avatarStatusEl      = $('avatarStatus');
 const avatarCreateBtn     = $('btnCreateAvatar');
 const avatarLoginBtn      = $('btnAvatarLoginPrompt');
-const avatarPresetButtons = document.querySelectorAll('.avatar-pill');
+
 const avatarUploadSlots   = document.querySelectorAll('.avatar-upload-slot');
 
 const loginFormEl      = $('dressupLoginForm');
@@ -352,31 +352,7 @@ function renderAvatarPublicRow() {
 }
 
 
-function applyAvatarPreset(id) {
-  const preset = AVATAR_PRESETS[id];
-  if (!preset) return;
 
-  // visual selection
-  avatarPresetButtons.forEach(btn => {
-    btn.classList.toggle('avatar-pill-active', btn.dataset.avatarId === id);
-  });
-
-  if (id === 'invisible') {
-    // hide hero visually, but keep data-person-url as last valid one
-    // hero.style.backgroundImage = 'none';
-    setHeroImage(preset.heroUrl);
-    // optional: disable generate button when invisible
-    if (btnGenerate) btnGenerate.disabled = true;
-    return;
-  }
-
-  if (preset.heroUrl) {
-    setHeroImage(preset.heroUrl);
-    if (btnGenerate && garmentPreview.src) {
-      btnGenerate.disabled = false;
-    }
-  }
-}
 
 
 
@@ -1376,14 +1352,7 @@ if (multiSlotsContainer) {
 
 // ---------- Avatar tab events ----------
 
-if (avatarPresetButtons && avatarPresetButtons.length) {
-  avatarPresetButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.avatarId;
-      applyAvatarPreset(id);
-    });
-  });
-}
+
 
 if (avatarLoginBtn && loginFormEl) {
   avatarLoginBtn.addEventListener('click', () => {
