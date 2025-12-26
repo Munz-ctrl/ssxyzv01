@@ -236,26 +236,66 @@ function refreshMultiSlotsUI() {
 
 // ---------- AVATAR: public presets ----------
 
-const AVATAR_PRESETS = {
-  'munz-base': {
-    label: 'Munz',
-    heroUrl: htmlDefaultHero
-  },
-  // 'munz-naked': {
-  //   label: 'Munz (skin)',
-  //   // TODO: drop in your real naked-skin asset
-  //   heroUrl: '/apps/tools/dressup/assets/munz-base-naked.png'
-  // },
- 
-  'ayani': {
-    label: 'Ayani',
-    heroUrl: '/apps/tools/dressup/assets/ayani-base-portriat.png'
-  },
-   'invisible': {
-    label: 'Invisible',
-    heroUrl: '/apps/tools/dressup/assets/inv-base01.png'
+// ---------- AVATAR: public presets loaded from Supabase ----------
+let publicFeaturedSkins = []; // { id, name, hero_url, skin_key, sort_order }
+
+async function loadPublicFeaturedSkins() {
+  const sb = getSb();
+  if (!sb) return [];
+
+  try {
+    const { data, error } = await sb
+      .from('dressup_skins')
+      .select('id, name, hero_url, skin_key, sort_order, visibility, owner_id')
+      .is('owner_id', null)
+      .in('visibility', ['featured','public'])
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    publicFeaturedSkins = Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.warn('loadPublicFeaturedSkins failed:', e?.message || e);
+    publicFeaturedSkins = [];
   }
-};
+
+  renderAvatarPublicRow();
+  return publicFeaturedSkins;
+}
+
+function renderAvatarPublicRow() {
+  const row = document.querySelector('.avatar-public-row');
+  if (!row) return;
+
+  row.innerHTML = '';
+
+  // If DB has no featured skins, keep one safe fallback button
+  const skins = publicFeaturedSkins.length
+    ? publicFeaturedSkins
+    : [{ id: '__fallback__', name: 'Base', hero_url: DEFAULT_HERO_IMG, skin_key: 'base' }];
+
+  skins.forEach((skin) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'avatar-pill';
+    btn.dataset.skinId = skin.id;
+    btn.textContent = skin.name || 'Skin';
+
+    btn.addEventListener('click', () => {
+      // visual selection
+      document.querySelectorAll('.avatar-pill').forEach(b => b.classList.remove('avatar-pill-active'));
+      btn.classList.add('avatar-pill-active');
+
+      // apply hero
+      setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
+      currentSkinName = skin.name || 'Skin';
+      updatePlayerBadge();
+    });
+
+    row.appendChild(btn);
+  });
+}
+
 
 function applyAvatarPreset(id) {
   const preset = AVATAR_PRESETS[id];
@@ -315,30 +355,52 @@ if (qsHero) {
 
 
 // Load skins for this player from Supabase (if available)
-async function loadSkinsForPlayer(pid) {
-  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
-  if (!sb || !pid) {
-    buildSkinSelector(); // still build "Base" only
+async function loadSkinsForPlayer(_) {
+  const sb = getSb();
+  if (!sb) {
+    availableSkins = [];
+    buildSkinSelector();
     return;
   }
 
   try {
-    const { data, error } = await sb
+    // Public (global) skins: visible to everyone
+    const { data: pubRows, error: pubErr } = await sb
       .from('dressup_skins')
-      .select('id, name, hero_url, is_default')
-      .eq('player_pid', pid)
-      .order('is_default', { ascending: false })
+      .select('id, name, hero_url, is_default, visibility, owner_id, sort_order')
+      .is('owner_id', null)
+      .in('visibility', ['featured','public','unlisted'])
+      .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
-    if (error) throw error;
-    availableSkins = Array.isArray(data) ? data : [];
+    if (pubErr) throw pubErr;
+
+    // Private skins: only this logged-in user
+    let myRows = [];
+    if (currentUserId) {
+      const { data: privRows, error: privErr } = await sb
+        .from('dressup_skins')
+        .select('id, name, hero_url, is_default, visibility, owner_id, sort_order')
+        .eq('owner_id', currentUserId)
+        .order('is_default', { ascending: false })
+        .order('created_at', { ascending: true });
+
+      if (!privErr && Array.isArray(privRows)) myRows = privRows;
+    }
+
+    // Combine
+    availableSkins = [
+      ...(Array.isArray(pubRows) ? pubRows : []),
+      ...myRows
+    ];
   } catch (err) {
-    console.warn('loadSkinsForPlayer failed:', err?.message || err);
+    console.warn('loadSkinsForPlayer (public+private) failed:', err?.message || err);
     availableSkins = [];
   } finally {
     buildSkinSelector();
   }
 }
+
 
 // Apply a specific skin by id or "__base__"
 function applySkinByKey(key) {
@@ -534,6 +596,10 @@ async function hydrateUserContext() {
     if (!sb?.auth) {
       updateCreditUI();
       updateAuthDependentUI();
+
+      await loadPublicFeaturedSkins();
+
+
       runWatermarkTyping();
       return;
     }
@@ -547,6 +613,8 @@ async function hydrateUserContext() {
       sb.auth.onAuthStateChange(async () => {
         await applyAuthState();
         // keep watermark in sync (loop is guarded)
+        await loadPublicFeaturedSkins();
+
         runWatermarkTyping();
       });
     }
@@ -561,6 +629,7 @@ async function hydrateUserContext() {
   }
 })();
 
+await loadPublicFeaturedSkins();
 
 runWatermarkTyping();
 
