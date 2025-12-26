@@ -141,17 +141,23 @@ async function applyAuthState() {
 async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
   const sb = getSb();
   if (!sb || !currentUserId) throw new Error('Must be logged in to save a skin.');
-  if (!currentPid) throw new Error('player_pid missing (currentPid not set).');
+
+  // guarantee currentPid exists (even if user has no players row)
+  if (!currentPid) {
+    currentPid = `u_${String(currentUserId).slice(0, 6)}`;
+    currentPlayer.id = currentPid;
+    signedInLabel = currentPid;
+  }
 
   const heroUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
   if (!heroUrl) throw new Error('No hero image to save.');
 
-  // Download the image
+  // download the image
   const imgRes = await fetch(heroUrl, { mode: 'cors' });
   if (!imgRes.ok) throw new Error(`download_failed ${imgRes.status}`);
   const blob = await imgRes.blob();
 
-  // Upload to Storage
+  // upload to storage
   const ext = blob.type?.includes('jpeg') ? 'jpg' : 'png';
   const path = `skins/${currentPid}/${Date.now()}.${ext}`;
 
@@ -165,18 +171,19 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
   const publicUrl = pub?.publicUrl;
   if (!publicUrl) throw new Error('public_url_missing');
 
-  // Clear existing default for this player_pid
+  // clear old default for THIS USER only
   await sb
     .from('dressup_skins')
     .update({ is_default: false })
-    .eq('player_pid', currentPid)
+    .eq('owner_id', currentUserId)
     .eq('visibility', 'private')
     .eq('is_default', true);
 
-  // Insert new default skin
+  // insert new private default skin (owned)
   const { error: insErr } = await sb
     .from('dressup_skins')
     .insert({
+      owner_id: currentUserId,
       player_pid: currentPid,
       name,
       hero_url: publicUrl,
@@ -186,13 +193,12 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
 
   if (insErr) throw insErr;
 
-  // Refresh "My Skins"
   await loadSkinsForPlayer();
 
-  // Apply it visually
   currentSkinName = name;
   setHeroImage(publicUrl);
 }
+
 
 
 // helper: set hero image + data-person-url consistently
