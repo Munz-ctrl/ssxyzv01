@@ -72,8 +72,8 @@ const btnUndo         = $('btnUndo');
 const btnSave         = $('btnSave');
 const resetBtn        = $('btnResetHero');
 
-const skinSelectorEl = $('skinSelector');
-const skinSelectEl   = $('skinSelect');
+// (removed) legacy skin dropdown refs (we only use Featured + My Skins now)
+
 
 const mySkinSelectEl = $('mySkinSelect');
 const mySkinActionsEl = $('mySkinActions');
@@ -409,98 +409,14 @@ if (qsHero) {
 
 
 // Load skins for this player from Supabase (if available)
-async function loadSkinsForPlayer() {
-  const sb = getSb();
-  if (!sb) {
-    availableSkins = [];
-    buildMySkinSelect();
-    return;
-  }
-
-  try {
-    // Public skins for everyone
-    const { data: pubRows, error: pubErr } = await sb
-      .from('dressup_skins')
-      .select('id, name, hero_url, is_default, visibility, skin_key, sort_order, player_pid')
-      .is('player_pid', null)
-      .in('visibility', ['featured','public','unlisted'])
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: true });
-
-    if (pubErr) throw pubErr;
-
-    // Private skins for THIS player_pid (logged-in only)
-    let myRows = [];
-    if (currentUserId && currentPid) {
-      const { data: privRows, error: privErr } = await sb
-        .from('dressup_skins')
-        .select('id, name, hero_url, is_default, visibility, skin_key, sort_order, player_pid')
-        .eq('player_pid', currentPid)
-        .eq('visibility', 'private')
-        .order('is_default', { ascending: false })
-        .order('created_at', { ascending: true });
-
-      if (!privErr && Array.isArray(privRows)) myRows = privRows;
-    }
-
-    // Keep only private in the "my skins" dropdown
-    availableSkins = myRows;
-
-  } catch (err) {
-    console.warn('loadSkinsForPlayer failed:', err?.message || err);
-    availableSkins = [];
-  } finally {
-    buildMySkinSelect();
-  }
-}
+// (removed) legacy dropdown skin system
+// We now use:
+// - loadPublicFeaturedSkins() for Featured/Public
+// - loadSkinsForPlayer() for logged-in user's private skins
 
 
-function buildMySkinSelect() {
-  if (!mySkinSelectEl) return;
 
-  const loggedIn = !!currentUserId;
-  mySkinSelectEl.innerHTML = '';
-
-  if (!loggedIn) {
-    mySkinSelectEl.disabled = true;
-    const opt = document.createElement('option');
-    opt.value = '';
-    opt.textContent = 'Log in to use My Skins';
-    mySkinSelectEl.appendChild(opt);
-    return;
-  }
-
-  mySkinSelectEl.disabled = false;
-
-  if (!availableSkins.length) {
-    const opt = document.createElement('option');
-    opt.value = '';
-    opt.textContent = 'No saved skins yet';
-    mySkinSelectEl.appendChild(opt);
-    return;
-  }
-
-  availableSkins.forEach((skin) => {
-    const opt = document.createElement('option');
-    opt.value = skin.id;
-    opt.textContent = skin.name || 'Untitled';
-    mySkinSelectEl.appendChild(opt);
-  });
-
-  // Auto-select default if exists
-  const def = availableSkins.find(s => s.is_default);
-  if (def) {
-    mySkinSelectEl.value = def.id;
-    applyMySkinById(def.id);
-  }
-}
-
-
-if (mySkinSelectEl) {
-  mySkinSelectEl.addEventListener('change', (e) => {
-    applyMySkinById(e.target.value);
-  });
-}
+// (removed) legacy dropdown listener
 
 
 
