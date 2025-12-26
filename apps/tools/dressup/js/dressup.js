@@ -114,8 +114,15 @@ async function uploadGarmentToSupabase(file) {
 
 
 function getSb() {
-  return window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  // DressUp client (created in sbClient.js)
+  if (window.sb) return window.sb;
+
+  // Fallback: if some other page already created a client and put it on window.supabase
+  if (window.supabase?.from && window.supabase?.auth) return window.supabase;
+
+  return null;
 }
+
 
 async function applyAuthState() {
   const sb = getSb();
