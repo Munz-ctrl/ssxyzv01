@@ -288,6 +288,18 @@ let multiModeEnabled = false;
 let garmentSlots = new Array(MAX_GARMENTS).fill(null);
 let activeGarmentSlot = 0;
 
+
+
+function withTimeout(promise, ms = 15000, msg = 'Timed out') {
+  let t;
+  const timeout = new Promise((_, reject) => {
+    t = setTimeout(() => reject(new Error(msg)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
+}
+
+
+
 // helper: mark slots visually
 function refreshMultiSlotsUI() {
   if (!multiSlotsContainer) return;
@@ -1564,15 +1576,24 @@ if (!window.__avatarSaveBound) {
     btnSetAsBase.addEventListener('click', async () => {
       if (!pendingAvatarUrl) return;
       try {
-        avatarStatusEl.textContent = 'Saving as your base skin…';
-        await saveCurrentHeroAsDefaultSkin({ name: 'My Default Skin' });
-        avatarStatusEl.textContent = 'Saved as your base skin.';
-        pendingAvatarUrl = null;
-        if (mySkinActionsEl) mySkinActionsEl.style.display = 'none';
-      } catch (e) {
-        console.warn('Save failed:', e?.message || e);
-        avatarStatusEl.textContent = 'Save failed (check console / RLS).';
-      }
+  btnSetAsBase.disabled = true;
+  avatarStatusEl.textContent = 'Saving as your base skin…';
+
+  await withTimeout(
+    saveCurrentHeroAsDefaultSkin({ name: 'My Default Skin' }),
+    20000,
+    'Save took too long (check Supabase / RLS / network)'
+  );
+
+  avatarStatusEl.textContent = 'Saved as your base skin.';
+  pendingAvatarUrl = null;
+  if (mySkinActionsEl) mySkinActionsEl.style.display = 'none';
+} catch (e) {
+  console.warn('Save failed:', e?.message || e);
+  avatarStatusEl.textContent = 'Save failed (check console / RLS).';
+} finally {
+  btnSetAsBase.disabled = false;
+}
     });
   }
 
