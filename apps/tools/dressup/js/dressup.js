@@ -75,6 +75,14 @@ const resetBtn        = $('btnResetHero');
 const skinSelectorEl = $('skinSelector');
 const skinSelectEl   = $('skinSelect');
 
+const mySkinSelectEl = $('mySkinSelect');
+const mySkinActionsEl = $('mySkinActions');
+const btnSetAsBase = $('btnSetAsBase');
+const btnDiscardAvatar = $('btnDiscardAvatar');
+
+let pendingAvatarUrl = null; // holds newly generated avatar until user decides
+
+
 // skin list for this player
 let availableSkins = []; // { id, name, hero_url, is_default }
 
@@ -133,6 +141,7 @@ async function applyAuthState() {
 async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
   const sb = getSb();
   if (!sb || !currentUserId) throw new Error('Must be logged in to save a skin.');
+  if (!currentPid) throw new Error('player_pid missing (currentPid not set).');
 
   const heroUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
   if (!heroUrl) throw new Error('No hero image to save.');
@@ -144,7 +153,7 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
 
   // Upload to Storage
   const ext = blob.type?.includes('jpeg') ? 'jpg' : 'png';
-  const path = `skins/${currentUserId}/${Date.now()}.${ext}`;
+  const path = `skins/${currentPid}/${Date.now()}.${ext}`;
 
   const { error: upErr } = await sb.storage
     .from('userassets')
@@ -156,31 +165,31 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
   const publicUrl = pub?.publicUrl;
   if (!publicUrl) throw new Error('public_url_missing');
 
-  // Ensure only one default skin for this user
+  // Clear existing default for this player_pid
   await sb
     .from('dressup_skins')
     .update({ is_default: false })
-    .eq('owner_id', currentUserId)
+    .eq('player_pid', currentPid)
+    .eq('visibility', 'private')
     .eq('is_default', true);
 
-  // Insert default skin row
+  // Insert new default skin
   const { error: insErr } = await sb
     .from('dressup_skins')
     .insert({
-      owner_id: currentUserId,
+      player_pid: currentPid,
       name,
       hero_url: publicUrl,
       visibility: 'private',
-      is_default: true,
-      sort_order: 999
+      is_default: true
     });
 
   if (insErr) throw insErr;
 
-  // Refresh dropdown skins
-  await loadSkinsForPlayer(null);
+  // Refresh "My Skins"
+  await loadSkinsForPlayer();
 
-  // Select the newly default skin visually
+  // Apply it visually
   currentSkinName = name;
   setHeroImage(publicUrl);
 }
@@ -319,17 +328,16 @@ async function loadPublicFeaturedSkins() {
 }
 
 function renderAvatarPublicRow() {
-  const row = document.querySelector('.avatar-public-row');
+  const row = document.getElementById('featuredSkinsRow');
   if (!row) return;
 
   row.innerHTML = '';
 
-  // If DB has no featured skins, keep one safe fallback button
   const skins = publicFeaturedSkins.length
     ? publicFeaturedSkins
     : [{ id: '__fallback__', name: 'Base', hero_url: DEFAULT_HERO_IMG, skin_key: 'base' }];
 
-  skins.forEach((skin) => {
+  skins.forEach((skin, idx) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'avatar-pill';
@@ -337,19 +345,30 @@ function renderAvatarPublicRow() {
     btn.textContent = skin.name || 'Skin';
 
     btn.addEventListener('click', () => {
-      // visual selection
-      document.querySelectorAll('.avatar-pill').forEach(b => b.classList.remove('avatar-pill-active'));
-      btn.classList.add('avatar-pill-active');
-
-      // apply hero
-      setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
-      currentSkinName = skin.name || 'Skin';
-      updatePlayerBadge();
+      selectFeaturedSkin(skin, btn);
     });
 
     row.appendChild(btn);
+
+    // Auto-select first on initial render
+    if (idx === 0) {
+      // Defer a tick so DOM is ready
+      setTimeout(() => selectFeaturedSkin(skin, btn), 0);
+    }
   });
 }
+
+function selectFeaturedSkin(skin, btnEl) {
+  document.querySelectorAll('#featuredSkinsRow .avatar-pill')
+    .forEach(b => b.classList.remove('avatar-pill-active'));
+
+  if (btnEl) btnEl.classList.add('avatar-pill-active');
+
+  setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
+  currentSkinName = skin.name || 'Featured';
+  updatePlayerBadge(); // harmless even if badge removed; watermark uses currentSkinName
+}
+
 
 
 
@@ -358,7 +377,11 @@ function renderAvatarPublicRow() {
 
 // chose default hero image
 // Base "template" hero (composition anchor for avatar creation + default for new users)
-const DEFAULT_HERO_IMG = "/apps/tools/dressup/assets/munz-base-portraitnomaditemselected2.png";
+const DEFAULT_HERO_IMG = hero
+  ? (hero.getAttribute('data-default-hero') || "/apps/tools/dressup/assets/manq.png")
+  : "/apps/tools/dressup/assets/manq.png";
+
+// const DEFAULT_HERO_IMG = "/apps/tools/dressup/assets/munz-base-portraitnomaditemselected2.png";
 
 
 // apply URL overrides
@@ -386,50 +409,106 @@ if (qsHero) {
 
 
 // Load skins for this player from Supabase (if available)
-async function loadSkinsForPlayer(_) {
+async function loadSkinsForPlayer() {
   const sb = getSb();
   if (!sb) {
     availableSkins = [];
-    buildSkinSelector();
+    buildMySkinSelect();
     return;
   }
 
   try {
-    // Public (global) skins: visible to everyone
+    // Public skins for everyone
     const { data: pubRows, error: pubErr } = await sb
       .from('dressup_skins')
-      .select('id, name, hero_url, is_default, visibility, owner_id, sort_order')
-      .is('owner_id', null)
+      .select('id, name, hero_url, is_default, visibility, skin_key, sort_order, player_pid')
+      .is('player_pid', null)
       .in('visibility', ['featured','public','unlisted'])
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
     if (pubErr) throw pubErr;
 
-    // Private skins: only this logged-in user
+    // Private skins for THIS player_pid (logged-in only)
     let myRows = [];
-    if (currentUserId) {
+    if (currentUserId && currentPid) {
       const { data: privRows, error: privErr } = await sb
         .from('dressup_skins')
-        .select('id, name, hero_url, is_default, visibility, owner_id, sort_order')
-        .eq('owner_id', currentUserId)
+        .select('id, name, hero_url, is_default, visibility, skin_key, sort_order, player_pid')
+        .eq('player_pid', currentPid)
+        .eq('visibility', 'private')
         .order('is_default', { ascending: false })
         .order('created_at', { ascending: true });
 
       if (!privErr && Array.isArray(privRows)) myRows = privRows;
     }
 
-    // Combine
-    availableSkins = [
-      ...(Array.isArray(pubRows) ? pubRows : []),
-      ...myRows
-    ];
+    // Keep only private in the "my skins" dropdown
+    availableSkins = myRows;
+
   } catch (err) {
-    console.warn('loadSkinsForPlayer (public+private) failed:', err?.message || err);
+    console.warn('loadSkinsForPlayer failed:', err?.message || err);
     availableSkins = [];
   } finally {
-    buildSkinSelector();
+    buildMySkinSelect();
   }
+}
+
+
+function buildMySkinSelect() {
+  if (!mySkinSelectEl) return;
+
+  const loggedIn = !!currentUserId;
+  mySkinSelectEl.innerHTML = '';
+
+  if (!loggedIn) {
+    mySkinSelectEl.disabled = true;
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'Log in to use My Skins';
+    mySkinSelectEl.appendChild(opt);
+    return;
+  }
+
+  mySkinSelectEl.disabled = false;
+
+  if (!availableSkins.length) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'No saved skins yet';
+    mySkinSelectEl.appendChild(opt);
+    return;
+  }
+
+  availableSkins.forEach((skin) => {
+    const opt = document.createElement('option');
+    opt.value = skin.id;
+    opt.textContent = skin.name || 'Untitled';
+    mySkinSelectEl.appendChild(opt);
+  });
+
+  // Auto-select default if exists
+  const def = availableSkins.find(s => s.is_default);
+  if (def) {
+    mySkinSelectEl.value = def.id;
+    applyMySkinById(def.id);
+  }
+}
+
+
+if (mySkinSelectEl) {
+  mySkinSelectEl.addEventListener('change', (e) => {
+    applyMySkinById(e.target.value);
+  });
+}
+
+
+
+function applyMySkinById(id) {
+  const skin = availableSkins.find(s => s.id === id);
+  if (!skin) return;
+  setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
+  currentSkinName = skin.name || 'My Skin';
 }
 
 
@@ -1514,16 +1593,47 @@ if (avatarCreateBtn) {
         return;
       }
 
-     setHeroImage(outputUrl);
-    avatarStatusEl.textContent = 'New avatar ready. Saving as your default skin…';
+  // Show the avatar result, but don't save yet
+const beforeUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
 
-     try {
-  await saveCurrentHeroAsDefaultSkin({ name: 'My Default Skin' });
-  avatarStatusEl.textContent = 'Avatar saved as your default skin.';
-    } catch (e) {
-  console.warn('Save default skin failed:', e?.message || e);
-  avatarStatusEl.textContent = 'Avatar ready (not saved).';
-   }
+pendingAvatarUrl = outputUrl;
+setHeroImage(outputUrl);
+
+avatarStatusEl.textContent = 'Avatar ready. Set as Base or Discard.';
+currentSkinName = 'Unsaved Avatar';
+
+if (mySkinActionsEl) mySkinActionsEl.style.display = 'grid';
+
+// Wire actions once (guard)
+if (!window.__avatarSaveBound) {
+  window.__avatarSaveBound = true;
+
+  if (btnSetAsBase) {
+    btnSetAsBase.addEventListener('click', async () => {
+      if (!pendingAvatarUrl) return;
+      try {
+        avatarStatusEl.textContent = 'Saving as your base skin…';
+        await saveCurrentHeroAsDefaultSkin({ name: 'My Default Skin' });
+        avatarStatusEl.textContent = 'Saved as your base skin.';
+        pendingAvatarUrl = null;
+        if (mySkinActionsEl) mySkinActionsEl.style.display = 'none';
+      } catch (e) {
+        console.warn('Save failed:', e?.message || e);
+        avatarStatusEl.textContent = 'Save failed (check console / RLS).';
+      }
+    });
+  }
+
+  if (btnDiscardAvatar) {
+    btnDiscardAvatar.addEventListener('click', () => {
+      pendingAvatarUrl = null;
+      setHeroImage(beforeUrl || DEFAULT_HERO_IMG);
+      avatarStatusEl.textContent = 'Discarded.';
+      if (mySkinActionsEl) mySkinActionsEl.style.display = 'none';
+    });
+  }
+}
+
 
     } catch (err) {
       console.error(err);
