@@ -130,6 +130,61 @@ async function applyAuthState() {
   }
 }
 
+async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
+  const sb = getSb();
+  if (!sb || !currentUserId) throw new Error('Must be logged in to save a skin.');
+
+  const heroUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
+  if (!heroUrl) throw new Error('No hero image to save.');
+
+  // Download the image
+  const imgRes = await fetch(heroUrl, { mode: 'cors' });
+  if (!imgRes.ok) throw new Error(`download_failed ${imgRes.status}`);
+  const blob = await imgRes.blob();
+
+  // Upload to Storage
+  const ext = blob.type?.includes('jpeg') ? 'jpg' : 'png';
+  const path = `skins/${currentUserId}/${Date.now()}.${ext}`;
+
+  const { error: upErr } = await sb.storage
+    .from('userassets')
+    .upload(path, blob, { contentType: blob.type || 'image/png', upsert: true });
+
+  if (upErr) throw upErr;
+
+  const { data: pub } = sb.storage.from('userassets').getPublicUrl(path);
+  const publicUrl = pub?.publicUrl;
+  if (!publicUrl) throw new Error('public_url_missing');
+
+  // Ensure only one default skin for this user
+  await sb
+    .from('dressup_skins')
+    .update({ is_default: false })
+    .eq('owner_id', currentUserId)
+    .eq('is_default', true);
+
+  // Insert default skin row
+  const { error: insErr } = await sb
+    .from('dressup_skins')
+    .insert({
+      owner_id: currentUserId,
+      name,
+      hero_url: publicUrl,
+      visibility: 'private',
+      is_default: true,
+      sort_order: 999
+    });
+
+  if (insErr) throw insErr;
+
+  // Refresh dropdown skins
+  await loadSkinsForPlayer(null);
+
+  // Select the newly default skin visually
+  currentSkinName = name;
+  setHeroImage(publicUrl);
+}
+
 
 // helper: set hero image + data-person-url consistently
 function setHeroImage(url) {
@@ -327,7 +382,7 @@ function applyAvatarPreset(id) {
 
 // chose default hero image
 // Base "template" hero (composition anchor for avatar creation + default for new users)
-const DEFAULT_HERO_IMG = "/apps/tools/dressup/assets/manq.png";
+const DEFAULT_HERO_IMG = "/apps/tools/dressup/assets/munz-base-portraitnomaditemselected2.png";
 
 
 // apply URL overrides
@@ -1454,7 +1509,8 @@ if (avatarCreateBtn) {
       const extraRefs  = uploadedUrls.slice(1);
 
       // Use Munz base as template
-      const templateUrl = DEFAULT_HERO_IMG;
+      const templateUrl = "/apps/tools/dressup/assets/manq.png";
+
 
       const payload = {
         mode: 'avatar',            // 👈 tells backend to use nano-banana-pro
@@ -1489,8 +1545,17 @@ if (avatarCreateBtn) {
         return;
       }
 
-      setHeroImage(outputUrl);
-      avatarStatusEl.textContent = 'New avatar ready.';
+     setHeroImage(outputUrl);
+    avatarStatusEl.textContent = 'New avatar ready. Saving as your default skin…';
+
+     try {
+  await saveCurrentHeroAsDefaultSkin({ name: 'My Default Skin' });
+  avatarStatusEl.textContent = 'Avatar saved as your default skin.';
+    } catch (e) {
+  console.warn('Save default skin failed:', e?.message || e);
+  avatarStatusEl.textContent = 'Avatar ready (not saved).';
+   }
+
     } catch (err) {
       console.error(err);
       avatarStatusEl.textContent = 'Error creating avatar: ' + (err.message || err);
