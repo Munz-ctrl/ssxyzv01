@@ -1,7 +1,20 @@
 // /apps/tools/dressup/js/sbClient.js
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+// UMD-safe: relies on global `supabase` from the CDN script tag in dressup.html
 
-const SUPABASE_URL = "https://hoaztxbbeabvwewswmkl.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY_HERE";
+(function () {
+ 
+  const SUPABASE_URL = 'https://hoaztxbbeabvwewswmkl.supabase.co'; 
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvYXp0eGJiZWFidndld3N3bWtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNzk3OTIsImV4cCI6MjA2MjY1NTc5Mn0.EEpTUXXPkmrZdIdts-veWr16g6SAg6ZXGZiYl07rNqg'; 
 
-export const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  if (!window.supabase && typeof supabase !== "undefined" && supabase.createClient) {
+    window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    console.log("[DressUp] Supabase client ready");
+  } else if (window.supabase) {
+    console.log("[DressUp] Supabase client already exists");
+  } else {
+    console.warn("[DressUp] Supabase CDN not loaded; client not created");
+  }
+})();
+
+
