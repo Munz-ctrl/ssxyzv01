@@ -143,7 +143,7 @@ function setHeroImage(url) {
 
 // read the default hero (Munz) from the HTML itself, so code and markup stay in sync
 const htmlDefaultHero = hero
-  ? (hero.getAttribute('data-default-hero') || '/apps/tools/dressup/assets/munz-base-portraitV2-1.png')
+  ? (hero.getAttribute('data-default-hero') || '/apps/tools/dressup/assets/manq.png')
   : '/apps/tools/dressup/assets/munz-base-portraitV2-1.png';
 
 
