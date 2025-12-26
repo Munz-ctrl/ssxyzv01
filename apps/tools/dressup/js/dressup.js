@@ -166,6 +166,10 @@ let communityMax     = communityCredits;
 let personalCredits  = 0;                       // backup pool for this user (used only when community is empty)
 
 let garmentPublicUrl = null;
+
+let isGenerating = false;
+
+
 let hasGeneratedOnce = false;
 let historyStack = []; // previous hero URLs for "Step Back"
 
@@ -712,25 +716,13 @@ function updateCreditUI() {
 
   // personal pill: always show, even at +0
 // personal pill: text-based like community bar
+// personal pill (JS only updates text + state class; styling lives in CSS)
 if (personalCreditPill) {
   const personalRuns = Math.floor(personalCredits / DRESSUP_COST_UNITS);
   personalCreditPill.textContent = `+${personalRuns} credits`;
-
-  // Match the community text font and color scheme
-  personalCreditPill.style.display = 'inline-flex';
-  personalCreditPill.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
-  personalCreditPill.style.fontSize = '7px';
-  personalCreditPill.style.textTransform = 'none';
-  personalCreditPill.style.letterSpacing = '0.02em';
-  personalCreditPill.style.background = 'none';
-  personalCreditPill.style.border = 'none';
-  personalCreditPill.style.padding = '0';
-  personalCreditPill.style.marginRight = '4px';
-  personalCreditPill.style.fontWeight = '600';
-
-  // color logic: white if 0, green if >0
-  personalCreditPill.style.color = personalRuns > 0 ? '#2af78d' : '#ffffff';
+  personalCreditPill.classList.toggle('has-credits', personalRuns > 0);
 }
+
 
   // enable/disable Generate based on runs + garment
   if (btnGenerate) {
@@ -864,12 +856,17 @@ if (fileInput) {
 
 // ---------- Generate flow ----------
 btnGenerate.addEventListener('click', async () => {
+  if (isGenerating) return;
+  isGenerating = true;
+
   // must have a garment
   if (!garmentPublicUrl) {
     statusEl.textContent = 'Upload a garment first.';
     updateCreditUI();
+    isGenerating = false;
     return;
   }
+
 
   // must have credits somewhere
   if (!spendOneCreditIfAvailable()) {
@@ -882,6 +879,8 @@ btnGenerate.addEventListener('click', async () => {
   updateCreditUI();
 
   btnGenerate.disabled = true;
+if (btnUpload) btnUpload.disabled = true;
+
   statusEl.textContent = 'Generating… this can take a few seconds.';
 
   try {
@@ -989,9 +988,13 @@ btnGenerate.addEventListener('click', async () => {
     if (!statusEl.textContent.startsWith('Generation failed')) {
       statusEl.textContent = 'Generation failed: ' + (err.message || err);
     }
-  } finally {
-    btnGenerate.disabled = false;
+    } finally {
+    isGenerating = false;
+    if (btnUpload) btnUpload.disabled = false;
+    // let updateCreditUI decide if Generate should be enabled
+    updateCreditUI();
   }
+
 });
 
 
