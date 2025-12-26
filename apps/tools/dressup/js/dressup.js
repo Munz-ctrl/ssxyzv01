@@ -665,7 +665,7 @@ await loadCreditsFromSupabase();
       updateCreditUI();
       updateAuthDependentUI();
 
-      await loadPublicFeaturedSkins();
+      loadPublicFeaturedSkins();
       runWatermarkTyping();
       return;
     }
