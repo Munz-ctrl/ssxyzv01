@@ -319,13 +319,12 @@ async function loadPublicFeaturedSkins() {
 
     const { data, error } = await sb
       .from('dressup_skins')
-      .select('id, name, hero_url, sort_order, created_at, visibility, skin_key')
-      .in('visibility', ['featured', 'public', 'unlisted'])
-      .order('sort_order', { ascending: true })
+      .select('id, name, hero_url, sort_order, created_at, visibility')
+      .in('visibility', ['featured', 'public'])
+      .order('sort_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: true });
 
     if (error) throw error;
-
     publicFeaturedSkins = Array.isArray(data) ? data : [];
   } catch (e) {
     console.warn('loadPublicFeaturedSkins failed:', e?.message || e);
@@ -335,6 +334,7 @@ async function loadPublicFeaturedSkins() {
   renderAvatarPublicRow();
   return publicFeaturedSkins;
 }
+
 
 
 
@@ -699,7 +699,7 @@ await loadCreditsFromSupabase();
 
 // Load community + personal credits from Supabase (if tables exist)
 async function loadCreditsFromSupabase() {
-  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  const sb = getSb();
   if (!sb) {
     updateCreditUI();
     return;
@@ -711,17 +711,12 @@ async function loadCreditsFromSupabase() {
       .from('dressup_chest')
       .select('*')
       .eq('id', 'community')
-      .single();
+      .maybeSingle();
 
     if (!chestErr && chestRow) {
-      if (typeof chestRow.credits === 'number') {
-        communityCredits = chestRow.credits;
-      }
-      if (typeof chestRow.max_credits === 'number') {
-        communityMax = chestRow.max_credits;
-      } else if (typeof chestRow.credits === 'number') {
-        communityMax = chestRow.credits;
-      }
+      if (typeof chestRow.credits === 'number') communityCredits = chestRow.credits;
+      if (typeof chestRow.max_credits === 'number') communityMax = chestRow.max_credits;
+      else communityMax = communityCredits;
     }
 
     // PERSONAL CREDITS (per Supabase user)
@@ -730,10 +725,17 @@ async function loadCreditsFromSupabase() {
         .from('dressup_personal_credits')
         .select('*')
         .eq('user_id', currentUserId)
-        .single();
+        .maybeSingle(); // ✅ prevents 406 spam when no row exists
 
       if (!personalErr && personalRow && typeof personalRow.credits === 'number') {
         personalCredits = personalRow.credits;
+      } else if (!personalErr && !personalRow) {
+        // Optional: auto-create row so future reads are clean
+        await sb.from('dressup_personal_credits').insert({
+          user_id: currentUserId,
+          credits: 0
+        });
+        personalCredits = 0;
       }
     }
   } catch (err) {
@@ -742,6 +744,7 @@ async function loadCreditsFromSupabase() {
     updateCreditUI();
   }
 }
+
 
 // Write current communityCredits back to Supabase
 async function syncCommunityCredits() {
