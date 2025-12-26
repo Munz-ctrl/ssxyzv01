@@ -472,11 +472,14 @@ function updatePlayerBadge() {
 // Utility: text used both by animated UI watermark and the saved-image watermark
 function getWatermarkText() {
   const line1 = "SUNSEX_STYLIST_☂";
-  const line2 = `Signed in as: ${signedInLabel}`;
-  const skinLabel = currentSkinName || currentPlayer.name || "slot1";
-  const line3 = `Styling: ${skinLabel}`;
+  const displayName = currentPlayer?.name || "Guest";
+  const displayId   = signedInLabel || "guest";
+  const line2 = `Account: ${displayName} (${displayId})`;
+  const skinLabel = currentSkinName || "Base";
+  const line3 = `Skin: ${skinLabel}`;
   return `${line1}\n${line2}\n${line3}`;
 }
+
 
 
 
@@ -582,7 +585,8 @@ async function hydrateUserContext() {
     signedInLabel = `user-${shortId}`;
   }
 
-  await loadSkinsForPlayer(currentPid || currentPlayer.id);
+  await loadSkinsForPlayer(null);
+
   await loadCreditsFromSupabase();
 
   // watermark loop already running; it will pick up new text automatically
