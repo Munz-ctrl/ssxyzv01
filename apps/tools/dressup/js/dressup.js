@@ -901,7 +901,7 @@ if (btnUpload) btnUpload.disabled = true;
     // Hit our serverless function /api/generate
     const payload = {
       mode: 'style',
-      model: 'google/nano-banana',
+      model: 'google/nano-banana-pro',
       personUrl,
       garmentUrl: garmentPublicUrl,
       prompt: 'Dress the person with the uploaded garment. Keep their identity, isometric portrait, and photoreallism. blend and harmonize new garments to the original natural lighting. '
@@ -1386,6 +1386,7 @@ if (avatarCreateBtn) {
         personUrl: primaryUrl,
         extraRefs,
         avatarTemplateUrl: templateUrl,
+        
         prompt:
          'switch character in the scene with the character in the uploaded pictures, maintain photorealism, match standing pose and lighting, high detail. ' 
       };
