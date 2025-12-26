@@ -135,8 +135,10 @@ async function applyAuthState() {
   const { data } = await sb.auth.getSession();
   const user = data?.session?.user || null;
 
-  currentUserId = user?.id || null;
-  supabaseReady = !!user;
+currentUserId = user?.id || null;
+// Supabase is "ready" if the client exists (even if user is logged out)
+supabaseReady = true;
+
 
   updateAuthDependentUI();
 
