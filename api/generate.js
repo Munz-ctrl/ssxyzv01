@@ -53,7 +53,7 @@ export default async function handler(req, res) {
 
   try {
     await assertImage(personUrl);
-    await assertImage(garmentUrl);
+    // await assertImage(garmentUrl);  <--- removed it ! 
     await assertImage(avatarTemplateUrl);
     for (const u of extraImages) {
       await assertImage(u);
