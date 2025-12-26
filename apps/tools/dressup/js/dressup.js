@@ -80,7 +80,9 @@ const mySkinActionsEl = $('mySkinActions');
 const btnSetAsBase = $('btnSetAsBase');
 const btnDiscardAvatar = $('btnDiscardAvatar');
 
-let pendingAvatarUrl = null; // holds newly generated avatar until user decides
+let pendingAvatarUrl = null;     // holds newly generated avatar until user decides
+let pendingAvatarBeforeUrl = null; // what hero was before previewing the avatar
+
 
 
 // skin list for this player
@@ -504,11 +506,7 @@ function buildSkinSelector() {
 
 // Utility: update the little badge in the corner so it matches currentPlayer
 function updatePlayerBadge() {
-  const nameEl = document.getElementById("playerNameLabel");
-  const idEl   = document.getElementById("playerIdLabel");
-
-  if (nameEl) nameEl.textContent = currentPlayer.name;
-  if (idEl)   idEl.textContent   = "#" + currentPlayer.id;
+   // badge removed (watermark handles identity)
 }
 
 // Utility: text used both by animated UI watermark and the saved-image watermark
@@ -521,6 +519,7 @@ function getWatermarkText() {
   const line3 = `Skin: ${skinLabel}`;
   return `${line1}\n${line2}\n${line3}`;
 }
+
 
 
 
@@ -1533,10 +1532,9 @@ if (avatarCreateBtn) {
         return;
       }
 
-  // Show the avatar result, but don't save yet
-const beforeUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
-
+pendingAvatarBeforeUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
 pendingAvatarUrl = outputUrl;
+
 setHeroImage(outputUrl);
 
 avatarStatusEl.textContent = 'Avatar ready. Set as Base or Discard.';
@@ -1567,7 +1565,9 @@ if (!window.__avatarSaveBound) {
   if (btnDiscardAvatar) {
     btnDiscardAvatar.addEventListener('click', () => {
       pendingAvatarUrl = null;
-      setHeroImage(beforeUrl || DEFAULT_HERO_IMG);
+      setHeroImage(pendingAvatarBeforeUrl || DEFAULT_HERO_IMG);
+      pendingAvatarBeforeUrl = null;
+
       avatarStatusEl.textContent = 'Discarded.';
       if (mySkinActionsEl) mySkinActionsEl.style.display = 'none';
     });
