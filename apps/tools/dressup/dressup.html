@@ -84,33 +84,16 @@
       <!-- AVATAR TAB (phase 1: public avatars + gated create-your-own) -->
       <div id="avatarTab" class="panel-card panel-tab-content">
         <!-- Top: public avatar presets -->
-        <div class="avatar-header">
-          <div class="avatar-header-row">
-            <span class="avatar-section-label">PUBLIC AVATAR</span>
-          </div>
-          <div class="avatar-public-row">
-            <button type="button"
-                    class="avatar-pill"
-                    data-avatar-id="munz-base">
-              Munz
-            </button>
-            <!-- <button type="button"
-                    class="avatar-pill"
-                    data-avatar-id="munz-naked">
-              Munz (skin)
-            </button> -->
-            <button type="button"
-                    class="avatar-pill"
-                    data-avatar-id="invisible">
-              Invisible
-            </button>
-            <button type="button"
-                    class="avatar-pill"
-                    data-avatar-id="ayani">
-              Ayani
-            </button>
-          </div>
-        </div>
+        <!-- Featured public skins (visible to everyone) -->
+      <div class="avatar-header">
+        <div class="avatar-header-row">
+          <span class="avatar-section-label">FEATURED</span>
+         </div>
+
+        <!-- Filled dynamically from Supabase dressup_skins where visibility in ('featured','public') and player_pid IS NULL -->
+      <div id="featuredSkinsRow" class="avatar-public-row"></div>
+</div>
+
 
         <!-- Guest view -->
         <!-- Guest view -->
@@ -178,6 +161,23 @@
                   class="btn primary">
             Create avatar (33 credits)
           </button>
+
+
+          <!-- My skins (logged-in only) -->
+           <div class="avatar-my-skins">
+             <div class="avatar-header-row">
+               <span class="avatar-section-label">MY SKINS</span>
+             </div>
+             <select id="mySkinSelect" class="my-skin-select"></select>
+           
+             <div id="mySkinActions" class="my-skin-actions" style="display:none;">
+               <button type="button" id="btnSetAsBase" class="btn thin">Set as Base</button>
+               <button type="button" id="btnDiscardAvatar" class="btn thin">Discard</button>
+             </div>
+           </div>
+
+
+
         </div>
 
         <div id="avatarStatus" class="status" role="status" aria-live="polite"></div>
