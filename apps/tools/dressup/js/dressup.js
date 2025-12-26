@@ -901,7 +901,7 @@ btnGenerate.addEventListener('click', async () => {
 
     // Hit our serverless function /api/generate
     const payload = {
-      mode: 'dressup',
+      mode: 'style',
       model: 'google/nano-banana',
       personUrl,
       garmentUrl: garmentPublicUrl,
