@@ -903,11 +903,11 @@ updateThumbEmpty();
 
 
 
-if (skinSelectEl) {
-  skinSelectEl.addEventListener('change', (e) => {
-    applySkinByKey(e.target.value);
-  });
-}
+// if (skinSelectEl) {
+//   skinSelectEl.addEventListener('change', (e) => {
+//     applySkinByKey(e.target.value);
+//   });
+// }
 
 
 
