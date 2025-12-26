@@ -684,7 +684,7 @@ await loadCreditsFromSupabase();
         runWatermarkTyping();
       });
     }
-
+    loadPublicFeaturedSkins();
     runWatermarkTyping();
   } catch (e) {
     console.warn('Supabase bootstrap failed:', e?.message || e);
