@@ -504,70 +504,14 @@ function applyMySkinById(id) {
 
 
 
-
-// (removed) legacy dropdown listener
-
-
-
-function applyMySkinById(id) {
-  const skin = availableSkins.find(s => s.id === id);
-  if (!skin) return;
-  setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
-  currentSkinName = skin.name || 'My Skin';
-}
-
-
-// Apply a specific skin by id or "__base__"
-function applySkinByKey(key) {
-  if (key === '__base__') {
-    currentSkinName = 'Base';
-    setHeroImage(currentPlayer.heroUrl);
-    return;
-  }
-
-  const skin = availableSkins.find(s => s.id === key);
-  if (!skin) return;
-
-  currentSkinName = skin.name;
-  setHeroImage(skin.hero_url);
-}
-
-
 if (mySkinSelectEl && !window.__mySkinSelectBound) {
   window.__mySkinSelectBound = true;
   mySkinSelectEl.addEventListener('change', (e) => {
     applyMySkinById(e.target.value);
   });
-}
 
 
 
-
-// Build the dropdown options + choose initial selection
-function buildSkinSelector() {
-  if (!skinSelectEl || !skinSelectorEl) return;
-
-  skinSelectEl.innerHTML = '';
-
-  // Always have a Base option
-  const baseOpt = document.createElement('option');
-  baseOpt.value = '__base__';
-  baseOpt.textContent = 'Base';
-  skinSelectEl.appendChild(baseOpt);
-
-  let selectedKey = '__base__';
-
-  // Add any skins from Supabase
-  availableSkins.forEach(skin => {
-    const opt = document.createElement('option');
-    opt.value = skin.id;
-    opt.textContent = skin.name;
-    skinSelectEl.appendChild(opt);
-
-    if (skin.is_default && selectedKey === '__base__') {
-      selectedKey = skin.id;
-    }
-  });
 
   // If ?skin=Name is present, override selection by name
   if (qsSkin && availableSkins.length > 0) {
