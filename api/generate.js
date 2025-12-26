@@ -51,12 +51,16 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'personUrl required' });
   }
 
-  try {
-    await assertImage(personUrl);
-    // await assertImage(garmentUrl);  <--- removed it ! 
-    await assertImage(avatarTemplateUrl);
-    for (const u of extraImages) {
-      await assertImage(u);
+    try {
+    if (isAvatar) {
+      // Avatar: template (optional) + person + extra refs
+      if (avatarTemplateUrl) await assertImage(avatarTemplateUrl);
+      if (personUrl) await assertImage(personUrl);
+      for (const u of extraImages) await assertImage(u);
+    } else {
+      // Style/Tryon: person + garment
+      await assertImage(personUrl);
+      await assertImage(garmentUrl);
     }
   } catch (e) {
     return res.status(422).json({ error: 'preflight_failed', details: e.message });
