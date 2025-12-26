@@ -305,18 +305,27 @@ let publicFeaturedSkins = []; // { id, name, hero_url, skin_key, sort_order }
 
 async function loadPublicFeaturedSkins() {
   const sb = getSb();
-  if (!sb) return [];
+  publicFeaturedSkins = [];
+
+  // If supabase client isn't ready yet, still render a fallback button
+  if (!sb) {
+    renderAvatarPublicRow();
+    return [];
+  }
 
   try {
     const { data, error } = await sb
       .from('dressup_skins')
-      .select('id, name, hero_url, skin_key, sort_order, visibility, owner_id')
+      .select('id, name, hero_url, skin_key, sort_order, visibility, owner_id, player_pid, created_at')
+      // public/featured/unlisted are visible to everyone
+      .in('visibility', ['featured', 'public', 'unlisted'])
+      // treat "public" skins as those NOT owned by a user
       .is('owner_id', null)
-      .in('visibility', ['featured','public'])
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
     if (error) throw error;
+
     publicFeaturedSkins = Array.isArray(data) ? data : [];
   } catch (e) {
     console.warn('loadPublicFeaturedSkins failed:', e?.message || e);
@@ -326,6 +335,7 @@ async function loadPublicFeaturedSkins() {
   renderAvatarPublicRow();
   return publicFeaturedSkins;
 }
+
 
 function renderAvatarPublicRow() {
   const row = document.getElementById('featuredSkinsRow');
@@ -638,8 +648,6 @@ await loadCreditsFromSupabase();
       updateAuthDependentUI();
 
       await loadPublicFeaturedSkins();
-
-
       runWatermarkTyping();
       return;
     }
@@ -653,7 +661,7 @@ await loadCreditsFromSupabase();
       sb.auth.onAuthStateChange(async () => {
         await applyAuthState();
         // keep watermark in sync (loop is guarded)
-        await loadPublicFeaturedSkins();
+       
 
         runWatermarkTyping();
       });
