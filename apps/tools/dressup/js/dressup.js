@@ -742,11 +742,11 @@ async function loadCreditsFromSupabase() {
       if (!personalErr && personalRow && typeof personalRow.credits === 'number') {
         personalCredits = personalRow.credits;
       } else if (!personalErr && !personalRow) {
-        // Optional: auto-create row so future reads are clean
-        await sb.from('dressup_personal_credits').insert({
-          user_id: currentUserId,
-          credits: 0
-        });
+        // // Optional: auto-create row so future reads are clean
+        // await sb.from('dressup_personal_credits').insert({
+        //   user_id: currentUserId,
+        //   credits: 0
+        // });
         personalCredits = 0;
       }
     }
