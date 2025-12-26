@@ -67,7 +67,7 @@ export default async function handler(req, res) {
   // AVATAR       → nano-banana-pro
   const modelSlug = isAvatar
     ? 'google/nano-banana-pro'
-    : 'google/nano-banana';
+    : 'google/nano-banana-pro'; // <-- switch for style stuff
 
   const START_URL = `https://api.replicate.com/v1/models/${modelSlug}/predictions`;
 
