@@ -255,14 +255,14 @@ html, body {
  padding: '0';
  margin-Right: '4px';
  font-Weight: 600;
- 
+
   left: 2%;
   bottom: 2%;
   z-index: 3;
   font-size: 11px;
   line-height: 0.8; /* tighter lines */
-  color: rgba(255,255,255,0.75);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  color: rgb(255, 255, 255);
+  /* text-shadow: 0 1px 2px rgba(0,0,0,0.4); */
 }
 
 .panel {
