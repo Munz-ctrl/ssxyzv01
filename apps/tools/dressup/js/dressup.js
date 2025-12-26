@@ -286,7 +286,9 @@ function applyAvatarPreset(id) {
 
 
 // chose default hero image
-const DEFAULT_HERO_IMG = "/apps/tools/dressup/assets/munz-base-portraitV2-1.png"; // update if needed
+// Base "template" hero (composition anchor for avatar creation + default for new users)
+const DEFAULT_HERO_IMG = "/apps/tools/dressup/assets/manq.png";
+
 
 // apply URL overrides
 if (qsName) currentPlayer.name = qsName;
