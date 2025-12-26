@@ -31,8 +31,7 @@ const isPrivateMode = (modeParam === 'private');
 
 // grab DOM refs we need early
 const hero            = $('hero');                 // main portrait div
-const badgeNameEl     = $('playerNameLabel');      // "MUNZ"
-const badgeIdEl       = $('playerIdLabel');        // "#001"
+
 const animatedWMEl    = $('animatedWatermarkText');// bottom-left typing watermark
 const statusEl        = $('status');
 const btnUpload       = $('btnUpload');
