@@ -509,24 +509,12 @@ if (mySkinSelectEl && !window.__mySkinSelectBound) {
   mySkinSelectEl.addEventListener('change', (e) => {
     applyMySkinById(e.target.value);
   });
-
+}
 
 
 
   // If ?skin=Name is present, override selection by name
-  if (qsSkin && availableSkins.length > 0) {
-    const byName = availableSkins.find(s => s.name.toLowerCase() === qsSkin.toLowerCase());
-    if (byName) selectedKey = byName.id;
-  }
-
-  // Show selector only if we have at least 1 option (Base always counts)
-  skinSelectorEl.style.display = 'flex';
-  skinSelectEl.value = selectedKey;
-  applySkinByKey(selectedKey);
-
-  // keep badge + watermark in sync
-  updatePlayerBadge();
-}
+  
 
 
 
