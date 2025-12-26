@@ -695,9 +695,19 @@ async function hydrateUserContext() {
     signedInLabel = `user-${shortId}`;
   }
 
-  await loadSkinsForPlayer(null);
+  // If no player record exists for this auth user, create a stable pseudo PID
+if (!currentPid) {
+  currentPid = `u_${String(currentUserId).slice(0, 6)}`;
+  currentPlayer.id = currentPid;
+  signedInLabel = currentPid;
+}
 
-  await loadCreditsFromSupabase();
+// Load skins + credits
+await loadSkinsForPlayer();
+await loadCreditsFromSupabase();
+
+
+
 
   // watermark loop already running; it will pick up new text automatically
 }
