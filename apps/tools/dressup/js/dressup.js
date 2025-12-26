@@ -315,20 +315,13 @@ async function loadPublicFeaturedSkins() {
   const sb = getSb();
   publicFeaturedSkins = [];
 
-  // If supabase client isn't ready yet, still render a fallback button
-  if (!sb) {
-    renderAvatarPublicRow();
-    return [];
-  }
-
   try {
+    if (!sb) throw new Error('Supabase client not found');
+
     const { data, error } = await sb
       .from('dressup_skins')
-      .select('id, name, hero_url, skin_key, sort_order, visibility, owner_id, player_pid, created_at')
-      // public/featured/unlisted are visible to everyone
+      .select('id, name, hero_url, sort_order, created_at, visibility, skin_key')
       .in('visibility', ['featured', 'public', 'unlisted'])
-      // treat "public" skins as those NOT owned by a user
-      .is('owner_id', null)
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
 
@@ -343,6 +336,7 @@ async function loadPublicFeaturedSkins() {
   renderAvatarPublicRow();
   return publicFeaturedSkins;
 }
+
 
 
 function renderAvatarPublicRow() {
@@ -432,6 +426,81 @@ if (qsHero) {
 // - loadPublicFeaturedSkins() for Featured/Public
 // - loadSkinsForPlayer() for logged-in user's private skins
 
+async function loadSkinsForPlayer() {
+  const sb = getSb();
+
+  // Not logged in → clear MY SKINS dropdown
+  if (!sb || !currentUserId) {
+    availableSkins = [];
+    if (mySkinSelectEl) {
+      mySkinSelectEl.innerHTML = '';
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'Log in to use My Skins';
+      mySkinSelectEl.appendChild(opt);
+      mySkinSelectEl.disabled = true;
+    }
+    return;
+  }
+
+  try {
+    const { data, error } = await sb
+      .from('dressup_skins')
+      .select('id, name, hero_url, is_default, created_at')
+      .eq('owner_id', currentUserId)
+      .eq('visibility', 'private')
+      .order('is_default', { ascending: false })
+      .order('created_at', { ascending: true });
+
+    if (error) throw error;
+    availableSkins = Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.warn('loadSkinsForPlayer failed:', err?.message || err);
+    availableSkins = [];
+  }
+
+  buildMySkinsSelect();
+}
+
+function buildMySkinsSelect() {
+  if (!mySkinSelectEl) return;
+
+  mySkinSelectEl.disabled = false;
+  mySkinSelectEl.innerHTML = '';
+
+  if (!availableSkins.length) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'No saved skins yet';
+    mySkinSelectEl.appendChild(opt);
+    return;
+  }
+
+  // Populate options
+  availableSkins.forEach((skin) => {
+    const opt = document.createElement('option');
+    opt.value = skin.id;
+    opt.textContent = skin.name || 'My Skin';
+    mySkinSelectEl.appendChild(opt);
+  });
+
+  // Auto-select default if any
+  const def = availableSkins.find(s => s.is_default);
+  const first = availableSkins[0];
+
+  const selected = def || first;
+  mySkinSelectEl.value = selected.id;
+  applyMySkinById(selected.id);
+}
+
+// apply selected private skin
+function applyMySkinById(id) {
+  const skin = availableSkins.find(s => s.id === id);
+  if (!skin) return;
+
+  setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
+  currentSkinName = skin.name || 'My Skin';
+}
 
 
 // (removed) legacy dropdown listener
