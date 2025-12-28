@@ -100,13 +100,7 @@ async function uploadGarmentToSupabase(file) {
   const sb = getSb();
   if (!sb) throw new Error('Supabase client not found');
 
-  let uploaderId = 'anon';
-  try {
-    const { data } = await withTimeout(sb.auth.getUser(), 8000, 'auth.getUser timeout');
-    if (data?.user?.id) uploaderId = data.user.id;
-  } catch (e) {
-    console.warn('[DressUp] auth.getUser failed (upload):', e?.message || e);
-  }
+  const uploaderId = currentUserId || 'anon';
 
   const safeName = (file.name || 'garment.png').replace(/\s+/g, '-');
   const path = `garments/${uploaderId}/${Date.now()}-${safeName}`;
@@ -172,7 +166,6 @@ if (btnDressupLogout && !window.__dressupLogoutBound) {
 
 async function applyAuthState() {
   const sb = getSb();
-
   if (!sb?.auth) {
     currentUserId = null;
     supabaseReady = false;
@@ -183,32 +176,20 @@ async function applyAuthState() {
   supabaseReady = true;
 
   try {
-    // Prefer getUser() as source of truth
-    const userRes = await withTimeout(sb.auth.getUser(), 8000, 'auth.getUser timeout');
-    const user = userRes?.data?.user || null;
-
-    // Fallback to getSession if user is null
-    if (!user) {
-      const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
-      const sUser = sessRes?.data?.session?.user || null;
-      currentUserId = sUser?.id || null;
-    } else {
-      currentUserId = user.id;
-    }
+    const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
+    currentUserId = sessRes?.data?.session?.user?.id || null;
 
     console.log('[DressUp] applyAuthState currentUserId:', currentUserId);
 
     updateAuthDependentUI();
-
-    if (currentUserId) {
-      await hydrateUserContext();
-    }
+    if (currentUserId) await hydrateUserContext();
   } catch (e) {
     console.warn('[DressUp] applyAuthState failed:', e?.message || e);
     currentUserId = null;
     updateAuthDependentUI();
   }
 }
+
 
 
 async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
@@ -1526,8 +1507,14 @@ if (dressupLoginBtn) {
       }
 
      loginStatusEl.textContent = 'Signed in.';
-     await applyAuthState();
-     loginFormEl.style.display = 'none';
+
+// ✅ do NOT call getUser() here — it’s timing out in your browser
+currentUserId = data.user.id;
+
+updateAuthDependentUI();
+await hydrateUserContext();
+
+loginFormEl.style.display = 'none';
 
       dressupLoginBtn.disabled = false;
       dressupLoginBtn.textContent = 'Sign in';
