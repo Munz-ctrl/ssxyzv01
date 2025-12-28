@@ -79,6 +79,14 @@ const mySkinActionsEl = $('mySkinActions');
 const btnSetAsBase = $('btnSetAsBase');
 const btnDiscardAvatar = $('btnDiscardAvatar');
 
+
+
+const btnDressupLogout = $('btnDressupLogout');
+const dressupLogoutStatus = $('dressupLogoutStatus');
+
+
+
+
 let pendingAvatarUrl = null;     // holds newly generated avatar until user decides
 let pendingAvatarBeforeUrl = null; // what hero was before previewing the avatar
 
@@ -1499,11 +1507,38 @@ if (avatarCreateBtn) {
     avatarStatusEl.textContent = 'Uploading photos…';
 
     const sb = getSb();
-if (!sb?.storage) {
+    if (!sb?.storage) {
   avatarStatusEl.textContent = 'Supabase client not ready (storage missing).';
   console.error('[DressUp] getSb() returned:', sb);
   return;
 }
+
+
+
+if (btnDressupLogout) {
+  btnDressupLogout.addEventListener('click', async () => {
+    const sb = getSb();
+    dressupLogoutStatus.textContent = 'Logging out…';
+
+    try {
+      await sb?.auth?.signOut();
+
+      // local state reset
+      currentUserId = null;
+      currentPid = null;
+      pendingAvatarUrl = null;
+      personalCredits = 0;
+
+      dressupLogoutStatus.textContent = 'Logged out.';
+      await applyAuthState(); // your existing function
+    } catch (e) {
+      console.error(e);
+      dressupLogoutStatus.textContent = 'Logout failed. Check console.';
+    }
+  });
+}
+
+
 
 
     try {
