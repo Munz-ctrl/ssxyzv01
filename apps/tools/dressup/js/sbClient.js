@@ -19,6 +19,13 @@
   // Always create/overwrite the dressup client (safe + deterministic)
   window.sb = ns.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   console.log("[DressUp] Supabase client ready -> window.sb");
+
+
+  window.sb = ns.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.__dressup_sb = window.sb; // debug alias
+
+
+
 })();
 
 
