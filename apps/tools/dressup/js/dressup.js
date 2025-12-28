@@ -97,7 +97,8 @@ let availableSkins = []; // { id, name, hero_url, is_default }
 
 
 async function uploadGarmentToSupabase(file) {
-  const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
+  const sb = getSb();
+
   if (!sb) throw new Error('Supabase client not found');
 
   // If your current build requires login, use currentUserId if available
@@ -1093,7 +1094,8 @@ if (btnUpload) btnUpload.disabled = true;
 
 
     // Identify user for per-user foldering; fall back to 'anon'
-    const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
+    const sb = getSb();
+
     let uploaderId = 'anon';
     try {
       if (sb?.auth?.getUser) {
@@ -1461,7 +1463,8 @@ if (avatarLoginBtn && loginFormEl) {
 
 if (dressupLoginBtn) {
   dressupLoginBtn.addEventListener('click', async () => {
-    const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
+    const sb = getSb();
+
     if (!sb?.auth) {
       loginStatusEl.textContent = 'Auth not ready, try again.';
       return;
