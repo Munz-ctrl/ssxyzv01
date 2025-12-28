@@ -133,8 +133,9 @@ function getSb() {
 
 
 
+if (btnDressupLogout && !window.__dressupLogoutBound) {
+  window.__dressupLogoutBound = true;
 
-if (btnDressupLogout) {
   btnDressupLogout.addEventListener('click', async () => {
     const sb = getSb();
     dressupLogoutStatus.textContent = 'Logging out…';
@@ -146,18 +147,17 @@ if (btnDressupLogout) {
       currentUserId = null;
       currentPid = null;
       pendingAvatarUrl = null;
+      pendingAvatarBeforeUrl = null;
       personalCredits = 0;
 
       dressupLogoutStatus.textContent = 'Logged out.';
-      await applyAuthState(); // your existing function
+      await applyAuthState();
     } catch (e) {
       console.error(e);
       dressupLogoutStatus.textContent = 'Logout failed. Check console.';
     }
   });
 }
-
-
 
 
 
