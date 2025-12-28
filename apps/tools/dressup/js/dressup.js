@@ -769,7 +769,9 @@ async function loadCreditsFromSupabase() {
 
 // Write current communityCredits back to Supabase
 async function syncCommunityCredits() {
-  const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
+  const sb = getSb();
+if (!sb) return;
+
   if (!sb) return;
 
   try {
@@ -791,7 +793,9 @@ async function syncCommunityCredits() {
 
 // Write current personalCredits back to Supabase
 async function syncPersonalCredits() {
-  const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
+  const sb = getSb();
+if (!sb) return;
+
   if (!sb || !currentUserId) return;
 
   try {
@@ -1494,11 +1498,13 @@ if (avatarCreateBtn) {
 
     avatarStatusEl.textContent = 'Uploading photos…';
 
-    const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
-    if (!sb?.storage) {
-      avatarStatusEl.textContent = 'Supabase storage not available.';
-      return;
-    }
+    const sb = getSb();
+if (!sb?.storage) {
+  avatarStatusEl.textContent = 'Supabase client not ready (storage missing).';
+  console.error('[DressUp] getSb() returned:', sb);
+  return;
+}
+
 
     try {
       const uploadedUrls = [];
