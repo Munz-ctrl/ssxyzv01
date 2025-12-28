@@ -98,22 +98,26 @@ let availableSkins = []; // { id, name, hero_url, is_default }
 
 async function uploadGarmentToSupabase(file) {
   const sb = getSb();
-
   if (!sb) throw new Error('Supabase client not found');
 
-  // If your current build requires login, use currentUserId if available
-  // otherwise fallback to 'anon' like your working build.
   let uploaderId = 'anon';
   try {
-    const { data } = await sb.auth.getUser();
+    const { data } = await withTimeout(sb.auth.getUser(), 8000, 'auth.getUser timeout');
     if (data?.user?.id) uploaderId = data.user.id;
-  } catch (_) {}
+  } catch (e) {
+    console.warn('[DressUp] auth.getUser failed (upload):', e?.message || e);
+  }
 
   const safeName = (file.name || 'garment.png').replace(/\s+/g, '-');
   const path = `garments/${uploaderId}/${Date.now()}-${safeName}`;
 
-  const { error } = await sb.storage.from('userassets').upload(path, file, { upsert: true });
-  if (error) throw error;
+  const upRes = await withTimeout(
+    sb.storage.from('userassets').upload(path, file, { upsert: true }),
+    20000,
+    'storage upload timeout'
+  );
+
+  if (upRes.error) throw upRes.error;
 
   const { data: pub } = sb.storage.from('userassets').getPublicUrl(path);
   if (!pub?.publicUrl) throw new Error('Public URL not returned');
@@ -168,27 +172,44 @@ if (btnDressupLogout && !window.__dressupLogoutBound) {
 
 async function applyAuthState() {
   const sb = getSb();
+
   if (!sb?.auth) {
     currentUserId = null;
+    supabaseReady = false;
     updateAuthDependentUI();
     return;
   }
 
-  const { data } = await sb.auth.getSession();
-  const user = data?.session?.user || null;
+  supabaseReady = true;
 
-currentUserId = user?.id || null;
-// Supabase is "ready" if the client exists (even if user is logged out)
-supabaseReady = true;
+  try {
+    // Prefer getUser() as source of truth
+    const userRes = await withTimeout(sb.auth.getUser(), 8000, 'auth.getUser timeout');
+    const user = userRes?.data?.user || null;
 
+    // Fallback to getSession if user is null
+    if (!user) {
+      const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
+      const sUser = sessRes?.data?.session?.user || null;
+      currentUserId = sUser?.id || null;
+    } else {
+      currentUserId = user.id;
+    }
 
-  updateAuthDependentUI();
+    console.log('[DressUp] applyAuthState currentUserId:', currentUserId);
 
-  // If signed in, load user-linked data once here (skins/credits/watermark labels)
-  if (currentUserId) {
-    await hydrateUserContext(); // we’ll add this next
+    updateAuthDependentUI();
+
+    if (currentUserId) {
+      await hydrateUserContext();
+    }
+  } catch (e) {
+    console.warn('[DressUp] applyAuthState failed:', e?.message || e);
+    currentUserId = null;
+    updateAuthDependentUI();
   }
 }
+
 
 async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
   const sb = getSb();
@@ -882,6 +903,12 @@ function updateAuthDependentUI() {
     avatarGuestSection.style.display  = loggedIn ? 'none'  : 'block';
     avatarAuthedSection.style.display = loggedIn ? 'block' : 'none';
   }
+
+
+  console.log('[DressUp] UI auth flip', { currentUserId, loggedIn: !!currentUserId });
+
+
+
 }
 
 
@@ -1030,7 +1057,12 @@ if (fileInput) {
     // default: STYLE / garment upload (existing logic)
     try {
       statusEl.textContent = 'Uploading garment…';
-      const { publicUrl } = await uploadGarmentToSupabase(file); // your existing helper
+      const { publicUrl } = await withTimeout(
+  uploadGarmentToSupabase(file),
+  20000,
+  'Upload timed out (check Storage bucket/policies or network)'
+);
+
 
       garmentPreview.src = publicUrl;
       thumbWrap.classList.remove('empty');
@@ -1047,9 +1079,10 @@ if (fileInput) {
 
       statusEl.textContent = 'Garment ready.';
     } catch (err) {
-      console.error(err);
-      statusEl.textContent = 'Upload failed, try again.';
-    } finally {
+  console.error(err);
+  statusEl.textContent = 'Upload failed: ' + (err?.message || err);
+} finally {
+
       fileInput.value = '';
     }
   });
