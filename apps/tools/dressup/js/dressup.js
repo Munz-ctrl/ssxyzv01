@@ -89,7 +89,7 @@ let availableSkins = []; // { id, name, hero_url, is_default }
 
 
 async function uploadGarmentToSupabase(file) {
-  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
   if (!sb) throw new Error('Supabase client not found');
 
   // If your current build requires login, use currentUserId if available
@@ -769,7 +769,7 @@ async function loadCreditsFromSupabase() {
 
 // Write current communityCredits back to Supabase
 async function syncCommunityCredits() {
-  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
   if (!sb) return;
 
   try {
@@ -791,7 +791,7 @@ async function syncCommunityCredits() {
 
 // Write current personalCredits back to Supabase
 async function syncPersonalCredits() {
-  const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+  const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
   if (!sb || !currentUserId) return;
 
   try {
@@ -1048,7 +1048,7 @@ if (btnUpload) btnUpload.disabled = true;
 
 
     // Identify user for per-user foldering; fall back to 'anon'
-    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+    const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
     let uploaderId = 'anon';
     try {
       if (sb?.auth?.getUser) {
@@ -1416,7 +1416,7 @@ if (avatarLoginBtn && loginFormEl) {
 
 if (dressupLoginBtn) {
   dressupLoginBtn.addEventListener('click', async () => {
-    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+    const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
     if (!sb?.auth) {
       loginStatusEl.textContent = 'Auth not ready, try again.';
       return;
@@ -1494,7 +1494,7 @@ if (avatarCreateBtn) {
 
     avatarStatusEl.textContent = 'Uploading photos…';
 
-    const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+    const sb = window.sb || (typeof supabase !== 'undefined' ? supabase : null);
     if (!sb?.storage) {
       avatarStatusEl.textContent = 'Supabase storage not available.';
       return;
