@@ -132,6 +132,39 @@ function getSb() {
 }
 
 
+
+
+if (btnDressupLogout) {
+  btnDressupLogout.addEventListener('click', async () => {
+    const sb = getSb();
+    dressupLogoutStatus.textContent = 'Logging out…';
+
+    try {
+      await sb?.auth?.signOut();
+
+      // local state reset
+      currentUserId = null;
+      currentPid = null;
+      pendingAvatarUrl = null;
+      personalCredits = 0;
+
+      dressupLogoutStatus.textContent = 'Logged out.';
+      await applyAuthState(); // your existing function
+    } catch (e) {
+      console.error(e);
+      dressupLogoutStatus.textContent = 'Logout failed. Check console.';
+    }
+  });
+}
+
+
+
+
+
+
+
+
+
 async function applyAuthState() {
   const sb = getSb();
   if (!sb?.auth) {
@@ -1513,30 +1546,6 @@ if (avatarCreateBtn) {
   return;
 }
 
-
-
-if (btnDressupLogout) {
-  btnDressupLogout.addEventListener('click', async () => {
-    const sb = getSb();
-    dressupLogoutStatus.textContent = 'Logging out…';
-
-    try {
-      await sb?.auth?.signOut();
-
-      // local state reset
-      currentUserId = null;
-      currentPid = null;
-      pendingAvatarUrl = null;
-      personalCredits = 0;
-
-      dressupLogoutStatus.textContent = 'Logged out.';
-      await applyAuthState(); // your existing function
-    } catch (e) {
-      console.error(e);
-      dressupLogoutStatus.textContent = 'Logout failed. Check console.';
-    }
-  });
-}
 
 
 
