@@ -115,7 +115,8 @@ export default async function handler(req, res) {
     prompt: finalPrompt,
     image_input,
     aspect_ratio: '9:16',
-    output_format: 'png'
+    resolution: '1K',        // ✅ ADD THIS (smaller gen)
+    output_format: 'jpeg'    // ✅ OPTIONAL: much smaller files than png
   };
 
   // ---------- Replicate call ----------
