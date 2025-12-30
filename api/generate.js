@@ -116,7 +116,7 @@ export default async function handler(req, res) {
     image_input,
     aspect_ratio: '9:16',
     resolution: '1K',        // ✅ ADD THIS (smaller gen)
-    output_format: 'jpeg'    // ✅ OPTIONAL: much smaller files than png
+    output_format: 'jpg'    // ✅ OPTIONAL: much smaller files than png
   };
 
   // ---------- Replicate call ----------
