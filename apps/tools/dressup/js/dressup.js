@@ -176,7 +176,7 @@ async function applyAuthState() {
   supabaseReady = true;
 
   try {
-    const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
+    const sessRes = await withTimeout(sb.auth.getSession(), 20000, 'auth.getSession timeout');
     currentUserId = sessRes?.data?.session?.user?.id || null;
 
     console.log('[DressUp] applyAuthState currentUserId:', currentUserId);
