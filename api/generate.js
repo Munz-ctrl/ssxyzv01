@@ -1,5 +1,5 @@
-// /api/generate.js (CommonJS for Vercel Functions)
-const { createClient } = require("@supabase/supabase-js");
+// /api/generate.js (ESM - works with package.json "type":"module")
+import { createClient } from "@supabase/supabase-js";
 
 function cleanUrl(u, origin = process.env.PUBLIC_SITE_ORIGIN || "https://sunsex.xyz") {
   if (!u) return "";
@@ -26,7 +26,7 @@ function publicUrlFor(bucket, path) {
   return `${base}/storage/v1/object/public/${bucket}/${path}`;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   try {
     if (req.method !== "POST") return res.status(405).json({ error: "Use POST" });
 
@@ -51,7 +51,6 @@ module.exports = async function handler(req, res) {
     const authHeader = req.headers.authorization || "";
     const jwt = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
-    // Only create sbUser if jwt AND anon key exist
     const sbUser = (jwt && SUPABASE_ANON_KEY)
       ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
           global: { headers: { Authorization: `Bearer ${jwt}` } },
@@ -91,9 +90,9 @@ module.exports = async function handler(req, res) {
       return res.status(422).json({ error: "preflight_failed", details: e.message });
     }
 
-    // 1) Spend credits server-side (community first, then personal)
+    // 1) Spend credits
     try {
-      const rpcClient = sbUser || sbAdmin; // anon uses community
+      const rpcClient = sbUser || sbAdmin;
       const { data, error } = await rpcClient.rpc("dressup_consume_credits", { p_cost: COST });
       if (error) throw error;
 
@@ -181,7 +180,7 @@ module.exports = async function handler(req, res) {
 
     if (!outputUrl) return res.status(500).json({ error: "generation_incomplete" });
 
-    // 3) Upload to Supabase Storage
+    // 3) Upload to Storage
     let finalUrl = outputUrl;
 
     try {
@@ -203,11 +202,9 @@ module.exports = async function handler(req, res) {
         .upload(key, arrayBuf, { contentType, upsert: true });
 
       if (!upErr) finalUrl = publicUrlFor("userassets", key);
-    } catch (_) {
-      // fallback to replicate url
-    }
+    } catch (_) {}
 
-    // 4) Return updated credits (server truth)
+    // 4) Return credits
     let chest = null;
     try {
       const { data } = await sbAdmin.rpc("dressup_get_chest");
@@ -240,7 +237,6 @@ module.exports = async function handler(req, res) {
     });
 
   } catch (e) {
-    // Catch-all to prevent FUNCTION_INVOCATION_FAILED
     return res.status(500).json({ error: "unhandled", details: e?.message || String(e) });
   }
-};
+}
