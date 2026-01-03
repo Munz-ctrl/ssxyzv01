@@ -153,32 +153,36 @@ export default async function handler(req, res) {
     const prediction = await start.json();
     const id = prediction.id;
 
-    for (let i = 0; i < 60; i++) {
-      await new Promise(r => setTimeout(r, 2000));
+    const POLL_EVERY_MS = 2000;
+const MAX_POLLS = 150; // 150 * 2s = 300s (5 minutes)
 
-      const poll = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
-        headers: { Authorization: `Bearer ${REPLICATE_API_TOKEN}` }
-      });
+for (let i = 0; i < MAX_POLLS; i++) {
+  await new Promise(r => setTimeout(r, POLL_EVERY_MS));
 
-      if (!poll.ok) {
-        const details = await poll.text();
-        return res.status(poll.status).json({ error: "replicate_poll_failed", details });
-      }
+  const poll = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
+    headers: { Authorization: `Bearer ${process.env.REPLICATE_API_TOKEN}` }
+  });
 
-      const data = await poll.json();
+  if (!poll.ok) {
+    const details = await poll.text();
+    return res.status(poll.status).json({ error: "replicate_poll_failed", details });
+  }
 
-      if (data.status === "succeeded") {
-        const o = data.output;
-        outputUrl = Array.isArray(o) ? o[0] : (o?.image || o?.output || o);
-        break;
-      }
+  const data = await poll.json();
 
-      if (["failed", "canceled"].includes(data.status)) {
-        return res.status(500).json({ error: "generation_failed", details: data?.error || data.status });
-      }
-    }
+  if (data.status === "succeeded") {
+    const o = data.output;
+    outputUrl = Array.isArray(o) ? o[0] : (o?.image || o?.output || o);
+    break;
+  }
 
-    if (!outputUrl) return res.status(500).json({ error: "generation_incomplete" });
+  if (["failed", "canceled"].includes(data.status)) {
+    return res.status(500).json({ error: "generation_failed", details: data?.error || data.status });
+  }
+}
+
+if (!outputUrl) return res.status(504).json({ error: "generation_incomplete" });
+
 
     // 3) Upload to Storage
     let finalUrl = outputUrl;
