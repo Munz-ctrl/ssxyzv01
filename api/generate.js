@@ -118,7 +118,7 @@ export default async function handler(req, res) {
     if (isAvatar) {
       const refs = Array.isArray(extraRefs) ? extraRefs.map(u => cleanUrl(u)).filter(Boolean) : [];
       input = {
-        prompt: prompt || "Replace the person in the template with the subject from the uploaded photos. Keep the template pose, framing, lighting, and scene. Photorealistic.",
+        prompt: prompt || "Replace the person in the template with the subject from the uploaded photos. Keep the template pose, isometric feel, framing, lighting, and background scene. and switch maniquinne with the identity, proportional build, facial features, skin tone, hairstyle and overall outfit of the person in the uploaded images. Keep lighting, camera angle and background consistent with the template.",
         image_input: [avatarTemplateUrl, personUrl, ...refs],
         aspect_ratio: "9:16",
         resolution: "1K",
@@ -126,7 +126,7 @@ export default async function handler(req, res) {
       };
     } else {
       input = {
-        prompt: prompt || "Dress the person with the uploaded garment. Keep their identity and photorealism.",
+        prompt: prompt || "Dress the person with the uploaded garment or outfit, disregard any people in the uploaded images. only edit the clothes in our current hero image, Keep their identity and other unaffected elements untouched. photorealism.",
         image_input: [personUrl, garmentUrl],
         aspect_ratio: "9:16",
         resolution: "1K",
