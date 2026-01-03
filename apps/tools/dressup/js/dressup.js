@@ -1046,7 +1046,6 @@ updateThumbEmpty();
 //   });
 // }
 
-$("buyCreditsBtn")?.addEventListener("click", startCreditCheckout);
 
 
 try {
