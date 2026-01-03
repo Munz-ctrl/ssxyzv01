@@ -30,16 +30,29 @@
 
 
         <!-- CREDIT HUD (bottom-right) -->
-    <div id="creditHUD" class="credit-hud">
-      <div id="personalCreditPill" class="personal-pill">+0 personal</div>
+   <div id="creditHUD" class="credit-hud">
+  <div class="credit-topline">
+    <div id="personalCreditPill" class="personal-pill">+0 personal</div>
 
-      <div class="community-block">
-        <div class="community-line">
-          <span class="community-label">COMMUNITY</span>
-          <span id="communityBarText" class="community-bar-text">[░░░░░░░░░░] 0 left</span>
-        </div>
-      </div>
+    <div class="buy-row">
+      <select id="creditPackSelect" class="pack-select">
+        <option value="pack_1">$1 (2 runs)</option>
+        <option value="pack_5" selected>$5 (10 runs)</option>
+        <option value="pack_10">$10 (22 runs)</option>
+        <option value="pack_20">$20 (45 runs)</option>
+      </select>
+      <button id="buyCreditsBtn" class="buy-btn">Buy</button>
     </div>
+  </div>
+
+  <div class="community-block">
+    <div class="community-line">
+      <span class="community-label">COMMUNITY</span>
+      <span id="communityBarText" class="community-bar-text">[░░░░░░░░░░] 0 left</span>
+    </div>
+  </div>
+</div>
+
 
 
     <!-- <div class="banner"><span>Previous pieces / NOMAD SUITCASE ?</span></div> -->
