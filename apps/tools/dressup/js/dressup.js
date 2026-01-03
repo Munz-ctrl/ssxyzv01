@@ -176,8 +176,10 @@ async function applyAuthState() {
   supabaseReady = true;
 
   try {
-    const sessRes = await withTimeout(sb.auth.getSession(), 20000, 'auth.getSession timeout');
+    const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
     currentUserId = sessRes?.data?.session?.user?.id || null;
+    currentAccessToken = sessRes?.data?.session?.access_token || null;
+
 
     console.log('[DressUp] applyAuthState currentUserId:', currentUserId);
 
@@ -277,6 +279,20 @@ const creditHUD          = $('creditHUD');
 const communityBarText   = $('communityBarText');
 const personalCreditPill = $('personalCreditPill');
 
+// --- Buy credits UI ---
+const buyMenuToggle = $('buyMenuToggle');
+const buyMenu       = $('buyMenu');
+const buyCreditsBtn = $('buyCreditsBtn');
+const buyStatus     = $('buyStatus');
+
+let selectedPackId = 'pack_1';
+
+const PACKS = {
+  pack_1:  { label: '$1 (2 runs)',  credits: 100 },
+  pack_5:  { label: '$5 (10 runs)', credits: 500 },
+  pack_10: { label: '$10 (22 runs)', credits: 1100 },
+  pack_20: { label: '$20 (45 runs)', credits: 2250 },
+};
 
 // ---------- pricing / cost (global credits) ----------
 // We treat "credits" as global units (like cents). DressUp costs 33 units (~$0.33) per generation.
@@ -301,6 +317,9 @@ let historyStack = []; // previous hero URLs for "Step Back"
 // Supabase user context for personal credits
 let currentUserId = null;
 let supabaseReady = false;
+
+let currentAccessToken = null;
+
 
 // game context: which player + skin
 let currentPid = null;        // player's PID if we find one for this user
@@ -351,6 +370,71 @@ function withTimeout(promise, ms = 15000, msg = 'Timed out') {
   return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
 }
 
+async function startCreditCheckout() {
+  try {
+    if (!currentUserId || !currentAccessToken) {
+      if (buyStatus) buyStatus.textContent = 'Log in first.';
+      return;
+    }
+
+    if (buyStatus) buyStatus.textContent = 'Opening checkout...';
+
+    const res = await fetch('/api/create-checkout-session', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${currentAccessToken}`,
+      },
+      body: JSON.stringify({ packId: selectedPackId }),
+    });
+
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || 'checkout_failed');
+
+    if (!body.url) throw new Error('missing_checkout_url');
+
+    window.location.href = body.url;
+  } catch (e) {
+    console.error('checkout error:', e);
+    if (buyStatus) buyStatus.textContent = `Checkout failed: ${e.message || e}`;
+  }
+}
+
+function wireBuyMenu() {
+  if (!buyMenuToggle || !buyMenu) return;
+
+  buyMenuToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = buyMenu.style.display !== 'none';
+    buyMenu.style.display = isOpen ? 'none' : 'block';
+  });
+
+  document.addEventListener('click', () => {
+    if (buyMenu) buyMenu.style.display = 'none';
+  });
+
+  buyMenu.addEventListener('click', (e) => {
+    const packBtn = e.target.closest('.buy-pack');
+    if (packBtn) {
+      selectedPackId = packBtn.dataset.pack || 'pack_1';
+      // optional visual highlight
+      buyMenu.querySelectorAll('.buy-pack').forEach(b => b.classList.remove('active'));
+      packBtn.classList.add('active');
+      if (buyStatus) buyStatus.textContent = `${PACKS[selectedPackId]?.label || ''} selected`;
+      return;
+    }
+  });
+
+  if (buyCreditsBtn) {
+    buyCreditsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startCreditCheckout();
+    });
+  }
+}
+
+// wire immediately (script runs after DOM in your page)
+wireBuyMenu();
 
 
 // helper: mark slots visually
@@ -485,49 +569,6 @@ if (qsHero) {
 
 
 
-async function startCreditCheckout() {
-  const sb = getSb();
-
-  // Require login for buying
-  let accessToken = null;
-  try {
-    const sess = await sb?.auth?.getSession?.();
-    accessToken = sess?.data?.session?.access_token || null;
-  } catch (_) {}
-
-  if (!accessToken || !currentUserId) {
-    alert("Please log in before buying credits.");
-    return;
-  }
-
-  const packId = $("creditPackSelect")?.value || "pack_5";
-  const btn = $("buyCreditsBtn");
-  if (btn) btn.disabled = true;
-
-  try {
-    const res = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${accessToken}`
-      },
-      body: JSON.stringify({ packId })
-    });
-
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(body.error || "checkout_failed");
-    }
-
-    if (!body.url) throw new Error("missing_checkout_url");
-    window.location.href = body.url;
-  } catch (e) {
-    console.error("checkout error:", e);
-    alert(`Checkout failed: ${e.message}`);
-  } finally {
-    if (btn) btn.disabled = false;
-  }
-}
 
 
 
