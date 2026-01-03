@@ -484,6 +484,60 @@ if (qsHero) {
 }
 
 
+
+async function startCreditCheckout() {
+  const sb = getSb();
+
+  // Require login for buying
+  let accessToken = null;
+  try {
+    const sess = await sb?.auth?.getSession?.();
+    accessToken = sess?.data?.session?.access_token || null;
+  } catch (_) {}
+
+  if (!accessToken || !currentUserId) {
+    alert("Please log in before buying credits.");
+    return;
+  }
+
+  const packId = $("creditPackSelect")?.value || "pack_5";
+  const btn = $("buyCreditsBtn");
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ packId })
+    });
+
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(body.error || "checkout_failed");
+    }
+
+    if (!body.url) throw new Error("missing_checkout_url");
+    window.location.href = body.url;
+  } catch (e) {
+    console.error("checkout error:", e);
+    alert(`Checkout failed: ${e.message}`);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+
+
+
+
+
+
+
+
+
 // Load skins for this player from Supabase (if available)
 // (removed) legacy dropdown skin system
 // We now use:
@@ -603,6 +657,11 @@ function getWatermarkText() {
 
 
 
+
+
+
+
+
 // ---------- init hero once (ABSOLUTE URL) ----------
 (function initHeroOnce() {
   setHeroImage(currentPlayer.heroUrl);
@@ -646,6 +705,16 @@ function runWatermarkTyping() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
 // put the correct hero image into the UI and tag it on the element for later use
 function initHeroBackground() {
   if (!hero) return;
@@ -658,9 +727,19 @@ function initHeroBackground() {
 updatePlayerBadge();
 initHeroBackground();
 
+
+
+
+
+
+
+
 // start the watermark loop immediately with whatever info we have
 // (Supabase auth below can update the labels; the loop will pick them up)
 // runWatermarkTyping();
+
+
+
 
 async function hydrateUserContext() {
   const sb = getSb();
@@ -926,6 +1005,20 @@ updateThumbEmpty();
 //   });
 // }
 
+$("buyCreditsBtn")?.addEventListener("click", startCreditCheckout);
+
+
+try {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("success") === "1") {
+    // refresh credit HUD after returning from Stripe
+    await loadCreditsFromSupabase?.();
+    // optional: clean URL
+    params.delete("success");
+    const newUrl = window.location.pathname + (params.toString() ? `?${params}` : "");
+    window.history.replaceState({}, "", newUrl);
+  }
+} catch (_) {}
 
 
 // ---------- Upload flow ----------
@@ -1541,6 +1634,7 @@ if (!outputUrl) {
   avatarStatusEl.textContent = 'No avatar image returned.';
   return;
 }
+console.log('[DressUp] /api/generate status', res.status, body);
 
 
 pendingAvatarBeforeUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
