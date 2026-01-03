@@ -574,7 +574,7 @@ html, body {
   align-items: flex-end;
   gap: 6px;
 
-  pointer-events: none; /* UI-only for now */
+  /* pointer-events: none; */
 }
 
 /* Personal booster pill ("+3 personal") */
