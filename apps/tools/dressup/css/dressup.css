@@ -597,6 +597,57 @@ html, body {
 }
 
 
+
+.credit-topline{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.buy-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.pack-select{
+  flex:1;
+  height:32px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(0,0,0,0.35);
+  color:#fff;
+  padding:0 10px;
+  font-size:12px;
+  outline:none;
+}
+
+.buy-btn{
+  height:32px;
+  padding:0 12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.10);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.buy-btn:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+
+
+
+
+
+
+
+
+
+
 /* Community block for text-based bar */
 .community-block {
   padding: 0;
