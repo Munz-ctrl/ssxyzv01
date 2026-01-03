@@ -1,17 +1,22 @@
 {
+  "version": 3,
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 300
+    }
+  },
   "rewrites": [
     { "source": "/map",           "destination": "/apps/map/map.html" },
     { "source": "/nomadsuitcase", "destination": "/apps/nomadsuitcase/nomadsuitcase.html" },
     { "source": "/edit-profile",  "destination": "/apps/edit/edit-profile.html" },
     { "source": "/puffcounter",   "destination": "/apps/puffcounter/index.html" },
-    { "source": "/ssx-stylist", "destination": "/apps/tools/dressup/dressup.html" },
-    { "source": "/dressup", "destination": "/apps/tools/dressup/dressup.html" },
-    { "source": "/stylist", "destination": "/apps/tools/dressup/dressup.html" }
+    { "source": "/ssx-stylist",   "destination": "/apps/tools/dressup/dressup.html" },
+    { "source": "/dressup",       "destination": "/apps/tools/dressup/dressup.html" },
+    { "source": "/stylist",       "destination": "/apps/tools/dressup/dressup.html" }
   ],
-
   "redirects": [
-    { "source": "/Nomad_Suitcase.html", "destination": "/nomadsuitcase", "permanent": true },
-    { "source": "/edit-profile.html",   "destination": "/edit-profile",   "permanent": true },
-    { "source": "/apps/dressup/dressup.html",   "destination": "/ssx-stylist",   "permanent": true }
+    { "source": "/Nomad_Suitcase.html",      "destination": "/nomadsuitcase", "permanent": true },
+    { "source": "/edit-profile.html",        "destination": "/edit-profile",  "permanent": true },
+    { "source": "/apps/dressup/dressup.html","destination": "/ssx-stylist",   "permanent": true }
   ]
 }
