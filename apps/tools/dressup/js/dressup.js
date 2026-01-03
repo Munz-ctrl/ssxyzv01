@@ -281,7 +281,7 @@ const personalCreditPill = $('personalCreditPill');
 // ---------- pricing / cost (global credits) ----------
 // We treat "credits" as global units (like cents). DressUp costs 33 units (~$0.33) per generation.
 // 1 dollar donated ≈ 3 runs (2 community, 1 personal) → 3 * 33 = 99 units.
-const DRESSUP_COST_UNITS = 33;
+const DRESSUP_COST_UNITS = 50;
 
 // ---------- credit state (global units) ----------
 // These are fallback defaults; Supabase will overwrite them when available.
@@ -772,17 +772,11 @@ async function loadCreditsFromSupabase() {
 
   try {
     // COMMUNITY CHEST
-    const { data: chestRow, error: chestErr } = await sb
-      .from('dressup_chest')
-      .select('*')
-      .eq('id', 'community')
-      .maybeSingle();
-
-    if (!chestErr && chestRow) {
-      if (typeof chestRow.credits === 'number') communityCredits = chestRow.credits;
-      if (typeof chestRow.max_credits === 'number') communityMax = chestRow.max_credits;
-      else communityMax = communityCredits;
-    }
+const { data } = await sb.rpc('dressup_get_chest');
+if (data) {
+  communityCredits = data.community_credits;
+  communityMax = data.community_max;
+}
 
     // PERSONAL CREDITS (per Supabase user)
     if (currentUserId) {
@@ -947,24 +941,7 @@ if (personalCreditPill) {
 
 
 // spend logic: community first, then personal
-function spendOneCreditIfAvailable() {
-  let spent = false;
 
-  // try to spend from the community chest first
-  if (communityCredits >= DRESSUP_COST_UNITS) {
-    communityCredits -= DRESSUP_COST_UNITS;
-    spent = true;
-    // fire-and-forget sync; errors just log to console
-    syncCommunityCredits().catch(() => {});
-  } else if (personalCredits >= DRESSUP_COST_UNITS) {
-    // fall back to personal wallet if community is empty
-    personalCredits -= DRESSUP_COST_UNITS;
-    spent = true;
-    syncPersonalCredits().catch(() => {});
-  }
-
-  return spent;
-}
 
 
 
@@ -1087,15 +1064,9 @@ btnGenerate.addEventListener('click', async () => {
   }
 
 
-  // must have credits somewhere
-  if (!spendOneCreditIfAvailable()) {
-    statusEl.textContent = 'No credits available.';
-    updateCreditUI();
-    return;
-  }
+// server will validate + spend credits
+updateCreditUI();
 
-  // reflect the spent credit immediately in the HUD
-  updateCreditUI();
 
   btnGenerate.disabled = true;
 if (btnUpload) btnUpload.disabled = true;
@@ -1104,82 +1075,53 @@ if (btnUpload) btnUpload.disabled = true;
 
   try {
     const personUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
-    // ... keep the rest of your existing logic here (Supabase, fetch /api/generate, etc.)
+   
 
 
-    // Identify user for per-user foldering; fall back to 'anon'
-    const sb = getSb();
+const sb = getSb();
 
-    let uploaderId = 'anon';
-    try {
-      if (sb?.auth?.getUser) {
-        const { data } = await sb.auth.getUser();
-        if (data?.user?.id) uploaderId = data.user.id;
-      }
-    } catch (_) {}
+let accessToken = null;
+try {
+  const sess = await sb?.auth?.getSession?.();
+  accessToken = sess?.data?.session?.access_token || null;
+} catch (_) {}
 
-    // Hit our serverless function /api/generate
-    const payload = {
-      mode: 'style',
-      model: 'google/nano-banana-pro',
-      personUrl,
-      garmentUrl: garmentPublicUrl,
-      prompt: 'Dress the person with the uploaded garment. Keep their identity, isometric portrait, and photoreallism. blend and harmonize new garments to the original natural lighting. '
-    };
-
-    console.log('[DressUp → /api/generate]', payload);
+const payload = {
+  mode: 'style',
+  personUrl,
+  garmentUrl: toAbsoluteHttpUrl(garmentPublicUrl),
+  prompt: 'Dress the person with the uploaded garment. Keep their identity, isometric portrait, and photoreallism. blend and harmonize new garments to the original natural lighting'
+};
 
 
-    const res = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+const res = await fetch('/api/generate', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+  },
+  body: JSON.stringify(payload)
+});
 
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      console.error('Generate error:', body);
-      statusEl.textContent = 'Generation failed: ' + (body.details || body.error || res.statusText);
-      throw new Error('Try-on API error');
-    }
+const body = await res.json().catch(() => ({}));
+if (!res.ok) {
+  statusEl.textContent = 'Generation failed: ' + (body.details || body.error || res.statusText);
+  throw new Error(body.error || 'generate_failed');
+}
 
-    // Replicate (or API) output URL
-    const outputUrl = body.outputUrl || body.image || body.output;
-    if (!outputUrl) throw new Error('No output URL returned');
+// ✅ server returns finalUrl + updated credits
+const finalUrl = body.finalUrl || body.outputUrl;
+if (!finalUrl) throw new Error('No output URL returned');
 
-    // Try to save the generated image into Supabase Storage (client-side)
-    let savedPublicUrl = null;
-    try {
-      if (!sb?.storage) throw new Error('Supabase client not found on window');
+// update credits from server truth
+if (body.credits) {
+  communityCredits = body.credits.communityCredits ?? communityCredits;
+  communityMax     = body.credits.communityMax ?? communityMax;
+  personalCredits  = body.credits.personalCredits ?? personalCredits;
+  updateCreditUI();
+}
 
-      // download result
-      const imgRes = await fetch(outputUrl, { mode: 'cors' });
-      if (!imgRes.ok) throw new Error(`download_failed ${imgRes.status}`);
-      const blob = await imgRes.blob();
 
-      const ext = (blob.type && blob.type.includes('png')) ? 'png' :
-                  (blob.type && blob.type.includes('jpeg')) ? 'jpg' : 'png';
-      const key = `generated/${uploaderId}/${Date.now()}.${ext}`;
-
-      // upload to Supabase
-      const { error: upErr } = await sb.storage
-        .from('userassets')
-        .upload(key, blob, {
-          contentType: blob.type || 'image/png',
-          upsert: true
-        });
-      if (upErr) throw upErr;
-
-      // get a public URL from Supabase
-      const { data: pub } = sb.storage.from('userassets').getPublicUrl(key);
-      savedPublicUrl = pub?.publicUrl || null;
-      console.log('Saved to Supabase:', savedPublicUrl);
-    } catch (saveErr) {
-      console.warn('⚠️ Save to Supabase failed; using Replicate URL:', saveErr?.message || saveErr);
-    }
-
-    // prefer Supabase copy if we got one
-    const finalUrl = savedPublicUrl || outputUrl;
 
     // push current hero into undo history BEFORE swapping
     const currentUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
@@ -1620,11 +1562,20 @@ if (avatarCreateBtn) {
       console.log('[Avatar → /api/generate]', payload);
 
 
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      let accessToken = null;
+try {
+  const sess = await sb?.auth?.getSession?.();
+  accessToken = sess?.data?.session?.access_token || null;
+} catch (_) {}
+
+const res = await fetch('/api/generate', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+  },
+  body: JSON.stringify(payload)
+});
 
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
