@@ -805,55 +805,6 @@ if (data) {
 }
 
 
-// Write current communityCredits back to Supabase
-async function syncCommunityCredits() {
-  const sb = getSb();
-if (!sb) return;
-
-  if (!sb) return;
-
-  try {
-    const payload = {
-      id: 'community',
-      credits: communityCredits,
-      max_credits: communityMax
-    };
-
-    const { error } = await sb
-      .from('dressup_chest')
-      .upsert(payload, { onConflict: 'id' });
-
-    if (error) throw error;
-  } catch (err) {
-    console.warn('syncCommunityCredits failed:', err?.message || err);
-  }
-}
-
-// Write current personalCredits back to Supabase
-async function syncPersonalCredits() {
-  const sb = getSb();
-if (!sb) return;
-
-  if (!sb || !currentUserId) return;
-
-  try {
-    const payload = {
-      user_id: currentUserId,
-      credits: personalCredits
-    };
-
-    const { error } = await sb
-      .from('dressup_personal_credits')
-      .upsert(payload, { onConflict: 'user_id' });
-
-    if (error) throw error;
-  } catch (err) {
-    console.warn('syncPersonalCredits failed:', err?.message || err);
-  }
-}
-
-
-
 
 
 
@@ -1585,11 +1536,12 @@ const res = await fetch('/api/generate', {
         return;
       }
 
-      const outputUrl = body.outputUrl || body.image || body.output;
-      if (!outputUrl) {
-        avatarStatusEl.textContent = 'No avatar image returned.';
-        return;
-      }
+    const outputUrl = body.finalUrl || body.outputUrl || body.image || body.output;
+if (!outputUrl) {
+  avatarStatusEl.textContent = 'No avatar image returned.';
+  return;
+}
+
 
 pendingAvatarBeforeUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
 pendingAvatarUrl = outputUrl;
