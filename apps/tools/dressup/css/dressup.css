@@ -592,6 +592,11 @@ html, body {
   pointer-events: none;
 }
 
+.personal-pill.has-credits {
+  display: inline-flex;
+}
+
+
 /* Community block for text-based bar */
 .community-block {
   padding: 0;
