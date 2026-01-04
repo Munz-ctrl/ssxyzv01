@@ -37,44 +37,48 @@ export default async function handler(req, res) {
 ]);
 
 if (CREDIT_EVENTS.has(event.type)) {
-  const obj = event.data.object;
+ // inside: if (CREDIT_EVENTS.has(event.type)) { ... }
 
-  // checkout.session.completed -> obj.metadata exists
-  // payment_intent.succeeded  -> obj.metadata exists (because we set payment_intent_data.metadata)
-  const userId = obj?.metadata?.user_id;
-  const credits = parseInt(obj?.metadata?.credits || "0", 10);
+const obj = event.data.object;
 
-  if (!userId || !(credits > 0)) {
-    console.warn("Webhook missing metadata:", {
-      type: event.type,
-      userId,
-      credits,
-      metadata: obj?.metadata
-    });
-    return res.status(200).json({ received: true, skipped: "missing_metadata" });
-  }
+// Only safely process checkout.session.completed here
+// (payment_intent.succeeded doesn't have a "session.id")
+if (event.type !== "checkout.session.completed") {
+  return res.status(200).json({ received: true, skipped: "not_session_event" });
+}
 
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).send("missing_supabase_env");
+const session = obj;
 
-  const sbAdmin = createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { persistSession: false }
-  });
+const userId = session?.metadata?.user_id;
+const credits = parseInt(session?.metadata?.credits || "0", 10);
+const packId = session?.metadata?.pack_id || "unknown_pack";
 
- const { data, error } = await sbAdmin.rpc("dressup_add_credits", {
+if (!userId || !(credits > 0)) {
+  console.warn("Webhook missing metadata:", { type: event.type, userId, credits, metadata: session?.metadata });
+  return res.status(200).json({ received: true, skipped: "missing_metadata" });
+}
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).send("missing_supabase_env");
+
+const sbAdmin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
+
+const { error } = await sbAdmin.rpc("dressup_add_credits", {
   p_user: userId,
   p_delta: credits,
-  p_reason: "purchase",
+  p_reason: `purchase:${packId}`,
   p_source: "stripe",
-  p_stripe_session_id: session.id,
+  p_stripe_session_id: session.id
 });
 
+if (error) {
+  console.error("dressup_add_credits error:", error);
+  return res.status(500).send("credit_add_failed");
+}
 
-  if (error) {
-    console.error("dressup_add_credits error:", error);
-    return res.status(500).send("credit_add_failed");
-  }
+return res.status(200).json({ received: true });
+
 }
 
 
