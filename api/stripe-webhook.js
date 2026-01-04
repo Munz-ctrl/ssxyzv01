@@ -2,11 +2,9 @@
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+export const config = { api: { bodyParser: false } };
 
-export const config = {
-  api: { bodyParser: false }
-};
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 async function readRawBody(req) {
   const chunks = [];
@@ -15,10 +13,12 @@ async function readRawBody(req) {
 }
 
 export default async function handler(req, res) {
-  try {
-    if (req.method !== "POST") return res.status(405).send("Use POST");
+  if (req.method !== "POST") return res.status(405).send("method_not_allowed");
 
+  try {
     const sig = req.headers["stripe-signature"];
+    if (!sig) return res.status(400).send("missing_stripe_signature");
+
     const rawBody = await readRawBody(req);
 
     const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -31,66 +31,55 @@ export default async function handler(req, res) {
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    const CREDIT_EVENTS = new Set([
-  "checkout.session.completed",
-  "payment_intent.succeeded"
-]);
+    // Only handle the event we care about
+    if (event.type !== "checkout.session.completed") {
+      return res.status(200).json({ received: true, ignored: event.type });
+    }
 
-if (CREDIT_EVENTS.has(event.type)) {
- // inside: if (CREDIT_EVENTS.has(event.type)) { ... }
+    const session = event.data.object;
 
-const obj = event.data.object;
+    // metadata should be on the session (because you set it in create-checkout-session)
+    // but we also fallback to payment_intent metadata if needed.
+    let md = session?.metadata || {};
+    if ((!md.user_id || !md.credits) && session?.payment_intent) {
+      const pi = await stripe.paymentIntents.retrieve(session.payment_intent);
+      md = { ...pi.metadata, ...md };
+    }
 
-// Only safely process checkout.session.completed here
-// (payment_intent.succeeded doesn't have a "session.id")
-if (event.type !== "checkout.session.completed") {
-  return res.status(200).json({ received: true, skipped: "not_session_event" });
-}
+    const userId = md.user_id;
+    const credits = Number(md.credits || 0);
+    const packId = md.pack_id || "unknown_pack";
 
-const session = obj;
+    if (!userId || !(credits > 0)) {
+      console.warn("Webhook missing metadata", { type: event.type, userId, credits, metadata: md });
+      return res.status(200).json({ received: true, skipped: "missing_metadata" });
+    }
 
-const userId = session?.metadata?.user_id;
-const credits = parseInt(session?.metadata?.credits || "0", 10);
-const packId = session?.metadata?.pack_id || "unknown_pack";
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).send("missing_supabase_env");
 
-if (!userId || !(credits > 0)) {
-  console.warn("Webhook missing metadata:", { type: event.type, userId, credits, metadata: session?.metadata });
-  return res.status(200).json({ received: true, skipped: "missing_metadata" });
-}
+    const sbAdmin = createClient(SUPABASE_URL, SERVICE_KEY, {
+      auth: { persistSession: false },
+    });
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).send("missing_supabase_env");
+    // IMPORTANT: pass ALL params to avoid PGRST203 + overload ambiguity
+    const { error } = await sbAdmin.rpc("dressup_add_credits", {
+      p_user: userId,
+      p_delta: credits,
+      p_reason: `purchase:${packId}`,
+      p_source: "stripe",
+      p_stripe_session_id: session.id,
+    });
 
-const sbAdmin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
+    if (error) {
+      console.error("dressup_add_credits error:", error);
+      return res.status(500).send("credit_add_failed");
+    }
 
-const creditsToAdd = parseInt(credits, 10);
-
-const { data, error } = await sbAdmin.rpc("dressup_add_credits", {
-  p_user: userId,
-  p_delta: creditsToAdd,
-  p_reason: `purchase:${packId}`,
-  p_source: "stripe",
-  p_stripe_session_id: session.id,
-});
-
-
-if (error) {
-  console.error("dressup_add_credits error:", error);
-  return res.status(500).send("credit_add_failed");
-}
-
-return res.status(200).json({ received: true });
-
-}
-
-
-    return res.status(200).json({ received: true });
+    return res.status(200).json({ received: true, credited: credits, userId });
   } catch (e) {
-    console.error("webhook_unhandled:", e);
-    return res.status(500).send("webhook_unhandled");
+    console.error("stripe-webhook fatal:", e);
+    return res.status(500).send("webhook_fatal");
   }
 }
-
-
-// workk
