@@ -48,27 +48,35 @@ export default async function handler(req, res) {
 
     const userId = userData.user.id;
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      payment_method_types: ["card"], // Apple Pay will show automatically when available
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: { name: `DressUp Credits — ${pack.label}` },
-            unit_amount: pack.amount_cents
-          },
-          quantity: 1
-        }
-      ],
-      success_url: `${ORIGIN}/dressup?success=1`,
-      cancel_url: `${ORIGIN}/dressup?canceled=1`,
-      metadata: {
-        user_id: userId,
-        credits: String(pack.credits),
-        pack_id: packId
-      }
-    });
+    const meta = {
+  user_id: userId,
+  credits: String(pack.credits),
+  pack_id: packId
+};
+
+const session = await stripe.checkout.sessions.create({
+  mode: "payment",
+  payment_method_types: ["card"], // Apple Pay will show automatically when available
+  line_items: [
+    {
+      price_data: {
+        currency: "usd",
+        product_data: { name: `DressUp Credits — ${pack.label}` },
+        unit_amount: pack.amount_cents
+      },
+      quantity: 1
+    }
+  ],
+  success_url: `${ORIGIN}/dressup?success=1`,
+  cancel_url: `${ORIGIN}/dressup?canceled=1`,
+
+  // ✅ session metadata
+  metadata: meta,
+
+  // ✅ ALSO attach to the payment intent (super important)
+  payment_intent_data: { metadata: meta }
+});
+
 
     return res.status(200).json({ url: session.url });
   } catch (e) {
