@@ -574,6 +574,19 @@ html, body {
   align-items: flex-end;
   gap: 6px;
 
+  
+  align-items: baseline;
+  justify-content: flex-start;
+  
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 7px;
+  color: #f2f2f2;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  white-space: pre;
+  opacity: 0.9;
+
+
   /* pointer-events: none; */
 }
 
@@ -666,6 +679,10 @@ html, body {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 7px;
   color: #f2f2f2;
+   font-weight: 600;
+  letter-spacing: 0.05em;
+   white-space: pre;
+  opacity: 0.9;
 }
 
 /* "COMMUNITY" label */
