@@ -31,34 +31,52 @@ export default async function handler(req, res) {
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-      const userId = session?.metadata?.user_id;
-      const credits = parseInt(session?.metadata?.credits || "0", 10);
+    const CREDIT_EVENTS = new Set([
+  "checkout.session.completed",
+  "payment_intent.succeeded"
+]);
 
-      if (userId && credits > 0) {
-        const SUPABASE_URL = process.env.SUPABASE_URL;
-        const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-        if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).send("missing_supabase_env");
+if (CREDIT_EVENTS.has(event.type)) {
+  const obj = event.data.object;
 
-        const sbAdmin = createClient(SUPABASE_URL, SERVICE_KEY, {
-          auth: { persistSession: false }
-        });
+  // checkout.session.completed -> obj.metadata exists
+  // payment_intent.succeeded  -> obj.metadata exists (because we set payment_intent_data.metadata)
+  const userId = obj?.metadata?.user_id;
+  const credits = parseInt(obj?.metadata?.credits || "0", 10);
 
-        // Add credits + ledger via security definer RPC
-        const { error } = await sbAdmin.rpc("dressup_add_credits", {
-          p_user: userId,
-          p_delta: credits,
-          p_reason: "purchase",
-          p_source: "stripe"
-        });
+  if (!userId || !(credits > 0)) {
+    console.warn("Webhook missing metadata:", {
+      type: event.type,
+      userId,
+      credits,
+      metadata: obj?.metadata
+    });
+    return res.status(200).json({ received: true, skipped: "missing_metadata" });
+  }
 
-        if (error) {
-          console.error("dressup_add_credits error:", error);
-          return res.status(500).send("credit_add_failed");
-        }
-      }
-    }
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).send("missing_supabase_env");
+
+  const sbAdmin = createClient(SUPABASE_URL, SERVICE_KEY, {
+    auth: { persistSession: false }
+  });
+
+ const { data, error } = await sbAdmin.rpc("dressup_add_credits", {
+  p_user: userId,
+  p_delta: credits,
+  p_reason: "purchase",
+  p_source: "stripe",
+  p_stripe_session_id: session.id,
+});
+
+
+  if (error) {
+    console.error("dressup_add_credits error:", error);
+    return res.status(500).send("credit_add_failed");
+  }
+}
+
 
     return res.status(200).json({ received: true });
   } catch (e) {
