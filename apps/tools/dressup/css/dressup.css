@@ -578,7 +578,7 @@ html, body {
   align-items: baseline;
   justify-content: flex-start;
   
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
   font-size: 7px;
   color: #f2f2f2;
   font-weight: 600;
@@ -593,7 +593,7 @@ html, body {
 /* Personal booster pill ("+3 personal") */
 .personal-pill {
   display: none; /* hidden when 0 */
-  padding: 4px 8px;
+  /* padding: 4px 8px; */
   border-radius: 999px;
   background: rgba(40, 186, 120, 0.18);
   border: 1px solid rgba(40, 186, 120, 0.65);
