@@ -991,7 +991,7 @@ function updateCreditUI() {
     const filled = '█'.repeat(filledSlots);
     const empty  = '░'.repeat(emptySlots);
 
-    communityBarText.textContent = `[${filled}${empty}] ${communityRuns} left`;
+    communityBarText.textContent = `[${filled}${empty}] ${communityRuns}   ◙ left`;
   }
 
   // personal pill: always show, even at +0
@@ -999,7 +999,7 @@ function updateCreditUI() {
 // personal pill (JS only updates text + state class; styling lives in CSS)
 if (personalCreditPill) {
   const personalRuns = Math.floor(personalCredits / DRESSUP_COST_UNITS);
-  personalCreditPill.textContent = `+${personalRuns} credits`;
+  personalCreditPill.textContent = `+${personalRuns} ◙ RUNS`;
   personalCreditPill.classList.toggle('has-credits', personalRuns > 0);
 }
 
