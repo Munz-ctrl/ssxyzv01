@@ -844,7 +844,7 @@ if (new URLSearchParams(location.search).get("success") === "1") {
 }
 
 
-// ---------- Supabase session bootstrapkk + reactive BRUH auth ----------
+// ---------- Supabase session bootstrapkk + reactive BRkkUH auth ----------
 (async () => {
   try {
     const sb = getSb();
