@@ -835,7 +835,9 @@ if (!currentPid) {
 await loadSkinsForPlayer();
 await loadCreditsFromSupabase();
 
-
+if (new URLSearchParams(location.search).get("success") === "1") {
+  setTimeout(() => loadCreditsFromSupabase(), 1200);
+}
 
 
   // watermark loop already running; it will pick up new text automatically
