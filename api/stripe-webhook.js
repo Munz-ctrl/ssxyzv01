@@ -64,13 +64,16 @@ if (!SUPABASE_URL || !SERVICE_KEY) return res.status(500).send("missing_supabase
 
 const sbAdmin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
-const { error } = await sbAdmin.rpc("dressup_add_credits", {
+const creditsToAdd = parseInt(credits, 10);
+
+const { data, error } = await sbAdmin.rpc("dressup_add_credits", {
   p_user: userId,
-  p_delta: credits,
+  p_delta: creditsToAdd,
   p_reason: `purchase:${packId}`,
   p_source: "stripe",
-  p_stripe_session_id: session.id
+  p_stripe_session_id: session.id,
 });
+
 
 if (error) {
   console.error("dressup_add_credits error:", error);
