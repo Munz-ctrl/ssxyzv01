@@ -592,7 +592,7 @@ html, body {
 
 /* Personal booster pill ("+3 personal") */
 .personal-pill {
-  display: none; /* hidden when 0 */
+  display: none; 
   /* padding: 4px 8px; */
   border-radius: 999px;
   background: rgba(40, 186, 120, 0.18);
@@ -618,6 +618,7 @@ html, body {
 }
 
 .buy-row{
+  
   display:flex;
   gap:8px;
   align-items:center;
@@ -683,6 +684,8 @@ html, body {
   letter-spacing: 0.05em;
    white-space: pre;
   opacity: 0.9;
+  /* font-family:  SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; */
+
 }
 
 /* "COMMUNITY" label */
