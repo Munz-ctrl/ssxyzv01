@@ -1180,7 +1180,8 @@ const payload = {
 };
 
 
-const res = await fetch('/api/generate', {
+const res = await fetch('/apps/tools/dressup/api/generate', {
+
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -1654,7 +1655,8 @@ try {
   accessToken = sess?.data?.session?.access_token || null;
 } catch (_) {}
 
-const res = await fetch('/api/generate', {
+const res = await fetch('/apps/tools/dressup/api/generate', {
+
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
