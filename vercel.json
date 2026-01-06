@@ -6,6 +6,13 @@
     }
   },
   "rewrites": [
+
+    {
+     "source": "/api/dressup/:path*",
+     "destination": "/apps/tools/dressup/api/:path*"
+    },
+
+
     { "source": "/map",           "destination": "/apps/map/map.html" },
     { "source": "/nomadsuitcase", "destination": "/apps/nomadsuitcase/nomadsuitcase.html" },
     { "source": "/edit-profile",  "destination": "/apps/edit/edit-profile.html" },
