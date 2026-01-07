@@ -236,6 +236,67 @@ function setAuthStatus(msg) {
   if (authStatus) authStatus.textContent = msg || '';
 }
 
+
+
+if (authBtnSignIn) {
+  authBtnSignIn.addEventListener('click', async () => {
+    const sb = getSb();
+    if (!sb?.auth) return setAuthStatus('Auth not ready.');
+
+    const email = (authEmailIn?.value || '').trim();
+    const password = (authPassIn?.value || '').trim();
+    if (!email || !password) return setAuthStatus('Enter email + password.');
+
+    authBtnSignIn.disabled = true;
+    setAuthStatus('Signing in…');
+
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error || !data?.user) throw new Error(error?.message || 'sign_in_failed');
+
+      closeAuthDialog();
+      await applyAuthState(); // refresh UI + hydrate
+    } catch (e) {
+      setAuthStatus(`Sign in failed: ${e.message || e}`);
+    } finally {
+      authBtnSignIn.disabled = false;
+    }
+  });
+}
+
+if (authBtnSignUp) {
+  authBtnSignUp.addEventListener('click', async () => {
+    const sb = getSb();
+    if (!sb?.auth) return setAuthStatus('Auth not ready.');
+
+    const email = (authEmailUp?.value || '').trim();
+    const password = (authPassUp?.value || '').trim();
+    if (!email || !password) return setAuthStatus('Enter email + password.');
+
+    authBtnSignUp.disabled = true;
+    setAuthStatus('Creating account…');
+
+    try {
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error) throw new Error(error.message);
+
+      setAuthStatus('Account created. Check email if confirmation is required.');
+      // flip back to sign-in panel
+      if (authPanelSignUp) authPanelSignUp.style.display = 'none';
+      if (authPanelSignIn) authPanelSignIn.style.display = 'block';
+    } catch (e) {
+      setAuthStatus(`Sign up failed: ${e.message || e}`);
+    } finally {
+      authBtnSignUp.disabled = false;
+    }
+  });
+}
+
+
+
+
+
+
 function resetDressupToGuestState() {
   currentUserId = null;
   currentAccessToken = null;
@@ -1012,44 +1073,26 @@ if (data) {
 
 
 function updateAuthDependentUI() {
-  
   const loggedIn = !!currentUserId;
-    // HUD: Buy Credits / Login / Logout visibility
+
   if (buyMenuToggle) buyMenuToggle.style.display = loggedIn ? 'inline-block' : 'none';
   if (authLogoutBtn) authLogoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
-  if (authOpenBtn) authOpenBtn.style.display = loggedIn ? 'none' : 'inline-block';
-
-  // Always close the buy menu when logged out
+  if (authOpenBtn)   authOpenBtn.style.display   = loggedIn ? 'none' : 'inline-block';
   if (!loggedIn && buyMenu) buyMenu.style.display = 'none';
 
-
-
-
-
-  
-
-  // STYLE tab: multi-item toggle
-  if (multiItemToggle) {
-    multiItemToggle.disabled = !loggedIn;
-  }
+  if (multiItemToggle) multiItemToggle.disabled = !loggedIn;
   if (multiItemLockLabel) {
-    multiItemLockLabel.textContent = loggedIn
-      ? 'Multi-item enabled'
-      : 'Log in to unlock';
+    multiItemLockLabel.textContent = loggedIn ? 'Multi-item enabled' : 'Log in to unlock';
   }
 
-  // AVATAR tab: guest vs authed sections
   if (avatarGuestSection && avatarAuthedSection) {
-    avatarGuestSection.style.display  = loggedIn ? 'none'  : 'block';
+    avatarGuestSection.style.display  = loggedIn ? 'none' : 'block';
     avatarAuthedSection.style.display = loggedIn ? 'block' : 'none';
   }
 
-
-  console.log('[DressUp] UI auth flip', { currentUserId, loggedIn: !!currentUserId });
-
-
-
+  console.log('[DressUp] UI auth flip', { currentUserId, loggedIn });
 }
+
 
 
 
@@ -1272,7 +1315,7 @@ const payload = {
 };
 
 
-const res = await fetch('api/dressup/generate', {
+const res = await fetch('/api/dressup/generate', {
 
   method: 'POST',
   headers: {
