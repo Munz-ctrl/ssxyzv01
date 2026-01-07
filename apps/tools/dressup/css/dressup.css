@@ -578,7 +578,7 @@ html, body {
   /* align-items: baseline; */
   justify-content: flex-start;
   
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  font-family: Consolas, "Liberation Mono";
   font-size: 7px;
   color: #f2f2f2;
   font-weight: 600;
@@ -677,13 +677,13 @@ html, body {
   align-items: baseline;
   justify-content: flex-start;
   gap: 4px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: Consolas, "Liberation Mono";
   font-size: 7px;
-  color: #f2f2f2;
+  color: #ffffff;
    font-weight: 600;
   letter-spacing: 0.05em;
    white-space: pre;
-  opacity: 0.9;
+  opacity: 1;
   /* font-family:  SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; */
 
 }
