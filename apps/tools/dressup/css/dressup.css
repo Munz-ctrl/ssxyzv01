@@ -38,6 +38,7 @@ html, body {
   width: 100vw;
   /* max-width: 550px; */
   height: auto;
+  max-height: fit-content;
   height: min(100vh, 1920px);
   background: #000;
   overflow: visible;
