@@ -1012,7 +1012,8 @@ if (data) {
 
 
 function updateAuthDependentUI() {
-
+  
+  const loggedIn = !!currentUserId;
     // HUD: Buy Credits / Login / Logout visibility
   if (buyMenuToggle) buyMenuToggle.style.display = loggedIn ? 'inline-block' : 'none';
   if (authLogoutBtn) authLogoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
@@ -1025,7 +1026,7 @@ function updateAuthDependentUI() {
 
 
 
-  const loggedIn = !!currentUserId;
+  
 
   // STYLE tab: multi-item toggle
   if (multiItemToggle) {
