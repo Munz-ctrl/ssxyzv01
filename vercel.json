@@ -1,16 +1,10 @@
 {
   "version": 2,
-  "functions": {
-    "api/*.js": {
-      "maxDuration": 300
-    }
-  },
-  "rewrites": [
+ "functions": {
+  "api/dressup/*.js": { "maxDuration": 300 }
+},
 
-    {
-     "source": "/api/dressup/:path*",
-     "destination": "/apps/tools/dressup/api/:path*"
-    },
+  "rewrites": [
 
 
     { "source": "/map",           "destination": "/apps/map/map.html" },
