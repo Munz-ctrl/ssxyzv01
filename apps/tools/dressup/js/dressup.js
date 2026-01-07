@@ -1048,11 +1048,18 @@ async function loadCreditsFromSupabase() {
 
   try {
     // COMMUNITY CHEST
-const { data } = await sb.rpc('dressup_get_chest');
-if (data) {
-  communityCredits = data.community_credits;
-  communityMax = data.community_max;
-}
+    // COMMUNITY CHEST
+    const { data: chest, error: chestErr } = await sb.rpc('dressup_get_chest');
+    
+    if (!chestErr && chest) {
+      // accept either naming scheme
+      communityCredits = Number(chest.credits ?? chest.community_credits ?? 0);
+      communityMax     = Number(chest.max_credits ?? chest.community_max ?? communityCredits ?? 0);
+    
+      if (!Number.isFinite(communityCredits)) communityCredits = 0;
+      if (!Number.isFinite(communityMax)) communityMax = 0;
+    }
+
 
     // PERSONAL CREDITS (per Supabase user)
     if (currentUserId) {
