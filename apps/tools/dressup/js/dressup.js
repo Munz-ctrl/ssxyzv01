@@ -1333,7 +1333,7 @@ const payload = {
   mode: 'style',
   personUrl,
   garmentUrl: toAbsoluteHttpUrl(garmentPublicUrl),
-  prompt: 'Dress the model or mannequin with the garment or outfit in the uploaded image. ignore any people in the uploaded image. Keep rest of hero image unchanged, isometric portrait, and photoreallism. blend and harmonize new garments to the original natural lighting'
+  prompt: 'Dress the model hero or mannequin in the hero image with the garment or outfit in the uploaded image. ignore any people in the uploaded image. Keep rest of hero image unchanged, isometric portrait, and photoreallism. blend and harmonize new garments to the original natural lighting'
 };
 
 
