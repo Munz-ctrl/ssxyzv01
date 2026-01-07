@@ -86,6 +86,30 @@ const dressupLogoutStatus = $('dressupLogoutStatus');
 
 
 
+// --- Auth dialog + HUD auth buttons ---
+const authOpenBtn   = $('authOpenBtn');
+const authLogoutBtn = $('authLogoutBtn');
+
+const authDialog = document.getElementById('authDialog');
+const authTabSignIn = document.getElementById('authTabSignIn');
+const authTabSignUp = document.getElementById('authTabSignUp');
+const authPanelSignIn = document.getElementById('authPanelSignIn');
+const authPanelSignUp = document.getElementById('authPanelSignUp');
+
+const authEmailIn = document.getElementById('authEmailIn');
+const authPassIn  = document.getElementById('authPassIn');
+const authBtnSignIn = document.getElementById('authBtnSignIn');
+
+const authEmailUp = document.getElementById('authEmailUp');
+const authPassUp  = document.getElementById('authPassUp');
+const authBtnSignUp = document.getElementById('authBtnSignUp');
+
+const authStatus = document.getElementById('authStatus');
+
+
+
+
+
 
 let pendingAvatarUrl = null;     // holds newly generated avatar until user decides
 let pendingAvatarBeforeUrl = null; // what hero was before previewing the avatar
@@ -132,32 +156,28 @@ function getSb() {
 
 
 
-if (btnDressupLogout && !window.__dressupLogoutBound) {
-  window.__dressupLogoutBound = true;
+if (authLogoutBtn && !window.__dressupLogoutBound2) {
+  window.__dressupLogoutBound2 = true;
 
-  btnDressupLogout.addEventListener('click', async () => {
+  authLogoutBtn.addEventListener('click', async () => {
     const sb = getSb();
-    dressupLogoutStatus.textContent = 'Logging out…';
-
     try {
+      if (buyStatus) buyStatus.textContent = '';
+      if (buyMenu) buyMenu.style.display = 'none';
+
       await sb?.auth?.signOut();
 
-      // local state reset
-      currentUserId = null;
-      currentPid = null;
-      pendingAvatarUrl = null;
-      pendingAvatarBeforeUrl = null;
-      personalCredits = 0;
+      // ✅ hard reset local state + UI
+      resetDressupToGuestState();
 
-      dressupLogoutStatus.textContent = 'Logged out.';
+      // ✅ then re-apply auth state from Supabase (final truth)
       await applyAuthState();
     } catch (e) {
       console.error(e);
-      dressupLogoutStatus.textContent = 'Logout failed. Check console.';
+      if (buyStatus) buyStatus.textContent = 'Logout failed. Check console.';
     }
   });
 }
-
 
 
 
@@ -191,6 +211,49 @@ async function applyAuthState() {
     updateAuthDependentUI();
   }
 }
+
+
+function openAuthDialog(defaultTab = 'signin') {
+  if (!authDialog) return;
+
+  // default tab
+  const isUp = defaultTab === 'signup';
+  if (authPanelSignIn) authPanelSignIn.style.display = isUp ? 'none' : 'block';
+  if (authPanelSignUp) authPanelSignUp.style.display = isUp ? 'block' : 'none';
+
+  if (authStatus) authStatus.textContent = '';
+
+  try { authDialog.showModal(); }
+  catch (_) { authDialog.removeAttribute('open'); authDialog.setAttribute('open', ''); }
+}
+
+function closeAuthDialog() {
+  if (!authDialog) return;
+  try { authDialog.close(); } catch (_) { authDialog.removeAttribute('open'); }
+}
+
+function setAuthStatus(msg) {
+  if (authStatus) authStatus.textContent = msg || '';
+}
+
+function resetDressupToGuestState() {
+  currentUserId = null;
+  currentAccessToken = null;
+  personalCredits = 0;
+  pendingAvatarUrl = null;
+  pendingAvatarBeforeUrl = null;
+
+  // identity label fallback (don’t touch URL overrides)
+  if (!qsId) signedInLabel = 'anonymous';
+  if (!qsName) currentPlayer.name = 'MUNZ'; // optional; remove if you want name to stay
+  currentPid = null;
+
+  updateAuthDependentUI();
+  updateCreditUI();
+}
+
+
+
 
 
 
@@ -569,6 +632,20 @@ if (qsHero) {
 }
 
 
+// Open auth dialog from HUD or Avatar guest button
+if (authOpenBtn && !window.__authOpenBound) {
+  window.__authOpenBound = true;
+  authOpenBtn.addEventListener('click', () => openAuthDialog('signin'));
+}
+
+if (avatarLoginBtn && !window.__avatarAuthOpenBound) {
+  window.__avatarAuthOpenBound = true;
+  avatarLoginBtn.addEventListener('click', () => openAuthDialog('signin'));
+}
+
+// Tabs
+if (authTabSignIn) authTabSignIn.addEventListener('click', () => openAuthDialog('signin'));
+if (authTabSignUp) authTabSignUp.addEventListener('click', () => openAuthDialog('signup'));
 
 
 
@@ -935,6 +1012,19 @@ if (data) {
 
 
 function updateAuthDependentUI() {
+
+    // HUD: Buy Credits / Login / Logout visibility
+  if (buyMenuToggle) buyMenuToggle.style.display = loggedIn ? 'inline-block' : 'none';
+  if (authLogoutBtn) authLogoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
+  if (authOpenBtn) authOpenBtn.style.display = loggedIn ? 'none' : 'inline-block';
+
+  // Always close the buy menu when logged out
+  if (!loggedIn && buyMenu) buyMenu.style.display = 'none';
+
+
+
+
+
   const loggedIn = !!currentUserId;
 
   // STYLE tab: multi-item toggle
