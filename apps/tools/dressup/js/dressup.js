@@ -379,7 +379,8 @@ async function startCreditCheckout() {
 
     if (buyStatus) buyStatus.textContent = 'Opening checkout...';
 
-    const res = await fetch('/api/create-checkout-session', {
+    const res = await fetch('/api/dressup/create-checkout-session', {
+
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1180,7 +1181,7 @@ const payload = {
 };
 
 
-const res = await fetch('/apps/tools/dressup/api/generate', {
+const res = await fetch('api/dressup/generate', {
 
   method: 'POST',
   headers: {
@@ -1655,7 +1656,7 @@ try {
   accessToken = sess?.data?.session?.access_token || null;
 } catch (_) {}
 
-const res = await fetch('/apps/tools/dressup/api/generate', {
+const res = await fetch('/api/dressup/generate', {
 
   method: 'POST',
   headers: {
