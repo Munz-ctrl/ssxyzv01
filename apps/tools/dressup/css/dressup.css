@@ -37,6 +37,7 @@ html, body {
   aspect-ratio: 9 / 16;
   width: 100vw;
   /* max-width: 550px; */
+  height: auto;
   height: min(100vh, 1920px);
   background: #000;
   overflow: visible;
@@ -48,6 +49,7 @@ html, body {
   inset: 0;
   background: #0a0c10 center/cover no-repeat;
   z-index: 1;
+  height: 100vh;
 }
 
 /* Top banner (inside the container) */
