@@ -1374,7 +1374,7 @@ async function downloadCurrentHero() {
     const pad = Math.round(h * 0.03);         // padding from edges
     const stripHeight = Math.round(h * 0.12); // height of the dark band
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0)';
     ctx.fillRect(pad, h - stripHeight - pad, Math.round(w * 0.7), stripHeight);
 
     // 4) Draw watermark text lines (using the same generator as the UI)
@@ -1384,7 +1384,7 @@ async function downloadCurrentHero() {
     const fontSize = Math.max(16, Math.round(h * 0.022)); // scale with image
     const lineHeight = Math.round(fontSize * 1.2);
 
-    ctx.font = `${fontSize}px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`;
+    ctx.font = `${fontSize}px  Consolas, "Liberation Mono", "Courier New", monospace`;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
     ctx.textBaseline = 'bottom';
     ctx.shadowColor = 'rgba(0,0,0,0.8)';
