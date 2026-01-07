@@ -341,7 +341,9 @@ html, body {
 .panel-tab.active {
   background: rgba(165, 71, 71, 0.623);
   color: var(--ink);
-  
+  /* Prevent global .active rules (e.g. transform, height) from affecting tabs */
+  transform: none;
+  height: auto;
 }
 
 .panel-tab-content {
