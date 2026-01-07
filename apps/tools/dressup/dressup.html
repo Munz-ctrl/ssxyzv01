@@ -135,28 +135,7 @@
   </button>
 
   <!-- Inline email/password login -->
-  <div id="dressupLoginForm" class="avatar-login-inline" style="display:none; margin-top:10px;">
-    <div class="avatar-login-row">
-      <input type="email"
-             id="dressupLoginEmail"
-             placeholder="Email"
-             autocomplete="email" />
-    </div>
-    <div class="avatar-login-row">
-      <input type="password"
-             id="dressupLoginPassword"
-             placeholder="Password"
-             autocomplete="current-password" />
-    </div>
-    <div class="avatar-login-row">
-      <button type="button"
-              id="btnDressupLogin"
-              class="btn thin">
-        Sign in
-      </button>
-    </div>
-    <div id="dressupLoginStatus" class="status small"></div>
-  </div>
+  
 </div>
 
 
@@ -201,11 +180,7 @@
              </div>
            </div>
 
-           <button type="button" id="btnDressupLogout" class="btn thin">
-         Log out
-        </button>
-        <div id="dressupLogoutStatus" class="status small"></div>
-
+    
         </div>
 
 
@@ -256,6 +231,61 @@
       animation: none;
     }
   </style> -->
+
+
+
+<dialog id="authDialog">
+  <form method="dialog" style="min-width: 280px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+      <strong>DressUp Auth</strong>
+      <button value="cancel" aria-label="Close">✕</button>
+    </div>
+
+    <hr>
+
+    <div style="display:flex; gap:8px; margin-bottom:10px;">
+      <button type="button" id="authTabSignIn">Sign in</button>
+      <button type="button" id="authTabSignUp">Sign up</button>
+    </div>
+
+    <div id="authPanelSignIn">
+      <label>
+        Email<br>
+        <input id="authEmailIn" type="email" autocomplete="email" required>
+      </label>
+      <br><br>
+      <label>
+        Password<br>
+        <input id="authPassIn" type="password" autocomplete="current-password" required>
+      </label>
+      <br><br>
+      <button type="button" id="authBtnSignIn">Sign in</button>
+    </div>
+
+    <div id="authPanelSignUp" style="display:none;">
+      <label>
+        Email<br>
+        <input id="authEmailUp" type="email" autocomplete="email" required>
+      </label>
+      <br><br>
+      <label>
+        Password<br>
+        <input id="authPassUp" type="password" autocomplete="new-password" required>
+      </label>
+      <br><br>
+      <button type="button" id="authBtnSignUp">Create account</button>
+      <div style="font-size:12px; opacity:0.8; margin-top:8px;">
+        (This does NOT create a Sunsex “player”. It only authenticates DressUp.)
+      </div>
+    </div>
+
+    <p id="authStatus" style="min-height:18px;"></p>
+  </form>
+</dialog>
+
+
+
+
 </body>
 
 </html>
