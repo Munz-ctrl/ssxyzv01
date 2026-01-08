@@ -467,8 +467,8 @@ let currentPid = null;        // player's PID if we find one for this user
 // This object represents whoever is currently being dressed.
 // Later the skin selector dropdown will just update this object.
 let currentPlayer = {
-  name: "MUNZ",   // default display name
-  id: "001",      // readable id/tag (acts like PID)
+  name: "Demo",   // default display name
+  id: "",      // readable id/tag (acts like PID)
   heroUrl: null   // will be set below
 };
 
@@ -666,7 +666,7 @@ function selectFeaturedSkin(skin, btnEl) {
 
   setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
   currentSkinName = skin.name || 'Featured';
-  updatePlayerBadge(); // harmless even if badge removed; watermark uses currentSkinName
+  
 }
 
 
@@ -831,14 +831,9 @@ if (mySkinSelectEl && !window.__mySkinSelectBound) {
 
 
 
-// Utility: update the little badge in the corner so it matches currentPlayer
-function updatePlayerBadge() {
-   // badge removed (watermark handles identity)
-}
-
 // Utility: text used both by animated UI watermark and the saved-image watermark
 function getWatermarkText() {
-  const line1 = "SUNSEX_STYLIST_☂";
+  const line1 = "SUNSEX.XYZ/mannequin      _☂☂☂ ";
   const displayName = currentPlayer?.name || "Guest";
   const displayId   = signedInLabel || "guest";
   const line2 = `Account: ${displayName} (${displayId})`;
@@ -919,7 +914,7 @@ function initHeroBackground() {
 }
 
 /// do the initial sync (badge + hero)
-updatePlayerBadge();
+
 initHeroBackground();
 
 
@@ -967,7 +962,7 @@ async function hydrateUserContext() {
         currentPlayer.name = playerRow.name;
       }
 
-      updatePlayerBadge();
+      
     }
   } catch (e) {
     console.warn('Failed to load player for dressup watermark:', e?.message || e);
