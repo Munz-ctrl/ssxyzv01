@@ -200,10 +200,13 @@
 
 
 <dialog id="authDialog">
-  <form method="dialog" style="min-width: 280px;">
+  <form method="dialog" novalidate style="min-width: 280px;">
+
     <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
       <strong>DressUp Auth</strong>
-      <button value="cancel" aria-label="Close">✕</button>
+      <button type="button" id="authDialogClose" aria-label="Close">✕</button>
+
+
     </div>
 
     <hr>
@@ -216,12 +219,12 @@
     <div id="authPanelSignIn">
       <label>
         Email<br>
-        <input id="authEmailIn" type="email" autocomplete="email" required>
+        <input id="authEmailIn" type="email" autocomplete="email" >
       </label>
       <br><br>
       <label>
         Password<br>
-        <input id="authPassIn" type="password" autocomplete="current-password" required>
+        <input id="authPassIn" type="password" autocomplete="current-password" >
       </label>
       <br><br>
       <button type="button" id="authBtnSignIn">Sign in</button>
@@ -230,12 +233,12 @@
     <div id="authPanelSignUp" style="display:none;">
       <label>
         Email<br>
-        <input id="authEmailUp" type="email" autocomplete="email" required>
+        <input id="authEmailUp" type="email" autocomplete="email" >
       </label>
       <br><br>
       <label>
         Password<br>
-        <input id="authPassUp" type="password" autocomplete="new-password" required>
+        <input id="authPassUp" type="password" autocomplete="new-password" >
       </label>
       <br><br>
       <button type="button" id="authBtnSignUp">Create account</button>
