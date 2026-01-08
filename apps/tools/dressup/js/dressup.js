@@ -320,8 +320,8 @@ function resetDressupToGuestState() {
   pendingAvatarBeforeUrl = null;
 
   // identity label fallback (don’t touch URL overrides)
-  if (!qsId) signedInLabel = 'anonymous';
-  if (!qsName) currentPlayer.name = 'MUNZ'; // optional; remove if you want name to stay
+  if (!qsId) signedInLabel = 'anonymousss';
+  if (!qsName) currentPlayer.name = ''; // optional; remove if you want name to stay
   currentPid = null;
 
   updateAuthDependentUI();
@@ -836,7 +836,7 @@ if (mySkinSelectEl && !window.__mySkinSelectBound) {
 
 // Utility: text used both by animated UI watermark and the saved-image watermark
 function getWatermarkText() {
-  const line1 = "SUNSEX.XYZ/mannequin      _☂☂☂ ";
+  const line1 = "[ SUNSEX.XYZ/mannequin ] [ v1.01 ] ___☂☂☂ ";
   const displayName = currentPlayer?.name || "Guest";
   const displayId   = signedInLabel || "guest";
   const line2 = `Account: ${displayName} (${displayId})`;
