@@ -206,20 +206,27 @@ async function applyAuthState() {
 
   try {
     const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
-    currentUserId = sessRes?.data?.session?.user?.id || null;
-    currentAccessToken = sessRes?.data?.session?.access_token || null;
 
+    const nextUserId = sessRes?.data?.session?.user?.id || null;
+    const nextToken  = sessRes?.data?.session?.access_token || null;
+
+    currentUserId = nextUserId;
+    currentAccessToken = nextToken;
 
     console.log('[DressUp] applyAuthState currentUserId:', currentUserId);
 
     updateAuthDependentUI();
     if (currentUserId) await hydrateUserContext();
+
   } catch (e) {
     console.warn('[DressUp] applyAuthState failed:', e?.message || e);
-    currentUserId = null;
+
+    // ✅ DO NOT force logout on timeouts — keep whatever state we had
+    // Just re-render UI based on currentUserId as-is.
     updateAuthDependentUI();
   }
 }
+
 
 
 function openAuthDialog(defaultTab = 'signin') {
