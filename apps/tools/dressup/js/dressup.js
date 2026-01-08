@@ -441,7 +441,10 @@ const DRESSUP_COST_UNITS = 50;
 // ---------- credit state (global units) ----------
 // These are fallback defaults; Supabase will overwrite them when available.
 
-let communityMax     = communityCredits;
+let communityCredits = 0;
+
+
+let communityMax     = 300
 let personalCredits  = 0;                       // backup pool for this user (used only when community is empty)
 
 let garmentPublicUrl = null;
