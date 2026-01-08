@@ -1014,7 +1014,8 @@ if (new URLSearchParams(location.search).get("success") === "1") {
 
     await loadCreditsFromSupabase();
 
-    
+    setInterval(() => loadCreditsFromSupabase(), 60_000);
+
 
     // react to future sign-in / sign-out without reloading
     if (!window.__dressupAuthBound) {
