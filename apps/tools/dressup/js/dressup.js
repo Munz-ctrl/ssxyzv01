@@ -180,15 +180,6 @@ if (authLogoutBtn && !window.__dressupLogoutBound2) {
 }
 
 
-const authDialogCloseBtn = document.getElementById('authDialogClose');
-
-if (authDialogCloseBtn && !window.__authDialogCloseBound) {
-  window.__authDialogCloseBound = true;
-  authDialogCloseBtn.addEventListener('click', () => {
-    closeAuthDialog();
-  });
-}
-
 if (authDialog) {
   authDialog.addEventListener('cancel', (e) => {
     e.preventDefault(); // stop browser default
@@ -246,6 +237,8 @@ function closeAuthDialog() {
   if (!authDialog) return;
   try { authDialog.close(); } catch (_) { authDialog.removeAttribute('open'); }
 }
+
+
 
 function setAuthStatus(msg) {
   if (authStatus) authStatus.textContent = msg || '';
@@ -309,6 +302,12 @@ if (authBtnSignUp) {
 
 
 
+const authDialogCloseBtn = document.getElementById('authDialogClose');
+
+if (authDialogCloseBtn && !window.__authDialogCloseBound) {
+  window.__authDialogCloseBound = true;
+  authDialogCloseBtn.addEventListener('click', () => closeAuthDialog());
+}
 
 
 
