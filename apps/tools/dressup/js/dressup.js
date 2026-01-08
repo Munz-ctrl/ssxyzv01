@@ -159,24 +159,27 @@ function getSb() {
 if (authLogoutBtn && !window.__dressupLogoutBound2) {
   window.__dressupLogoutBound2 = true;
 
-  authLogoutBtn.addEventListener('click', async () => {
-    const sb = getSb();
-    try {
-      if (buyStatus) buyStatus.textContent = '';
-      if (buyMenu) buyMenu.style.display = 'none';
+authLogoutBtn.addEventListener('click', async () => {
+  const sb = getSb();
+  try {
+    if (buyStatus) buyStatus.textContent = '';
+    if (buyMenu) buyMenu.style.display = 'none';
 
-      await sb?.auth?.signOut();
+    // Sign out
+    await sb?.auth?.signOut();
 
-      // ✅ hard reset local state + UI
-      resetDressupToGuestState();
+    // Clear local UI state immediately
+    resetDressupToGuestState();
 
-      // ✅ then re-apply auth state from Supabase (final truth)
-      await applyAuthState();
-    } catch (e) {
-      console.error(e);
-      if (buyStatus) buyStatus.textContent = 'Logout failed. Check console.';
-    }
-  });
+    // Hard refresh so session + UI are guaranteed in sync
+    window.location.reload();
+
+  } catch (e) {
+    console.error(e);
+    if (buyStatus) buyStatus.textContent = 'Logout failed. Check console.';
+  }
+});
+
 }
 
 
