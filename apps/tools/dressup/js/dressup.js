@@ -1012,13 +1012,18 @@ if (new URLSearchParams(location.search).get("success") === "1") {
     // initial apply
     await applyAuthState();
 
+    await loadCreditsFromSupabase();
+
+    
+
     // react to future sign-in / sign-out without reloading
     if (!window.__dressupAuthBound) {
       window.__dressupAuthBound = true;
       sb.auth.onAuthStateChange(async () => {
         await applyAuthState();
         // keep watermark in sync (loop is guarded)
-       
+        await loadCreditsFromSupabase();
+
 
         runWatermarkTyping();
       });
@@ -1047,16 +1052,16 @@ async function loadCreditsFromSupabase() {
   try {
     // COMMUNITY CHEST
     // COMMUNITY CHEST
-    const { data: chest, error: chestErr } = await sb.rpc('dressup_get_chest');
-    
-    if (!chestErr && chest) {
-      // accept either naming scheme
-      communityCredits = Number(chest.credits ?? chest.community_credits ?? 0);
-      communityMax     = Number(chest.max_credits ?? chest.community_max ?? communityCredits ?? 0);
+    // COMMUNITY CHEST
+    const { data, error } = await sb.rpc('dressup_get_chest');
+    if (!error && data) {
+      communityCredits = Number(data.credits ?? data.community_credits ?? 0);
+      communityMax     = Number(data.max_credits ?? data.community_max ?? 0);
     
       if (!Number.isFinite(communityCredits)) communityCredits = 0;
       if (!Number.isFinite(communityMax)) communityMax = 0;
     }
+    
 
 
     // PERSONAL CREDITS (per Supabase user)
