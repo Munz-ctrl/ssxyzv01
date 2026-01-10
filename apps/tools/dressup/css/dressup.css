@@ -16,8 +16,8 @@ html, body {
   --panel-bg: rgba(116, 116, 116, 0.332);
   --panel-br: 8px;
   
-  --ink: #f3c3b5;
-  --ink-dim: #828487;
+  --ink: #fafafa;
+  --ink-dim: #353535;
   --accent: #6a86cc;
 }
 
@@ -352,7 +352,7 @@ html, body {
 }
 
 .panel-tab.active {
-  background: rgba(221, 221, 221, 0.623);
+  background: rgba(101, 101, 101, 0.736);
   color: var(--ink);
   /* Prevent global .active rules (e.g. transform, height) from affecting tabs */
   transform: none;
