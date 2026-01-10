@@ -13,7 +13,7 @@ html, body {
 
 /* Theme */
 :root {
-  --panel-bg: rgba(116, 116, 116, 0.332);
+  --panel-bg: rgba(139, 139, 139, 0.658);
   --panel-br: 8px;
   
   --ink: #fafafa;
@@ -328,40 +328,41 @@ html, body {
 
 .panel-tabs {
   width: 100%;
-  min-height: 40px;
+  min-height: min(40% , 120px);
   display: inline-flex;
   gap: 1px;
   margin-bottom: 1px;
   /* padding: 3px; */
   background: rgba(0, 0, 0, 0);
   border-radius: 1px;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 4px solid rgba(255,255,255,0.08);
   justify-content: space-evenly;
 }
 
 .panel-tab {
   border: none;
-  background: transparent;
+  background: rgba(12, 12, 12, 0.245);
   color: var(--ink-dim);
   font-size: x-small;
   /* letter-spacing: 0.18em; */
   text-transform: uppercase;
-  /* padding: 6px 12px; */
+  padding: 6px 12px;
   border-radius: 9px;
   cursor: pointer;
 }
 
 .panel-tab.active {
-  background: rgba(101, 101, 101, 0.736);
+  background: rgba(255, 255, 255, 0.253);
   color: var(--ink);
   /* Prevent global .active rules (e.g. transform, height) from affecting tabs */
-  transform: none;
+  /* transform: none; */
   height: auto;
+  transform: scale(1.8) translate(y -20px);
 }
 
 .panel-tab-content {
-  margin: 8px;
-  border: 1px solid #00000000;
+  margin: 4px;
+  border: none;
   box-shadow: none;
   background: rgba(0, 0, 0, 0);
 }
