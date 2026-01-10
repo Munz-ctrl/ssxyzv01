@@ -845,13 +845,14 @@ if (mySkinSelectEl && !window.__mySkinSelectBound) {
 
 // Utility: text used both by animated UI watermark and the saved-image watermark
 function getWatermarkText() {
-  const line1 = "[ SUNSEX.XYZ/mannequin ] [ v1.01 ] ___☂☂☂ ";
+  const line1 = "[ SUNSEX.XYZ/mannequin ] ☂☂☂ ";
+  const line2 = "[ v1.01 ] ";
   const displayName = currentPlayer?.name || "Guest";
   const displayId   = signedInLabel || "guest";
-  const line2 = `Account: ${displayName} (${displayId})`;
+  const line3 = `user: ${displayName} (${displayId})`;
   const skinLabel = currentSkinName || "Base";
-  const line3 = `Skin: ${skinLabel}`;
-  return `${line1}\n${line2}\n${line3}`;
+  const line4 = `Skin: ${skinLabel}`;
+  return `${line1}\n${line2}\n${line3}\n${line4}`;
 }
 
 
