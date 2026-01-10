@@ -84,7 +84,10 @@ html, body {
   min-height: fit-content;
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.067);
-  /* box-shadow: 0 12px 30px rgba(0, 0, 0, 0); */
+    /* box-shadow: 0 12px 30px rgba(0, 0, 0, 0); */
+
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 
 
@@ -128,7 +131,7 @@ html, body {
   font-size: 40%;
   color: rgba(220, 225, 240, 0.9);
   line-height: 1.2;
-  padding: 10px 6px;
+  padding: 20px 6px 6px;
   text-align: left;
   max-width: 90vw;
   margin-inline: auto;
