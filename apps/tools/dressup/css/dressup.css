@@ -13,12 +13,12 @@ html, body {
 
 /* Theme */
 :root {
-  --panel-bg: rgba(34, 34, 34, 0.86);
+  --panel-bg: rgba(116, 116, 116, 0.332);
   --panel-br: 8px;
   
-  --ink: #e9eaec;
-  --ink-dim: #b9bec7;
-  --accent: #2b66ff;
+  --ink: #f3c3b5;
+  --ink-dim: #828487;
+  --accent: #6a86cc;
 }
 
 .dressup-body, .dressup-body * { box-sizing: border-box; }
@@ -82,7 +82,7 @@ html, body {
   background: var(--panel-bg);
   border-radius: var(--panel-br);
   min-height: fit-content;
-  padding: 14px;
+  padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.067);
   /* box-shadow: 0 12px 30px rgba(0, 0, 0, 0); */
 }
