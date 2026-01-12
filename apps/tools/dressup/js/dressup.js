@@ -1755,38 +1755,47 @@ if (avatarCreateBtn) {
     isAvatarGenerating = true;
     avatarCreateBtn.disabled = true;
 
-
-
-    // 1) collect selected avatar photos
-    const filled = avatarSlots.filter(slot => slot && slot.file);
-    if (!filled.length) {
-      avatarStatusEl.textContent = 'Upload at least 1–3 clear photos of yourself.';
-      return;
-    }
-
-    avatarStatusEl.textContent = 'Uploading photos…';
-
     const sb = getSb();
-    if (!sb?.storage) {
-  avatarStatusEl.textContent = 'Supabase client not ready (storage missing).';
-  console.error('[DressUp] getSb() returned:', sb);
-  return;
-}
-
-
-
-
 
     try {
+      // 1) collect selected avatar photos
+      const filled = avatarSlots.filter(slot => slot && slot.file);
+      if (!filled.length) {
+        avatarStatusEl.textContent = 'Upload at least 1–3 clear photos of yourself.';
+        return;
+      }
+
+      if (!sb?.storage) {
+        avatarStatusEl.textContent = 'Supabase client not ready (storage missing).';
+        console.error('[DressUp] getSb() returned:', sb);
+        return;
+      }
+
+      avatarStatusEl.textContent = 'Uploading photos…';
+
       const uploadedUrls = [];
 
+      // 2) upload photos (with timeout) + reuse cached uploadedUrl so you can re-run without refresh
       for (let i = 0; i < avatarSlots.length; i++) {
         const slot = avatarSlots[i];
         if (!slot || !slot.file) continue;
 
+        // ✅ reuse if already uploaded in this session
+        if (slot.uploadedUrl) {
+          uploadedUrls.push(slot.uploadedUrl);
+          continue;
+        }
+
         const file = slot.file;
-        const path = `avatars/${currentUserId}/${Date.now()}-${i}-${file.name}`;
-        const uploadRes = await sb.storage.from('userassets').upload(path, file, { upsert: true });
+        const safeName = (file.name || `photo-${i}.jpg`).replace(/\s+/g, '-');
+        const path = `avatars/${currentUserId}/${Date.now()}-${i}-${safeName}`;
+
+        const uploadRes = await withTimeout(
+          sb.storage.from('userassets').upload(path, file, { upsert: true }),
+          25000,
+          'Avatar photo upload timed out'
+        );
+
         if (uploadRes.error) {
           console.error('Supabase avatar upload error:', uploadRes.error);
           throw uploadRes.error;
@@ -1794,7 +1803,11 @@ if (avatarCreateBtn) {
 
         const pub = sb.storage.from('userassets').getPublicUrl(path);
         const publicUrl = pub?.data?.publicUrl || pub?.publicUrl;
-        if (publicUrl) uploadedUrls.push(publicUrl);
+
+        if (!publicUrl) throw new Error('Public URL not returned for avatar upload');
+
+        slot.uploadedUrl = publicUrl; // ✅ cache
+        uploadedUrls.push(publicUrl);
       }
 
       if (!uploadedUrls.length) {
@@ -1805,40 +1818,40 @@ if (avatarCreateBtn) {
       avatarStatusEl.textContent = 'Generating avatar…';
 
       const primaryUrl = uploadedUrls[0];
-      const extraRefs  = uploadedUrls.slice(1);
+      const extraRefs = uploadedUrls.slice(1);
 
-      // Use Munz base as template
+      // Use mannequin base as template
       const templateUrl = "/apps/tools/dressup/assets/manq.png";
 
-
       const payload = {
-        mode: 'avatar',            // 👈 tells backend to use nano-banana-pro
+        mode: 'avatar',
         personUrl: primaryUrl,
         extraRefs,
         avatarTemplateUrl: templateUrl,
-        
         prompt:
-         'switch the mannequin in the template hero image with the person from the uploaded images, maintain the pose and placement of the mannequin in the template. diregard its red clothing and identity, apply identity photorealisim facial featuters and body structure and outfit details of the person in the upladed images ontp the mannequin template, ensure the new person fits naturally into the lighting and style of the template image, high detail, photorealistic, isometric portrait' 
+          'Replace only the mannequin person in the template image with the person from the uploaded photos. Keep the camera, zoom, perspective, and ground position EXACTLY the same as the mannequin. Match mannequin scale: head size and shoulder width must stay within the mannequin silhouette. Do NOT enlarge the person. Keep background unchanged. Preserve the exact pose and limb placement. Preserve lighting direction and shadows. Photorealistic skin and face identity; keep outfit details from the uploaded photos.'
       };
 
-      console.log('[Avatar → /api/generate]', payload);
-
+      console.log('[Avatar → /api/dressup/generate]', payload);
 
       let accessToken = null;
-try {
-  const sess = await sb?.auth?.getSession?.();
-  accessToken = sess?.data?.session?.access_token || null;
-} catch (_) {}
+      try {
+        const sess = await sb?.auth?.getSession?.();
+        accessToken = sess?.data?.session?.access_token || null;
+      } catch (_) {}
 
-const res = await fetch('/api/dressup/generate', {
-
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
-  },
-  body: JSON.stringify(payload)
-});
+      const res = await withTimeout(
+        fetch('/api/dressup/generate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+          },
+          body: JSON.stringify(payload)
+        }),
+        90000,
+        'Avatar generation timed out'
+      );
 
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -1848,72 +1861,76 @@ const res = await fetch('/api/dressup/generate', {
         return;
       }
 
-    const outputUrl = body.finalUrl || body.outputUrl || body.image || body.output;
-if (!outputUrl) {
-  avatarStatusEl.textContent = 'No avatar image returned.';
-  return;
-}
-console.log('[DressUp] /api/generate status', res.status, body);
+      const outputUrl = body.finalUrl || body.outputUrl || body.image || body.output;
+      if (!outputUrl) {
+        avatarStatusEl.textContent = 'No avatar image returned.';
+        return;
+      }
 
+      console.log('[DressUp] /api/generate status', res.status, body);
 
-pendingAvatarBeforeUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
-pendingAvatarUrl = outputUrl;
+      pendingAvatarBeforeUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
+      pendingAvatarUrl = outputUrl;
 
-setHeroImage(outputUrl);
+      setHeroImage(outputUrl);
 
-avatarStatusEl.textContent = 'Avatar ready. Set as Base or Discard.';
-currentSkinName = 'Unsaved Avatar';
+      avatarStatusEl.textContent = 'Avatar ready. Set as Base or Discard.';
+      currentSkinName = 'Unsaved Avatar';
 
-if (mySkinActionsEl) mySkinActionsEl.style.display = 'grid';
+      if (mySkinActionsEl) mySkinActionsEl.style.display = 'grid';
 
-// Wire actions once (guard)
-if (!window.__avatarSaveBound) {
-  window.__avatarSaveBound = true;
+      // Wire actions once (guard)
+      if (!window.__avatarSaveBound) {
+        window.__avatarSaveBound = true;
 
-  if (btnSetAsBase) {
-    btnSetAsBase.addEventListener('click', async () => {
-      if (!pendingAvatarUrl) return;
-      try {
-  btnSetAsBase.disabled = true;
-  avatarStatusEl.textContent = 'Saving as your base skin…';
+        if (btnSetAsBase) {
+          btnSetAsBase.addEventListener('click', async () => {
+            if (!pendingAvatarUrl) return;
+            try {
+              btnSetAsBase.disabled = true;
+              avatarStatusEl.textContent = 'Saving as your base skin…';
 
-  await withTimeout(
-    saveCurrentHeroAsDefaultSkin({ name: 'My Default Skin' }),
-    20000,
-    'Save took too long (check Supabase / RLS / network)'
-  );
+              await withTimeout(
+                saveCurrentHeroAsDefaultSkin({ name: 'My Default Skin' }),
+                25000,
+                'Save took too long (check Supabase / RLS / network)'
+              );
 
-  avatarStatusEl.textContent = 'Saved as your base skin.';
-  pendingAvatarUrl = null;
-  if (mySkinActionsEl) mySkinActionsEl.style.display = 'none';
-} catch (e) {
-  console.warn('Save failed:', e?.message || e);
-  avatarStatusEl.textContent = 'Save failed (check console / RLS).';
-} finally {
-  btnSetAsBase.disabled = false;
-}
-    });
-  }
+              avatarStatusEl.textContent = 'Saved as your base skin.';
+              pendingAvatarUrl = null;
+              if (mySkinActionsEl) mySkinActionsEl.style.display = 'none';
+            } catch (e) {
+              console.warn('Save failed:', e?.message || e);
+              avatarStatusEl.textContent = 'Save failed (check console / RLS).';
+            } finally {
+              btnSetAsBase.disabled = false;
+            }
+          });
+        }
 
-  if (btnDiscardAvatar) {
-    btnDiscardAvatar.addEventListener('click', () => {
-      pendingAvatarUrl = null;
-      setHeroImage(pendingAvatarBeforeUrl || DEFAULT_HERO_IMG);
-      pendingAvatarBeforeUrl = null;
+        if (btnDiscardAvatar) {
+          btnDiscardAvatar.addEventListener('click', () => {
+            pendingAvatarUrl = null;
+            setHeroImage(pendingAvatarBeforeUrl || DEFAULT_HERO_IMG);
+            pendingAvatarBeforeUrl = null;
 
-      avatarStatusEl.textContent = 'Discarded.';
-      if (mySkinActionsEl) mySkinActionsEl.style.display = 'none';
-    });
-  }
-}
-
+            avatarStatusEl.textContent = 'Discarded.';
+            if (mySkinActionsEl) mySkinActionsEl.style.display = 'none';
+          });
+        }
+      }
 
     } catch (err) {
       console.error(err);
       avatarStatusEl.textContent = 'Error creating avatar: ' + (err.message || err);
+    } finally {
+      // ✅ Always unlock so you can generate again without refreshing
+      isAvatarGenerating = false;
+      avatarCreateBtn.disabled = false;
     }
   });
 }
+
 
 
 
