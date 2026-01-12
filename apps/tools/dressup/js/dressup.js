@@ -1852,7 +1852,7 @@ if (avatarCreateBtn) {
           },
           body: JSON.stringify(payload)
         }),
-        90000,
+        240000,
         'Avatar generation timed out'
       );
 
