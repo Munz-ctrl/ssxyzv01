@@ -74,7 +74,6 @@ const resetBtn        = $('btnResetHero');
 // (removed) legacy skin dropdown refs (we only use Featured + My Skins now)
 
 
-const mySkinSelectEl = $('mySkinSelect');
 const mySkinActionsEl = $('mySkinActions');
 const btnSetAsBase = $('btnSetAsBase');
 const btnDiscardAvatar = $('btnDiscardAvatar');
@@ -340,30 +339,21 @@ function resetDressupToGuestState() {
 
 
 
-
-
 async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
   const sb = getSb();
   if (!sb || !currentUserId) throw new Error('Must be logged in to save a skin.');
 
-  // guarantee currentPid exists (even if user has no players row)
-  if (!currentPid) {
-    currentPid = `u_${String(currentUserId).slice(0, 6)}`;
-    currentPlayer.id = currentPid;
-    signedInLabel = currentPid;
-  }
-
   const heroUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
   if (!heroUrl) throw new Error('No hero image to save.');
 
-  // download the image
+  // download the current hero image
   const imgRes = await fetch(heroUrl, { mode: 'cors' });
   if (!imgRes.ok) throw new Error(`download_failed ${imgRes.status}`);
   const blob = await imgRes.blob();
 
   // upload to storage
   const ext = blob.type?.includes('jpeg') ? 'jpg' : 'png';
-  const path = `skins/${currentPid}/${Date.now()}.${ext}`;
+  const path = `skins/${currentUserId}/${Date.now()}.${ext}`;
 
   const { error: upErr } = await sb.storage
     .from('userassets')
@@ -375,32 +365,58 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
   const publicUrl = pub?.publicUrl;
   if (!publicUrl) throw new Error('public_url_missing');
 
-  // clear old default for THIS USER only
-  await sb
+  // does user already have a private default row?
+  const { data: existing, error: exErr } = await sb
     .from('dressup_skins')
-    .update({ is_default: false })
+    .select('id')
     .eq('owner_id', currentUserId)
     .eq('visibility', 'private')
-    .eq('is_default', true);
+    .eq('is_default', true)
+    .maybeSingle();
 
-  // insert new private default skin (owned)
-  const { error: insErr } = await sb
-    .from('dressup_skins')
-    .insert({
-      owner_id: currentUserId,
-      player_pid: currentPid,
-      name,
-      hero_url: publicUrl,
-      visibility: 'private',
-      is_default: true
-    });
+  if (exErr && exErr.code !== 'PGRST116') throw exErr; // ignore "no rows" style errors
 
-  if (insErr) throw insErr;
+  if (existing?.id) {
+    // update existing base skin row
+    const { error: upSkinErr } = await sb
+      .from('dressup_skins')
+      .update({ name, hero_url: publicUrl, is_default: true })
+      .eq('id', existing.id);
 
+    if (upSkinErr) throw upSkinErr;
+  } else {
+    // clear any accidental defaults then insert a new base row
+    await sb
+      .from('dressup_skins')
+      .update({ is_default: false })
+      .eq('owner_id', currentUserId)
+      .eq('visibility', 'private')
+      .eq('is_default', true);
+
+    const { error: insErr } = await sb
+      .from('dressup_skins')
+      .insert({
+        owner_id: currentUserId,
+        name,
+        hero_url: publicUrl,
+        visibility: 'private',
+        is_default: true
+      });
+
+    if (insErr) throw insErr;
+  }
+
+  // refresh local list + UI
   await loadSkinsForPlayer();
 
-  currentSkinName = name;
-  setHeroImage(publicUrl);
+  // set selection to the new/updated base
+  const def = availableSkins.find(s => s.is_default) || availableSkins[0];
+  if (def) {
+    selectedSkin = { source: 'my', id: def.id };
+    setHeroImage(def.hero_url);
+    currentSkinName = def.name || 'My Skin';
+    renderMySkinsRow();
+  }
 }
 
 
@@ -510,6 +526,12 @@ let multiModeEnabled = false;
 // each slot holds { url, supabasePath } or null
 let garmentSlots = new Array(MAX_GARMENTS).fill(null);
 let activeGarmentSlot = 0;
+
+
+
+
+let isAvatarGenerating = false;
+
 
 
 
@@ -773,53 +795,54 @@ async function loadSkinsForPlayer() {
 
     if (error) throw error;
     availableSkins = Array.isArray(data) ? data : [];
+    renderMySkinsRow();
+
   } catch (err) {
     console.warn('loadSkinsForPlayer failed:', err?.message || err);
     availableSkins = [];
   }
 
-  buildMySkinsSelect();
+  renderMySkinsRow();
 }
 
-function buildMySkinsSelect() {
-  if (!mySkinSelectEl) return;
 
-  mySkinSelectEl.disabled = false;
-  mySkinSelectEl.innerHTML = '';
 
-  if (!availableSkins.length) {
-    const opt = document.createElement('option');
-    opt.value = '';
-    opt.textContent = 'No saved skins yet';
-    mySkinSelectEl.appendChild(opt);
+function renderMySkinsRow() {
+  const row = document.getElementById('mySkinsRow');
+  if (!row) return;
+
+  row.innerHTML = '';
+
+  if (!currentUserId) {
+    row.innerHTML = '<div style="opacity:.7;font-size:12px;">Log in to use My Skins</div>';
     return;
   }
 
-  // Populate options
+  if (!availableSkins.length) {
+    row.innerHTML = '<div style="opacity:.7;font-size:12px;">No saved skins yet</div>';
+    return;
+  }
+
   availableSkins.forEach((skin) => {
-    const opt = document.createElement('option');
-    opt.value = skin.id;
-    opt.textContent = skin.name || 'My Skin';
-    mySkinSelectEl.appendChild(opt);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'avatar-pill';
+    btn.textContent = skin.name || 'My Skin';
+
+    btn.addEventListener('click', () => {
+      clearMySkinsSelectionUI();
+      selectSkinUnified({ source: 'my', skin, btnEl: btn });
+    });
+
+    row.appendChild(btn);
+
+    // highlight if it matches current selection
+    if (selectedSkin.source === 'my' && selectedSkin.id === skin.id) {
+      btn.classList.add('avatar-pill-active');
+    }
   });
-
-  // Auto-select default if any
-  const def = availableSkins.find(s => s.is_default);
-  const first = availableSkins[0];
-
-  const selected = def || first;
-  mySkinSelectEl.value = selected.id;
-  applyMySkinById(selected.id);
 }
 
-// apply selected private skin
-function applyMySkinById(id) {
-  const skin = availableSkins.find(s => s.id === id);
-  if (!skin) return;
-
-  setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
-  currentSkinName = skin.name || 'My Skin';
-}
 
 
 
@@ -1016,6 +1039,20 @@ if (!currentPid) {
 
 // Load skins + credits
 await loadSkinsForPlayer();
+
+const def = availableSkins.find(s => s.is_default) || availableSkins[0];
+if (def && def.hero_url) {
+  // pretend we clicked it (but without needing a DOM btn)
+  clearFeaturedSelectionUI();
+  setHeroImage(def.hero_url);
+  currentSkinName = def.name || 'My Skin';
+  selectedSkin = { source: 'my', id: def.id };
+  // refresh pills highlight after state update
+  renderMySkinsRow();
+}
+
+
+
 await loadCreditsFromSupabase();
 
 if (new URLSearchParams(location.search).get("success") === "1") {
@@ -1272,23 +1309,24 @@ if (fileInput) {
     if (!file) return;
 
     if (currentUploadContext === 'avatar') {
-      // Phase 1: just preview the avatar slot, store URL for later
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result;
-        avatarSlots[activeAvatarSlot] = { url: dataUrl, file };
-        const slotEl = Array.from(avatarUploadSlots || []).find(
-          el => Number(el.dataset.index || 0) === activeAvatarSlot
-        );
-        if (slotEl) {
-          slotEl.classList.add('has-image');
-          slotEl.style.backgroundImage = `url("${dataUrl}")`;
-        }
-      };
-      reader.readAsDataURL(file);
-      avatarStatusEl.textContent = '';
-      return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const dataUrl = reader.result;
+    avatarSlots[activeAvatarSlot] = { url: dataUrl, file, uploadedUrl: null }; // reset uploadedUrl if file changed
+    const slotEl = Array.from(avatarUploadSlots || []).find(
+      el => Number(el.dataset.index || 0) === activeAvatarSlot
+    );
+    if (slotEl) {
+      slotEl.classList.add('has-image');
+      slotEl.style.backgroundImage = `url("${dataUrl}")`;
     }
+  };
+  reader.readAsDataURL(file);
+  avatarStatusEl.textContent = '';
+  fileInput.value = ''; // ✅ important
+  return;
+}
+
 
     // default: STYLE / garment upload (existing logic)
     try {
@@ -1712,6 +1750,12 @@ if (avatarCreateBtn) {
       avatarStatusEl.textContent = 'Log in to create your own avatar.';
       return;
     }
+
+    if (isAvatarGenerating) return;
+    isAvatarGenerating = true;
+    avatarCreateBtn.disabled = true;
+
+
 
     // 1) collect selected avatar photos
     const filled = avatarSlots.filter(slot => slot && slot.file);
