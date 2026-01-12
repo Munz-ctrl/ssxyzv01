@@ -108,6 +108,7 @@ const authStatus = document.getElementById('authStatus');
 
 
 
+let selectedSkin = { source: null, id: null }; // source: 'featured' | 'my'
 
 
 
@@ -662,24 +663,18 @@ function renderAvatarPublicRow() {
     row.appendChild(btn);
 
     // Auto-select first on initial render
-    if (idx === 0) {
-      // Defer a tick so DOM is ready
-      setTimeout(() => selectFeaturedSkin(skin, btn), 0);
-    }
+    // Auto-select only if nothing has been selected yet
+if (idx === 0 && !selectedSkin.source) {
+  setTimeout(() => selectFeaturedSkin(skin, btn), 0);
+}
+
   });
 }
 
 function selectFeaturedSkin(skin, btnEl) {
-  document.querySelectorAll('#featuredSkinsRow .avatar-pill')
-    .forEach(b => b.classList.remove('avatar-pill-active'));
-
-  if (btnEl) btnEl.classList.add('avatar-pill-active');
-
-  setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
-  currentSkinName = skin.name || 'Featured';
-  
+  clearFeaturedSelectionUI();
+  selectSkinUnified({ source: 'featured', skin, btnEl });
 }
-
 
 
 
@@ -834,6 +829,33 @@ if (mySkinSelectEl && !window.__mySkinSelectBound) {
     applyMySkinById(e.target.value);
   });
 }
+
+
+
+function clearFeaturedSelectionUI() {
+  document.querySelectorAll('#featuredSkinsRow .avatar-pill')
+    .forEach(b => b.classList.remove('avatar-pill-active'));
+}
+
+function clearMySkinsSelectionUI() {
+  document.querySelectorAll('#mySkinsRow .avatar-pill')
+    .forEach(b => b.classList.remove('avatar-pill-active'));
+}
+
+function selectSkinUnified({ source, skin, btnEl }) {
+  // clear the other group so only ONE selection exists total
+  if (source === 'featured') clearMySkinsSelectionUI();
+  if (source === 'my') clearFeaturedSelectionUI();
+
+  if (btnEl) btnEl.classList.add('avatar-pill-active');
+
+  setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
+  currentSkinName = skin.name || (source === 'featured' ? 'Featured' : 'My Skin');
+
+  selectedSkin = { source, id: skin.id || null };
+}
+
+
 
 
 
