@@ -54,7 +54,7 @@ const avatarLoginBtn      = $('btnAvatarLoginPrompt');
 
 const avatarUploadSlots   = document.querySelectorAll('.avatar-upload-slot');
 
-const loginFormEl      = $('dressupLoginForm');
+
 const loginEmailInput  = $('dressupLoginEmail');
 const loginPassInput   = $('dressupLoginPassword');
 const dressupLoginBtn  = $('btnDressupLogin');
@@ -157,9 +157,7 @@ function getSb() {
 
 
 if (authLogoutBtn && !window.__dressupLogoutBound2) {
-  window.__dressupLogoutBound2 = true;
-
-authLogoutBtn.addEventListener('click', async () => {
+ authLogoutBtn.addEventListener('click', async () => {
   const sb = getSb();
   try {
     if (buyStatus) buyStatus.textContent = '';
@@ -179,6 +177,7 @@ authLogoutBtn.addEventListener('click', async () => {
     if (buyStatus) buyStatus.textContent = 'Logout failed. Check console.';
   }
 });
+
 
 }
 
@@ -1667,67 +1666,6 @@ if (multiSlotsContainer) {
 // ---------- Avatar tab events ----------
 
 
-
-if (avatarLoginBtn && loginFormEl) {
-  avatarLoginBtn.addEventListener('click', () => {
-    const isVisible = loginFormEl.style.display === 'block';
-    loginFormEl.style.display = isVisible ? 'none' : 'block';
-  });
-}
-
-if (dressupLoginBtn) {
-  dressupLoginBtn.addEventListener('click', async () => {
-    const sb = getSb();
-
-    if (!sb?.auth) {
-      loginStatusEl.textContent = 'Auth not ready, try again.';
-      return;
-    }
-
-    const email = (loginEmailInput?.value || '').trim();
-    const password = (loginPassInput?.value || '').trim();
-
-    if (!email || !password) {
-      loginStatusEl.textContent = 'Enter email and password.';
-      return;
-    }
-
-    dressupLoginBtn.disabled = true;
-    dressupLoginBtn.textContent = 'Signing in…';
-    loginStatusEl.textContent = '';
-
-    try {
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
-
-      if (error || !data?.user) {
-        loginStatusEl.textContent = error?.message || 'Login failed.';
-        dressupLoginBtn.disabled = false;
-        dressupLoginBtn.textContent = 'Sign in';
-        return;
-      }
-
-     loginStatusEl.textContent = 'Signed in.';
-
-// ✅ do NOT call getUser() here — it’s timing out in your browser
-currentUserId = data.user.id;
-
-updateAuthDependentUI();
-await hydrateUserContext();
-
-loginFormEl.style.display = 'none';
-
-      dressupLoginBtn.disabled = false;
-      dressupLoginBtn.textContent = 'Sign in';
-
-
-    } catch (err) {
-      console.error(err);
-      loginStatusEl.textContent = err?.message || 'Login error.';
-      dressupLoginBtn.disabled = false;
-      dressupLoginBtn.textContent = 'Sign in';
-    }
-  });
-}
 
 
 
