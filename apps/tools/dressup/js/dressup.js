@@ -105,7 +105,7 @@ const authBtnSignUp = document.getElementById('authBtnSignUp');
 
 const authStatus = document.getElementById('authStatus');
 
-
+const mySkinSelectEl = $('mySkinSelect');
 
 let selectedSkin = { source: null, id: null }; // source: 'featured' | 'my'
 
@@ -450,6 +450,9 @@ const buyCreditsBtn = $('buyCreditsBtn');
 const buyStatus     = $('buyStatus');
 
 let selectedPackId = 'pack_1';
+
+
+
 
 const PACKS = {
   pack_1:  { label: '$1 (2 runs)',  credits: 100 },
