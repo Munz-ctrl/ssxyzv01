@@ -1832,7 +1832,7 @@ if (avatarCreateBtn) {
         extraRefs,
         avatarTemplateUrl: templateUrl,
         prompt:
-          'Replace the mannequin in the template image with the person and outfit from the uploaded photos. Keep the camera, zoom, perspective, scene, and subject placement EXACTLY the same as in the template mannequin image. Do NOT enlarge the person, place them standing in the same place as where the mannequin was. Disregard the red clothing of the mannequin. Keep background unchanged.  Preserve and harmonize lighting Photorealistic skin and face identity of the; use outfit details from the uploaded photos.'
+          'Replace the mannequin in the template image with the person and outfit from the uploaded photos. Keep the camera, zoom, perspective, scene, and subject placement EXACTLY the same as in the template mannequin image. just place the person standing in the same place as where the mannequin is. harmonize the person from the uploaded photo into the hero template and preserve their outfit details and general appearance from the uploaded photos. Disregard the red clothing of the mannequin. keep all other scene and backgrourd in template image unchanged'
       };
 
       console.log('[Avatar → /api/dressup/generate]', payload);
