@@ -1752,7 +1752,7 @@ if (avatarCreateBtn) {
         avatarTemplateUrl: templateUrl,
         
         prompt:
-         'switch character template in the scene with the character in the uploaded pictures, maintain photorealism, and outfit details. match template stand pose and lighting. disregard red clothing on template and replace with outfit of the uploaded character. high details and accuracy of face, proportions, and outfit of the uploaded character. ' 
+         'switch the mannequin in the template hero image with the person from the uploaded images, maintain the pose and placement of the mannequin in the template. diregard its red clothing and identity, apply identity photorealisim facial featuters and body structure and outfit details of the person in the upladed images ontp the mannequin template, ensure the new person fits naturally into the lighting and style of the template image, high detail, photorealistic, isometric portrait' 
       };
 
       console.log('[Avatar → /api/generate]', payload);
