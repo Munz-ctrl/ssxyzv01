@@ -17,6 +17,10 @@
     { "source": "/mannequin",       "destination": "/apps/tools/dressup/dressup.html" }
   ],
   "redirects": [
+    
+    { "source": "/", "destination": "/dressup", "permanent": false },
+
+
     { "source": "/Nomad_Suitcase.html",      "destination": "/nomadsuitcase", "permanent": true },
     { "source": "/edit-profile.html",        "destination": "/edit-profile",  "permanent": true },
     { "source": "/apps/dressup/dressup.html","destination": "/mannequin",   "permanent": true }
