@@ -228,19 +228,6 @@ async function applyAuthState() {
 
 
 
-function openAuthDialog(defaultTab = 'signin') {
-  if (!authDialog) return;
-
-  // default tab
-  const isUp = defaultTab === 'signup';
-  if (authPanelSignIn) authPanelSignIn.style.display = isUp ? 'none' : 'block';
-  if (authPanelSignUp) authPanelSignUp.style.display = isUp ? 'block' : 'none';
-
-  if (authStatus) authStatus.textContent = '';
-
-  try { authDialog.showModal(); }
-  catch (_) { authDialog.removeAttribute('open'); authDialog.setAttribute('open', ''); }
-}
 
 function closeAuthDialog() {
   if (!authDialog) return;
