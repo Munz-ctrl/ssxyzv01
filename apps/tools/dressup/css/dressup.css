@@ -796,6 +796,15 @@ html, body {
 
 
 
+/* --- Auth dialog tabs: minimal selected state --- */
+#authDialog button.is-active {
+  outline: 2px solid rgba(0,0,0,0.35);
+  font-weight: 700;
+}
+
+
+
+
 
 
 
