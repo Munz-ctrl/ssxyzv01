@@ -790,8 +790,26 @@ if (avatarLoginBtn && !window.__avatarAuthOpenBound) {
 }
 
 // Tabs
-if (authTabSignIn) authTabSignIn.addEventListener('click', () => openAuthDialog('signin'));
-if (authTabSignUp) authTabSignUp.addEventListener('click', () => openAuthDialog('signup'));
+function setAuthTab(tab) {
+  const isUp = tab === 'signup';
+  if (authPanelSignIn) authPanelSignIn.style.display = isUp ? 'none' : 'block';
+  if (authPanelSignUp) authPanelSignUp.style.display = isUp ? 'block' : 'none';
+
+  if (authTabSignIn) authTabSignIn.classList.toggle('is-active', !isUp);
+  if (authTabSignUp) authTabSignUp.classList.toggle('is-active', isUp);
+  if (authStatus) authStatus.textContent = '';
+}
+
+function openAuthDialog(defaultTab = 'signin') {
+  if (!authDialog) return;
+  setAuthTab(defaultTab);
+  try { authDialog.showModal(); }
+  catch (_) { authDialog.setAttribute('open', ''); }
+}
+
+if (authTabSignIn) authTabSignIn.addEventListener('click', () => setAuthTab('signin'));
+if (authTabSignUp) authTabSignUp.addEventListener('click', () => setAuthTab('signup'));
+
 
 
 
