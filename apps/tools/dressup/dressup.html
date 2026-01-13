@@ -171,7 +171,7 @@
              <div class="avatar-header-row">
                <span class="avatar-section-label">MY SKINS</span>
              </div>
-             
+
              <div id="mySkinsRow" class="avatar-public-row"></div>
 
            
@@ -233,21 +233,43 @@
     </div>
 
     <div id="authPanelSignUp" style="display:none;">
-      <label>
-        Email<br>
-        <input id="authEmailUp" type="email" autocomplete="email" >
-      </label>
-      <br><br>
-      <label>
-        Password<br>
-        <input id="authPassUp" type="password" autocomplete="new-password" >
-      </label>
-      <br><br>
-      <button type="button" id="authBtnSignUp">Create account</button>
-      <div style="font-size:12px; opacity:0.8; margin-top:8px;">
-        (This does NOT create a Sunsex “player”. It only authenticates DressUp.)
-      </div>
-    </div>
+  <label>
+    Name<br>
+    <input id="authNameUp" type="text" autocomplete="name" placeholder="Your name">
+  </label>
+  <br><br>
+
+  <label>
+    Phone (optional)<br>
+    <input id="authPhoneUp" type="tel" autocomplete="tel" placeholder="+1 555 555 5555">
+  </label>
+  <br><br>
+
+  <label>
+    Instagram (optional)<br>
+    <input id="authInstaUp" type="text" placeholder="@handle">
+  </label>
+  <br><br>
+
+  <label>
+    Email<br>
+    <input id="authEmailUp" type="email" autocomplete="email" placeholder="you@email.com">
+  </label>
+  <br><br>
+
+  <label>
+    Password<br>
+    <input id="authPassUp" type="password" autocomplete="new-password" placeholder="Create a password">
+  </label>
+  <br><br>
+
+  <button type="button" id="authBtnSignUp">Create account</button>
+
+  <div style="font-size:12px; opacity:0.8; margin-top:8px;">
+    (This does NOT create a Sunsex “player”. It only authenticates DressUp.)
+  </div>
+</div>
+
 
     <p id="authStatus" style="min-height:18px;"></p>
   </form>
