@@ -16,10 +16,32 @@
     return;
   }
 
-  // Always create/overwrite the dressup client (safe + deterministic)
-window.sb = ns.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Always create/overwrite the dressup client (safe + deterministic)
+
+function fetchWithTimeout(input, init = {}, ms = 8000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), ms);
+  return fetch(input, { ...init, signal: controller.signal })
+    .finally(() => clearTimeout(id));
+}
+
+window.sb = ns.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    // ✅ isolate DressUp from other apps on the same domain
+    storageKey: "sb-dressup-auth-token",
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: false,
+  },
+  global: {
+    // ✅ prevents “hang forever” network calls
+    fetch: (input, init) => fetchWithTimeout(input, init, 8000),
+  },
+});
+
 window.__dressup_sb = window.sb; // debug alias
 console.log("[DressUp] Supabase client ready -> window.sb");
+
 
 
 
