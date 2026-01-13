@@ -155,31 +155,44 @@ function getSb() {
 }
 
 
+function hardClearSupabaseTokens() {
+  try {
+    // Supabase stores tokens like: sb-<projectref>-auth-token
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
+        localStorage.removeItem(k);
+      }
+    }
+  } catch (_) {}
+}
 
 if (authLogoutBtn && !window.__dressupLogoutBound2) {
- authLogoutBtn.addEventListener('click', async () => {
-  const sb = getSb();
-  try {
+  window.__dressupLogoutBound2 = true;
+
+  authLogoutBtn.addEventListener('click', async () => {
+    const sb = getSb();
+
+    // hide dropdown immediately
     if (buyStatus) buyStatus.textContent = '';
     if (buyMenu) buyMenu.style.display = 'none';
 
-    // Sign out
-    await sb?.auth?.signOut();
-
-    // Clear local UI state immediately
-    resetDressupToGuestState();
-
-    // Hard refresh so session + UI are guaranteed in sync
-    window.location.reload();
-
-  } catch (e) {
-    console.error(e);
-    if (buyStatus) buyStatus.textContent = 'Logout failed. Check console.';
-  }
-});
-
-
+    try {
+      // don't let logout block forever
+      if (sb?.auth?.signOut) {
+        await withTimeout(sb.auth.signOut(), 5000, 'signOut timeout');
+      }
+    } catch (e) {
+      console.warn('[DressUp] signOut failed/timeout:', e?.message || e);
+    } finally {
+      // always clear tokens + local state + refresh
+      hardClearSupabaseTokens();
+      try { resetDressupToGuestState(); } catch (_) {}
+      window.location.href = window.location.pathname + window.location.search; // hard reload
+    }
+  });
 }
+
 
 
 if (authDialog) {
