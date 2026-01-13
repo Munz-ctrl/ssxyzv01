@@ -286,21 +286,47 @@ if (authBtnSignUp) {
     const sb = getSb();
     if (!sb?.auth) return setAuthStatus('Auth not ready.');
 
+    const name = (authNameUp?.value || '').trim();
+    const phone = (authPhoneUp?.value || '').trim();
+    let instagram = (authInstaUp?.value || '').trim();
     const email = (authEmailUp?.value || '').trim();
     const password = (authPassUp?.value || '').trim();
-    if (!email || !password) return setAuthStatus('Enter email + password.');
+
+    if (!email || !password) return setAuthStatus('Email + password are required.');
+
+    // normalize ig
+    if (instagram && !instagram.startsWith('@')) instagram = '@' + instagram;
 
     authBtnSignUp.disabled = true;
     setAuthStatus('Creating account…');
 
     try {
-      const { data, error } = await sb.auth.signUp({ email, password });
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name || null,
+            phone: phone || null,
+            instagram: instagram || null,
+            source: 'dressup'
+          }
+        }
+      });
+
       if (error) throw new Error(error.message);
 
-      setAuthStatus('Account created. Check email if confirmation is required.');
-      // flip back to sign-in panel
-      if (authPanelSignUp) authPanelSignUp.style.display = 'none';
-      if (authPanelSignIn) authPanelSignIn.style.display = 'block';
+      // If email confirmations are ON, session may be null until confirmed.
+      if (data?.session) {
+        setAuthStatus('Account created. You are signed in.');
+        closeAuthDialog();
+        await applyAuthState();
+      } else {
+        setAuthStatus('Account created. Check your email to confirm, then sign in.');
+        // flip to sign-in panel
+        if (authPanelSignUp) authPanelSignUp.style.display = 'none';
+        if (authPanelSignIn) authPanelSignIn.style.display = 'block';
+      }
     } catch (e) {
       setAuthStatus(`Sign up failed: ${e.message || e}`);
     } finally {
@@ -308,7 +334,6 @@ if (authBtnSignUp) {
     }
   });
 }
-
 
 
 const authDialogCloseBtn = document.getElementById('authDialogClose');
@@ -521,6 +546,15 @@ let activeAvatarSlot = 0;
 const avatarSlots = [null, null, null, null, null];
 
 
+const authNameUp  = document.getElementById('authNameUp');
+const authPhoneUp = document.getElementById('authPhoneUp');
+const authInstaUp = document.getElementById('authInstaUp');
+
+
+
+
+
+
 // ---------- STYLE: multi-item garment state ----------
 
 const MAX_GARMENTS = 6;
@@ -545,6 +579,11 @@ function withTimeout(promise, ms = 15000, msg = 'Timed out') {
   });
   return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
 }
+
+
+
+
+
 
 async function startCreditCheckout() {
   try {
@@ -1161,6 +1200,7 @@ async function loadCreditsFromSupabase() {
     updateCreditUI();
   }
 }
+
 
 
 
