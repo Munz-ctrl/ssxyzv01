@@ -230,26 +230,25 @@ async function applyAuthState() {
     updateAuthDependentUI();
     if (currentUserId) await hydrateUserContext();
 
-  } catch (e) {
-    console.warn('[DressUp] applyAuthState failed:', e?.message || e);
-    // If auth refresh gets stuck, hard-reload ONCE to recover.
-// Guard prevents infinite refresh loops.
-try {
-  const msg = String(e?.message || e || "");
-  const isTimeout = msg.toLowerCase().includes("timeout");
-  const already = sessionStorage.getItem("__dressup_auth_timeout_reload");
+} catch (e) {
+  console.warn('[DressUp] applyAuthState failed:', e?.message || e);
 
-  if (isTimeout && !already) {
-    sessionStorage.setItem("__dressup_auth_timeout_reload", String(Date.now()));
-    window.location.reload();
-    return;
-  }
-} catch (_) {}
+  // If auth refresh gets stuck, hard-reload ONCE to recover (guard prevents loops)
+  try {
+    const msg = String(e?.message || e || '');
+    const isTimeout = msg.toLowerCase().includes('timeout');
+    const already = sessionStorage.getItem('__dressup_auth_timeout_reload');
 
-    // ✅ DO NOT force logout on timeouts — keep whatever state we had
-    // Just re-render UI based on currentUserId as-is.
-    updateAuthDependentUI();
-  }
+    if (isTimeout && !already) {
+      sessionStorage.setItem('__dressup_auth_timeout_reload', String(Date.now()));
+      window.location.reload();
+      return;
+    }
+  } catch (_) {}
+
+  updateAuthDependentUI();
+}
+
 }
 
 
