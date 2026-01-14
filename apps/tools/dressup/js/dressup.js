@@ -149,7 +149,7 @@ function getSb() {
   if (window.sb) return window.sb;
 
   // Fallback: if some other page already created a client and put it on window.supabase
-  if (window.supabase?.from && window.supabase?.auth) return window.supabase;
+  // if (window.supabase?.from && window.supabase?.auth) return window.supabase;
 
   return null;
 }
