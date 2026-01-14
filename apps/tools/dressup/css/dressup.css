@@ -624,9 +624,11 @@ html, body {
 
 .personal-pill.has-credits {
   display: inline-flex;
+  flex-direction: column-reverse;
+  align-items: center;
+
 }
-
-
+   
 
 .credit-topline{
   display:flex;
@@ -721,7 +723,7 @@ html, body {
 
 /* text-based personal credit styling override */
 #personalCreditPill {
-  align-self: flex-end;
+  /* align-self: flex-end; */
   text-align: right;
   min-width: 60px;
 }
