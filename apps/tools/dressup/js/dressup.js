@@ -1471,9 +1471,14 @@ const sb = getSb();
 
 let accessToken = null;
 try {
-  const sess = await sb?.auth?.getSession?.();
+  const sess = await withTimeout(
+    sb?.auth?.getSession?.(),
+    8000,
+    'auth.getSession timeout'
+  );
   accessToken = sess?.data?.session?.access_token || null;
 } catch (_) {}
+
 
 const payload = {
   mode: 'style',
@@ -1907,11 +1912,16 @@ if (avatarCreateBtn) {
 
       console.log('[Avatar → /api/dressup/generate]', payload);
 
-      let accessToken = null;
-      try {
-        const sess = await sb?.auth?.getSession?.();
-        accessToken = sess?.data?.session?.access_token || null;
-      } catch (_) {}
+     let accessToken = null;
+try {
+  const sess = await withTimeout(
+    sb?.auth?.getSession?.(),
+    8000,
+    'auth.getSession timeout'
+  );
+  accessToken = sess?.data?.session?.access_token || null;
+} catch (_) {}
+
 
       const res = await withTimeout(
         fetch('/api/dressup/generate', {
