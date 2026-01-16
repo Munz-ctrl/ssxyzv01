@@ -39,20 +39,13 @@
 
       <!-- When logged IN -->
       <button id="buyMenuToggle" class="buy-toggle" type="button">
-        Buy credits <span class="buy-caret">▾</span>
+       Buy credits
       </button>
+
 
       <button id="authLogoutBtn" type="button" style="display:none;">Log out</button>
 
-      <div id="buyMenu" class="buy-row" style="display:none;">
-        <button class="buy-pack" type="button" data-pack="pack_1">$1 (2 runs)</button>
-        <button class="buy-pack" type="button" data-pack="pack_5">$5 (10 runs)</button>
-        <button class="buy-pack" type="button" data-pack="pack_10">$10 (22 runs)</button>
-        <button class="buy-pack" type="button" data-pack="pack_20">$20 (45 runs)</button>
-
-        <button id="buyCreditsBtn" class="buy-btn" type="button">Buy</button>
-        <div id="buyStatus" class="buy-status"></div>
-      </div>
+      
     </div>
   </div>
 
@@ -199,6 +192,40 @@
       <div id="animatedWatermarkText"></div>
     </footer>
   </div>
+
+
+
+<dialog id="buyCreditsDialog" class="modal">
+  <form method="dialog" class="modal-card" novalidate>
+    <div class="modal-head">
+      <strong>Buy credits</strong>
+      <button type="button" id="buyCreditsDialogClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="modal-sub">
+      Select a pack, then click Buy.
+    </div>
+
+    <div id="buyPacksGrid" class="buy-packs-grid">
+      <button class="buy-pack" type="button" data-pack="pack_1">$1 (2 runs)</button>
+      <button class="buy-pack" type="button" data-pack="pack_5">$5 (10 runs)</button>
+      <button class="buy-pack" type="button" data-pack="pack_10">$10 (22 runs)</button>
+      <button class="buy-pack" type="button" data-pack="pack_20">$20 (45 runs)</button>
+    </div>
+
+    <div class="buy-actions">
+      <button id="buyCreditsBtn" class="buy-btn" type="button">Buy</button>
+      <div id="buyStatus" class="buy-status"></div>
+    </div>
+
+    <div class="modal-note">
+      You must be logged in. Credits apply to your DressUp account.
+    </div>
+  </form>
+</dialog>
+
+
+
 
 
 <dialog id="authDialog">
