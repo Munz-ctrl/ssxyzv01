@@ -1,9 +1,9 @@
 
-
 // js/supabase.js
 
-
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+export let supabase = null;
 
 const isDressUp = location.pathname.startsWith('/apps/tools/dressup/');
 if (isDressUp) {
@@ -13,8 +13,7 @@ if (isDressUp) {
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvYXp0eGJiZWFidndld3N3bWtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcwNzk3OTIsImV4cCI6MjA2MjY1NTc5Mn0.EEpTUXXPkmrZdIdts-veWr16g6SAg6ZXGZiYl07rNqg'; 
 
 
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  supabase = createClient(supabaseUrl, supabaseKey);
   window.supabase = supabase;
   console.log('[supabase.js] Main site client ready');
 }
