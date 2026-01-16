@@ -173,9 +173,9 @@ if (authLogoutBtn && !window.__dressupLogoutBound2) {
   authLogoutBtn.addEventListener('click', async () => {
     const sb = getSb();
 
-    // hide dropdown immediately
     if (buyStatus) buyStatus.textContent = '';
-    if (buyMenu) buyMenu.style.display = 'none';
+    try { closeBuyDialog(); } catch (_) {}
+
 
     try {
       // don't let logout block forever
