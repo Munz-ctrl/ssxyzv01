@@ -19,12 +19,22 @@ if (!ns?.createClient) {
 
 // Always create/overwrite the dressup client (safe + deterministic)
 
+// --- fetch wrapper: timeout for most requests, NEVER abort auth refresh ---
 function fetchWithTimeout(input, init = {}, ms = 8000) {
+  const url = typeof input === 'string' ? input : (input?.url || '');
+  const isAuth = url.includes('/auth/v1/'); // critical: don't abort auth endpoints
+
+  if (isAuth) {
+    return fetch(input, init); // ✅ let auth refresh finish naturally
+  }
+
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), ms);
+
   return fetch(input, { ...init, signal: controller.signal })
     .finally(() => clearTimeout(id));
 }
+
 
 window.sb = ns.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
@@ -36,7 +46,7 @@ window.sb = ns.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
   global: {
     // ✅ prevents “hang forever” network calls
-    fetch: (input, init) => fetchWithTimeout(input, init, 60000),
+    fetch: (input, init) => fetchWithTimeout(input, init, 8000),
   },
 });
 
