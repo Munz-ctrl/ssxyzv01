@@ -1,8 +1,6 @@
 // /js/supabase.js
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-export let siteSb = null;
-
 const isDressUp = location.pathname.startsWith('/apps/tools/dressup/');
 if (isDressUp) {
   console.log('[supabase.js] Skipped on DressUp route');
@@ -10,10 +8,11 @@ if (isDressUp) {
   const supabaseUrl = 'https://hoaztxbbeabvwewswmkl.supabase.co';
   const supabaseKey = 'YOUR_ANON_KEY';
 
-  siteSb = createClient(supabaseUrl, supabaseKey);
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
-  // ✅ do NOT overwrite window.supabase (CDN namespace)
-  window.siteSb = siteSb;
+  // If the rest of your site expects window.supabase, keep this:
+  window.supabase = supabase;
 
-  console.log('[supabase.js] Main site client ready -> window.siteSb');
+  // If other modules import from this file, use an export-let pattern instead
+  // (tell me if you import it anywhere and I’ll give you the exact version)
 }
