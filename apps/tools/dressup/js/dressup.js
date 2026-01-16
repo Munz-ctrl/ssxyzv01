@@ -203,55 +203,117 @@ if (authDialog) {
 }
 
 
+// --- auth hardening + state persistence (minimal) ---
+let __applyAuthInFlight = false;
+
+
+function persistDressupState() {
+try {
+const heroUrl = hero?.getAttribute('data-person-url') || '';
+sessionStorage.setItem('__dressup_last_hero', heroUrl);
+} catch (_) {}
+
+
+try {
+sessionStorage.setItem('__dressup_last_garment', garmentPublicUrl || '');
+} catch (_) {}
+}
+
+
+function restoreDressupState() {
+try {
+const h = sessionStorage.getItem('__dressup_last_hero');
+if (h) setHeroImage(h);
+} catch (_) {}
+
+
+try {
+const g = sessionStorage.getItem('__dressup_last_garment');
+if (g) {
+garmentPublicUrl = g;
+if (garmentPreview) garmentPreview.src = g;
+if (thumbWrap) thumbWrap.classList.remove('empty');
+if (btnGenerate) btnGenerate.disabled = false;
+updateThumbEmpty?.();
+updateCreditUI?.();
+}
+} catch (_) {}
+}
 
 
 async function applyAuthState() {
-  const sb = getSb();
-  if (!sb?.auth) {
-    currentUserId = null;
-    supabaseReady = false;
-    updateAuthDependentUI();
-    return;
-  }
+// prevent overlapping/racing calls
+if (__applyAuthInFlight) return;
+__applyAuthInFlight = true;
 
-  supabaseReady = true;
 
-  try {
-    const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
+const sb = getSb();
+if (!sb?.auth) {
+currentUserId = null;
+supabaseReady = false;
+updateAuthDependentUI();
+__applyAuthInFlight = false;
+return;
+}
 
-    const nextUserId = sessRes?.data?.session?.user?.id || null;
-    const nextToken  = sessRes?.data?.session?.access_token || null;
 
-    currentUserId = nextUserId;
-    currentAccessToken = nextToken;
+supabaseReady = true;
 
-    console.log('[DressUp] applyAuthState currentUserId:', currentUserId);
 
-    updateAuthDependentUI();
-    if (currentUserId) await hydrateUserContext();
+try {
+const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
+
+
+const nextUserId = sessRes?.data?.session?.user?.id || null;
+const nextToken = sessRes?.data?.session?.access_token || null;
+
+
+currentUserId = nextUserId;
+currentAccessToken = nextToken;
+
+
+console.log('[DressUp] applyAuthState currentUserId:', currentUserId);
+
+
+updateAuthDependentUI();
+if (currentUserId) await hydrateUserContext();
+
 
 } catch (e) {
-  console.warn('[DressUp] applyAuthState failed:', e?.message || e);
+console.warn('[DressUp] applyAuthState failed:', e?.message || e);
 
-  // If auth refresh gets stuck, hard-reload ONCE to recover (guard prevents loops)
-  try {
-    const msg = String(e?.message || e || '');
-    const isTimeout = msg.toLowerCase().includes('timeout');
-    const already = sessionStorage.getItem('__dressup_auth_timeout_reload');
 
-    if (isTimeout && !already) {
-      sessionStorage.setItem('__dressup_auth_timeout_reload', String(Date.now()));
-      window.location.reload();
-      return;
-    }
-  } catch (_) {}
+// If auth refresh gets stuck, hard-reload (throttled) to recover
+try {
+const msg = String(e?.message || e || '');
+const isTimeout = msg.toLowerCase().includes('timeout');
 
-  updateAuthDependentUI();
+
+const key = '__dressup_auth_timeout_reload_ts';
+const last = Number(sessionStorage.getItem(key) || 0);
+const now = Date.now();
+
+
+// allow one reload every 30 seconds max
+if (isTimeout && (!last || (now - last) > 30000)) {
+sessionStorage.setItem(key, String(now));
+
+
+// save minimal state so user doesn't lose progress
+persistDressupState();
+
+
+window.location.reload();
+return;
 }
+} catch (_) {}
 
+
+updateAuthDependentUI();
+} finally {
+__applyAuthInFlight = false;
 }
-
-
+}
 
 
 function closeAuthDialog() {
@@ -1088,6 +1150,7 @@ function initHeroBackground() {
 
 initHeroBackground();
 
+restoreDressupState();
 
 
 
@@ -1470,6 +1533,8 @@ if (fileInput) {
       // main single-garment URL (keeps DressUp working)
       garmentPublicUrl = publicUrl;
       
+      persistDressupState();
+
       // Update button styling to primary since garment is ready
       if (btnGenerate) {
         btnGenerate.disabled = false;
@@ -1589,6 +1654,7 @@ if (body.credits) {
     setTimeout(() => {
       hero.style.backgroundImage = `url("${finalUrl}")`;
       hero.setAttribute('data-person-url', finalUrl);
+      persistDressupState();
       hero.style.opacity = '1';
     }, 180);
 
