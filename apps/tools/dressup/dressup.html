@@ -84,14 +84,14 @@
         <!-- Main actions (unchanged) -->
         <div class="panel-actions">
           <input id="fileInput" type="file" accept="image/*" hidden />
-          <button id="btnUpload" class="btn primary">Upload Garment</button>
-          <button id="btnGenerate" class="btn ghost" disabled> Put it on -1 ◙ </button>
+          <button id="btnUpload" class="btn primary">Upload Garment/outfit</button>
+          <button id="btnGenerate" class="btn ghost" disabled> Put it on (-1 ◙) </button>
         </div>
 
         <!-- Thin secondary row: undo / download / reset -->
         <div class="panel-subactions">
-          <button id="btnUndo" class="btn thin" style="display:none;">🔙</button>
-          <button id="btnSave" class="btn thin" style="display:none;">download</button>
+          <button id="btnUndo" class="btn thin" style="display:none;">nah, take it off</button>
+          <button id="btnSave" class="btn thin" style="display:none;">download pic</button>
           <button id="btnResetHero" class="btn thin" style="display:none;">start over</button>
         </div>
 
@@ -104,7 +104,7 @@
         <!-- Featured public skins (visible to everyone) -->
       <div class="avatar-header">
         <div class="avatar-header-row">
-          <span class="avatar-section-label">FEATURED</span>
+          <span class="avatar-section-label">pulic avatars</span>
          </div>
 
         <!-- Filled dynamically from Supabase dressup_skins where visibility in ('featured','public') and player_pid IS NULL -->
@@ -123,7 +123,7 @@
   <button type="button"
           id="btnAvatarLoginPrompt"
           class="btn ghost btn-locked">
-    Log in to unlock avatar creator
+    Log in to create your avatar
   </button>
 
   <!-- Inline email/password login -->
@@ -135,8 +135,26 @@
         <div id="avatarAuthedSection"
              class="avatar-section avatar-authed"
              style="display:none;">
+
+
+            <!-- My skins (logged-in only) -->
+           <div class="avatar-my-skins">
+             <div class="avatar-header-row">
+               <span class="avatar-section-label">MY SKINS</span>
+             </div>
+
+             <div id="mySkinsRow" class="avatar-public-row"></div>
+
+           
+             <div id="mySkinActions" class="my-skin-actions" style="display:none;">
+               <button type="button" id="btnSetAsBase" class="btn thin">Set as Base</button>
+               <button type="button" id="btnDiscardAvatar" class="btn thin">Discard</button>
+             </div>
+           </div>
+
+
           <p class="avatar-copy">
-            Upload 3–5 images of your full body, including at least one face close-up.
+            Upload 1-3 images of you
           </p>
 
           <div class="avatar-upload-grid">
@@ -159,20 +177,7 @@
           </button>
 
 
-          <!-- My skins (logged-in only) -->
-           <div class="avatar-my-skins">
-             <div class="avatar-header-row">
-               <span class="avatar-section-label">MY SKINS</span>
-             </div>
-
-             <div id="mySkinsRow" class="avatar-public-row"></div>
-
-           
-             <div id="mySkinActions" class="my-skin-actions" style="display:none;">
-               <button type="button" id="btnSetAsBase" class="btn thin">Set as Base</button>
-               <button type="button" id="btnDiscardAvatar" class="btn thin">Discard</button>
-             </div>
-           </div>
+         
 
     
         </div>
