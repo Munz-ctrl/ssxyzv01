@@ -1353,7 +1353,17 @@ if (personalCreditPill) {
   if (btnGenerate) {
     const noRuns = (communityRuns <= 0 && personalRuns <= 0);
     const noGarment = !garmentPublicUrl;
-    btnGenerate.disabled = noRuns || noGarment;
+    const isReady = !noRuns && !noGarment;
+    btnGenerate.disabled = !isReady;
+    
+    // Toggle button styling: primary when ready, ghost when not
+    if (isReady) {
+      btnGenerate.classList.remove('ghost');
+      btnGenerate.classList.add('primary');
+    } else {
+      btnGenerate.classList.remove('primary');
+      btnGenerate.classList.add('ghost');
+    }
   }
 }
 
@@ -1456,10 +1466,16 @@ if (fileInput) {
 
       garmentPreview.src = publicUrl;
       thumbWrap.classList.remove('empty');
-      btnGenerate.disabled = false;
-
+      
       // main single-garment URL (keeps DressUp working)
       garmentPublicUrl = publicUrl;
+      
+      // Update button styling to primary since garment is ready
+      if (btnGenerate) {
+        btnGenerate.disabled = false;
+        btnGenerate.classList.remove('ghost');
+        btnGenerate.classList.add('primary');
+      }
 
       // multi-slot bookkeeping if enabled
       if (multiModeEnabled) {
