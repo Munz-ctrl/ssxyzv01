@@ -810,5 +810,100 @@ html, body {
 
 
 
+
+/* ===== Buy credits modal ===== */
+.modal::backdrop {
+  background: rgba(0,0,0,0.55);
+}
+
+.modal {
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+.modal-card {
+  min-width: 280px;
+  max-width: 340px;
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(20, 22, 28, 0.96);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #fff;
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-head button {
+  height: 28px;
+  width: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  cursor: pointer;
+}
+
+.modal-sub {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.buy-packs-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.buy-pack {
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.buy-pack.active {
+  border-color: rgba(255,255,255,0.7);
+  background: rgba(43,102,255,0.22);
+}
+
+.buy-actions {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.buy-status {
+  min-height: 14px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.modal-note {
+  margin-top: 10px;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+
+
+
+
+
+
+
+
 /* ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji" */
 
