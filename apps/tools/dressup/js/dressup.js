@@ -180,7 +180,7 @@ if (authLogoutBtn && !window.__dressupLogoutBound2) {
     try {
       // don't let logout block forever
       if (sb?.auth?.signOut) {
-        await withTimeout(sb.auth.signOut(), 5000, 'signOut timeout');
+        await withTimeout(sb.auth.signOut(), 1500, 'signOut timeout');
       }
     } catch (e) {
       console.warn('[DressUp] signOut failed/timeout:', e?.message || e);
