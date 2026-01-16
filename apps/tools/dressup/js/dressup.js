@@ -1287,7 +1287,8 @@ function updateAuthDependentUI() {
   if (buyMenuToggle) buyMenuToggle.style.display = loggedIn ? 'inline-block' : 'none';
   if (authLogoutBtn) authLogoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
   if (authOpenBtn)   authOpenBtn.style.display   = loggedIn ? 'none' : 'inline-block';
-  if (!loggedIn && buyMenu) buyMenu.style.display = 'none';
+  if (!loggedIn) { try { closeBuyDialog(); } catch (_) {} }
+
 
   if (multiItemToggle) multiItemToggle.disabled = !loggedIn;
   if (multiItemLockLabel) {
