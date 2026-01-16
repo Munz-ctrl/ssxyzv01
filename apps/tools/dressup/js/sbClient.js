@@ -46,7 +46,7 @@ window.sb = ns.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   },
   global: {
     // ✅ prevents “hang forever” network calls
-    fetch: (input, init) => fetchWithTimeout(input, init, 8000),
+    fetch: (input, init) => fetchWithTimeout(input, init, 90000),
   },
 });
 
@@ -60,3 +60,7 @@ console.log("[DressUp] Supabase client ready -> window.sb");
 
 
   
+
+
+
+// stri :   jypi-dmhe-dwby-fwkt-coaw 
