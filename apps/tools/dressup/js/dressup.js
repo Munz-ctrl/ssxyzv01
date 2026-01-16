@@ -481,10 +481,13 @@ const communityBarText   = $('communityBarText');
 const personalCreditPill = $('personalCreditPill');
 
 // --- Buy credits UI ---
-const buyMenuToggle = $('buyMenuToggle');
-const buyMenu       = $('buyMenu');
-const buyCreditsBtn = $('buyCreditsBtn');
-const buyStatus     = $('buyStatus');
+const buyMenuToggle       = $('buyMenuToggle');
+const buyCreditsDialog    = $('buyCreditsDialog');
+const buyCreditsDialogClose = $('buyCreditsDialogClose');
+const buyPacksGrid        = $('buyPacksGrid');
+const buyCreditsBtn       = $('buyCreditsBtn');
+const buyStatus           = $('buyStatus');
+
 
 let selectedPackId = 'pack_1';
 
@@ -628,41 +631,80 @@ async function startCreditCheckout() {
   }
 }
 
-function wireBuyMenu() {
-  if (!buyMenuToggle || !buyMenu) return;
+function openBuyDialog() {
+  if (!buyCreditsDialog) return;
 
-  buyMenuToggle.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isOpen = buyMenu.style.display !== 'none';
-    buyMenu.style.display = isOpen ? 'none' : 'block';
-  });
+  // optional: default status
+  if (buyStatus) buyStatus.textContent = PACKS[selectedPackId]?.label
+    ? `${PACKS[selectedPackId].label} selected`
+    : '';
 
-  document.addEventListener('click', () => {
-    if (buyMenu) buyMenu.style.display = 'none';
-  });
+  // highlight current selection
+  try {
+    buyCreditsDialog.querySelectorAll('.buy-pack').forEach(b => {
+      b.classList.toggle('active', (b.dataset.pack || '') === selectedPackId);
+    });
+  } catch (_) {}
 
-  buyMenu.addEventListener('click', (e) => {
-    const packBtn = e.target.closest('.buy-pack');
-    if (packBtn) {
+  try { buyCreditsDialog.showModal(); }
+  catch (_) { buyCreditsDialog.setAttribute('open', ''); }
+}
+
+function closeBuyDialog() {
+  if (!buyCreditsDialog) return;
+  try { buyCreditsDialog.close(); }
+  catch (_) { buyCreditsDialog.removeAttribute('open'); }
+}
+
+function wireBuyDialog() {
+  if (buyMenuToggle) {
+    buyMenuToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openBuyDialog();
+    });
+  }
+
+  if (buyCreditsDialogClose) {
+    buyCreditsDialogClose.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeBuyDialog();
+    });
+  }
+
+  // click pack → select + highlight
+  if (buyPacksGrid) {
+    buyPacksGrid.addEventListener('click', (e) => {
+      const packBtn = e.target.closest('.buy-pack');
+      if (!packBtn) return;
+
       selectedPackId = packBtn.dataset.pack || 'pack_1';
-      // optional visual highlight
-      buyMenu.querySelectorAll('.buy-pack').forEach(b => b.classList.remove('active'));
+      buyPacksGrid.querySelectorAll('.buy-pack').forEach(b => b.classList.remove('active'));
       packBtn.classList.add('active');
+
       if (buyStatus) buyStatus.textContent = `${PACKS[selectedPackId]?.label || ''} selected`;
-      return;
-    }
-  });
+    });
+  }
 
   if (buyCreditsBtn) {
-    buyCreditsBtn.addEventListener('click', (e) => {
+    buyCreditsBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
       e.stopPropagation();
-      startCreditCheckout();
+      await startCreditCheckout();
+      // Note: if Stripe redirects, this won't matter; if it errors, user stays in dialog.
+    });
+  }
+
+  // ESC/cancel behavior
+  if (buyCreditsDialog) {
+    buyCreditsDialog.addEventListener('cancel', (e) => {
+      e.preventDefault();
+      closeBuyDialog();
     });
   }
 }
 
-// wire immediately (script runs after DOM in your page)
-wireBuyMenu();
+wireBuyDialog();
 
 
 // helper: mark slots visually
