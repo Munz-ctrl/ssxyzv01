@@ -527,6 +527,7 @@ function setHeroImage(url) {
   const finalUrl = toAbsoluteHttpUrl(url || fallback);
   hero.style.backgroundImage = 'url("' + finalUrl + '")';
   hero.setAttribute('data-person-url', finalUrl);
+  try { sessionStorage.setItem('__dressup_last_hero', finalUrl); } catch (_) {}
 }
 
 
