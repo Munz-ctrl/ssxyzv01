@@ -295,7 +295,7 @@ const now = Date.now();
 
 
 // allow one reload every 30 seconds max
-if (isTimeout && (!last || (now - last) > 30000)) {
+if (isTimeout && (!last || (now - last) > 60000)) {
 sessionStorage.setItem(key, String(now));
 
 
