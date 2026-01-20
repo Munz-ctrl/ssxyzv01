@@ -214,7 +214,7 @@ async function fetchWithRetry(url, init, tries = 3) {
   let lastText = "";
   for (let i = 0; i < tries; i++) {
     const res = await fetch(url, init);
-    if (res.ok) return res;
+    if (res.ok) return { res };
 
     // retry only on transient server errors
     if (![502, 503, 504].includes(res.status)) {
