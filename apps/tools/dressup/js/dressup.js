@@ -659,6 +659,26 @@ function withTimeout(promise, ms = 15000, msg = 'Timed out') {
 }
 
 
+// --- ultra-minimal analytics (best effort, never blocks UX)
+function trackEvent(type) {
+  try {
+    fetch('/api/dressup/event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type })
+    }).catch(() => {});
+  } catch (_) {}
+}
+
+function trackPing() {
+  try {
+    fetch('/api/dressup/ping', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'page_view' })
+    }).catch(() => {});
+  } catch (_) {}
+}
 
 
 
@@ -671,6 +691,10 @@ async function startCreditCheckout() {
     }
 
     if (buyStatus) buyStatus.textContent = 'Opening checkout...';
+
+        trackEvent('buy_click');
+
+
 
     const res = await fetch('/api/dressup/create-checkout-session', {
 
@@ -1246,6 +1270,8 @@ if (new URLSearchParams(location.search).get("success") === "1") {
 (async () => {
   try {
     const sb = getSb();
+    trackPing();
+
     if (!sb?.auth) {
       updateCreditUI();
       updateAuthDependentUI();
@@ -1632,6 +1658,10 @@ if (!res.ok) {
 // ✅ server returns finalUrl + updated credits
 const finalUrl = body.finalUrl || body.outputUrl;
 if (!finalUrl) throw new Error('No output URL returned');
+
+trackEvent('generate');
+
+
 
 // update credits from server truth
 if (body.credits) {
