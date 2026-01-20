@@ -575,7 +575,7 @@ const DRESSUP_COST_UNITS = 50;
 let communityCredits = 0;
 
 
-let communityMax     = 300
+let communityMax     = 200;
 let personalCredits  = 0;                       // backup pool for this user (used only when community is empty)
 
 let garmentPublicUrl = null;
