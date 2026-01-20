@@ -152,21 +152,24 @@ export default async function handler(req, res) {
   let outputUrl = null;
 
   try {
-    const start = await fetch(START_URL, {
+     const startTry = await fetchWithRetry(START_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${REPLICATE_API_TOKEN}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ input }),
-    });
-
-    if (!start.ok) {
-      const details = await start.text();
-      return res.status(start.status).json({ error: "replicate_start_failed", details });
+    }, 4);
+    
+    if (startTry?.noRetry) {
+      return res.status(startTry.res.status).json({ error: "replicate_start_failed", details: startTry.text });
     }
-
-    const prediction = await start.json();
+    if (!startTry?.res) {
+      return res.status(503).json({ error: "replicate_start_failed", details: startTry.text || "Replicate unavailable (retry exhausted)" });
+    }
+    
+    const prediction = await startTry.res.json();
+    
     const id = prediction.id;
 
     // Give it enough time (avatar sometimes slower)
@@ -203,6 +206,35 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ error: "replicate_error", details: e.message || String(e) });
   }
+
+
+async function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+async function fetchWithRetry(url, init, tries = 3) {
+  let lastText = "";
+  for (let i = 0; i < tries; i++) {
+    const res = await fetch(url, init);
+    if (res.ok) return res;
+
+    // retry only on transient server errors
+    if (![502, 503, 504].includes(res.status)) {
+      lastText = await res.text().catch(() => "");
+      return { res, text: lastText, noRetry: true };
+    }
+
+    lastText = await res.text().catch(() => "");
+    await sleep(600 * (i + 1)); // small backoff
+  }
+  return { res: null, text: lastText, noRetry: false };
+}
+
+
+
+
+
+
+
+
 
   // 3) Upload to Supabase storage (best effort)
   let finalUrl = outputUrl;
