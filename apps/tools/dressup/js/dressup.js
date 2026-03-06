@@ -61,9 +61,6 @@ const dressupLoginBtn  = $('btnDressupLogin');
 const loginStatusEl    = $('dressupLoginStatus');
 
 
-
-
-
 const fileInput       = $('fileInput');
 const garmentPreview  = $('garmentPreview');
 const thumbWrap       = document.querySelector('.thumb-wrap');
@@ -73,17 +70,12 @@ const resetBtn        = $('btnResetHero');
 
 // (removed) legacy skin dropdown refs (we only use Featured + My Skins now)
 
-
 const mySkinActionsEl = $('mySkinActions');
 const btnSetAsBase = $('btnSetAsBase');
 const btnDiscardAvatar = $('btnDiscardAvatar');
 
-
-
 const btnDressupLogout = $('btnDressupLogout');
 const dressupLogoutStatus = $('dressupLogoutStatus');
-
-
 
 // --- Auth dialog + HUD auth buttons ---
 const authOpenBtn   = $('authOpenBtn');
@@ -109,12 +101,8 @@ const mySkinSelectEl = $('mySkinSelect');
 
 let selectedSkin = { source: null, id: null }; // source: 'featured' | 'my'
 
-
-
 let pendingAvatarUrl = null;     // holds newly generated avatar until user decides
 let pendingAvatarBeforeUrl = null; // what hero was before previewing the avatar
-
-
 
 // skin list for this player
 let availableSkins = []; // { id, name, hero_url, is_default }
@@ -145,19 +133,13 @@ async function uploadGarmentToSupabase(file) {
 
 
 function getSb() {
-  // DressUp client (created in sbClient.js)
   if (window.sb) return window.sb;
-
-  // Fallback: if some other page already created a client and put it on window.supabase
-  // if (window.supabase?.from && window.supabase?.auth) return window.supabase;
-
   return null;
 }
 
 
 function hardClearSupabaseTokens() {
   try {
-    // Supabase stores tokens like: sb-<projectref>-auth-token
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
       if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
@@ -176,34 +158,30 @@ if (authLogoutBtn && !window.__dressupLogoutBound2) {
     if (buyStatus) buyStatus.textContent = '';
     try { closeBuyDialog(); } catch (_) {}
 
-
     try {
-      // don't let logout block forever
       if (sb?.auth?.signOut) {
         await withTimeout(sb.auth.signOut(), 1500, 'signOut timeout');
       }
     } catch (e) {
       console.warn('[DressUp] signOut failed/timeout:', e?.message || e);
     } finally {
-      // always clear tokens + local state + refresh
       hardClearSupabaseTokens();
       try { resetDressupToGuestState(); } catch (_) {}
-      window.location.href = window.location.pathname + window.location.search; // hard reload
+      window.location.href = window.location.pathname + window.location.search;
     }
   });
 }
 
 
-
 if (authDialog) {
   authDialog.addEventListener('cancel', (e) => {
-    e.preventDefault(); // stop browser default
+    e.preventDefault();
     closeAuthDialog();
   });
 }
 
 
-// --- auth hardening + state persistence (minimal) ---
+// --- auth hardening + state persistence ---
 let __applyAuthInFlight = false;
 
 
@@ -243,77 +221,57 @@ function restoreDressupState() {
 
 
 async function applyAuthState() {
-// prevent overlapping/racing calls
-if (__applyAuthInFlight) return;
-__applyAuthInFlight = true;
+  if (__applyAuthInFlight) return;
+  __applyAuthInFlight = true;
 
+  const sb = getSb();
+  if (!sb?.auth) {
+    currentUserId = null;
+    supabaseReady = false;
+    updateAuthDependentUI();
+    __applyAuthInFlight = false;
+    return;
+  }
 
-const sb = getSb();
-if (!sb?.auth) {
-currentUserId = null;
-supabaseReady = false;
-updateAuthDependentUI();
-__applyAuthInFlight = false;
-return;
-}
+  supabaseReady = true;
 
+  try {
+    const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
 
-supabaseReady = true;
+    const nextUserId = sessRes?.data?.session?.user?.id || null;
+    const nextToken = sessRes?.data?.session?.access_token || null;
 
+    currentUserId = nextUserId;
+    currentAccessToken = nextToken;
 
-try {
-const sessRes = await withTimeout(sb.auth.getSession(), 8000, 'auth.getSession timeout');
+    console.log('[DressUp] applyAuthState currentUserId:', currentUserId);
 
+    updateAuthDependentUI();
+    if (currentUserId) await hydrateUserContext();
 
-const nextUserId = sessRes?.data?.session?.user?.id || null;
-const nextToken = sessRes?.data?.session?.access_token || null;
+  } catch (e) {
+    console.warn('[DressUp] applyAuthState failed:', e?.message || e);
 
+    try {
+      const msg = String(e?.message || e || '');
+      const isTimeout = msg.toLowerCase().includes('timeout');
 
-currentUserId = nextUserId;
-currentAccessToken = nextToken;
+      const key = '__dressup_auth_timeout_reload_ts';
+      const last = Number(sessionStorage.getItem(key) || 0);
+      const now = Date.now();
 
+      if (isTimeout && (!last || (now - last) > 60000)) {
+        sessionStorage.setItem(key, String(now));
+        persistDressupState();
+        window.location.reload();
+        return;
+      }
+    } catch (_) {}
 
-console.log('[DressUp] applyAuthState currentUserId:', currentUserId);
-
-
-updateAuthDependentUI();
-if (currentUserId) await hydrateUserContext();
-
-
-} catch (e) {
-console.warn('[DressUp] applyAuthState failed:', e?.message || e);
-
-
-// If auth refresh gets stuck, hard-reload (throttled) to recover
-try {
-const msg = String(e?.message || e || '');
-const isTimeout = msg.toLowerCase().includes('timeout');
-
-
-const key = '__dressup_auth_timeout_reload_ts';
-const last = Number(sessionStorage.getItem(key) || 0);
-const now = Date.now();
-
-
-// allow one reload every 30 seconds max
-if (isTimeout && (!last || (now - last) > 60000)) {
-sessionStorage.setItem(key, String(now));
-
-
-// save minimal state so user doesn't lose progress
-persistDressupState();
-
-
-window.location.reload();
-return;
-}
-} catch (_) {}
-
-
-updateAuthDependentUI();
-} finally {
-__applyAuthInFlight = false;
-}
+    updateAuthDependentUI();
+  } finally {
+    __applyAuthInFlight = false;
+  }
 }
 
 
@@ -323,11 +281,9 @@ function closeAuthDialog() {
 }
 
 
-
 function setAuthStatus(msg) {
   if (authStatus) authStatus.textContent = msg || '';
 }
-
 
 
 if (authBtnSignIn) {
@@ -340,14 +296,14 @@ if (authBtnSignIn) {
     if (!email || !password) return setAuthStatus('Enter email + password.');
 
     authBtnSignIn.disabled = true;
-    setAuthStatus('Signing in…');
+    setAuthStatus('Signing in\u2026');
 
     try {
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error || !data?.user) throw new Error(error?.message || 'sign_in_failed');
 
       closeAuthDialog();
-      await applyAuthState(); // refresh UI + hydrate
+      await applyAuthState();
     } catch (e) {
       setAuthStatus(`Sign in failed: ${e.message || e}`);
     } finally {
@@ -369,11 +325,10 @@ if (authBtnSignUp) {
 
     if (!email || !password) return setAuthStatus('Email + password are required.');
 
-    // normalize ig
     if (instagram && !instagram.startsWith('@')) instagram = '@' + instagram;
 
     authBtnSignUp.disabled = true;
-    setAuthStatus('Creating account…');
+    setAuthStatus('Creating account\u2026');
 
     try {
       const { data, error } = await sb.auth.signUp({
@@ -391,14 +346,12 @@ if (authBtnSignUp) {
 
       if (error) throw new Error(error.message);
 
-      // If email confirmations are ON, session may be null until confirmed.
       if (data?.session) {
         setAuthStatus('Account created. You are signed in.');
         closeAuthDialog();
         await applyAuthState();
       } else {
         setAuthStatus('Account created. Check your email to confirm, then sign in.');
-        // flip to sign-in panel
         if (authPanelSignUp) authPanelSignUp.style.display = 'none';
         if (authPanelSignIn) authPanelSignIn.style.display = 'block';
       }
@@ -419,7 +372,6 @@ if (authDialogCloseBtn && !window.__authDialogCloseBound) {
 }
 
 
-
 function resetDressupToGuestState() {
   currentUserId = null;
   currentAccessToken = null;
@@ -427,16 +379,13 @@ function resetDressupToGuestState() {
   pendingAvatarUrl = null;
   pendingAvatarBeforeUrl = null;
 
-  // identity label fallback (don’t touch URL overrides)
   if (!qsId) signedInLabel = 'anonymousss';
-  if (!qsName) currentPlayer.name = ''; // optional; remove if you want name to stay
+  if (!qsName) currentPlayer.name = '';
   currentPid = null;
 
   updateAuthDependentUI();
   updateCreditUI();
 }
-
-
 
 
 async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
@@ -446,12 +395,10 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
   const heroUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
   if (!heroUrl) throw new Error('No hero image to save.');
 
-  // download the current hero image
   const imgRes = await fetch(heroUrl, { mode: 'cors' });
   if (!imgRes.ok) throw new Error(`download_failed ${imgRes.status}`);
   const blob = await imgRes.blob();
 
-  // upload to storage
   const ext = blob.type?.includes('jpeg') ? 'jpg' : 'png';
   const path = `skins/${currentUserId}/${Date.now()}.${ext}`;
 
@@ -465,7 +412,6 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
   const publicUrl = pub?.publicUrl;
   if (!publicUrl) throw new Error('public_url_missing');
 
-  // does user already have a private default row?
   const { data: existing, error: exErr } = await sb
     .from('dressup_skins')
     .select('id')
@@ -474,10 +420,9 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
     .eq('is_default', true)
     .maybeSingle();
 
-  if (exErr && exErr.code !== 'PGRST116') throw exErr; // ignore "no rows" style errors
+  if (exErr && exErr.code !== 'PGRST116') throw exErr;
 
   if (existing?.id) {
-    // update existing base skin row
     const { error: upSkinErr } = await sb
       .from('dressup_skins')
       .update({ name, hero_url: publicUrl, is_default: true })
@@ -485,7 +430,6 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
 
     if (upSkinErr) throw upSkinErr;
   } else {
-    // clear any accidental defaults then insert a new base row
     await sb
       .from('dressup_skins')
       .update({ is_default: false })
@@ -506,10 +450,8 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
     if (insErr) throw insErr;
   }
 
-  // refresh local list + UI
   await loadSkinsForPlayer();
 
-  // set selection to the new/updated base
   const def = availableSkins.find(s => s.is_default) || availableSkins[0];
   if (def) {
     selectedSkin = { source: 'my', id: def.id };
@@ -518,7 +460,6 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
     renderMySkinsRow();
   }
 }
-
 
 
 // helper: set hero image + data-person-url consistently
@@ -532,13 +473,11 @@ function setHeroImage(url) {
 }
 
 
-// read the default hero (Munz) from the HTML itself, so code and markup stay in sync
 const htmlDefaultHero = hero
   ? (hero.getAttribute('data-default-hero') || '/apps/tools/dressup/assets/manq.png')
   : '/apps/tools/dressup/assets/munz-base-portraitV2-1.png';
 
 
-// credit HUD elements
 // credit HUD elements
 const creditHUD          = $('creditHUD');
 const communityBarText   = $('communityBarText');
@@ -552,11 +491,7 @@ const buyPacksGrid        = $('buyPacksGrid');
 const buyCreditsBtn       = $('buyCreditsBtn');
 const buyStatus           = $('buyStatus');
 
-
 let selectedPackId = 'pack_1';
-
-
-
 
 const PACKS = {
   pack_1:  { label: '$1 (2 runs)',  credits: 100 },
@@ -565,73 +500,49 @@ const PACKS = {
   pack_20: { label: '$20 (45 runs)', credits: 2250 },
 };
 
-// ---------- pricing / cost (global credits) ----------
-// We treat "credits" as global units (like cents). DressUp costs 33 units (~$0.33) per generation.
-// 1 dollar donated ≈ 3 runs (2 community, 1 personal) → 3 * 33 = 99 units.
 const DRESSUP_COST_UNITS = 50;
 
-// ---------- credit state (global units) ----------
-// These are fallback defaults; Supabase will overwrite them when available.
-
 let communityCredits = 0;
-
-
 let communityMax     = 200;
-let personalCredits  = 0;                       // backup pool for this user (used only when community is empty)
+let personalCredits  = 0;
 
 let garmentPublicUrl = null;
 
 let isGenerating = false;
 
-
 let hasGeneratedOnce = false;
-let historyStack = []; // previous hero URLs for "Step Back"
-
+let historyStack = [];
 
 // Supabase user context for personal credits
 let currentUserId = null;
 let supabaseReady = false;
-
 let currentAccessToken = null;
 
+// game context
+let currentPid = null;
 
-// game context: which player + skin
-let currentPid = null;        // player's PID if we find one for this user
-
-
-// This object represents whoever is currently being dressed.
-// Later the skin selector dropdown will just update this object.
 let currentPlayer = {
-  name: "Demo",   // default display name
-  id: "",      // readable id/tag (acts like PID)
-  heroUrl: null   // will be set below
+  name: "Demo",
+  id: "",
+  heroUrl: null
 };
 
-// "Signed in" label for watermark (PID if we have one, otherwise "anonymous")
 let signedInLabel = "anonymous";
-
-// guard so the watermark typing loop only starts once
 let watermarkLoopStarted = false;
-
-// current skin label (e.g. "Base", "CVS Uniform")
 let currentSkinName = null;
 
-
-// which part of UI is using fileInput right now: "style" vs "avatar"
 let currentUploadContext = 'style';
 let activeAvatarSlot = 0;
 
-// avatar slot URLs (for later Nano avatar pipeline)
+// avatar slot URLs
 const avatarSlots = [null, null, null, null, null];
 
+// ── FIX: tracker for in-flight avatar uploads so we can abort them ──
+let __activeAvatarUploadController = null;
 
 const authNameUp  = document.getElementById('authNameUp');
 const authPhoneUp = document.getElementById('authPhoneUp');
 const authInstaUp = document.getElementById('authInstaUp');
-
-
-
-
 
 
 // ---------- STYLE: multi-item garment state ----------
@@ -639,16 +550,10 @@ const authInstaUp = document.getElementById('authInstaUp');
 const MAX_GARMENTS = 6;
 let multiModeEnabled = false;
 
-// each slot holds { url, supabasePath } or null
 let garmentSlots = new Array(MAX_GARMENTS).fill(null);
 let activeGarmentSlot = 0;
 
-
-
-
 let isAvatarGenerating = false;
-
-
 
 
 function withTimeout(promise, ms = 15000, msg = 'Timed out') {
@@ -682,8 +587,6 @@ function trackPing() {
 }
 
 
-
-
 async function startCreditCheckout() {
   try {
     if (!currentUserId || !currentAccessToken) {
@@ -693,12 +596,9 @@ async function startCreditCheckout() {
 
     if (buyStatus) buyStatus.textContent = 'Opening checkout...';
 
-        trackEvent('buy_click');
-
-
+    trackEvent('buy_click');
 
     const res = await fetch('/api/dressup/create-checkout-session', {
-
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -722,12 +622,10 @@ async function startCreditCheckout() {
 function openBuyDialog() {
   if (!buyCreditsDialog) return;
 
-  // optional: default status
   if (buyStatus) buyStatus.textContent = PACKS[selectedPackId]?.label
     ? `${PACKS[selectedPackId].label} selected`
     : '';
 
-  // highlight current selection
   try {
     buyCreditsDialog.querySelectorAll('.buy-pack').forEach(b => {
       b.classList.toggle('active', (b.dataset.pack || '') === selectedPackId);
@@ -760,7 +658,6 @@ function wireBuyDialog() {
     });
   }
 
-  // click pack → select + highlight
   if (buyPacksGrid) {
     buyPacksGrid.addEventListener('click', (e) => {
       const packBtn = e.target.closest('.buy-pack');
@@ -779,11 +676,9 @@ function wireBuyDialog() {
       e.preventDefault();
       e.stopPropagation();
       await startCreditCheckout();
-      // Note: if Stripe redirects, this won't matter; if it errors, user stays in dialog.
     });
   }
 
-  // ESC/cancel behavior
   if (buyCreditsDialog) {
     buyCreditsDialog.addEventListener('cancel', (e) => {
       e.preventDefault();
@@ -812,10 +707,8 @@ function refreshMultiSlotsUI() {
   });
 }
 
-// ---------- AVATAR: public presets ----------
-
 // ---------- AVATAR: public presets loaded from Supabase ----------
-let publicFeaturedSkins = []; // { id, name, hero_url, skin_key, sort_order }
+let publicFeaturedSkins = [];
 
 async function loadPublicFeaturedSkins() {
   const sb = getSb();
@@ -843,8 +736,6 @@ async function loadPublicFeaturedSkins() {
 }
 
 
-
-
 function renderAvatarPublicRow() {
   const row = document.getElementById('featuredSkinsRow');
   if (!row) return;
@@ -868,12 +759,9 @@ function renderAvatarPublicRow() {
 
     row.appendChild(btn);
 
-    // Auto-select first on initial render
-    // Auto-select only if nothing has been selected yet
-if (idx === 0 && !selectedSkin.source) {
-  setTimeout(() => selectFeaturedSkin(skin, btn), 0);
-}
-
+    if (idx === 0 && !selectedSkin.source) {
+      setTimeout(() => selectFeaturedSkin(skin, btn), 0);
+    }
   });
 }
 
@@ -883,36 +771,26 @@ function selectFeaturedSkin(skin, btnEl) {
 }
 
 
-
-
-
-
-// chose default hero image
-// Base "template" hero (composition anchor for avatar creation + default for new users)
+// Base "template" hero
 const DEFAULT_HERO_IMG = hero
   ? (hero.getAttribute('data-default-hero') || "/apps/tools/dressup/assets/manq.png")
   : "/apps/tools/dressup/assets/manq.png";
-
-// const DEFAULT_HERO_IMG = "/apps/tools/dressup/assets/munz-base-portraitnomaditemselected2.png";
 
 
 // apply URL overrides
 if (qsName) currentPlayer.name = qsName;
 if (qsId)   currentPlayer.id   = qsId;
 
-// signed-in label: if a pid is explicitly provided, use it
 if (qsId) {
   signedInLabel = qsId;
 }
 
-// initial skin label: explicit ?skin=... wins, otherwise use player name or "Base"
 if (qsSkin) {
   currentSkinName = qsSkin;
 } else {
   currentSkinName = "@Munzir_here";
 }
 
-// Choose hero image: ?hero=... wins, otherwise default
 if (qsHero) {
   currentPlayer.heroUrl = qsHero;
 } else {
@@ -931,7 +809,6 @@ if (avatarLoginBtn && !window.__avatarAuthOpenBound) {
   avatarLoginBtn.addEventListener('click', () => openAuthDialog('signin'));
 }
 
-// Tabs
 function setAuthTab(tab) {
   const isUp = tab === 'signup';
   if (authPanelSignIn) authPanelSignIn.style.display = isUp ? 'none' : 'block';
@@ -953,26 +830,9 @@ if (authTabSignIn) authTabSignIn.addEventListener('click', () => setAuthTab('sig
 if (authTabSignUp) authTabSignUp.addEventListener('click', () => setAuthTab('signup'));
 
 
-
-
-
-
-
-
-
-
-
-
-// Load skins for this player from Supabase (if available)
-// (removed) legacy dropdown skin system
-// We now use:
-// - loadPublicFeaturedSkins() for Featured/Public
-// - loadSkinsForPlayer() for logged-in user's private skins
-
 async function loadSkinsForPlayer() {
   const sb = getSb();
 
-  // Not logged in → clear MY SKINS dropdown
   if (!sb || !currentUserId) {
     availableSkins = [];
     if (mySkinSelectEl) {
@@ -1008,7 +868,6 @@ async function loadSkinsForPlayer() {
 }
 
 
-
 function renderMySkinsRow() {
   const row = document.getElementById('mySkinsRow');
   if (!row) return;
@@ -1038,14 +897,11 @@ function renderMySkinsRow() {
 
     row.appendChild(btn);
 
-    // highlight if it matches current selection
     if (selectedSkin.source === 'my' && selectedSkin.id === skin.id) {
       btn.classList.add('avatar-pill-active');
     }
   });
 }
-
-
 
 
 if (mySkinSelectEl && !window.__mySkinSelectBound) {
@@ -1054,7 +910,6 @@ if (mySkinSelectEl && !window.__mySkinSelectBound) {
     applyMySkinById(e.target.value);
   });
 }
-
 
 
 function clearFeaturedSelectionUI() {
@@ -1068,7 +923,6 @@ function clearMySkinsSelectionUI() {
 }
 
 function selectSkinUnified({ source, skin, btnEl }) {
-  // clear the other group so only ONE selection exists total
   if (source === 'featured') clearMySkinsSelectionUI();
   if (source === 'my') clearFeaturedSelectionUI();
 
@@ -1077,8 +931,7 @@ function selectSkinUnified({ source, skin, btnEl }) {
   setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
   currentSkinName = skin.name || (source === 'featured' ? 'Featured' : 'My Skin');
 
-  // Explicit user skin selection — update state, clear generated flag
-  // (user is intentionally starting fresh with a new base)
+  // Explicit user skin selection — update state
   DressUpState.setHero(skin.hero_url || DEFAULT_HERO_IMG, { fromHydration: false });
   DressUpState.setSkinName(currentSkinName);
 
@@ -1086,17 +939,9 @@ function selectSkinUnified({ source, skin, btnEl }) {
 }
 
 
-
-
-
-  // If ?skin=Name is present, override selection by name
-  
-
-
-
-// Utility: text used both by animated UI watermark and the saved-image watermark
+// Utility: watermark text
 function getWatermarkText() {
-  const line1 = "[ SUNSEX.XYZ/mannequin ] ☂☂☂ ";
+  const line1 = "[ SUNSEX.XYZ/mannequin ] \u2602\u2602\u2602 ";
   const line2 = "[ v1.01 ] ";
   const displayName = currentPlayer?.name || "Guest";
   const displayId   = signedInLabel || "guest";
@@ -1105,15 +950,6 @@ function getWatermarkText() {
   const line4 = `Skin: ${skinLabel}`;
   return `${line1}\n${line2}\n${line3}\n${line4}`;
 }
-
-
-
-
-
-
-
-
-
 
 
 // ---------- init hero once (ABSOLUTE URL) ----------
@@ -1125,29 +961,25 @@ function getWatermarkText() {
 function runWatermarkTyping() {
   if (!animatedWMEl) return;
 
-  // prevent multiple overlapping loops
   if (watermarkLoopStarted) return;
   watermarkLoopStarted = true;
 
   let i = 0;
-  let lastText = ''; // track the text we're typing to detect changes
+  let lastText = '';
 
   function typeAnim() {
     const fullText = getWatermarkText();
 
-    // if text changed (e.g., player loaded), reset
     if (fullText !== lastText) {
       lastText = fullText;
       i = 0;
     }
 
     if (i <= fullText.length) {
-      // support line breaks
       animatedWMEl.innerHTML = fullText.slice(0, i).replace(/\n/g, '<br>');
       i++;
       setTimeout(typeAnim, 38);
     } else {
-      // pause then restart the typing loop
       setTimeout(() => {
         i = 0;
         typeAnim();
@@ -1159,39 +991,13 @@ function runWatermarkTyping() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-// put the correct hero image into the UI and tag it on the element for later use
-/// do the initial sync (badge + hero)
-
 restoreDressupState();
-
-
-
-
-
-
-
-// start the watermark loop immediately with whatever info we have
-// (Supabase auth below can update the labels; the loop will pick them up)
-// runWatermarkTyping();
-
-
 
 
 async function hydrateUserContext() {
   const sb = getSb();
   if (!sb || !currentUserId) return;
 
-  // reset flags
   let playerLoadedForUser = false;
 
   try {
@@ -1217,8 +1023,6 @@ async function hydrateUserContext() {
       if (playerRow.name && !qsName) {
         currentPlayer.name = playerRow.name;
       }
-
-      
     }
   } catch (e) {
     console.warn('Failed to load player for dressup watermark:', e?.message || e);
@@ -1229,46 +1033,37 @@ async function hydrateUserContext() {
     signedInLabel = `user-${shortId}`;
   }
 
-  // If no player record exists for this auth user, create a stable pseudo PID
-if (!currentPid) {
-  currentPid = `u_${String(currentUserId).slice(0, 6)}`;
-  currentPlayer.id = currentPid;
-  signedInLabel = currentPid;
-}
-
-// Load skins + credits
-await loadSkinsForPlayer();
-
-const def = availableSkins.find(s => s.is_default) || availableSkins[0];
-if (def && def.hero_url) {
-  clearFeaturedSelectionUI();
-  // ── GUARD: only set hero from skin data if the user hasn't
-  // already produced a generated result. Never overwrite a
-  // result the user is looking at just because auth resolved.
-  DressUpState.setHero(def.hero_url, { fromHydration: true });
-  if (!DressUpState.isHeroGenerated()) {
-    setHeroImage(def.hero_url);
+  if (!currentPid) {
+    currentPid = `u_${String(currentUserId).slice(0, 6)}`;
+    currentPlayer.id = currentPid;
+    signedInLabel = currentPid;
   }
-  currentSkinName = def.name || 'My Skin';
-  DressUpState.setSkinName(currentSkinName);
-  selectedSkin = { source: 'my', id: def.id };
-  renderMySkinsRow();
+
+  await loadSkinsForPlayer();
+
+  const def = availableSkins.find(s => s.is_default) || availableSkins[0];
+  if (def && def.hero_url) {
+    clearFeaturedSelectionUI();
+    // GUARD: only set hero if user hasn't already generated a result
+    DressUpState.setHero(def.hero_url, { fromHydration: true });
+    if (!DressUpState.isHeroGenerated()) {
+      setHeroImage(def.hero_url);
+    }
+    currentSkinName = def.name || 'My Skin';
+    DressUpState.setSkinName(currentSkinName);
+    selectedSkin = { source: 'my', id: def.id };
+    renderMySkinsRow();
+  }
+
+  await loadCreditsFromSupabase();
+
+  if (new URLSearchParams(location.search).get("success") === "1") {
+    setTimeout(() => loadCreditsFromSupabase(), 1200);
+  }
 }
 
 
-
-await loadCreditsFromSupabase();
-
-if (new URLSearchParams(location.search).get("success") === "1") {
-  setTimeout(() => loadCreditsFromSupabase(), 1200);
-}
-
-
-  // watermark loop already running; it will pick up new text automatically
-}
-
-
-// ---------- Supabase session bootstrapkk + reactive BRkkUH auth ----------
+// ---------- Supabase session bootstrap + reactive auth ----------
 (async () => {
   try {
     const sb = getSb();
@@ -1277,34 +1072,29 @@ if (new URLSearchParams(location.search).get("success") === "1") {
     if (!sb?.auth) {
       updateCreditUI();
       updateAuthDependentUI();
-
       loadPublicFeaturedSkins();
       runWatermarkTyping();
       return;
     }
 
-    // initial apply
     await applyAuthState();
 
     await loadCreditsFromSupabase();
 
     setInterval(() => loadCreditsFromSupabase(), 60_000);
 
-
-    // react to future sign-in / sign-out without reloading
     if (!window.__dressupAuthBound) {
       window.__dressupAuthBound = true;
       sb.auth.onAuthStateChange(async (event) => {
         // TOKEN_REFRESHED fires every ~60min for a silent token rotation.
-        // We must NOT re-run full applyAuthState (which triggers hydrateUserContext
-        // → loadSkinsForPlayer → setHeroImage) just because a token refreshed.
-        // Only do the full hydration on actual sign-in/sign-out events.
+        // Do NOT re-run full applyAuthState for this — it would trigger
+        // hydrateUserContext -> loadSkinsForPlayer -> setHeroImage and
+        // overwrite whatever the user is looking at.
         if (event === 'TOKEN_REFRESHED') {
-          await loadCreditsFromSupabase(); // safe — credits only, no hero change
+          await loadCreditsFromSupabase(); // safe: credits only, no hero change
           return;
         }
         await applyAuthState();
-        // keep watermark in sync (loop is guarded)
         await loadCreditsFromSupabase();
         runWatermarkTyping();
       });
@@ -1321,8 +1111,7 @@ if (new URLSearchParams(location.search).get("success") === "1") {
 })();
 
 
-
-// Load community + personal credits from Supabase (if tables exist)
+// Load community + personal credits from Supabase
 async function loadCreditsFromSupabase() {
   const sb = getSb();
   if (!sb) {
@@ -1331,36 +1120,25 @@ async function loadCreditsFromSupabase() {
   }
 
   try {
-    // COMMUNITY CHEST
-    // COMMUNITY CHEST
-    // COMMUNITY CHEST
     const { data, error } = await sb.rpc('dressup_get_chest');
     if (!error && data) {
       communityCredits = Number(data.credits ?? data.community_credits ?? 0);
       communityMax     = Number(data.max_credits ?? data.community_max ?? 0);
-    
+
       if (!Number.isFinite(communityCredits)) communityCredits = 0;
       if (!Number.isFinite(communityMax)) communityMax = 0;
     }
-    
 
-
-    // PERSONAL CREDITS (per Supabase user)
     if (currentUserId) {
       const { data: personalRow, error: personalErr } = await sb
         .from('dressup_personal_credits')
         .select('*')
         .eq('user_id', currentUserId)
-        .maybeSingle(); // ✅ prevents 406 spam when no row exists
+        .maybeSingle();
 
       if (!personalErr && personalRow && typeof personalRow.credits === 'number') {
         personalCredits = personalRow.credits;
       } else if (!personalErr && !personalRow) {
-        // // Optional: auto-create row so future reads are clean
-        // await sb.from('dressup_personal_credits').insert({
-        //   user_id: currentUserId,
-        //   credits: 0
-        // });
         personalCredits = 0;
       }
     }
@@ -1372,13 +1150,6 @@ async function loadCreditsFromSupabase() {
 }
 
 
-
-
-
-
-// ---------- local state for generation flow ----------
-
-
 function updateAuthDependentUI() {
   const loggedIn = !!currentUserId;
 
@@ -1386,7 +1157,6 @@ function updateAuthDependentUI() {
   if (authLogoutBtn) authLogoutBtn.style.display = loggedIn ? 'inline-block' : 'none';
   if (authOpenBtn)   authOpenBtn.style.display   = loggedIn ? 'none' : 'inline-block';
   if (!loggedIn) { try { closeBuyDialog(); } catch (_) {} }
-
 
   if (multiItemToggle) multiItemToggle.disabled = !loggedIn;
   if (multiItemLockLabel) {
@@ -1402,24 +1172,17 @@ function updateAuthDependentUI() {
 }
 
 
-
-
-
-// keep the HUD in sync with internal credit state
 function updateCreditUI() {
   if (!creditHUD) return;
 
-  // clamp to safe values
   if (communityCredits < 0) communityCredits = 0;
   if (personalCredits < 0) personalCredits = 0;
 
-  // compute how many DressUp generations are available from each pool
   const communityRuns = Math.floor(communityCredits / DRESSUP_COST_UNITS);
   const personalRuns  = Math.floor(personalCredits / DRESSUP_COST_UNITS);
 
-  // community ASCII bar: based on runs left vs a max runs value
   if (communityBarText) {
-    const SLOTS = 10; // number of blocks inside the brackets
+    const SLOTS = 10;
 
     const maxRunsFromMaxCredits = communityMax > 0
       ? Math.floor(communityMax / DRESSUP_COST_UNITS)
@@ -1431,30 +1194,24 @@ function updateCreditUI() {
       : 0;
 
     const emptySlots = Math.max(0, SLOTS - filledSlots);
-    const filled = '█'.repeat(filledSlots);
-    const empty  = '░'.repeat(emptySlots);
+    const filled = '\u2588'.repeat(filledSlots);
+    const empty  = '\u2591'.repeat(emptySlots);
 
-    communityBarText.textContent = `[${filled}${empty}] ${communityRuns}   ◙ left`;
+    communityBarText.textContent = `[${filled}${empty}] ${communityRuns}   \u25d9 left`;
   }
 
-  // personal pill: always show, even at +0
-// personal pill: text-based like community bar
-// personal pill (JS only updates text + state class; styling lives in CSS)
-if (personalCreditPill) {
-  const personalRuns = Math.floor(personalCredits / DRESSUP_COST_UNITS);
-  personalCreditPill.textContent = `+${personalRuns} ◙ RUNS`;
-  personalCreditPill.classList.toggle('has-credits', personalRuns > 0);
-}
+  if (personalCreditPill) {
+    const personalRuns = Math.floor(personalCredits / DRESSUP_COST_UNITS);
+    personalCreditPill.textContent = `+${personalRuns} \u25d9 RUNS`;
+    personalCreditPill.classList.toggle('has-credits', personalRuns > 0);
+  }
 
-
-  // enable/disable Generate based on runs + garment
   if (btnGenerate) {
     const noRuns = (communityRuns <= 0 && personalRuns <= 0);
     const noGarment = !garmentPublicUrl;
     const isReady = !noRuns && !noGarment;
     btnGenerate.disabled = !isReady;
-    
-    // Toggle button styling: primary when ready, ghost when not
+
     if (isReady) {
       btnGenerate.classList.remove('ghost');
       btnGenerate.classList.add('primary');
@@ -1466,15 +1223,9 @@ if (personalCreditPill) {
 }
 
 
-// spend logic: community first, then personal
-
-
-
-
 // run once at load so the HUD isn't empty
 updateCreditUI();
 
-// helper: toggle empty placeholder look on garment preview thumb
 function updateThumbEmpty() {
   try {
     const hasSrc = garmentPreview.getAttribute && garmentPreview.getAttribute('src');
@@ -1487,28 +1238,13 @@ function updateThumbEmpty() {
   }
 }
 
-// set initial preview state
 updateThumbEmpty();
-
-
-
-
-
-
-// if (skinSelectEl) {
-//   skinSelectEl.addEventListener('change', (e) => {
-//     applySkinByKey(e.target.value);
-//   });
-// }
-
 
 
 try {
   const params = new URLSearchParams(window.location.search);
   if (params.get("success") === "1") {
-    // refresh credit HUD after returning from Stripe
     await loadCreditsFromSupabase?.();
-    // optional: clean URL
     params.delete("success");
     const newUrl = window.location.pathname + (params.toString() ? `?${params}` : "");
     window.history.replaceState({}, "", newUrl);
@@ -1521,7 +1257,7 @@ try {
 if (btnUpload && fileInput) {
   btnUpload.addEventListener('click', () => {
     currentUploadContext = 'style';
-    activeGarmentSlot = 0; // main slot
+    activeGarmentSlot = 0;
     fileInput.click();
   });
 }
@@ -1533,51 +1269,46 @@ if (fileInput) {
     if (!file) return;
 
     if (currentUploadContext === 'avatar') {
-  const reader = new FileReader();
-  reader.onload = () => {
-    const dataUrl = reader.result;
-    avatarSlots[activeAvatarSlot] = { url: dataUrl, file, uploadedUrl: null }; // reset uploadedUrl if file changed
-    const slotEl = Array.from(avatarUploadSlots || []).find(
-      el => Number(el.dataset.index || 0) === activeAvatarSlot
-    );
-    if (slotEl) {
-      slotEl.classList.add('has-image');
-      slotEl.style.backgroundImage = `url("${dataUrl}")`;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        avatarSlots[activeAvatarSlot] = { url: dataUrl, file, uploadedUrl: null };
+        const slotEl = Array.from(avatarUploadSlots || []).find(
+          el => Number(el.dataset.index || 0) === activeAvatarSlot
+        );
+        if (slotEl) {
+          slotEl.classList.add('has-image');
+          slotEl.style.backgroundImage = `url("${dataUrl}")`;
+        }
+      };
+      reader.readAsDataURL(file);
+      avatarStatusEl.textContent = '';
+      fileInput.value = '';
+      return;
     }
-  };
-  reader.readAsDataURL(file);
-  avatarStatusEl.textContent = '';
-  fileInput.value = ''; // ✅ important
-  return;
-}
 
-
-    // default: STYLE / garment upload (existing logic)
+    // default: STYLE / garment upload
     try {
-      statusEl.textContent = 'Uploading garment…';
+      statusEl.textContent = 'Uploading garment\u2026';
       const { publicUrl } = await withTimeout(
-  uploadGarmentToSupabase(file),
-  20000,
-  'Upload timed out (check Storage bucket/policies or network)'
-);
-
+        uploadGarmentToSupabase(file),
+        20000,
+        'Upload timed out (check Storage bucket/policies or network)'
+      );
 
       garmentPreview.src = publicUrl;
       thumbWrap.classList.remove('empty');
-      
-      // main single-garment URL (keeps DressUp working)
+
       garmentPublicUrl = publicUrl;
-      
+
       persistDressupState();
 
-      // Update button styling to primary since garment is ready
       if (btnGenerate) {
         btnGenerate.disabled = false;
         btnGenerate.classList.remove('ghost');
         btnGenerate.classList.add('primary');
       }
 
-      // multi-slot bookkeeping if enabled
       if (multiModeEnabled) {
         garmentSlots[activeGarmentSlot] = { url: publicUrl };
         refreshMultiSlotsUI();
@@ -1585,17 +1316,13 @@ if (fileInput) {
 
       statusEl.textContent = 'Garment ready.';
     } catch (err) {
-  console.error(err);
-  statusEl.textContent = 'Upload failed: ' + (err?.message || err);
-} finally {
-
+      console.error(err);
+      statusEl.textContent = 'Upload failed: ' + (err?.message || err);
+    } finally {
       fileInput.value = '';
     }
   });
 }
-
-
-
 
 
 // ---------- Generate flow ----------
@@ -1603,7 +1330,6 @@ btnGenerate.addEventListener('click', async () => {
   if (isGenerating) return;
   isGenerating = true;
 
-  // must have a garment
   if (!garmentPublicUrl) {
     statusEl.textContent = 'Upload a garment first.';
     updateCreditUI();
@@ -1611,75 +1337,61 @@ btnGenerate.addEventListener('click', async () => {
     return;
   }
 
-
-// server will validate + spend credits
-updateCreditUI();
-
+  updateCreditUI();
 
   btnGenerate.disabled = true;
-if (btnUpload) btnUpload.disabled = true;
+  if (btnUpload) btnUpload.disabled = true;
 
-  statusEl.textContent = 'Generating… this can take a few seconds.';
+  statusEl.textContent = 'Generating\u2026 this can take a few seconds.';
 
   try {
     const personUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
-   
 
+    const sb = getSb();
 
-const sb = getSb();
+    let accessToken = null;
+    try {
+      const sess = await withTimeout(
+        sb?.auth?.getSession?.(),
+        8000,
+        'auth.getSession timeout'
+      );
+      accessToken = sess?.data?.session?.access_token || null;
+    } catch (_) {}
 
-let accessToken = null;
-try {
-  const sess = await withTimeout(
-    sb?.auth?.getSession?.(),
-    8000,
-    'auth.getSession timeout'
-  );
-  accessToken = sess?.data?.session?.access_token || null;
-} catch (_) {}
+    const payload = {
+      mode: 'style',
+      personUrl,
+      garmentUrl: toAbsoluteHttpUrl(garmentPublicUrl),
+      prompt: 'Dress the model hero or mannequin in the hero image with the garment or outfit in the uploaded image. ignore any people in the uploaded image. Keep rest of hero image unchanged, isometric portrait, and photoreallism. blend and harmonize new garments to the original natural lighting'
+    };
 
+    const res = await fetch('/api/dressup/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+      },
+      body: JSON.stringify(payload)
+    });
 
-const payload = {
-  mode: 'style',
-  personUrl,
-  garmentUrl: toAbsoluteHttpUrl(garmentPublicUrl),
-  prompt: 'Dress the model hero or mannequin in the hero image with the garment or outfit in the uploaded image. ignore any people in the uploaded image. Keep rest of hero image unchanged, isometric portrait, and photoreallism. blend and harmonize new garments to the original natural lighting'
-};
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      statusEl.textContent = 'Generation failed: ' + (body.details || body.error || res.statusText);
+      throw new Error(body.error || 'generate_failed');
+    }
 
+    const finalUrl = body.finalUrl || body.outputUrl;
+    if (!finalUrl) throw new Error('No output URL returned');
 
-const res = await fetch('/api/dressup/generate', {
+    trackEvent('generate');
 
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
-  },
-  body: JSON.stringify(payload)
-});
-
-const body = await res.json().catch(() => ({}));
-if (!res.ok) {
-  statusEl.textContent = 'Generation failed: ' + (body.details || body.error || res.statusText);
-  throw new Error(body.error || 'generate_failed');
-}
-
-// ✅ server returns finalUrl + updated credits
-const finalUrl = body.finalUrl || body.outputUrl;
-if (!finalUrl) throw new Error('No output URL returned');
-
-trackEvent('generate');
-
-
-
-// update credits from server truth
-if (body.credits) {
-  communityCredits = body.credits.communityCredits ?? communityCredits;
-  communityMax     = body.credits.communityMax ?? communityMax;
-  personalCredits  = body.credits.personalCredits ?? personalCredits;
-  updateCreditUI();
-}
-
-
+    if (body.credits) {
+      communityCredits = body.credits.communityCredits ?? communityCredits;
+      communityMax     = body.credits.communityMax ?? communityMax;
+      personalCredits  = body.credits.personalCredits ?? personalCredits;
+      updateCreditUI();
+    }
 
     // push current hero into undo history BEFORE swapping
     const currentUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
@@ -1693,12 +1405,11 @@ if (body.credits) {
     setTimeout(() => {
       hero.style.backgroundImage = `url("${finalUrl}")`;
       hero.setAttribute('data-person-url', finalUrl);
-      // ── Mark state as generated BEFORE persisting ──────────────────
-      // This is the flag that protects the result from being overwritten
-      // by any future auth event, token refresh, or skin hydration.
+      // Mark state as generated — this flag protects the result from being
+      // overwritten by any future auth event, token refresh, or skin hydration.
       DressUpState.setHero(finalUrl, {
         isGenerated: true,
-        pushHistory: false,   // already pushed manually above
+        pushHistory: false, // already pushed manually above
       });
       DressUpState.setGarment(garmentPublicUrl);
       hero.style.opacity = '1';
@@ -1706,7 +1417,6 @@ if (body.credits) {
 
     statusEl.textContent = 'Done.';
 
-    // first-time reveal of undo / save / reset
     if (!hasGeneratedOnce) {
       hasGeneratedOnce = true;
     }
@@ -1719,10 +1429,9 @@ if (body.credits) {
     if (!statusEl.textContent.startsWith('Generation failed')) {
       statusEl.textContent = 'Generation failed: ' + (err.message || err);
     }
-    } finally {
+  } finally {
     isGenerating = false;
     if (btnUpload) btnUpload.disabled = false;
-    // let updateCreditUI decide if Generate should be enabled
     updateCreditUI();
   }
 
@@ -1743,10 +1452,8 @@ if (resetBtn) {
       hero.style.opacity = '1';
     }, 180);
 
-    // clear garment preview
     garmentPreview.removeAttribute('src');
 
-    // clear undo history + hide thin actions
     historyStack = [];
     if (btnUndo) btnUndo.style.display = 'none';
     if (btnSave) btnSave.style.display = 'none';
@@ -1765,7 +1472,6 @@ if (btnUndo) {
     if (!historyStack.length) return;
 
     const previousUrl = historyStack.pop();
-    const nowUrl = toAbsoluteHttpUrl(hero.getAttribute('data-person-url'));
 
     hero.style.transition = 'filter .18s ease, opacity .18s ease';
     hero.style.opacity = '0.85';
@@ -1775,27 +1481,21 @@ if (btnUndo) {
       hero.style.opacity = '1';
     }, 180);
 
-    // (We are not doing redo logic right now)
-
     if (btnUndo) btnUndo.style.display = historyStack.length ? 'inline-block' : 'none';
   });
 }
-
 
 
 // helper: load image with CORS so we can draw to canvas
 function loadImageWithCors(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = 'anonymous'; // works for Supabase/public URLs if CORS is set
+    img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = url;
   });
 }
-
-
-
 
 
 // ---------- Save (download current hero image with text watermark) ----------
@@ -1806,7 +1506,6 @@ async function downloadCurrentHero() {
   const filename = `${currentPlayer.name}-${currentPlayer.id}-${Date.now()}.png`;
   const canvas = $('downloadCanvas');
 
-  // if somehow canvas is missing, fall back to raw download
   if (!canvas) {
     console.warn('downloadCanvas missing; falling back to direct download');
     try {
@@ -1834,7 +1533,6 @@ async function downloadCurrentHero() {
   }
 
   try {
-    // 1) Load the current hero image
     const img = await loadImageWithCors(url);
 
     const w = img.naturalWidth || img.width || 1080;
@@ -1846,21 +1544,18 @@ async function downloadCurrentHero() {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, w, h);
 
-    // 2) Draw the base hero image
     ctx.drawImage(img, 0, 0, w, h);
 
-    // 3) Draw a soft dark strip at the bottom for legibility
-    const pad = Math.round(h * 0.03);         // padding from edges
-    const stripHeight = Math.round(h * 0.12); // height of the dark band
+    const pad = Math.round(h * 0.03);
+    const stripHeight = Math.round(h * 0.12);
 
     ctx.fillStyle = 'rgba(0, 0, 0, 0)';
     ctx.fillRect(pad, h - stripHeight - pad, Math.round(w * 0.7), stripHeight);
 
-    // 4) Draw watermark text lines (using the same generator as the UI)
     const wmText = getWatermarkText();
     const lines = wmText.split('\n');
 
-    const fontSize = Math.max(16, Math.round(h * 0.022)); // scale with image
+    const fontSize = Math.max(16, Math.round(h * 0.022));
     const lineHeight = Math.round(fontSize * 1.2);
 
     ctx.font = `${fontSize}px  Consolas, "Liberation Mono", "Courier New", monospace`;
@@ -1872,14 +1567,12 @@ async function downloadCurrentHero() {
     const baseX = pad * 1.5;
     let baseY = h - pad - 6;
 
-    // draw from bottom line up so they sit nicely in the band
     for (let i = lines.length - 1; i >= 0; i--) {
       const line = lines[i];
       ctx.fillText(line, baseX, baseY);
       baseY -= lineHeight;
     }
 
-    // 5) Export canvas as PNG and trigger download
     canvas.toBlob(blob => {
       if (!blob) {
         throw new Error('Canvas export failed');
@@ -1895,7 +1588,6 @@ async function downloadCurrentHero() {
 
   } catch (err) {
     console.warn('Watermarked download failed, falling back to raw image:', err);
-    // Fallback: raw download if CORS or canvas fails
     try {
       const resp = await fetch(url);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -1923,7 +1615,6 @@ async function downloadCurrentHero() {
 if (btnSave) {
   btnSave.addEventListener('click', downloadCurrentHero);
 }
-
 
 
 // ---------- Tab switching (STYLE / AVATAR) ----------
@@ -1964,9 +1655,7 @@ if (multiSlotsContainer) {
     activeGarmentSlot = idx;
     refreshMultiSlotsUI();
 
-    // reuse the same file input as the main upload
     if (fileInput) {
-      // mark this upload as "garment"
       currentUploadContext = 'garment';
       fileInput.click();
     }
@@ -1974,11 +1663,6 @@ if (multiSlotsContainer) {
 }
 
 // ---------- Avatar tab events ----------
-
-
-
-
-
 
 if (avatarUploadSlots && avatarUploadSlots.length) {
   avatarUploadSlots.forEach(slot => {
@@ -2011,7 +1695,7 @@ if (avatarCreateBtn) {
       // 1) collect selected avatar photos
       const filled = avatarSlots.filter(slot => slot && slot.file);
       if (!filled.length) {
-        avatarStatusEl.textContent = 'Upload at least 1–3 clear photos of yourself.';
+        avatarStatusEl.textContent = 'Upload at least 1\u20133 clear photos of yourself.';
         return;
       }
 
@@ -2021,16 +1705,28 @@ if (avatarCreateBtn) {
         return;
       }
 
-      avatarStatusEl.textContent = 'Uploading photos…';
+      avatarStatusEl.textContent = 'Uploading photos\u2026';
+
+      // ── FIX: abort any previous stuck upload before starting fresh ──
+      // This kills zombie connections from previous timed-out attempts
+      // so they don't saturate the browser's connection pool.
+      if (__activeAvatarUploadController) {
+        __activeAvatarUploadController.abort();
+        __activeAvatarUploadController = null;
+      }
+
+      const uploadController = new AbortController();
+      __activeAvatarUploadController = uploadController;
 
       const uploadedUrls = [];
 
-      // 2) upload photos (with timeout) + reuse cached uploadedUrl so you can re-run without refresh
+      // 2) upload photos with AbortController (actually cancellable) +
+      //    reuse cached uploadedUrl so re-runs don't re-upload
       for (let i = 0; i < avatarSlots.length; i++) {
         const slot = avatarSlots[i];
         if (!slot || !slot.file) continue;
 
-        // ✅ reuse if already uploaded in this session
+        // reuse if already uploaded in this session
         if (slot.uploadedUrl) {
           uploadedUrls.push(slot.uploadedUrl);
           continue;
@@ -2040,13 +1736,20 @@ if (avatarCreateBtn) {
         const safeName = (file.name || `photo-${i}.jpg`).replace(/\s+/g, '-');
         const path = `avatars/${currentUserId}/${Date.now()}-${i}-${safeName}`;
 
-        const uploadRes = await withTimeout(
-          sb.storage.from('userassets').upload(path, file, { upsert: true }),
-          25000,
-          'Avatar photo upload timed out'
-        );
+        // Pass the AbortController signal directly into Supabase storage.
+        // Unlike withTimeout()+Promise.race(), this actually cancels the
+        // network request at the browser level — no more zombie connections.
+        const uploadRes = await sb.storage
+          .from('userassets')
+          .upload(path, file, {
+            upsert: true,
+            signal: uploadController.signal
+          });
 
         if (uploadRes.error) {
+          if (uploadRes.error.name === 'AbortError') {
+            throw new Error('Upload cancelled');
+          }
           console.error('Supabase avatar upload error:', uploadRes.error);
           throw uploadRes.error;
         }
@@ -2056,22 +1759,25 @@ if (avatarCreateBtn) {
 
         if (!publicUrl) throw new Error('Public URL not returned for avatar upload');
 
-        slot.uploadedUrl = publicUrl; // ✅ cache
+        slot.uploadedUrl = publicUrl; // cache so re-run skips this slot
         uploadedUrls.push(publicUrl);
       }
+
+      // Clear the controller — uploads finished cleanly
+      __activeAvatarUploadController = null;
 
       if (!uploadedUrls.length) {
         avatarStatusEl.textContent = 'Photo upload failed, try again.';
         return;
       }
 
-      avatarStatusEl.textContent = 'Generating avatar…';
+      avatarStatusEl.textContent = 'Generating avatar\u2026';
 
       const primaryUrl = uploadedUrls[0];
       const extraRefs = uploadedUrls.slice(1);
 
-      // Use mannequin base as template
-      const templateUrl = "/apps/tools/dressup/assets/manq.png";
+      // ── FIX: absolute URL so server-side assertImage() HEAD request works ──
+      const templateUrl = `${window.location.origin}/apps/tools/dressup/assets/manq.png`;
 
       const payload = {
         mode: 'avatar',
@@ -2082,18 +1788,17 @@ if (avatarCreateBtn) {
           'Replace the mannequin in the template image with the person and outfit from the uploaded photos. Keep the camera, zoom, perspective, scene, and subject placement EXACTLY the same as in the template mannequin image. just place the person standing in the same place as where the mannequin is. harmonize the person from the uploaded photo into the hero template and preserve their outfit details and general appearance from the uploaded photos. Disregard the red clothing of the mannequin. keep all other scene and backgrourd in template image unchanged'
       };
 
-      console.log('[Avatar → /api/dressup/generate]', payload);
+      console.log('[Avatar \u2192 /api/dressup/generate]', payload);
 
-     let accessToken = null;
-try {
-  const sess = await withTimeout(
-    sb?.auth?.getSession?.(),
-    8000,
-    'auth.getSession timeout'
-  );
-  accessToken = sess?.data?.session?.access_token || null;
-} catch (_) {}
-
+      let accessToken = null;
+      try {
+        const sess = await withTimeout(
+          sb?.auth?.getSession?.(),
+          8000,
+          'auth.getSession timeout'
+        );
+        accessToken = sess?.data?.session?.access_token || null;
+      } catch (_) {}
 
       const res = await withTimeout(
         fetch('/api/dressup/generate', {
@@ -2143,7 +1848,7 @@ try {
             if (!pendingAvatarUrl) return;
             try {
               btnSetAsBase.disabled = true;
-              avatarStatusEl.textContent = 'Saving as your base skin…';
+              avatarStatusEl.textContent = 'Saving as your base skin\u2026';
 
               await withTimeout(
                 saveCurrentHeroAsDefaultSkin({ name: 'My Default Skin' }),
@@ -2179,7 +1884,7 @@ try {
       console.error(err);
       avatarStatusEl.textContent = 'Error creating avatar: ' + (err.message || err);
     } finally {
-      // ✅ Always unlock so you can generate again without refreshing
+      // Always unlock so user can try again without refreshing
       isAvatarGenerating = false;
       avatarCreateBtn.disabled = false;
     }
@@ -2187,10 +1892,6 @@ try {
 }
 
 
-
-
-
 // (end)
 
-
-// Trial link : https://sunsex.xyz/apps/tools/dressup/dressup.html?hero=/apps/tools/dressup/assets/O-base-portrait.png&pname=O&pid=O01&mode=private 
+// Trial link : https://sunsex.xyz/apps/tools/dressup/dressup.html?hero=/apps/tools/dressup/assets/O-base-portrait.png&pname=O&pid=O01&mode=private
