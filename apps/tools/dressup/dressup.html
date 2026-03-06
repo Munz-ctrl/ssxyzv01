@@ -316,6 +316,8 @@
 <!-- DressUp uses its own Supabase client to avoid breaking other site apps -->
 <script src="/apps/tools/dressup/js/sbClient.js"></script>
 
+<!-- Load state manager BEFORE dressup.js -->
+<script src="/apps/tools/dressup/js/dressup-state.js"></script>
 <script type="module" src="/apps/tools/dressup/js/dressup.js"></script>
 
   
