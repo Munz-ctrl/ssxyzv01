@@ -208,36 +208,37 @@ let __applyAuthInFlight = false;
 
 
 function persistDressupState() {
-try {
-const heroUrl = hero?.getAttribute('data-person-url') || '';
-sessionStorage.setItem('__dressup_last_hero', heroUrl);
-} catch (_) {}
-
-
-try {
-sessionStorage.setItem('__dressup_last_garment', garmentPublicUrl || '');
-} catch (_) {}
+  // Delegate to central state manager
+  const heroUrl = hero?.getAttribute('data-person-url') || '';
+  if (heroUrl) DressUpState.setHero(heroUrl);
+  if (garmentPublicUrl) DressUpState.setGarment(garmentPublicUrl);
 }
-
 
 function restoreDressupState() {
-try {
-const h = sessionStorage.getItem('__dressup_last_hero');
-if (h) setHeroImage(h);
-} catch (_) {}
+  // Restore hero
+  const h = DressUpState.getHeroUrl();
+  if (h) setHeroImage(h);
 
+  // Show undo/save/reset if user previously generated
+  if (DressUpState.isHeroGenerated()) {
+    hasGeneratedOnce = true;
+    const hist = DressUpState.getHistory();
+    historyStack = Array.isArray(hist) ? [...hist] : [];
+    if (btnUndo) btnUndo.style.display = historyStack.length ? 'inline-block' : 'none';
+    if (btnSave) btnSave.style.display = 'inline-block';
+    if (resetBtn) resetBtn.style.display = 'inline-block';
+  }
 
-try {
-const g = sessionStorage.getItem('__dressup_last_garment');
-if (g) {
-garmentPublicUrl = g;
-if (garmentPreview) garmentPreview.src = g;
-if (thumbWrap) thumbWrap.classList.remove('empty');
-if (btnGenerate) btnGenerate.disabled = false;
-updateThumbEmpty?.();
-updateCreditUI?.();
-}
-} catch (_) {}
+  // Restore garment
+  const g = DressUpState.getGarmentUrl();
+  if (g) {
+    garmentPublicUrl = g;
+    if (garmentPreview) garmentPreview.src = g;
+    if (thumbWrap) thumbWrap.classList.remove('empty');
+    if (btnGenerate) btnGenerate.disabled = false;
+    updateThumbEmpty?.();
+    updateCreditUI?.();
+  }
 }
 
 
@@ -1076,6 +1077,11 @@ function selectSkinUnified({ source, skin, btnEl }) {
   setHeroImage(skin.hero_url || DEFAULT_HERO_IMG);
   currentSkinName = skin.name || (source === 'featured' ? 'Featured' : 'My Skin');
 
+  // Explicit user skin selection — update state, clear generated flag
+  // (user is intentionally starting fresh with a new base)
+  DressUpState.setHero(skin.hero_url || DEFAULT_HERO_IMG, { fromHydration: false });
+  DressUpState.setSkinName(currentSkinName);
+
   selectedSkin = { source, id: skin.id || null };
 }
 
@@ -1164,16 +1170,7 @@ function runWatermarkTyping() {
 
 
 // put the correct hero image into the UI and tag it on the element for later use
-function initHeroBackground() {
-  if (!hero) return;
-  const absUrl = toAbsoluteHttpUrl(currentPlayer.heroUrl);
-  hero.style.backgroundImage = `url("${absUrl}")`;
-  hero.setAttribute('data-person-url', absUrl);
-}
-
 /// do the initial sync (badge + hero)
-
-initHeroBackground();
 
 restoreDressupState();
 
@@ -1244,12 +1241,17 @@ await loadSkinsForPlayer();
 
 const def = availableSkins.find(s => s.is_default) || availableSkins[0];
 if (def && def.hero_url) {
-  // pretend we clicked it (but without needing a DOM btn)
   clearFeaturedSelectionUI();
-  setHeroImage(def.hero_url);
+  // ── GUARD: only set hero from skin data if the user hasn't
+  // already produced a generated result. Never overwrite a
+  // result the user is looking at just because auth resolved.
+  DressUpState.setHero(def.hero_url, { fromHydration: true });
+  if (!DressUpState.isHeroGenerated()) {
+    setHeroImage(def.hero_url);
+  }
   currentSkinName = def.name || 'My Skin';
+  DressUpState.setSkinName(currentSkinName);
   selectedSkin = { source: 'my', id: def.id };
-  // refresh pills highlight after state update
   renderMySkinsRow();
 }
 
@@ -1292,12 +1294,18 @@ if (new URLSearchParams(location.search).get("success") === "1") {
     // react to future sign-in / sign-out without reloading
     if (!window.__dressupAuthBound) {
       window.__dressupAuthBound = true;
-      sb.auth.onAuthStateChange(async () => {
+      sb.auth.onAuthStateChange(async (event) => {
+        // TOKEN_REFRESHED fires every ~60min for a silent token rotation.
+        // We must NOT re-run full applyAuthState (which triggers hydrateUserContext
+        // → loadSkinsForPlayer → setHeroImage) just because a token refreshed.
+        // Only do the full hydration on actual sign-in/sign-out events.
+        if (event === 'TOKEN_REFRESHED') {
+          await loadCreditsFromSupabase(); // safe — credits only, no hero change
+          return;
+        }
         await applyAuthState();
         // keep watermark in sync (loop is guarded)
         await loadCreditsFromSupabase();
-
-
         runWatermarkTyping();
       });
     }
@@ -1685,7 +1693,14 @@ if (body.credits) {
     setTimeout(() => {
       hero.style.backgroundImage = `url("${finalUrl}")`;
       hero.setAttribute('data-person-url', finalUrl);
-      persistDressupState();
+      // ── Mark state as generated BEFORE persisting ──────────────────
+      // This is the flag that protects the result from being overwritten
+      // by any future auth event, token refresh, or skin hydration.
+      DressUpState.setHero(finalUrl, {
+        isGenerated: true,
+        pushHistory: false,   // already pushed manually above
+      });
+      DressUpState.setGarment(garmentPublicUrl);
       hero.style.opacity = '1';
     }, 180);
 
@@ -1737,6 +1752,7 @@ if (resetBtn) {
     if (btnSave) btnSave.style.display = 'none';
     if (resetBtn) resetBtn.style.display = 'none';
     hasGeneratedOnce = false;
+    DressUpState.reset(); // clear localStorage so next load starts clean
 
     updateThumbEmpty();
   });
