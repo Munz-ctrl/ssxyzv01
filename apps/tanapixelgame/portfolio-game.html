@@ -13,14 +13,24 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 100vh;
+      justify-content: flex-start;
+      padding-top: max(12px, env(safe-area-inset-top));
+      min-height: 100dvh;
       font-family: 'Press Start 2P', monospace;
       color: #e0e0e0;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       user-select: none;
       -webkit-user-select: none;
-      touch-action: none;
+      touch-action: pan-y;
+    }
+    /* On desktop, keep everything centred vertically */
+    @media (hover: hover) {
+      body {
+        justify-content: center;
+        padding-top: 0;
+        overflow: hidden;
+      }
     }
 
     /* ── Header ─────────────────────────────── */
@@ -153,27 +163,33 @@
     }
 
     /* ══════════════════════════════════════════
-       MOBILE JOYSTICK OVERLAY
+       MOBILE CONTROL PAD  (below the screen)
     ══════════════════════════════════════════ */
-    #mobile-controls {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 15;
-      display: none;
+    #mobile-pad {
+      display: none;                  /* hidden on desktop */
+      width: 100%;
+      max-width: 384px;               /* match canvas width */
+      margin-top: 10px;
+      padding: 10px 16px 14px;
+      background: rgba(10,10,22,0.85);
+      border: 1px solid rgba(78,204,163,0.2);
+      border-top: none;               /* flush under game border */
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      touch-action: none;
     }
     @media (hover: none) and (pointer: coarse) {
-      #mobile-controls { display: block; }
+      #mobile-pad { display: flex; }
     }
 
     /* ── Joystick zone ── */
     #joystick-zone {
-      position: absolute;
-      bottom: 18px;
-      left: 18px;
-      width: 110px;
-      height: 110px;
-      pointer-events: all;
+      position: relative;
+      flex-shrink: 0;
+      width: 118px;
+      height: 118px;
       touch-action: none;
     }
 
@@ -181,83 +197,91 @@
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      background: rgba(78,204,163,0.07);
-      border: 2px solid rgba(78,204,163,0.3);
-      box-shadow: 0 0 18px rgba(78,204,163,0.1);
+      background: rgba(78,204,163,0.06);
+      border: 2px solid rgba(78,204,163,0.28);
+      box-shadow: 0 0 18px rgba(78,204,163,0.08);
     }
     #joystick-base::before {
       content: '';
       position: absolute;
-      inset: 8px;
+      inset: 9px;
       border-radius: 50%;
-      border: 1px dashed rgba(78,204,163,0.15);
+      border: 1px dashed rgba(78,204,163,0.13);
     }
 
     .joy-hint {
       position: absolute;
       font-size: 8px;
-      color: rgba(78,204,163,0.22);
+      color: rgba(78,204,163,0.2);
       line-height: 1;
       pointer-events: none;
     }
-    .joy-hint.up    { top: 3px;   left: 50%; transform: translateX(-50%); }
-    .joy-hint.down  { bottom: 3px;left: 50%; transform: translateX(-50%); }
-    .joy-hint.left  { left: 3px;  top: 50%;  transform: translateY(-50%); }
-    .joy-hint.right { right: 3px; top: 50%;  transform: translateY(-50%); }
+    .joy-hint.up    { top: 3px;    left: 50%; transform: translateX(-50%); }
+    .joy-hint.down  { bottom: 3px; left: 50%; transform: translateX(-50%); }
+    .joy-hint.left  { left: 3px;   top: 50%;  transform: translateY(-50%); }
+    .joy-hint.right { right: 3px;  top: 50%;  transform: translateY(-50%); }
 
     #joystick-knob {
       position: absolute;
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 35%, #4ecca3, #1a5c50);
       border: 2px solid rgba(78,204,163,0.85);
-      box-shadow: 0 0 14px rgba(78,204,163,0.45), inset 0 1px 2px rgba(255,255,255,0.2);
+      box-shadow: 0 0 14px rgba(78,204,163,0.4), inset 0 1px 2px rgba(255,255,255,0.2);
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       pointer-events: none;
       transition: box-shadow 0.1s ease;
     }
     #joystick-knob.active {
-      box-shadow: 0 0 24px rgba(78,204,163,0.8), inset 0 1px 2px rgba(255,255,255,0.25);
+      box-shadow: 0 0 26px rgba(78,204,163,0.85), inset 0 1px 2px rgba(255,255,255,0.25);
+    }
+
+    /* ── Pad centre label ── */
+    #pad-label {
+      flex: 1;
+      text-align: center;
+      font-size: 6px;
+      color: rgba(78,204,163,0.2);
+      letter-spacing: 2px;
+      line-height: 1.8;
+      pointer-events: none;
     }
 
     /* ── Interact button ── */
     #interact-btn {
-      position: absolute;
-      bottom: 26px;
-      right: 20px;
-      width: 66px;
-      height: 66px;
+      flex-shrink: 0;
+      width: 72px;
+      height: 72px;
       border-radius: 50%;
-      background: rgba(249,199,79,0.09);
-      border: 2px solid rgba(249,199,79,0.45);
-      box-shadow: 0 0 16px rgba(249,199,79,0.12);
+      background: rgba(249,199,79,0.08);
+      border: 2px solid rgba(249,199,79,0.42);
+      box-shadow: 0 0 16px rgba(249,199,79,0.1);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-direction: column;
       gap: 3px;
-      pointer-events: all;
       touch-action: none;
       cursor: pointer;
       transition: background 0.08s, box-shadow 0.08s;
       -webkit-tap-highlight-color: transparent;
     }
     #interact-btn.pressed {
-      background: rgba(249,199,79,0.24);
-      box-shadow: 0 0 26px rgba(249,199,79,0.45);
+      background: rgba(249,199,79,0.26);
+      box-shadow: 0 0 28px rgba(249,199,79,0.5);
     }
     .btn-key {
       font-family: 'Press Start 2P', monospace;
-      font-size: 16px;
+      font-size: 18px;
       color: #f9c74f;
       line-height: 1;
     }
     .btn-label {
       font-family: 'Press Start 2P', monospace;
       font-size: 5px;
-      color: rgba(249,199,79,0.5);
+      color: rgba(249,199,79,0.45);
       line-height: 1;
       letter-spacing: 1px;
     }
@@ -270,23 +294,6 @@
   <div id="game-container">
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Mobile controls -->
-    <div id="mobile-controls">
-      <div id="joystick-zone">
-        <div id="joystick-base">
-          <span class="joy-hint up">▲</span>
-          <span class="joy-hint down">▼</span>
-          <span class="joy-hint left">◀</span>
-          <span class="joy-hint right">▶</span>
-        </div>
-        <div id="joystick-knob"></div>
-      </div>
-      <div id="interact-btn">
-        <span class="btn-key">E</span>
-        <span class="btn-label">ACT</span>
-      </div>
-    </div>
-
     <!-- Popup modal -->
     <div id="popup-overlay">
       <div id="popup-box">
@@ -296,6 +303,24 @@
         <div id="popup-content"></div>
         <div id="popup-hint">[ tap ✕ or press ESC to close ]</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Mobile control pad — below the game screen on touch devices -->
+  <div id="mobile-pad">
+    <div id="joystick-zone">
+      <div id="joystick-base">
+        <span class="joy-hint up">▲</span>
+        <span class="joy-hint down">▼</span>
+        <span class="joy-hint left">◀</span>
+        <span class="joy-hint right">▶</span>
+      </div>
+      <div id="joystick-knob"></div>
+    </div>
+    <div id="pad-label">MOVE<br>──<br>ACT</div>
+    <div id="interact-btn">
+      <span class="btn-key">E</span>
+      <span class="btn-label">ACT</span>
     </div>
   </div>
 
@@ -338,10 +363,10 @@ const MAP = [
   [1, 0, 0, 0, 0, 1],
   [1, 3, 0, 0, 4, 1],
   [1, 0, 0, 0, 0, 1],
+  [1, 0, 0, 2, 0, 1],
   [1, 0, 0, 0, 0, 1],
-  [1, 0, 0, 0, 2, 1],
-  [1, 0, 0, 1, 1, 1],
-  [1, 0, 0, 1, 1, 1],
+  [1, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 1],
   [1, 1, 1, 1, 1, 1],
 ];
 
