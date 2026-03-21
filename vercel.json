@@ -6,6 +6,7 @@
 
   "rewrites": [
 
+    { "source": "/tana",       "destination": "/apps/tanapixelgame/portfolio-game.html" },
 
     { "source": "/map",           "destination": "/apps/map/map.html" },
     { "source": "/nomadsuitcase", "destination": "/apps/nomadsuitcase/nomadsuitcase.html" },
