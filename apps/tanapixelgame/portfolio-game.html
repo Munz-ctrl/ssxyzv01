@@ -9,21 +9,22 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #05050a;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding-top: max(12px, env(safe-area-inset-top));
-      min-height: 100dvh;
-      font-family: 'Press Start 2P', monospace;
-      color: #e0e0e0;
-      overflow-x: hidden;
-      overflow-y: auto;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: pan-y;
-    }
+  background: #05050a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100dvh;
+  max-height: 100dvh;
+  font-family: 'Press Start 2P', monospace;
+  color: #e0e0e0;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  gap: 0;
+  padding: 8px 0;
+}
     /* On desktop, keep everything centred vertically */
     @media (hover: hover) {
       body {
@@ -52,20 +53,26 @@
 
     /* ── Game wrapper ───────────────────────── */
     #game-container {
-      position: relative;
-      display: inline-block;
-      border: 2px solid #4ecca3;
-      box-shadow:
-        0 0 0 1px #0a0a14,
-        0 0 40px rgba(78,204,163,0.25),
-        inset 0 0 20px rgba(0,0,0,0.6);
-    }
+  position: relative;
+  display: inline-block;
+  border: 2px solid #4ecca3;
+  box-shadow:
+    0 0 0 1px #0a0a14,
+    0 0 40px rgba(78,204,163,0.25),
+    inset 0 0 20px rgba(0,0,0,0.6);
+  /* Shrink to fit viewport — never upscale */
+  width: min(384px, 100vw, calc((100dvh - 200px) * 384 / 576));
+  flex-shrink: 0;
+}
 
     canvas {
-      display: block;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-    }
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 384 / 576;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 
     /* CRT scanline overlay */
     #game-container::after {
@@ -168,7 +175,7 @@
     #mobile-pad {
       display: none;                  /* hidden on desktop */
       width: 100%;
-      max-width: 384px;               /* match canvas width */
+      max-width: min(384px, 100vw, calc((100dvh - 200px) * 384 / 576));
       margin-top: 10px;
       padding: 10px 16px 14px;
       background: rgba(10,10,22,0.85);
@@ -450,6 +457,9 @@ canvas.height = CH;
 // ─────────────────────────────────────────
 //  PLAYER
 // ─────────────────────────────────────────
+
+let lastAxis = 'x'; // tracks which axis was pressed most recently
+
 const player = {
   x: 2 * TILE + (TILE - PW) / 2,
   y: 7 * TILE + (TILE - PH) / 2,
@@ -612,23 +622,38 @@ function tryInteract() {
 function update() {
   if (popupOpen) return;
 
-  let vx = 0, vy = 0;
+// REPLACE this whole section (from "let vx = 0" to the diagonal normalisation line):
+let vx = 0, vy = 0;
 
-  if (joy.active) {
-    // Analogue control from joystick
-    const mag = Math.min(1, Math.hypot(joy.dx, joy.dy));
-    vx = joy.dx * SPEED * mag;
-    vy = joy.dy * SPEED * mag;
+if (joy.active) {
+  // Joystick: snap to dominant axis only
+  if (Math.abs(joy.dx) >= Math.abs(joy.dy)) {
+    vx = joy.dx * SPEED; vy = 0;
   } else {
-    // Digital keyboard control
-    const up    = keys['w'] || keys['W'] || keys['ArrowUp'];
-    const down  = keys['s'] || keys['S'] || keys['ArrowDown'];
-    const left  = keys['a'] || keys['A'] || keys['ArrowLeft'];
-    const right = keys['d'] || keys['D'] || keys['ArrowRight'];
-    vx = right ? SPEED : left ? -SPEED : 0;
-    vy = down  ? SPEED : up   ? -SPEED : 0;
-    if (vx !== 0 && vy !== 0) { vx *= 0.7071; vy *= 0.7071; }
+    vx = 0; vy = joy.dy * SPEED;
   }
+} else {
+  const up    = keys['w'] || keys['W'] || keys['ArrowUp'];
+  const down  = keys['s'] || keys['S'] || keys['ArrowDown'];
+  const left  = keys['a'] || keys['A'] || keys['ArrowLeft'];
+  const right = keys['d'] || keys['D'] || keys['ArrowRight'];
+  const wantsX = left || right;
+  const wantsY = up || down;
+
+  if (wantsX && !wantsY) { lastAxis = 'x'; }
+  if (wantsY && !wantsX) { lastAxis = 'y'; }
+
+  if (lastAxis === 'x' && wantsX) {
+    vx = right ? SPEED : -SPEED;
+  } else if (lastAxis === 'y' && wantsY) {
+    vy = down ? SPEED : -SPEED;
+  } else if (wantsX) {
+    vx = right ? SPEED : -SPEED;
+  } else if (wantsY) {
+    vy = down ? SPEED : -SPEED;
+  }
+  // No diagonal normalisation needed — only one axis ever active
+}
 
   player.vx = vx;
   player.vy = vy;
