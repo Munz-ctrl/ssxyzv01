@@ -353,6 +353,8 @@ const SPRITE_SRC = 'assets/sprite.png';
 const spriteSheet = new Image();
 let spriteReady = false;
 spriteSheet.onload = () => { spriteReady = true; };
+spriteSheet.onerror = () => console.error('❌ Sprite failed:', SPRITE_SRC);
+spriteSheet.crossOrigin = 'anonymous';
 spriteSheet.src = SPRITE_SRC;
 
 // Row index per facing direction
