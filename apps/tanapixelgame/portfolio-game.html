@@ -404,36 +404,36 @@ const MAP = [
 const OBJECTS = {
   [DESK]: {
     icon: '💼',
-    title: 'About Me',
+    title: 'About TANA',
     html: `
-      Hi, I'm <span style="color:#4ecca3">Alex</span> — a full-stack<br>
-      developer who loves building creative<br>
-      experiences on the web.<br><br>
-      I work with <span style="color:#f9c74f">React · Node · TypeScript</span><br>
-      and have a soft spot for pixel art.<br><br>
-      Currently open to new roles!
+      Hi, I'm <span style="color:#4ecca3">TANA</span> — a full-stack<br>
+      <br>
+      <br><br>
+      I made  <span style="color:#f9c74f">A · B · TypeScript</span><br>
+        
+        <span style="color:#888">... </span>word to<br><br>
     `
   },
   [SHELF]: {
     icon: '📚',
-    title: 'Projects',
+    title: 'Albums & EPs',
     html: `
-      <span style="color:#4ecca3">►</span> PixelWorld — Procedural terrain gen<br>
-      <span style="color:#4ecca3">►</span> NoteStack — Markdown note app<br>
-      <span style="color:#4ecca3">►</span> DataViz Suite — D3.js dashboards<br>
-      <span style="color:#4ecca3">►</span> OpenAPI Toolkit — REST client<br><br>
-      More at <span style="color:#f9c74f">github.com/alexdev</span>
+      <span style="color:#4ecca3">►</span> ... <br>
+      <span style="color:#4ecca3">►</span> ... <br>
+      <span style="color:#4ecca3">►</span> ... <br>
+      <span style="color:#4ecca3">►</span> ...<br><br>
+      More at <span style="color:#f9c74f">https://open.spotify.com/artist/1xgl9yxqIVq8PEEMai38uV</span>
     `
   },
   [COMPUTER]: {
     icon: '💻',
     title: 'Contact',
     html: `
-      Let's work together!<br><br>
-      <span style="color:#4ecca3">✉</span>  hello@alexdev.io<br>
-      <span style="color:#4ecca3">⬡</span>  github.com/alexdev<br>
-      <span style="color:#4ecca3">in</span> linkedin.com/in/alexdev<br><br>
-      <span style="color:#888">DM me — I don't bite 🐾</span>
+      CHRISSKYLARCK<br><br>
+      <span style="color:#4ecca3">✉</span> ... <br>
+      <span style="color:#4ecca3">⬡</span>  ... <br>
+      <span style="color:#4ecca3">in</span> ... <br><br>
+      <span style="color:#888">... </span>
     `
   }
 };
@@ -850,13 +850,13 @@ function drawPlayer() {
   ctx.font = '5px "Press Start 2P"';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('YOU', px + DISPLAY_W/2, py - 9);
+  ctx.fillText('TANA', px + DISPLAY_W/2, py - 9);
 }
 function drawHUD() {
   ctx.fillStyle = 'rgba(5,5,10,0.8)'; ctx.fillRect(0, 0, CW, 22);
   ctx.fillStyle = C.hud; ctx.font = '7px "Press Start 2P"';
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  ctx.fillText('▸ PORTFOLIO ROOM', 8, 11);
+  ctx.fillText('▸ TANA ROOM', 8, 11);
 
   const nearby = getNearbyInteractable();
   if (nearby !== null && !popupOpen) {
