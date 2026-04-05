@@ -1254,6 +1254,55 @@ function render() {
   // Draw all
   for (const item of renderList) item.fn();
 
+
+
+// ── DEBUG OVERLAY — press D to toggle ──────────────
+if (debugOn) {
+  for (const obj of sceneObjects) {
+    const sx = wx(obj.x), sy = wy(obj.y);
+    // Sprite bounding box (green)
+    ctx.strokeStyle = 'rgba(0,255,100,0.6)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(sx, sy, obj.w, obj.h);
+    // Collision rect (red)
+    if (obj.collision) {
+      ctx.strokeStyle = 'rgba(255,50,50,0.9)';
+      ctx.fillStyle   = 'rgba(255,50,50,0.15)';
+      const cx = wx(obj.collision.x), cy = wy(obj.collision.y);
+      ctx.fillRect(cx, cy, obj.collision.w, obj.collision.h);
+      ctx.strokeRect(cx, cy, obj.collision.w, obj.collision.h);
+    }
+    // BaseY line (yellow)
+    ctx.strokeStyle = 'rgba(255,220,0,0.7)';
+    ctx.beginPath();
+    ctx.moveTo(wx(obj.x), wy(obj.baseY));
+    ctx.lineTo(wx(obj.x + obj.w), wy(obj.baseY));
+    ctx.stroke();
+    // Coords label
+    ctx.fillStyle = '#fff';
+    ctx.font = '5px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${obj.id} (${obj.x},${obj.y})`, sx + 2, sy + 10);
+  }
+  // Player feet rect (cyan)
+  const pf = playerFeetRect();
+  ctx.strokeStyle = 'cyan'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(wx(pf.x), wy(pf.y), pf.w, pf.h);
+  // Floor boundary lines
+  ctx.strokeStyle = 'rgba(0,200,255,0.3)'; ctx.lineWidth = 1;
+  ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(0, wy(FLOOR_TOP)); ctx.lineTo(VIEW_W, wy(FLOOR_TOP)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, wy(FLOOR_BTM)); ctx.lineTo(VIEW_W, wy(FLOOR_BTM)); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+
+
+
+
+
+
+
   drawHUD();
 }
 
