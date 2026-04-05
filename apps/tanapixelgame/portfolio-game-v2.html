@@ -912,12 +912,11 @@ function closePopup() {
   popupOpen = false;
 }
 
-
+// ── DEBUG OVERLAY — press ` (backtick) to toggle ──
 let debugOn = false;
 window.addEventListener('keydown', e => {
-  if (e.key === 'd' || e.key === 'D') debugOn = !debugOn;
+  if (e.key === '`') debugOn = !debugOn;
 });
-
 
 
 document.getElementById('popup-close').addEventListener('click', closePopup);
@@ -1336,44 +1335,49 @@ function render() {
 
   // ── DEBUG OVERLAY — press D to toggle ──────────────
 if (debugOn) {
+  // Object boxes
   for (const obj of sceneObjects) {
     const sx = wx(obj.x), sy = wy(obj.y);
-    // Sprite bounding box (green)
-    ctx.strokeStyle = 'rgba(0,255,100,0.6)';
+    ctx.strokeStyle = 'rgba(0,255,100,0.7)';
     ctx.lineWidth = 1;
     ctx.strokeRect(sx, sy, obj.w, obj.h);
-    // Collision rect (red)
     if (obj.collision) {
-      ctx.strokeStyle = 'rgba(255,50,50,0.9)';
-      ctx.fillStyle   = 'rgba(255,50,50,0.15)';
       const cx = wx(obj.collision.x), cy = wy(obj.collision.y);
+      ctx.fillStyle = 'rgba(255,50,50,0.2)';
       ctx.fillRect(cx, cy, obj.collision.w, obj.collision.h);
+      ctx.strokeStyle = 'rgba(255,50,50,0.9)';
       ctx.strokeRect(cx, cy, obj.collision.w, obj.collision.h);
     }
-    // BaseY line (yellow)
-    ctx.strokeStyle = 'rgba(255,220,0,0.7)';
+    ctx.strokeStyle = 'rgba(255,220,0,0.8)';
     ctx.beginPath();
     ctx.moveTo(wx(obj.x), wy(obj.baseY));
     ctx.lineTo(wx(obj.x + obj.w), wy(obj.baseY));
     ctx.stroke();
-    // Coords label
     ctx.fillStyle = '#fff';
-    ctx.font = '5px monospace';
+    ctx.font = '8px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText(`${obj.id} (${obj.x},${obj.y})`, sx + 2, sy + 10);
+    ctx.fillText(`${obj.id}`, sx + 2, sy + 12);
   }
-  // Player feet rect (cyan)
+  // Player feet (cyan)
   const pf = playerFeetRect();
-  ctx.strokeStyle = 'cyan'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'cyan'; ctx.lineWidth = 2;
   ctx.strokeRect(wx(pf.x), wy(pf.y), pf.w, pf.h);
-  // Floor boundary lines
-  ctx.strokeStyle = 'rgba(0,200,255,0.3)'; ctx.lineWidth = 1;
-  ctx.setLineDash([4,4]);
+  // Floor bounds (dashed blue)
+  ctx.strokeStyle = 'rgba(0,180,255,0.5)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([6,4]);
   ctx.beginPath(); ctx.moveTo(0, wy(FLOOR_TOP)); ctx.lineTo(VIEW_W, wy(FLOOR_TOP)); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(0, wy(FLOOR_BTM)); ctx.lineTo(VIEW_W, wy(FLOOR_BTM)); ctx.stroke();
   ctx.setLineDash([]);
+  // Coords display
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  ctx.fillRect(VIEW_W - 160, VIEW_H - 36, 158, 34);
+  ctx.fillStyle = '#0f0';
+  ctx.font = '7px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText(`player: ${Math.round(player.x)}, ${Math.round(player.y)}`, VIEW_W - 155, VIEW_H - 24);
+  ctx.fillText(`feet Y: ${Math.round(playerBaseY())}  cam: ${Math.round(cam.x)},${Math.round(cam.y)}`, VIEW_W - 155, VIEW_H - 13);
 }
-
 
   drawHUD();
 }
