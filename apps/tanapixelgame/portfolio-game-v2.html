@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TANA.EXE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #05050a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      overflow: hidden;
+      font-family: 'Press Start 2P', monospace;
+      color: #e0e0e0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    /* ── Header ── */
+    #header {
+      font-size: 10px;
+      color: #4ecca3;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+      text-shadow: 0 0 12px rgba(78,204,163,0.7);
+      animation: flicker 4s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes flicker {
+      0%,95%,100%{opacity:1}96%{opacity:0.6}97%{opacity:1}98%{opacity:0.5}99%{opacity:1}
+    }
+
+    /*
+     * ── GAME CONTAINER ──
+     *  Landscape 2:1.  Sizes itself to fit the viewport:
+     *  – Desktop: up to 1200 px wide
+     *  – Portrait mobile: 100 vw wide → ~195 px tall (joystick overlaid on canvas)
+     *  – Landscape mobile: constrained by height
+     */
+    #game-container {
+      position: relative;
+      width: min(1200px, 100vw, calc((100dvh - 64px) * 2));
+      aspect-ratio: 2 / 1;
+      border: 2px solid #4ecca3;
+      box-shadow:
+        0 0 0 1px #0a0a14,
+        0 0 50px rgba(78,204,163,0.2),
+        inset 0 0 30px rgba(0,0,0,0.5);
+      flex-shrink: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    /* CRT scanlines */
+    #game-container::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px
+      );
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    /* ────────────────────────────────────────
+       POPUP  (email + info modal)
+    ──────────────────────────────────────── */
+    #popup-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(5,5,10,0.90);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      z-index: 30;
+    }
+    #popup-overlay.active { opacity: 1; pointer-events: all; }
+
+    #popup-box {
+      background: #09091a;
+      border: 2px solid #4ecca3;
+      box-shadow: 0 0 40px rgba(78,204,163,0.3), 0 0 0 1px #0a0a14;
+      padding: 26px 28px 22px;
+      width: min(360px, 92%);
+      position: relative;
+      animation: popIn 0.12s ease forwards;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    #popup-close {
+      position: absolute; top: 8px; right: 10px;
+      background: none; border: none;
+      color: #4ecca3; font-family: 'Press Start 2P', monospace;
+      font-size: 9px; cursor: pointer; padding: 4px 6px;
+    }
+    #popup-close:hover { color: #fff; }
+    #popup-icon   { font-size: 24px; margin-bottom: 10px; }
+    #popup-title  {
+      font-size: 10px; color: #4ecca3;
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid #1a2a20;
+      text-shadow: 0 0 8px rgba(78,204,163,0.4);
+    }
+    #popup-body   { font-size: 7.5px; color: #b0b8d0; line-height: 2.2; }
+
+    /* email form */
+    #email-wrap { margin-top: 14px; }
+    #email-input {
+      width: 100%;
+      background: #080818;
+      border: 1px solid #4ecca3;
+      color: #4ecca3;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+      outline: none;
+      display: block;
+    }
+    #email-input::placeholder { color: #1a3a2a; }
+    #email-input:focus { border-color: #78ffd0; }
+    #email-submit {
+      width: 100%;
+      background: rgba(78,204,163,0.08);
+      border: 1px solid #4ecca3;
+      color: #4ecca3;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      padding: 9px;
+      cursor: pointer;
+      transition: background 0.1s;
+      display: block;
+    }
+    #email-submit:hover { background: rgba(78,204,163,0.22); }
+    #email-ok {
+      font-size: 7px; color: #4ecca3;
+      margin-top: 10px; display: none; text-align: center;
+    }
+
+    #popup-hint {
+      margin-top: 14px; padding-top: 10px;
+      border-top: 1px solid #141430;
+      font-size: 6px; color: #2a2a44; text-align: center;
+    }
+
+    /* ────────────────────────────────────────
+       TV VIDEO OVERLAY
+    ──────────────────────────────────────── */
+    #tv-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.94);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      z-index: 35;
+    }
+    #tv-overlay.active { opacity: 1; pointer-events: all; }
+
+    #tv-frame-wrap {
+      width: min(640px, 92%);
+      aspect-ratio: 16/9;
+      border: 2px solid #4ecca3;
+      box-shadow: 0 0 40px rgba(78,204,163,0.35);
+      background: #000;
+    }
+    #tv-frame-wrap iframe { width: 100%; height: 100%; border: none; display: block; }
+
+    #tv-close-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px; color: #4ecca3;
+      background: rgba(78,204,163,0.06);
+      border: 1px solid rgba(78,204,163,0.4);
+      padding: 8px 18px; cursor: pointer;
+      transition: background 0.1s;
+    }
+    #tv-close-btn:hover { background: rgba(78,204,163,0.2); }
+
+    /* ────────────────────────────────────────
+       TOUCH CONTROLS  (overlaid on canvas)
+       Only shown on coarse-pointer devices
+    ──────────────────────────────────────── */
+    #touch-ui {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: none;        /* hidden on desktop */
+      z-index: 20;
+    }
+    @media (hover: none) and (pointer: coarse) {
+      #touch-ui { display: block; }
+    }
+
+    /* joystick — bottom-left */
+    #joystick-zone {
+      position: absolute;
+      bottom: 14px; left: 14px;
+      width: 90px; height: 90px;
+      pointer-events: all;
+      touch-action: none;
+    }
+    #joystick-base {
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      background: rgba(78,204,163,0.05);
+      border: 2px solid rgba(78,204,163,0.28);
+    }
+    #joystick-knob {
+      position: absolute;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #4ecca3, #1a5c50);
+      border: 2px solid rgba(78,204,163,0.9);
+      box-shadow: 0 0 12px rgba(78,204,163,0.4);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      pointer-events: none;
+    }
+
+    /* interact button — bottom-right */
+    #interact-btn {
+      position: absolute;
+      bottom: 20px; right: 14px;
+      width: 58px; height: 58px;
+      border-radius: 50%;
+      background: rgba(249,199,79,0.07);
+      border: 2px solid rgba(249,199,79,0.45);
+      display: flex; align-items: center;
+      justify-content: center; flex-direction: column; gap: 2px;
+      pointer-events: all; touch-action: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.08s, box-shadow 0.08s;
+    }
+    #interact-btn.pressed {
+      background: rgba(249,199,79,0.28);
+      box-shadow: 0 0 20px rgba(249,199,79,0.5);
+    }
+    #interact-btn .bkey  { font-size: 14px; color: #f9c74f; line-height: 1; }
+    #interact-btn .blbl  { font-size: 4px; color: rgba(249,199,79,0.4); letter-spacing: 1px; }
+
+    /* ── Desktop hint ── */
+    #hint {
+      font-size: 7px; color: #242436;
+      margin-top: 8px; letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+    #hint span { color: #4ecca3; }
+    @media (hover: none) and (pointer: coarse) { #hint { display: none; } }
+  </style>
+</head>
+<body>
+
+<div id="header">★ TANA.EXE ★</div>
+
+<div id="game-container">
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Info / Email popup -->
+  <div id="popup-overlay">
+    <div id="popup-box">
+      <button id="popup-close">✕</button>
+      <div id="popup-icon"></div>
+      <div id="popup-title"></div>
+      <div id="popup-body"></div>
+      <div id="email-wrap" style="display:none">
+        <input id="email-input" type="email" placeholder="your@email.com" autocomplete="email">
+        <button id="email-submit">JOIN THE LIST →</button>
+        <div id="email-ok">✓ YOU'RE ON THE LIST</div>
+      </div>
+      <div id="popup-hint">[ tap ✕ or press ESC to close ]</div>
+    </div>
+  </div>
+
+  <!-- TV video overlay -->
+  <div id="tv-overlay">
+    <div id="tv-frame-wrap">
+      <iframe id="tv-iframe" src="" allowfullscreen
+        allow="autoplay; encrypted-media; picture-in-picture"></iframe>
+    </div>
+    <button id="tv-close-btn">✕  CLOSE</button>
+  </div>
+
+  <!-- Touch controls (overlaid) -->
+  <div id="touch-ui">
+    <div id="joystick-zone">
+      <div id="joystick-base"></div>
+      <div id="joystick-knob"></div>
+    </div>
+    <div id="interact-btn">
+      <span class="bkey">E</span>
+      <span class="blbl">ACT</span>
+    </div>
+  </div>
+</div>
+
+<div id="hint">
+  <span>WASD</span> / <span>↑↓←→</span> — MOVE &nbsp;&nbsp;
+  <span>E</span> — INTERACT &nbsp;&nbsp;
+  <span>ESC</span> — CLOSE
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+//  ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗
+//  ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝
+//  ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+//  ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+//  ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+//   ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
+// ═══════════════════════════════════════════════════════════
+
+// ─────────────────────────────────────────────────────────
+//  WORLD & VIEWPORT
+//  World  : 1200 × 600  (full room dimensions in "world pixels")
+//  Viewport: 800 × 400  (canvas internal resolution, 2:1)
+//  Camera scrolls inside world so the player is always centred.
+// ─────────────────────────────────────────────────────────
+const WORLD_W = 1200;
+const WORLD_H = 600;
+const VIEW_W  = 800;
+const VIEW_H  = 400;
+
+// ── Player geometry ────────────────────────────────────────
+const PW           = 44;   // sprite draw width  (world px)
+const PH           = 60;   // sprite draw height
+const FEET_OY      = 46;   // offset from player.y → top of feet rect
+const FEET_H       = 14;   // height of feet collision strip
+const FEET_MARGIN  = 8;    // horizontal inset of feet rect
+const SPEED        = 3.5;
+
+// ── Walkable floor zone (world Y for player's feet) ────────
+//  Tune these after you see your background rendered:
+//  FLOOR_TOP  = Y where the floor plane begins
+//  FLOOR_BTM  = Y below which player cannot walk
+const FLOOR_TOP = 285;   // top of walkable area
+const FLOOR_BTM = 565;   // bottom boundary
+const ROOM_L    = 10;    // left wall
+const ROOM_R    = WORLD_W - 10; // right wall
+
+// ── Sprite sheet layout: rows = directions, cols = frames ──
+//  row 0=down  1=up  2=left  3=right
+//  col 0=idle  1=walkA
+const FRAME_W  = 256;
+const FRAME_H  = 256;
+const DIR_ROW  = { down:0, up:1, left:2, right:3 };
+
+// ─────────────────────────────────────────────────────────
+//  CANVAS
+// ─────────────────────────────────────────────────────────
+const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+canvas.width  = VIEW_W;
+canvas.height = VIEW_H;
+
+// ─────────────────────────────────────────────────────────
+//  ASSET LOADING
+// ─────────────────────────────────────────────────────────
+function loadImg(src) {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = src;
+  return img;
+}
+
+// ▸ Swap these paths to wherever you host your assets
+const bgImg     = loadImg('/apps/tanapixelgame/assets/base.png');
+const spriteImg = loadImg('/apps/tanapixelgame/assets/spritetest.png');
+
+// Optional: load individual object PNGs here when ready
+// Example:
+//   const shelfImg = loadImg('/apps/tanapixelgame/assets/obj_shelf.png');
+// Then set  sceneObjects.find(o=>o.id==='shelf').img = shelfImg;
+// The engine will automatically use the PNG if .complete, else falls back to draw()
+
+// ─────────────────────────────────────────────────────────
+//  CAMERA
+// ─────────────────────────────────────────────────────────
+const cam = { x: 0, y: 0 };
+
+function updateCamera() {
+  // Centre camera on player horizontally and vertically
+  cam.x = player.x + PW / 2 - VIEW_W / 2;
+  cam.y = player.y + PH / 2 - VIEW_H / 2;
+  // Clamp to world bounds
+  cam.x = Math.max(0, Math.min(WORLD_W - VIEW_W, cam.x));
+  cam.y = Math.max(0, Math.min(WORLD_H - VIEW_H, cam.y));
+}
+
+// World → screen transform
+function wx(worldX) { return Math.round(worldX - cam.x); }
+function wy(worldY) { return Math.round(worldY - cam.y); }
+
+// ─────────────────────────────────────────────────────────
+//  SCENE OBJECTS
+//
+//  Each entry:
+//    id          : unique string
+//    x, y        : top-left corner in WORLD space
+//    w, h        : sprite width/height in world pixels
+//    baseY       : world Y used for depth-sorting (usually base of object on floor)
+//    collision   : {x,y,w,h} in world space — only this rect blocks the player
+//                  null = no collision (wall-mounted / decoration)
+//    interactable: bool
+//    action      : 'video' | 'email' | null
+//    label       : HUD / prompt text
+//    img         : Image object (optional) — set when PNG is ready
+//    draw(ctx,sx,sy): fallback placeholder draw (coloured rect)
+//
+//  ► HOW TO SWAP IN A PNG:
+//    1. Add  const myImg = loadImg('/path/to/obj.png');  above
+//    2. Set  sceneObjects.find(o=>o.id==='myId').img = myImg;
+//    3. Done — engine draws the PNG at (x,y,w,h) automatically
+// ─────────────────────────────────────────────────────────
+const sceneObjects = [
+
+  // ── TV  (wall-mounted — no floor collision, interactable) ──
+  // baseY is low so it ALWAYS renders before the player → player never covers TV
+  {
+    id: 'tv',
+    x: 410, y: 48,
+    w: 380, h: 200,
+    baseY: 200,            // low → renders before player always
+    collision: null,       // wall-mounted; no floor collision
+    interactable: true,
+    action: 'video',
+    label: 'PLAY VIDEO',
+    // ▸ Replace with your YouTube video ID
+    videoId: 'dQw4w9WgXcQ',
+    img: null,
+    draw(ctx, sx, sy) {
+      // Body
+      ctx.fillStyle = '#0d0d1a';
+      ctx.fillRect(sx, sy, this.w, this.h);
+      // Bezel
+      ctx.strokeStyle = '#222244'; ctx.lineWidth = 3;
+      ctx.strokeRect(sx+2, sy+2, this.w-4, this.h-4);
+      // Screen
+      const m = 14;
+      ctx.fillStyle = '#040d0a';
+      ctx.fillRect(sx+m, sy+m, this.w-m*2, this.h-m*2-18);
+      // Screen ambient glow
+      ctx.fillStyle = 'rgba(0,220,100,0.05)';
+      ctx.fillRect(sx+m, sy+m, this.w-m*2, this.h-m*2-18);
+      // Fake scanlines
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      for (let sl = 0; sl < this.h-m*2-18; sl += 4)
+        ctx.fillRect(sx+m, sy+m+sl, this.w-m*2, 2);
+      // Blinking cursor
+      if (Math.floor(Date.now()/700) % 2 === 0) {
+        ctx.fillStyle = '#00dd88';
+        ctx.fillRect(sx+m+8, sy+m+8, 5, 9);
+      }
+      // Play label
+      ctx.fillStyle = 'rgba(0,220,100,0.45)';
+      ctx.font = '8px "Press Start 2P"';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('▶  PLAY', sx + this.w/2, sy + this.h/2 - 6);
+      // Stand
+      ctx.fillStyle = '#0a0a18';
+      ctx.fillRect(sx + this.w/2 - 18, sy + this.h - 18, 36, 18);
+      ctx.fillRect(sx + this.w/2 - 28, sy + this.h - 4, 56, 4);
+    }
+  },
+
+  // ── SNEAKER SHELF  (left — tall, Y-sorted) ─────────────
+  {
+    id: 'sneaker_shelf',
+    x: 58, y: 150,
+    w: 210, h: 270,
+    baseY: 420,             // floor level of shelf
+    collision: { x: 58, y: 400, w: 210, h: 25 },
+    interactable: false,
+    img: null,
+    draw(ctx, sx, sy) {
+      // Back panel
+      ctx.fillStyle = '#1e1206';
+      ctx.fillRect(sx, sy, this.w, this.h);
+      // Shelf boards (3 shelves)
+      const rows = 3;
+      const rowH = (this.h - 30) / rows;
+      for (let i = 0; i <= rows; i++) {
+        ctx.fillStyle = '#3a2010';
+        ctx.fillRect(sx, sy + 20 + i * rowH, this.w, 5);
+      }
+      // Sneaker blobs per shelf
+      const colours = ['#e74c3c','#f39c12','#3498db','#2ecc71','#9b59b6','#e67e22'];
+      for (let r = 0; r < rows; r++) {
+        const sby = sy + 22 + r * rowH + 6;
+        for (let col = 0; col < 3; col++) {
+          const sbx = sx + 12 + col * 62;
+          ctx.fillStyle = colours[(r*3+col) % colours.length];
+          ctx.fillRect(sbx, sby, 50, rowH - 14);
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(sbx+4, sby+4, 30, 5);
+        }
+      }
+      // Side edge highlights
+      ctx.fillStyle = '#4a2818';
+      ctx.fillRect(sx, sy, 4, this.h);
+      ctx.fillRect(sx+this.w-4, sy, 4, this.h);
+    }
+  },
+
+  // ── CLOTHES RACK  (left — tall, Y-sorted) ──────────────
+  {
+    id: 'rack_left',
+    x: 20, y: 290,
+    w: 148, h: 200,
+    baseY: 490,
+    collision: { x: 24, y: 462, w: 140, h: 28 },
+    interactable: false,
+    img: null,
+    draw(ctx, sx, sy) {
+      // Metal poles
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
+      // Horizontal rail
+      ctx.beginPath();
+      ctx.moveTo(sx+10, sy+20); ctx.lineTo(sx+this.w-10, sy+20); ctx.stroke();
+      // Verticals
+      ctx.beginPath(); ctx.moveTo(sx+10, sy+18); ctx.lineTo(sx+10, sy+this.h-10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(sx+this.w-10, sy+18); ctx.lineTo(sx+this.w-10, sy+this.h-10); ctx.stroke();
+      // Base
+      ctx.strokeStyle = '#444'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(sx, sy+this.h-10); ctx.lineTo(sx+this.w, sy+this.h-10); ctx.stroke();
+      // Hangers + garments
+      const garmentC = ['#c0392b','#8e44ad','#2980b9','#16a085','#d35400','#27ae60'];
+      for (let i = 0; i < 6; i++) {
+        const gx = sx + 18 + i * 18;
+        // hanger hook
+        ctx.strokeStyle = '#888'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(gx+5, sy+20); ctx.lineTo(gx+5, sy+28); ctx.stroke();
+        // garment
+        ctx.fillStyle = garmentC[i];
+        ctx.fillRect(gx, sy+28, 14, 40 + (i%2)*10);
+        // garment highlight
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.fillRect(gx+2, sy+30, 4, 8);
+      }
+      // Wheels
+      ctx.fillStyle = '#333';
+      ctx.beginPath(); ctx.arc(sx+20, sy+this.h-4, 6, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(sx+this.w-20, sy+this.h-4, 6, 0, Math.PI*2); ctx.fill();
+    }
+  },
+
+  // ── SECOND RACK  (left-centre) ─────────────────────────
+  {
+    id: 'rack_right',
+    x: 185, y: 330,
+    w: 148, h: 180,
+    baseY: 510,
+    collision: { x: 188, y: 482, w: 140, h: 28 },
+    interactable: false,
+    img: null,
+    draw(ctx, sx, sy) {
+      ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(sx+10, sy+18); ctx.lineTo(sx+this.w-10, sy+18); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(sx+10, sy+16); ctx.lineTo(sx+10, sy+this.h-10); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(sx+this.w-10, sy+16); ctx.lineTo(sx+this.w-10, sy+this.h-10); ctx.stroke();
+      ctx.strokeStyle = '#444'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(sx+4, sy+this.h-10); ctx.lineTo(sx+this.w-4, sy+this.h-10); ctx.stroke();
+      const garmentC = ['#1abc9c','#e74c3c','#f39c12','#9b59b6','#3498db'];
+      for (let i = 0; i < 5; i++) {
+        const gx = sx + 16 + i * 22;
+        ctx.strokeStyle = '#888'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(gx+5, sy+18); ctx.lineTo(gx+5, sy+26); ctx.stroke();
+        ctx.fillStyle = garmentC[i];
+        ctx.fillRect(gx, sy+26, 16, 36 + (i%3)*8);
+        ctx.fillStyle = 'rgba(255,255,255,0.1)';
+        ctx.fillRect(gx+2, sy+28, 5, 6);
+      }
+      ctx.fillStyle = '#333';
+      ctx.beginPath(); ctx.arc(sx+20, sy+this.h-4, 5, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(sx+this.w-20, sy+this.h-4, 5, 0, Math.PI*2); ctx.fill();
+    }
+  },
+
+  // ── STUDIO / RECORDING DESK  (right — tall, interactable) ─
+  {
+    id: 'studio_desk',
+    x: 840, y: 190,
+    w: 340, h: 270,
+    baseY: 460,
+    collision: { x: 840, y: 435, w: 340, h: 25 },
+    interactable: true,
+    action: 'email',
+    label: 'JOIN LIST',
+    img: null,
+    draw(ctx, sx, sy) {
+      // Back wall-mount panel
+      ctx.fillStyle = '#0e0e1e';
+      ctx.fillRect(sx, sy, this.w, this.h);
+      ctx.fillStyle = '#14142a';
+      ctx.fillRect(sx+4, sy+4, this.w-8, this.h-8);
+
+      // Left monitor
+      const monW = 100, monH = 68;
+      ctx.fillStyle = '#080818'; ctx.fillRect(sx+10, sy+14, monW, monH);
+      ctx.fillStyle = '#001a0f'; ctx.fillRect(sx+12, sy+16, monW-4, monH-4);
+      // DAW waveform mock
+      for (let b = 0; b < 10; b++) {
+        const bh = 8 + Math.sin(b*1.3)*14;
+        ctx.fillStyle = b%2===0 ? '#00cc77' : '#008855';
+        ctx.fillRect(sx+14+b*9, sy+16 + (monH-4)/2 - bh/2, 7, bh);
+      }
+      ctx.fillStyle = '#0a0a18'; ctx.fillRect(sx+55, sy+82, 10, 8); // stand
+
+      // Right monitor
+      ctx.fillStyle = '#080818'; ctx.fillRect(sx+this.w-10-monW, sy+14, monW, monH);
+      ctx.fillStyle = '#001020'; ctx.fillRect(sx+this.w-8-monW, sy+16, monW-4, monH-4);
+      for (let b = 0; b < 10; b++) {
+        const bh = 6 + Math.cos(b*1.7)*12;
+        ctx.fillStyle = b%3===0 ? '#0088ff' : '#004488';
+        ctx.fillRect(sx+this.w-8-monW+b*9, sy+16+(monH-4)/2-bh/2, 7, bh);
+      }
+      ctx.fillStyle = '#0a0a18'; ctx.fillRect(sx+this.w-60, sy+82, 10, 8);
+
+      // Studio monitors (speakers)
+      ctx.fillStyle = '#111122';
+      ctx.fillRect(sx+120, sy+10, 50, 70);
+      ctx.fillStyle = '#1e1e3a'; ctx.fillRect(sx+124, sy+14, 42, 62);
+      ctx.fillStyle = '#333355'; ctx.beginPath();
+      ctx.arc(sx+145, sy+34, 14, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#1a1a30'; ctx.beginPath();
+      ctx.arc(sx+145, sy+34, 8, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#555'; ctx.fillRect(sx+128, sy+64, 34, 6);
+
+      ctx.fillStyle = '#111122';
+      ctx.fillRect(sx+this.w-170, sy+10, 50, 70);
+      ctx.fillStyle = '#1e1e3a'; ctx.fillRect(sx+this.w-166, sy+14, 42, 62);
+      ctx.fillStyle = '#333355'; ctx.beginPath();
+      ctx.arc(sx+this.w-145, sy+34, 14, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#1a1a30'; ctx.beginPath();
+      ctx.arc(sx+this.w-145, sy+34, 8, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#555'; ctx.fillRect(sx+this.w-166, sy+64, 34, 6);
+
+      // Desk surface
+      ctx.fillStyle = '#1a1008';
+      ctx.fillRect(sx, sy+this.h-80, this.w, 80);
+      ctx.fillStyle = '#221408';
+      ctx.fillRect(sx+4, sy+this.h-76, this.w-8, 72);
+
+      // MIDI / mixer
+      ctx.fillStyle = '#0d0d1a'; ctx.fillRect(sx+20, sy+this.h-68, 200, 52);
+      for (let k = 0; k < 8; k++) {
+        ctx.fillStyle = '#222'; ctx.fillRect(sx+26+k*24, sy+this.h-62, 18, 28);
+        ctx.fillStyle = k%3===0 ? '#f9c74f' : '#555';
+        ctx.fillRect(sx+32+k*24, sy+this.h-56+k%3*6, 6, 14);
+      }
+      // Knobs
+      for (let k = 0; k < 5; k++) {
+        ctx.fillStyle = '#333';
+        ctx.beginPath(); ctx.arc(sx+28+k*18, sy+this.h-22, 6, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#555';
+        ctx.beginPath(); ctx.arc(sx+28+k*18, sy+this.h-23, 2, 0, Math.PI*2); ctx.fill();
+      }
+
+      // Laptop
+      ctx.fillStyle = '#1a1a2a'; ctx.fillRect(sx+230, sy+this.h-70, 80, 52);
+      ctx.fillStyle = '#0a1520'; ctx.fillRect(sx+234, sy+this.h-66, 72, 40);
+      ctx.fillStyle = 'rgba(0,200,255,0.6)'; ctx.font='5px sans-serif';
+      ctx.textAlign='center'; ctx.fillText('DAW', sx+270, sy+this.h-44);
+
+      // Email prompt label
+      ctx.fillStyle = 'rgba(249,199,79,0.5)';
+      ctx.font = '6px "Press Start 2P"'; ctx.textAlign = 'center';
+      ctx.fillText('✉ JOIN LIST', sx + this.w/2, sy + this.h - 18);
+    }
+  },
+
+  // ── COUCH  (centre — non-interactive obstacle) ──────────
+  {
+    id: 'couch',
+    x: 368, y: 330,
+    w: 340, h: 130,
+    baseY: 460,
+    collision: { x: 368, y: 425, w: 340, h: 35 },
+    interactable: false,
+    img: null,
+    draw(ctx, sx, sy) {
+      // Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.fillRect(sx+6, sy+this.h-8, this.w-4, 12);
+      // Back cushion
+      ctx.fillStyle = '#1a1020';
+      ctx.fillRect(sx, sy, this.w, this.h - 30);
+      ctx.fillStyle = '#22182e';
+      ctx.fillRect(sx+4, sy+4, this.w-8, this.h-40);
+      // Seat cushions (3)
+      for (let i = 0; i < 3; i++) {
+        const cx = sx + 8 + i * (this.w - 16) / 3 + 2;
+        const cw = (this.w - 16) / 3 - 4;
+        ctx.fillStyle = '#1e1428';
+        ctx.fillRect(cx, sy + this.h - 50, cw, 36);
+        ctx.fillStyle = '#281c36';
+        ctx.fillRect(cx+4, sy + this.h - 46, cw-8, 28);
+        // seam
+        ctx.fillStyle = '#120e1a';
+        ctx.fillRect(cx + cw/2 - 1, sy + this.h - 50, 2, 36);
+      }
+      // Armrests
+      ctx.fillStyle = '#12101e';
+      ctx.fillRect(sx, sy + 8, 12, this.h - 30);
+      ctx.fillRect(sx + this.w - 12, sy + 8, 12, this.h - 30);
+      // Legs
+      ctx.fillStyle = '#0d0b14';
+      ctx.fillRect(sx+14, sy+this.h-14, 16, 14);
+      ctx.fillRect(sx+this.w-30, sy+this.h-14, 16, 14);
+    }
+  },
+
+];
+
+// ─────────────────────────────────────────────────────────
+//  PLAYER
+// ─────────────────────────────────────────────────────────
+let lastAxis = 'x';
+
+const player = {
+  x: WORLD_W / 2 - PW / 2,   // start centre of world
+  y: 370,
+  vx: 0, vy: 0,
+  facing: 'down',
+  animFrame: 0,
+  animTick: 0,
+};
+
+// World-space feet rect for collision & depth sorting
+function playerFeetRect(px, py) {
+  return {
+    x: (px ?? player.x) + FEET_MARGIN,
+    y: (py ?? player.y) + FEET_OY,
+    w: PW - FEET_MARGIN * 2,
+    h: FEET_H,
+  };
+}
+function playerBaseY() { return player.y + FEET_OY + FEET_H; }
+
+// ─────────────────────────────────────────────────────────
+//  COLLISION
+// ─────────────────────────────────────────────────────────
+function rectsOverlap(a, b) {
+  return a.x < b.x+b.w && a.x+a.w > b.x
+      && a.y < b.y+b.h && a.y+a.h > b.y;
+}
+
+function wouldCollide(px, py) {
+  const feet = playerFeetRect(px, py);
+
+  // Object collisions (bottom-strip only per object)
+  for (const obj of sceneObjects) {
+    if (!obj.collision) continue;
+    if (rectsOverlap(feet, obj.collision)) return true;
+  }
+
+  // World / floor boundary
+  if (px < ROOM_L || px + PW > ROOM_R) return true;
+  if (feet.y < FLOOR_TOP)  return true;
+  if (feet.y + feet.h > FLOOR_BTM) return true;
+
+  return false;
+}
+
+// ─────────────────────────────────────────────────────────
+//  INTERACTION
+// ─────────────────────────────────────────────────────────
+const INTERACT_RANGE = 160; // world pixels
+
+function getNearbyObject() {
+  const px = player.x + PW / 2;
+  const py = player.y + FEET_OY + FEET_H / 2;
+  for (const obj of sceneObjects) {
+    if (!obj.interactable) continue;
+    const ocx = obj.x + obj.w / 2;
+    const ocy = obj.baseY;
+    if (Math.hypot(px - ocx, py - ocy) < INTERACT_RANGE) return obj;
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────
+//  POPUP
+// ─────────────────────────────────────────────────────────
+const popupOverlay = document.getElementById('popup-overlay');
+const popupIcon    = document.getElementById('popup-icon');
+const popupTitle   = document.getElementById('popup-title');
+const popupBody    = document.getElementById('popup-body');
+const emailWrap    = document.getElementById('email-wrap');
+const emailInput   = document.getElementById('email-input');
+const emailOk      = document.getElementById('email-ok');
+const emailSubmit  = document.getElementById('email-submit');
+let popupOpen = false;
+
+function openEmailPopup() {
+  popupIcon.textContent  = '✉';
+  popupTitle.textContent = 'STAY IN THE LOOP';
+  popupBody.innerHTML    = `
+    <span style="color:#4ecca3">NEW MUSIC</span> on the way.<br><br>
+    Drop your email — you'll be the<br>first to hear it.
+  `;
+  emailWrap.style.display = 'block';
+  emailOk.style.display   = 'none';
+  emailInput.style.display = 'block';
+  emailSubmit.style.display = 'block';
+  emailInput.value = '';
+  emailInput.style.borderColor = '#4ecca3';
+  popupOverlay.classList.add('active');
+  popupOpen = true;
+}
+
+function closePopup() {
+  popupOverlay.classList.remove('active');
+  popupOpen = false;
+}
+
+document.getElementById('popup-close').addEventListener('click', closePopup);
+
+emailSubmit.addEventListener('click', () => {
+  const val = emailInput.value.trim();
+  if (!val || !val.includes('@') || !val.includes('.')) {
+    emailInput.style.borderColor = '#e94560';
+    setTimeout(() => { emailInput.style.borderColor = '#4ecca3'; }, 800);
+    return;
+  }
+  // ▸ TODO: POST to your mailing list API (Mailchimp, Beehiiv, etc.)
+  // fetch('/api/subscribe', { method:'POST', body: JSON.stringify({email:val}) })
+  console.log('[TANA.EXE] Email captured:', val);
+  emailInput.style.display   = 'none';
+  emailSubmit.style.display  = 'none';
+  emailOk.style.display      = 'block';
+  setTimeout(closePopup, 2800);
+});
+
+// ─────────────────────────────────────────────────────────
+//  TV VIDEO
+// ─────────────────────────────────────────────────────────
+const tvOverlay = document.getElementById('tv-overlay');
+const tvIframe  = document.getElementById('tv-iframe');
+let tvOpen = false;
+
+function openTV(videoId) {
+  tvIframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+  tvOverlay.classList.add('active');
+  tvOpen = true;
+  if (proxAudio) setProxGain(0); // mute ambient while video plays
+}
+
+function closeTV() {
+  tvIframe.src = '';
+  tvOverlay.classList.remove('active');
+  tvOpen = false;
+}
+
+document.getElementById('tv-close-btn').addEventListener('click', closeTV);
+
+// ─────────────────────────────────────────────────────────
+//  PROXIMITY AUDIO  (ambient TV glow sound)
+//
+//  ▸ To enable: set AMBIENT_AUDIO_SRC to a hosted audio file path.
+//    e.g.  const AMBIENT_AUDIO_SRC = '/apps/tanapixelgame/assets/ambient.mp3';
+//  ▸ Volume scales from 0 → MAX_VOL as player approaches TV.
+// ─────────────────────────────────────────────────────────
+const AMBIENT_AUDIO_SRC = null;   // ← swap in your audio file path
+const PROX_MAX_DIST     = 380;    // world px — silent beyond this
+const PROX_MAX_VOL      = 0.75;
+
+let proxAudio = null;
+
+function initProxAudio() {
+  if (!AMBIENT_AUDIO_SRC) return;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const ctx2 = new AC();
+    const gainNode = ctx2.createGain();
+    gainNode.gain.value = 0;
+    gainNode.connect(ctx2.destination);
+    const el = new Audio(AMBIENT_AUDIO_SRC);
+    el.loop = true;
+    const src = ctx2.createMediaElementSource(el);
+    src.connect(gainNode);
+    el.play().catch(() => {});
+    proxAudio = { ctx: ctx2, gainNode };
+  } catch(e) { console.warn('ProxAudio init failed:', e); }
+}
+
+function setProxGain(v) {
+  if (!proxAudio) return;
+  proxAudio.gainNode.gain.setTargetAtTime(v, proxAudio.ctx.currentTime, 0.4);
+}
+
+function updateProxAudio() {
+  if (!proxAudio || tvOpen) return;
+  const tvObj = sceneObjects.find(o => o.id === 'tv');
+  if (!tvObj) return;
+  const dx = (player.x + PW/2) - (tvObj.x + tvObj.w/2);
+  const dy = (player.y + FEET_OY) - tvObj.baseY;
+  const dist = Math.hypot(dx, dy);
+  setProxGain(Math.max(0, 1 - dist / PROX_MAX_DIST) * PROX_MAX_VOL);
+}
+
+// Init audio on first user gesture
+let _audioInited = false;
+function tryInitAudio() {
+  if (_audioInited) return;
+  _audioInited = true;
+  initProxAudio();
+}
+window.addEventListener('keydown', tryInitAudio);
+canvas.addEventListener('touchstart', tryInitAudio);
+
+// ─────────────────────────────────────────────────────────
+//  INPUT — keyboard
+// ─────────────────────────────────────────────────────────
+const keys = {};
+window.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if (e.key === 'e' || e.key === 'E') tryInteract();
+  if (e.key === 'Escape') { closePopup(); closeTV(); }
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))
+    e.preventDefault();
+});
+window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// ─────────────────────────────────────────────────────────
+//  INPUT — virtual joystick
+// ─────────────────────────────────────────────────────────
+const joy = { dx: 0, dy: 0, active: false };
+const JOY_MAX = 30; // px from centre
+const jZone = document.getElementById('joystick-zone');
+const jKnob = document.getElementById('joystick-knob');
+let jCX = 0, jCY = 0, jTid = null;
+
+function jStart(e) {
+  e.preventDefault();
+  const t = e.changedTouches[0]; jTid = t.identifier;
+  const r = jZone.getBoundingClientRect();
+  jCX = r.left + r.width/2; jCY = r.top + r.height/2;
+  jMove(e);
+}
+function jMove(e) {
+  e.preventDefault();
+  for (const t of e.changedTouches) {
+    if (t.identifier !== jTid) continue;
+    let dx = t.clientX - jCX, dy = t.clientY - jCY;
+    const d = Math.hypot(dx, dy);
+    if (d > JOY_MAX) { dx = dx/d*JOY_MAX; dy = dy/d*JOY_MAX; }
+    jKnob.style.left = `calc(50% + ${dx}px)`;
+    jKnob.style.top  = `calc(50% + ${dy}px)`;
+    jKnob.style.transform = 'translate(-50%,-50%)';
+    joy.dx = dx/JOY_MAX; joy.dy = dy/JOY_MAX; joy.active = true;
+  }
+}
+function jEnd(e) {
+  e.preventDefault();
+  for (const t of e.changedTouches) {
+    if (t.identifier !== jTid) continue;
+    jKnob.style.left = jKnob.style.top = '50%';
+    jKnob.style.transform = 'translate(-50%,-50%)';
+    joy.dx = joy.dy = 0; joy.active = false; jTid = null;
+  }
+}
+jZone.addEventListener('touchstart',  jStart, { passive:false });
+jZone.addEventListener('touchmove',   jMove,  { passive:false });
+jZone.addEventListener('touchend',    jEnd,   { passive:false });
+jZone.addEventListener('touchcancel', jEnd,   { passive:false });
+
+// ─────────────────────────────────────────────────────────
+//  INPUT — interact button
+// ─────────────────────────────────────────────────────────
+const iBtn = document.getElementById('interact-btn');
+iBtn.addEventListener('touchstart', e => {
+  e.preventDefault(); iBtn.classList.add('pressed'); tryInteract();
+}, { passive:false });
+iBtn.addEventListener('touchend', e => {
+  e.preventDefault(); iBtn.classList.remove('pressed');
+}, { passive:false });
+
+function tryInteract() {
+  if (popupOpen) { closePopup(); return; }
+  if (tvOpen)    { closeTV();    return; }
+  const obj = getNearbyObject();
+  if (!obj) return;
+  if (obj.action === 'video') openTV(obj.videoId);
+  if (obj.action === 'email') openEmailPopup();
+}
+
+// ─────────────────────────────────────────────────────────
+//  UPDATE
+// ─────────────────────────────────────────────────────────
+function update() {
+  if (popupOpen || tvOpen) return;
+
+  let vx = 0, vy = 0;
+
+  if (joy.active) {
+    // Joystick → snap to dominant axis
+    if (Math.abs(joy.dx) >= Math.abs(joy.dy)) vx = joy.dx * SPEED;
+    else                                        vy = joy.dy * SPEED;
+  } else {
+    const up    = keys['w'] || keys['W'] || keys['ArrowUp'];
+    const down  = keys['s'] || keys['S'] || keys['ArrowDown'];
+    const left  = keys['a'] || keys['A'] || keys['ArrowLeft'];
+    const right = keys['d'] || keys['D'] || keys['ArrowRight'];
+    const wX = left || right, wY = up || down;
+    if (wX && !wY) lastAxis = 'x';
+    if (wY && !wX) lastAxis = 'y';
+    if      (lastAxis==='x' && wX) vx = right ? SPEED : -SPEED;
+    else if (lastAxis==='y' && wY) vy = down  ? SPEED : -SPEED;
+    else if (wX)                   vx = right ? SPEED : -SPEED;
+    else if (wY)                   vy = down  ? SPEED : -SPEED;
+  }
+
+  // Facing direction
+  if (Math.abs(vx) > 0.1 || Math.abs(vy) > 0.1) {
+    const ax = Math.abs(vx), ay = Math.abs(vy);
+    if      (ax >= ay && vx > 0) player.facing = 'right';
+    else if (ax >= ay && vx < 0) player.facing = 'left';
+    else if (vy > 0)             player.facing = 'down';
+    else                         player.facing = 'up';
+  }
+
+  // Axis-separated movement (allows sliding along walls)
+  if (vx !== 0 && !wouldCollide(player.x + vx, player.y)) player.x += vx;
+  if (vy !== 0 && !wouldCollide(player.x, player.y + vy)) player.y += vy;
+
+  // Walk animation
+  const moving = Math.abs(vx) > 0.1 || Math.abs(vy) > 0.1;
+  if (moving) {
+    if (++player.animTick >= 10) { player.animTick = 0; player.animFrame ^= 1; }
+  } else {
+    player.animFrame = player.animTick = 0;
+  }
+
+  updateCamera();
+  updateProxAudio();
+}
+
+// ─────────────────────────────────────────────────────────
+//  RENDER HELPERS
+// ─────────────────────────────────────────────────────────
+function roundRect(cx, x, y, w, h, r) {
+  cx.beginPath();
+  cx.moveTo(x+r,y); cx.lineTo(x+w-r,y); cx.arcTo(x+w,y,x+w,y+r,r);
+  cx.lineTo(x+w,y+h-r); cx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  cx.lineTo(x+r,y+h); cx.arcTo(x,y+h,x,y+h-r,r);
+  cx.lineTo(x,y+r); cx.arcTo(x,y,x+r,y,r);
+  cx.closePath();
+}
+
+// ─────────────────────────────────────────────────────────
+//  DRAW — BACKGROUND
+//  Maps bgImg to the full world, then draws only the
+//  camera-visible slice into the canvas.
+// ─────────────────────────────────────────────────────────
+function drawBackground() {
+  ctx.imageSmoothingEnabled = false;
+
+  if (bgImg.complete && bgImg.naturalWidth > 0) {
+    // Scale image to world size, then crop to viewport
+    const scaleX = bgImg.naturalWidth  / WORLD_W;
+    const scaleY = bgImg.naturalHeight / WORLD_H;
+    ctx.drawImage(
+      bgImg,
+      cam.x * scaleX, cam.y * scaleY,  // source top-left
+      VIEW_W * scaleX, VIEW_H * scaleY, // source size
+      0, 0, VIEW_W, VIEW_H              // dest (full canvas)
+    );
+  } else {
+    // Fallback gradient while image loads
+    const g = ctx.createLinearGradient(0, 0, 0, VIEW_H);
+    g.addColorStop(0,    '#2a1f10');
+    g.addColorStop(0.42, '#3d2810');
+    g.addColorStop(0.42, '#5c3820');
+    g.addColorStop(1,    '#7a4a28');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+//  DRAW — PLAYER
+// ─────────────────────────────────────────────────────────
+function drawPlayer() {
+  const sx = wx(player.x);
+  const sy = wy(player.y);
+
+  // Drop shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.30)';
+  ctx.beginPath();
+  ctx.ellipse(sx + PW/2, sy + PH + 3, PW/2.5, 5, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.imageSmoothingEnabled = false;
+  if (spriteImg.complete && spriteImg.naturalWidth > 0) {
+    const srcX = player.animFrame * FRAME_W;
+    const srcY = DIR_ROW[player.facing] * FRAME_H;
+    ctx.drawImage(spriteImg, srcX, srcY, FRAME_W, FRAME_H, sx, sy, PW, PH);
+  } else {
+    // Fallback block character
+    ctx.fillStyle = '#e94560';
+    ctx.fillRect(sx + 8, sy, PW - 16, PH * 0.35);
+    ctx.fillStyle = '#f9c74f';
+    ctx.fillRect(sx + 4, sy + PH * 0.35, PW - 8, PH * 0.65);
+  }
+
+  // Name tag
+  ctx.fillStyle = 'rgba(0,0,0,0.6)';
+  roundRect(ctx, sx + PW/2 - 20, sy - 14, 40, 11, 2);
+  ctx.fill();
+  ctx.fillStyle = '#4ecca3';
+  ctx.font = '5px "Press Start 2P"';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('TANA', sx + PW/2, sy - 9);
+}
+
+// ─────────────────────────────────────────────────────────
+//  DRAW — INTERACT PROMPT  (floating [E] above object)
+// ─────────────────────────────────────────────────────────
+function drawInteractPrompt(obj) {
+  const sx = wx(obj.x + obj.w / 2);
+  const sy = wy(obj.y - 8);
+  const bounce = Math.sin(Date.now() / 230) * 3;
+  const label = `[E] ${obj.label}`;
+
+  ctx.font = '6px "Press Start 2P"';
+  const tw = ctx.measureText(label).width + 18;
+
+  ctx.fillStyle = 'rgba(249,199,79,0.13)';
+  ctx.strokeStyle = '#f9c74f'; ctx.lineWidth = 1.5;
+  roundRect(ctx, sx - tw/2, sy - 19 + bounce, tw, 14, 3);
+  ctx.fill(); ctx.stroke();
+
+  ctx.fillStyle = '#f9c74f';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(label, sx, sy - 12 + bounce);
+
+  // Down arrow
+  ctx.beginPath();
+  ctx.moveTo(sx, sy + bounce);
+  ctx.lineTo(sx - 4, sy - 5 + bounce);
+  ctx.lineTo(sx + 4, sy - 5 + bounce);
+  ctx.closePath(); ctx.fill();
+}
+
+// ─────────────────────────────────────────────────────────
+//  DRAW — HUD
+// ─────────────────────────────────────────────────────────
+function drawHUD() {
+  // Top strip
+  ctx.fillStyle = 'rgba(5,5,10,0.72)';
+  ctx.fillRect(0, 0, VIEW_W, 20);
+  ctx.fillStyle = '#4ecca3';
+  ctx.font = '6px "Press Start 2P"';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('▸ TANA ROOM', 8, 10);
+
+  // Bottom action hint
+  const near = getNearbyObject();
+  if (near && !popupOpen && !tvOpen) {
+    ctx.fillStyle = 'rgba(5,5,10,0.72)';
+    ctx.fillRect(0, VIEW_H - 20, VIEW_W, 20);
+    ctx.fillStyle = '#f9c74f';
+    ctx.font = '6px "Press Start 2P"';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(`[E]  →  ${near.label}`, VIEW_W / 2, VIEW_H - 10);
+  }
+}
+
+// ─────────────────────────────────────────────────────────
+//  MAIN RENDER  —  Y-SORT  (depth sort by baseY)
+//
+//  How Y-sorting creates correct layering:
+//  • Every entity (object or player) has a baseY in WORLD space.
+//  • Entities are sorted ascending by baseY before drawing.
+//  • Lower baseY = drawn first = appears further away / behind.
+//  • Higher baseY = drawn last = appears closer / in front.
+//
+//  Example: shelf baseY=420, player baseY=390 when walking behind it.
+//  390 < 420 → player draws first → shelf draws on top → player appears behind shelf. ✓
+//  When player walks below: player baseY=480 > 420 → player draws on top → in front. ✓
+// ─────────────────────────────────────────────────────────
+function render() {
+  ctx.clearRect(0, 0, VIEW_W, VIEW_H);
+  ctx.imageSmoothingEnabled = false;
+
+  drawBackground();
+
+  const nearby = getNearbyObject();
+
+  // Build render list
+  const renderList = [];
+
+  for (const obj of sceneObjects) {
+    renderList.push({
+      baseY: obj.baseY,
+      fn: () => {
+        const sx = wx(obj.x);
+        const sy = wy(obj.y);
+        // Cull off-screen objects
+        if (sx + obj.w < 0 || sx > VIEW_W) return;
+        if (sy + obj.h < 0 || sy > VIEW_H) return;
+
+        ctx.imageSmoothingEnabled = false;
+        if (obj.img && obj.img.complete && obj.img.naturalWidth > 0) {
+          ctx.drawImage(obj.img, sx, sy, obj.w, obj.h);
+        } else {
+          obj.draw(ctx, sx, sy);
+        }
+
+        // Interaction prompt when near
+        if (obj.interactable && obj === nearby && !popupOpen && !tvOpen) {
+          drawInteractPrompt(obj);
+        }
+      }
+    });
+  }
+
+  // Add player to sort list
+  renderList.push({ baseY: playerBaseY(), fn: drawPlayer });
+
+  // Sort by Y depth
+  renderList.sort((a, b) => a.baseY - b.baseY);
+
+  // Draw all
+  for (const item of renderList) item.fn();
+
+  drawHUD();
+}
+
+// ─────────────────────────────────────────────────────────
+//  GAME LOOP
+// ─────────────────────────────────────────────────────────
+(function loop() {
+  update();
+  render();
+  requestAnimationFrame(loop);
+})();
+
+</script>
+</body>
+</html>
