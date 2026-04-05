@@ -418,10 +418,11 @@ const VIEW_W  = 800;
 const VIEW_H  = 400;
 
 // ── Player geometry ────────────────────────────────────────
-const PW           = 44;   // sprite draw width  (world px)
-const PH           = 60;   // sprite draw height
-const FEET_OY      = 46;   // offset from player.y → top of feet rect
-const FEET_H       = 14;   // height of feet collision strip
+// Change these 4 lines at the top of the script:
+const PW      = 80;   // was 44
+const PH      = 110;  // was 60
+const FEET_OY = 85;   // was 46  (keep roughly 77% down the sprite)
+const FEET_H  = 18;   // was 14
 const FEET_MARGIN  = 8;    // horizontal inset of feet rect
 const SPEED        = 3.5;
 
