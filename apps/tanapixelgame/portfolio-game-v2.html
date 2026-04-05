@@ -46,14 +46,13 @@
      */
     #game-container {
       position: relative;
-      width: min(1200px, 100vw, calc((100dvh - 64px) * 2));
-      aspect-ratio: 2 / 1;
+      /* JS sets exact px width/height via resizeGame() — no CSS math guessing */
       border: 2px solid #4ecca3;
       box-shadow:
         0 0 0 1px #0a0a14,
         0 0 50px rgba(78,204,163,0.2),
         inset 0 0 30px rgba(0,0,0,0.5);
-      flex-shrink: 0;
+      flex-shrink: 1;
     }
 
     canvas {
@@ -748,7 +747,7 @@ let lastAxis = 'x';
 
 const player = {
   x: WORLD_W / 2 - PW / 2,   // start centre of world
-  y: 370,
+  y: 490,   // below the couch — couch occupies ~y330–460
   vx: 0, vy: 0,
   facing: 'down',
   animFrame: 0,
@@ -860,12 +859,6 @@ emailSubmit.addEventListener('click', () => {
   emailOk.style.display      = 'block';
   setTimeout(closePopup, 2800);
 });
-
-let debugOn = false;
-window.addEventListener('keydown', e => {
-  if (e.key === 'd' || e.key === 'D') debugOn = !debugOn;
-});
-
 
 // ─────────────────────────────────────────────────────────
 //  TV VIDEO
@@ -1260,57 +1253,47 @@ function render() {
   // Draw all
   for (const item of renderList) item.fn();
 
-
-
-// ── DEBUG OVERLAY — press D to toggle ──────────────
-if (debugOn) {
-  for (const obj of sceneObjects) {
-    const sx = wx(obj.x), sy = wy(obj.y);
-    // Sprite bounding box (green)
-    ctx.strokeStyle = 'rgba(0,255,100,0.6)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(sx, sy, obj.w, obj.h);
-    // Collision rect (red)
-    if (obj.collision) {
-      ctx.strokeStyle = 'rgba(255,50,50,0.9)';
-      ctx.fillStyle   = 'rgba(255,50,50,0.15)';
-      const cx = wx(obj.collision.x), cy = wy(obj.collision.y);
-      ctx.fillRect(cx, cy, obj.collision.w, obj.collision.h);
-      ctx.strokeRect(cx, cy, obj.collision.w, obj.collision.h);
-    }
-    // BaseY line (yellow)
-    ctx.strokeStyle = 'rgba(255,220,0,0.7)';
-    ctx.beginPath();
-    ctx.moveTo(wx(obj.x), wy(obj.baseY));
-    ctx.lineTo(wx(obj.x + obj.w), wy(obj.baseY));
-    ctx.stroke();
-    // Coords label
-    ctx.fillStyle = '#fff';
-    ctx.font = '5px monospace';
-    ctx.textAlign = 'left';
-    ctx.fillText(`${obj.id} (${obj.x},${obj.y})`, sx + 2, sy + 10);
-  }
-  // Player feet rect (cyan)
-  const pf = playerFeetRect();
-  ctx.strokeStyle = 'cyan'; ctx.lineWidth = 1.5;
-  ctx.strokeRect(wx(pf.x), wy(pf.y), pf.w, pf.h);
-  // Floor boundary lines
-  ctx.strokeStyle = 'rgba(0,200,255,0.3)'; ctx.lineWidth = 1;
-  ctx.setLineDash([4,4]);
-  ctx.beginPath(); ctx.moveTo(0, wy(FLOOR_TOP)); ctx.lineTo(VIEW_W, wy(FLOOR_TOP)); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0, wy(FLOOR_BTM)); ctx.lineTo(VIEW_W, wy(FLOOR_BTM)); ctx.stroke();
-  ctx.setLineDash([]);
-}
-
-
-
-
-
-
-
-
   drawHUD();
 }
+
+// ─────────────────────────────────────────────────────────
+//  RESPONSIVE SIZING
+//  Calculates the largest 2:1 container that fits the
+//  viewport minus the header and hint bar heights.
+//  Runs on load and on every resize.
+// ─────────────────────────────────────────────────────────
+const gameContainer = document.getElementById('game-container');
+
+function resizeGame() {
+  const header  = document.getElementById('header');
+  const hint    = document.getElementById('hint');
+  const vw      = window.innerWidth;
+  const vh      = window.innerHeight;
+
+  // Total vertical space consumed by UI outside the game
+  const uiH = (header ? header.offsetHeight + 8 : 28)
+             + (hint && getComputedStyle(hint).display !== 'none'
+                ? hint.offsetHeight + 8 : 0)
+             + 16; // body padding buffer
+
+  const availH = vh - uiH;
+  const availW = vw;
+
+  // Fit 2:1 ratio into available space, cap at 1200px wide
+  let w = Math.min(1200, availW, availH * 2);
+  let h = w / 2;
+
+  // Never let height exceed available space
+  if (h > availH) { h = availH; w = h * 2; }
+
+  gameContainer.style.width  = Math.floor(w) + 'px';
+  gameContainer.style.height = Math.floor(h) + 'px';
+}
+
+window.addEventListener('resize', resizeGame);
+// Run once immediately (fonts/layout may not be painted yet, so also run after a tick)
+resizeGame();
+setTimeout(resizeGame, 100);
 
 // ─────────────────────────────────────────────────────────
 //  GAME LOOP
