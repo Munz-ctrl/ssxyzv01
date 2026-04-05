@@ -861,6 +861,12 @@ emailSubmit.addEventListener('click', () => {
   setTimeout(closePopup, 2800);
 });
 
+let debugOn = false;
+window.addEventListener('keydown', e => {
+  if (e.key === 'd' || e.key === 'D') debugOn = !debugOn;
+});
+
+
 // ─────────────────────────────────────────────────────────
 //  TV VIDEO
 // ─────────────────────────────────────────────────────────
