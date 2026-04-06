@@ -578,34 +578,7 @@ const sceneObjects = [
     collision: { x: 58, y: 400, w: 210, h: 25 },
     interactable: false,
     img: null,
-    draw(ctx, sx, sy) {
-      // Back panel
-      ctx.fillStyle = '#1e1206';
-      ctx.fillRect(sx, sy, this.w, this.h);
-      // Shelf boards (3 shelves)
-      const rows = 3;
-      const rowH = (this.h - 30) / rows;
-      for (let i = 0; i <= rows; i++) {
-        ctx.fillStyle = '#3a2010';
-        ctx.fillRect(sx, sy + 20 + i * rowH, this.w, 5);
-      }
-      // Sneaker blobs per shelf
-      const colours = ['#e74c3c','#f39c12','#3498db','#2ecc71','#9b59b6','#e67e22'];
-      for (let r = 0; r < rows; r++) {
-        const sby = sy + 22 + r * rowH + 6;
-        for (let col = 0; col < 3; col++) {
-          const sbx = sx + 12 + col * 62;
-          ctx.fillStyle = colours[(r*3+col) % colours.length];
-          ctx.fillRect(sbx, sby, 50, rowH - 14);
-          ctx.fillStyle = '#fff';
-          ctx.fillRect(sbx+4, sby+4, 30, 5);
-        }
-      }
-      // Side edge highlights
-      ctx.fillStyle = '#4a2818';
-      ctx.fillRect(sx, sy, 4, this.h);
-      ctx.fillRect(sx+this.w-4, sy, 4, this.h);
-    }
+    draw() {}
   },
 
   // ── CLOTHES RACK  (left — tall, Y-sorted) ──────────────
@@ -617,36 +590,9 @@ const sceneObjects = [
     collision: { x: 5, y: 560, w: 140, h: 38 },
     interactable: false,
     img: null,
-    draw(ctx, sx, sy) {
+    draw() {
       // Metal poles
-      ctx.strokeStyle = '#555'; ctx.lineWidth = 3;
-      // Horizontal rail
-      ctx.beginPath();
-      ctx.moveTo(sx+10, sy+20); ctx.lineTo(sx+this.w-10, sy+20); ctx.stroke();
-      // Verticals
-      ctx.beginPath(); ctx.moveTo(sx+10, sy+18); ctx.lineTo(sx+10, sy+this.h-10); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(sx+this.w-10, sy+18); ctx.lineTo(sx+this.w-10, sy+this.h-10); ctx.stroke();
-      // Base
-      ctx.strokeStyle = '#444'; ctx.lineWidth = 4;
-      ctx.beginPath(); ctx.moveTo(sx, sy+this.h-10); ctx.lineTo(sx+this.w, sy+this.h-10); ctx.stroke();
-      // Hangers + garments
-      const garmentC = ['#c0392b','#8e44ad','#2980b9','#16a085','#d35400','#27ae60'];
-      for (let i = 0; i < 6; i++) {
-        const gx = sx + 18 + i * 18;
-        // hanger hook
-        ctx.strokeStyle = '#888'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(gx+5, sy+20); ctx.lineTo(gx+5, sy+28); ctx.stroke();
-        // garment
-        ctx.fillStyle = garmentC[i];
-        ctx.fillRect(gx, sy+28, 14, 40 + (i%2)*10);
-        // garment highlight
-        ctx.fillStyle = 'rgba(255,255,255,0.1)';
-        ctx.fillRect(gx+2, sy+30, 4, 8);
-      }
-      // Wheels
-      ctx.fillStyle = '#333';
-      ctx.beginPath(); ctx.arc(sx+20, sy+this.h-4, 6, 0, Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(sx+this.w-20, sy+this.h-4, 6, 0, Math.PI*2); ctx.fill();
+     
     }
   },
 
@@ -661,87 +607,8 @@ const sceneObjects = [
     interactable: true,
     action: 'email',
     label: 'JOIN LIST',
-    img: stuImg,
-    draw(ctx, sx, sy) {
-      // Back wall-mount panel
-      ctx.fillStyle = '#0e0e1e';
-      ctx.fillRect(sx, sy, this.w, this.h);
-      ctx.fillStyle = '#14142a';
-      ctx.fillRect(sx+4, sy+4, this.w-8, this.h-8);
-
-      // Left monitor
-      const monW = 100, monH = 68;
-      ctx.fillStyle = '#080818'; ctx.fillRect(sx+10, sy+14, monW, monH);
-      ctx.fillStyle = '#001a0f'; ctx.fillRect(sx+12, sy+16, monW-4, monH-4);
-      // DAW waveform mock
-      for (let b = 0; b < 10; b++) {
-        const bh = 8 + Math.sin(b*1.3)*14;
-        ctx.fillStyle = b%2===0 ? '#00cc77' : '#008855';
-        ctx.fillRect(sx+14+b*9, sy+16 + (monH-4)/2 - bh/2, 7, bh);
-      }
-      ctx.fillStyle = '#0a0a18'; ctx.fillRect(sx+55, sy+82, 10, 8); // stand
-
-      // Right monitor
-      ctx.fillStyle = '#080818'; ctx.fillRect(sx+this.w-10-monW, sy+14, monW, monH);
-      ctx.fillStyle = '#001020'; ctx.fillRect(sx+this.w-8-monW, sy+16, monW-4, monH-4);
-      for (let b = 0; b < 10; b++) {
-        const bh = 6 + Math.cos(b*1.7)*12;
-        ctx.fillStyle = b%3===0 ? '#0088ff' : '#004488';
-        ctx.fillRect(sx+this.w-8-monW+b*9, sy+16+(monH-4)/2-bh/2, 7, bh);
-      }
-      ctx.fillStyle = '#0a0a18'; ctx.fillRect(sx+this.w-60, sy+82, 10, 8);
-
-      // Studio monitors (speakers)
-      ctx.fillStyle = '#111122';
-      ctx.fillRect(sx+120, sy+10, 50, 70);
-      ctx.fillStyle = '#1e1e3a'; ctx.fillRect(sx+124, sy+14, 42, 62);
-      ctx.fillStyle = '#333355'; ctx.beginPath();
-      ctx.arc(sx+145, sy+34, 14, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#1a1a30'; ctx.beginPath();
-      ctx.arc(sx+145, sy+34, 8, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#555'; ctx.fillRect(sx+128, sy+64, 34, 6);
-
-      ctx.fillStyle = '#111122';
-      ctx.fillRect(sx+this.w-170, sy+10, 50, 70);
-      ctx.fillStyle = '#1e1e3a'; ctx.fillRect(sx+this.w-166, sy+14, 42, 62);
-      ctx.fillStyle = '#333355'; ctx.beginPath();
-      ctx.arc(sx+this.w-145, sy+34, 14, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#1a1a30'; ctx.beginPath();
-      ctx.arc(sx+this.w-145, sy+34, 8, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#555'; ctx.fillRect(sx+this.w-166, sy+64, 34, 6);
-
-      // Desk surface
-      ctx.fillStyle = '#1a1008';
-      ctx.fillRect(sx, sy+this.h-80, this.w, 80);
-      ctx.fillStyle = '#221408';
-      ctx.fillRect(sx+4, sy+this.h-76, this.w-8, 72);
-
-      // MIDI / mixer
-      ctx.fillStyle = '#0d0d1a'; ctx.fillRect(sx+20, sy+this.h-68, 200, 52);
-      for (let k = 0; k < 8; k++) {
-        ctx.fillStyle = '#222'; ctx.fillRect(sx+26+k*24, sy+this.h-62, 18, 28);
-        ctx.fillStyle = k%3===0 ? '#f9c74f' : '#555';
-        ctx.fillRect(sx+32+k*24, sy+this.h-56+k%3*6, 6, 14);
-      }
-      // Knobs
-      for (let k = 0; k < 5; k++) {
-        ctx.fillStyle = '#333';
-        ctx.beginPath(); ctx.arc(sx+28+k*18, sy+this.h-22, 6, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = '#555';
-        ctx.beginPath(); ctx.arc(sx+28+k*18, sy+this.h-23, 2, 0, Math.PI*2); ctx.fill();
-      }
-
-      // Laptop
-      ctx.fillStyle = '#1a1a2a'; ctx.fillRect(sx+230, sy+this.h-70, 80, 52);
-      ctx.fillStyle = '#0a1520'; ctx.fillRect(sx+234, sy+this.h-66, 72, 40);
-      ctx.fillStyle = 'rgba(0,200,255,0.6)'; ctx.font='5px sans-serif';
-      ctx.textAlign='center'; ctx.fillText('DAW', sx+270, sy+this.h-44);
-
-      // Email prompt label
-      ctx.fillStyle = 'rgba(249,199,79,0.5)';
-      ctx.font = '6px "Press Start 2P"'; ctx.textAlign = 'center';
-      ctx.fillText('✉ JOIN LIST', sx + this.w/2, sy + this.h - 18);
-    }
+    img: null,
+    draw() {}
   },
 
   // ── COUCH  (centre — non-interactive obstacle) ──────────
