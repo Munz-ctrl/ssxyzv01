@@ -55,6 +55,42 @@
       flex-shrink: 1;
     }
 
+    /* ── Rotate prompt (portrait mobile only) ── */
+    #rotate-screen {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: #05050a;
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    #rotate-icon {
+      font-size: 48px;
+      animation: spin 2s ease-in-out infinite;
+    }
+    @keyframes spin {
+      0%,100% { transform: rotate(0deg); }
+      50%      { transform: rotate(90deg); }
+    }
+    #rotate-msg {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: #4ecca3;
+      letter-spacing: 3px;
+    }
+    #rotate-sub {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      color: #333355;
+      letter-spacing: 1px;
+    }
+    @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+      #rotate-screen { display: flex; }
+    }
+
     canvas {
       display: block;
       width: 100%;
@@ -279,6 +315,14 @@
 <div id="header">★ TANA.EXE ★</div>
 
 <div id="game-container">
+
+  <!-- Portrait lock — CSS shows this only on portrait touch devices -->
+  <div id="rotate-screen">
+    <div id="rotate-icon">⟳</div>
+    <div id="rotate-msg">ROTATE DEVICE</div>
+    <div id="rotate-sub">this game is landscape only</div>
+  </div>
+
   <canvas id="gameCanvas"></canvas>
 
   <!-- Info / Email popup -->
@@ -353,11 +397,11 @@
 // ─────────────────────────────────────────────────────────
 
 // These get overwritten by bgImg.onload — do not change manually
-let WORLD_W = 1200;   // placeholder — replaced once image loads
+let WORLD_W = 1068;   // placeholder — replaced once image loads
 let WORLD_H = 600;    // placeholder
 
-const VIEW_W  = 1200;  // canvas internal width  (fixed, 2:1)
-const VIEW_H  = 600;  // canvas internal height
+const VIEW_W  = 1068; // canvas internal width  — matches 16:9 image width
+const VIEW_H  = 600;  // canvas internal height — matches image height
 
 // ── Player geometry (% of world height so it scales with image) ──
 //  Target: player ≈ 9% of world height, feet strip ≈ bottom 23% of sprite
@@ -416,8 +460,8 @@ bgImg.onload = () => {
   WORLD_H   = bgImg.naturalHeight;
   ROOM_R    = WORLD_W - 10;
 
-  // Player: ~9% of image height, feet strip = bottom 23%
-  PH          = Math.round(WORLD_H * 0.09);
+  // Player: ~16% of image height — large enough to read clearly in room
+  PH          = Math.round(WORLD_H * 0.16);
   PW          = Math.round(PH * 0.75);
   FEET_OY     = Math.round(PH * 0.77);
   FEET_H      = Math.round(PH * 0.23);
@@ -1377,12 +1421,13 @@ function resizeGame() {
   const availH = vh - uiH;
   const availW = vw;
 
-  // Fit 2:1 ratio into available space, cap at 1200px wide
-  let w = Math.min(1200, availW, availH * 2);
-  let h = w / 2;
+  // Fit 16:9 ratio into available space, cap at 1068px wide
+  const RATIO = 1068 / 600; // 16:9 exact match to image
+  let w = Math.min(1068, availW, availH * RATIO);
+  let h = w / RATIO;
 
   // Never let height exceed available space
-  if (h > availH) { h = availH; w = h * 2; }
+  if (h > availH) { h = availH; w = h * RATIO; }
 
   gameContainer.style.width  = Math.floor(w) + 'px';
   gameContainer.style.height = Math.floor(h) + 'px';
