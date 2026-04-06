@@ -450,6 +450,7 @@ function loadImg(src) {
 // ▸ Swap these paths to wherever you host your assets
 const bgImg     = loadImg('/apps/tanapixelgame/assets/base.png');
 const spriteImg = loadImg('/apps/tanapixelgame/assets/spritetest.png');
+const stuImg    = loadImg('/apps/tanapixelgame/assets/STU.png');
 
 // ── Auto-size world to image ──────────────────────────────
 //  Once base.png loads, world coordinates = image pixel coordinates.
@@ -660,7 +661,7 @@ const sceneObjects = [
     interactable: true,
     action: 'email',
     label: 'JOIN LIST',
-    img: null,
+    img: stuImg,
     draw(ctx, sx, sy) {
       // Back wall-mount panel
       ctx.fillStyle = '#0e0e1e';
