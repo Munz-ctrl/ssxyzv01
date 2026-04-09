@@ -614,42 +614,14 @@ const sceneObjects = [
   // ── COUCH  (centre — non-interactive obstacle) ──────────
   {
     id: 'couch',
-    x: 368, y: 330,
+    x: 368, y: 230,
     w: 340, h: 130,
     baseY: 460,
     collision: { x: 368, y: 425, w: 340, h: 35 },
     interactable: false,
     img: null,
-    draw(ctx, sx, sy) {
-      // Shadow
-      ctx.fillStyle = 'rgba(0,0,0,0.35)';
-      ctx.fillRect(sx+6, sy+this.h-8, this.w-4, 12);
-      // Back cushion
-      ctx.fillStyle = '#1a1020';
-      ctx.fillRect(sx, sy, this.w, this.h - 30);
-      ctx.fillStyle = '#22182e';
-      ctx.fillRect(sx+4, sy+4, this.w-8, this.h-40);
-      // Seat cushions (3)
-      for (let i = 0; i < 3; i++) {
-        const cx = sx + 8 + i * (this.w - 16) / 3 + 2;
-        const cw = (this.w - 16) / 3 - 4;
-        ctx.fillStyle = '#1e1428';
-        ctx.fillRect(cx, sy + this.h - 50, cw, 36);
-        ctx.fillStyle = '#281c36';
-        ctx.fillRect(cx+4, sy + this.h - 46, cw-8, 28);
-        // seam
-        ctx.fillStyle = '#120e1a';
-        ctx.fillRect(cx + cw/2 - 1, sy + this.h - 50, 2, 36);
-      }
-      // Armrests
-      ctx.fillStyle = '#12101e';
-      ctx.fillRect(sx, sy + 8, 12, this.h - 30);
-      ctx.fillRect(sx + this.w - 12, sy + 8, 12, this.h - 30);
-      // Legs
-      ctx.fillStyle = '#0d0b14';
-      ctx.fillRect(sx+14, sy+this.h-14, 16, 14);
-      ctx.fillRect(sx+this.w-30, sy+this.h-14, 16, 14);
-    }
+    draw() {
+   }
   },
 
 ];
