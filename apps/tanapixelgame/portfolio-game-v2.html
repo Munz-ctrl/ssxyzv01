@@ -469,7 +469,7 @@ bgImg.onload = () => {
   FEET_MARGIN = Math.round(PW * 0.18);
 
   // Floor bounds: rough estimate — use debug (`) to fine-tune
-  FLOOR_TOP = Math.round(WORLD_H * 0.26);
+  FLOOR_TOP = Math.round(WORLD_H * 0.30);
   FLOOR_BTM = Math.round(WORLD_H * 0.96);
 
   // Respawn player at centre of walkable area if they're out of bounds
@@ -525,7 +525,7 @@ const sceneObjects = [
   {
     id: 'tv',
     x: 422, y: 48,
-    w: 220, h: 150,
+    w: 120, h: 75,
     baseY: 200,            // low → renders before player always
     collision: null,       // wall-mounted; no floor collision
     interactable: true,
@@ -562,10 +562,7 @@ const sceneObjects = [
       ctx.font = '8px "Press Start 2P"';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('▶  PLAY', sx + this.w/2, sy + this.h/2 - 6);
-      // Stand
-      ctx.fillStyle = '#0a0a18';
-      ctx.fillRect(sx + this.w/2 - 18, sy + this.h - 18, 36, 18);
-      ctx.fillRect(sx + this.w/2 - 28, sy + this.h - 4, 56, 4);
+      
     }
   },
 
