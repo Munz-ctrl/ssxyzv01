@@ -448,9 +448,12 @@ function loadImg(src) {
 }
 
 // ▸ Swap these paths to wherever you host your assets
-const bgImg     = loadImg('/apps/tanapixelgame/assets/base.png');
-const spriteImg = loadImg('/apps/tanapixelgame/assets/spritetest.png');
-const stuImg    = loadImg('/apps/tanapixelgame/assets/STU.png');
+const bgImg      = loadImg('/apps/tanapixelgame/assets/base.png');
+const spriteImg  = loadImg('/apps/tanapixelgame/assets/spritetest.png');
+const stuImg     = loadImg('/apps/tanapixelgame/assets/STU.png');
+const rackAImg   = loadImg('/apps/tanapixelgame/assets/racka.png');
+const boxesImg   = loadImg('/apps/tanapixelgame/assets/boxes.png');
+const couchwboxImg = loadImg('/apps/tanapixelgame/assets/couchwbox.png');
 
 // ── Auto-size world to image ──────────────────────────────
 //  Once base.png loads, world coordinates = image pixel coordinates.
@@ -581,16 +584,25 @@ const sceneObjects = [
   // ── CLOTHES RACK  (left — tall, Y-sorted) ──────────────
   {
     id: 'rack_left',
-    x: 5, y: 390 , 
+    x: 5, y: 390 ,
     w: 248, h: 200,
     baseY: 560,
     collision: { x: 5, y: 560, w: 390, h: 40 },
     interactable: false,
-    img: null,
-    draw() {
-      // Metal poles
-     
-    }
+    img: rackAImg,
+    draw() {}
+  },
+
+  // ── BOXES  (next to rack, left) ─────────────────────────
+  {
+    id: 'boxes',
+    x: 253, y: 490,
+    w: 100, h: 100,
+    baseY: 590,
+    collision: { x: 253, y: 555, w: 100, h: 35 },
+    interactable: false,
+    img: boxesImg,
+    draw() {}
   },
 
   
@@ -616,9 +628,8 @@ const sceneObjects = [
     baseY: 460,
     collision: { x: 350, y: 160, w: 75, h: 170 },
     interactable: false,
-    img: null,
-    draw() {
-   }
+    img: couchwboxImg,
+    draw() {}
   },
 
 ];
