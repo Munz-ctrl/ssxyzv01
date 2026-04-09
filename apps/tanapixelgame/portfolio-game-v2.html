@@ -1169,10 +1169,15 @@ function render() {
       ctx.moveTo(wx(obj.x), wy(obj.baseY));
       ctx.lineTo(wx(obj.x + obj.w), wy(obj.baseY));
       ctx.stroke();
-      // Label
-      ctx.fillStyle = '#fff'; ctx.font = '5px monospace';
+      // Label — readable background pill
+      const labelText = `${obj.id}  (${obj.x},${obj.y})  ${obj.w}×${obj.h}`;
+      ctx.font = '11px monospace';
       ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-      ctx.fillText(`${obj.id} (${obj.x},${obj.y}) ${obj.w}×${obj.h}`, sx + 2, sy + 2);
+      const lw = ctx.measureText(labelText).width;
+      ctx.fillStyle = 'rgba(0,0,0,0.72)';
+      ctx.fillRect(sx + 2, sy + 2, lw + 6, 15);
+      ctx.fillStyle = '#39ff14';
+      ctx.fillText(labelText, sx + 5, sy + 4);
     }
     // Cyan = player feet collision rect
     const pf = playerFeetRect();
@@ -1189,19 +1194,19 @@ function render() {
     // World info overlay
     ctx.fillStyle = 'rgba(0,0,0,0.65)';
     ctx.fillRect(0, VIEW_H - 42, VIEW_W, 42);
-    ctx.fillStyle = '#4ecca3'; ctx.font = '5px monospace';
+    ctx.fillStyle = '#4ecca3'; ctx.font = '11px monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
     ctx.fillText(
       `WORLD ${WORLD_W}×${WORLD_H}  |  CAM (${Math.round(cam.x)},${Math.round(cam.y)})  |  PLAYER (${Math.round(player.x)},${Math.round(player.y)})  baseY=${playerBaseY()}`,
-      6, VIEW_H - 32
+      6, VIEW_H - 30
     );
     ctx.fillText(
       `FLOOR_TOP=${FLOOR_TOP}  FLOOR_BTM=${FLOOR_BTM}  PW=${PW} PH=${PH}  FEET_OY=${FEET_OY}`,
-      6, VIEW_H - 18
+      6, VIEW_H - 14
     );
     // Debug label top-right
-    ctx.fillStyle = '#f9c74f'; ctx.textAlign = 'right';
-    ctx.fillText('[ ` ] DEBUG ON', VIEW_W - 6, VIEW_H - 32);
+    ctx.fillStyle = '#f9c74f'; ctx.font = '11px monospace'; ctx.textAlign = 'right';
+    ctx.fillText('[ ` ] DEBUG ON', VIEW_W - 6, VIEW_H - 30);
   }
 
   drawHUD();
