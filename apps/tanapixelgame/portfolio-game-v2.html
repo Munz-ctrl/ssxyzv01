@@ -524,7 +524,7 @@ const sceneObjects = [
   // baseY is low so it ALWAYS renders before the player → player never covers TV
   {
     id: 'tv',
-    x: 422, y: 48,
+    x: 460, y: 48,
     w: 120, h: 75,
     baseY: 200,            // low → renders before player always
     collision: null,       // wall-mounted; no floor collision
@@ -571,7 +571,7 @@ const sceneObjects = [
     id: 'sneaker_shelf',
     x: 58, y: 150,
     w: 210, h: 270,
-    baseY: 420,             // floor level of shelf
+    baseY: 400,             // floor level of shelf
     collision: { x: 58, y: 400, w: 210, h: 25 },
     interactable: false,
     img: null,
@@ -582,9 +582,9 @@ const sceneObjects = [
   {
     id: 'rack_left',
     x: 5, y: 390 , 
-    w: 148, h: 200,
-    baseY: 490,
-    collision: { x: 5, y: 560, w: 140, h: 38 },
+    w: 248, h: 200,
+    baseY: 560,
+    collision: { x: 5, y: 560, w: 390, h: 40 },
     interactable: false,
     img: null,
     draw() {
@@ -599,7 +599,7 @@ const sceneObjects = [
     id: 'studio_desk',
     x: 840, y: 190,
     w: 340, h: 270,
-    baseY: 460,
+    baseY: 160,
     collision: { x: 840, y: 190, w: 340, h: 25 },
     interactable: true,
     action: 'email',
@@ -611,10 +611,10 @@ const sceneObjects = [
   // ── COUCH  (centre — non-interactive obstacle) ──────────
   {
     id: 'couch',
-    x: 368, y: 230,
-    w: 111, h: 230,
+    x: 350, y: 130,
+    w: 111, h: 200,
     baseY: 460,
-    collision: { x: 368, y: 230, w: 111, h: 250 },
+    collision: { x: 350, y: 160, w: 75, h: 170 },
     interactable: false,
     img: null,
     draw() {
