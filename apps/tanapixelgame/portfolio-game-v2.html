@@ -454,6 +454,7 @@ const stuImg     = loadImg('/apps/tanapixelgame/assets/STU.png');
 const rackAImg   = loadImg('/apps/tanapixelgame/assets/racka.png');
 const boxesImg   = loadImg('/apps/tanapixelgame/assets/boxes.png');
 const couchwboxImg = loadImg('/apps/tanapixelgame/assets/couchwbox.png');
+const bedp1 = loadImg('/apps/tanapixelgame/assets/bedP1.png');
 
 // ── Auto-size world to image ──────────────────────────────
 //  Once base.png loads, world coordinates = image pixel coordinates.
@@ -527,7 +528,7 @@ const sceneObjects = [
   // baseY is low so it ALWAYS renders before the player → player never covers TV
   {
     id: 'tv',
-    x: 460, y: 48,
+    x: 470, y: 48,
     w: 120, h: 75,
     baseY: 200,            // low → renders before player always
     collision: null,       // wall-mounted; no floor collision
@@ -572,12 +573,12 @@ const sceneObjects = [
   // ── SNEAKER SHELF  (left — tall, Y-sorted) ─────────────
   {
     id: 'sneaker_shelf',
-    x: 58, y: 150,
+    x: 118, y: 150,
     w: 210, h: 270,
     baseY: 400,             // floor level of shelf
     collision: { x: 58, y: 400, w: 210, h: 25 },
     interactable: false,
-    img: null,
+    img: bedp1,
     draw() {}
   },
 
@@ -623,7 +624,7 @@ const sceneObjects = [
   // ── COUCH  (centre — non-interactive obstacle) ──────────
   {
     id: 'couch',
-    x: 350, y: 150,
+    x: 350, y: 170,
     w: 100, h: 200,
     baseY: 256,
     collision: { x: 350, y: 160, w: 90, h: 170 },
