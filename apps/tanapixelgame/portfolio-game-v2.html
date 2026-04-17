@@ -431,6 +431,7 @@ const DIR_ROW  = { down:0, up:1, left:2, right:3 };
 // ─────────────────────────────────────────────────────────
 //  CANVAS
 // ─────────────────────────────────────────────────────────
+
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
@@ -440,6 +441,7 @@ canvas.height = VIEW_H;
 // ─────────────────────────────────────────────────────────
 //  ASSET LOADING
 // ─────────────────────────────────────────────────────────
+
 function loadImg(src) {
   const img = new Image();
   img.crossOrigin = 'anonymous';
@@ -455,6 +457,7 @@ const rackAImg   = loadImg('/apps/tanapixelgame/assets/racka.png');
 const boxesImg   = loadImg('/apps/tanapixelgame/assets/boxes.png');
 const couchwboxImg = loadImg('/apps/tanapixelgame/assets/couchwbox.png');
 const bedp1 = loadImg('/apps/tanapixelgame/assets/bedP1.png');
+
 
 // ── Auto-size world to image ──────────────────────────────
 //  Once base.png loads, world coordinates = image pixel coordinates.
@@ -573,10 +576,10 @@ const sceneObjects = [
   // ── SNEAKER SHELF  (left — tall, Y-sorted) ─────────────
   {
     id: 'sneaker_shelf',
-    x: 118, y: 150,
-    w: 210, h: 270,
-    baseY: 400,             // floor level of shelf
-    collision: { x: 58, y: 400, w: 210, h: 25 },
+    x: 18, y: 150,
+    w: 210, h: 210,
+    baseY: 250,             // floor level of shelf
+    collision: { x: 18, y: 150, w: 210, h: 100 }, 
     interactable: false,
     img: bedp1,
     draw() {}
