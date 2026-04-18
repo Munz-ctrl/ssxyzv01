@@ -33,6 +33,14 @@
       animation: flicker 4s infinite;
       flex-shrink: 0;
     }
+    /* Shrink header chrome on mobile so the game gets more pixels */
+    @media (hover: none) and (pointer: coarse) {
+      #header {
+        font-size: 8px;
+        letter-spacing: 2px;
+        margin-bottom: 2px;
+      }
+    }
     @keyframes flicker {
       0%,95%,100%{opacity:1}96%{opacity:0.6}97%{opacity:1}98%{opacity:0.5}99%{opacity:1}
     }
@@ -238,54 +246,60 @@
     #tv-close-btn:hover { background: rgba(78,204,163,0.2); }
 
     /* ────────────────────────────────────────
-       TOUCH CONTROLS  (overlaid on canvas)
-       Only shown on coarse-pointer devices
+       TOUCH CONTROLS  (body-level fixed overlay)
+       Sits at viewport edges so controls land in the
+       side gutters left/right of the 2:1 game container
+       on mobile landscape — not on top of the canvas.
+       Only shown on coarse-pointer devices.
     ──────────────────────────────────────── */
     #touch-ui {
-      position: absolute;
+      position: fixed;
       inset: 0;
       pointer-events: none;
       display: none;        /* hidden on desktop */
-      z-index: 20;
+      z-index: 15;          /* below popup (30) and tv (35) so modals cover controls */
     }
     @media (hover: none) and (pointer: coarse) {
       #touch-ui { display: block; }
     }
 
-    /* joystick — bottom-left */
+    /* joystick — bottom-left of viewport (lands in left gutter) */
     #joystick-zone {
       position: absolute;
-      bottom: 14px; left: 14px;
-      width: 90px; height: 90px;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+      left:   calc(env(safe-area-inset-left,   0px) + 14px);
+      width: 100px; height: 100px;
       pointer-events: all;
       touch-action: none;
     }
     #joystick-base {
       position: absolute; inset: 0;
       border-radius: 50%;
-      background: rgba(78,204,163,0.05);
-      border: 2px solid rgba(78,204,163,0.28);
+      background: rgba(78,204,163,0.08);
+      border: 2px solid rgba(78,204,163,0.35);
+      box-shadow: 0 0 18px rgba(78,204,163,0.18);
     }
     #joystick-knob {
       position: absolute;
-      width: 34px; height: 34px;
+      width: 40px; height: 40px;
       border-radius: 50%;
       background: radial-gradient(circle at 35% 35%, #4ecca3, #1a5c50);
       border: 2px solid rgba(78,204,163,0.9);
-      box-shadow: 0 0 12px rgba(78,204,163,0.4);
+      box-shadow: 0 0 14px rgba(78,204,163,0.5);
       top: 50%; left: 50%;
       transform: translate(-50%,-50%);
       pointer-events: none;
     }
 
-    /* interact button — bottom-right */
+    /* interact button — bottom-right of viewport (lands in right gutter) */
     #interact-btn {
       position: absolute;
-      bottom: 20px; right: 14px;
-      width: 58px; height: 58px;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+      right:  calc(env(safe-area-inset-right,  0px) + 16px);
+      width: 66px; height: 66px;
       border-radius: 50%;
-      background: rgba(249,199,79,0.07);
-      border: 2px solid rgba(249,199,79,0.45);
+      background: rgba(249,199,79,0.09);
+      border: 2px solid rgba(249,199,79,0.5);
       display: flex; align-items: center;
       justify-content: center; flex-direction: column; gap: 2px;
       pointer-events: all; touch-action: none;
@@ -294,11 +308,11 @@
       transition: background 0.08s, box-shadow 0.08s;
     }
     #interact-btn.pressed {
-      background: rgba(249,199,79,0.28);
-      box-shadow: 0 0 20px rgba(249,199,79,0.5);
+      background: rgba(249,199,79,0.32);
+      box-shadow: 0 0 22px rgba(249,199,79,0.55);
     }
-    #interact-btn .bkey  { font-size: 14px; color: #f9c74f; line-height: 1; }
-    #interact-btn .blbl  { font-size: 4px; color: rgba(249,199,79,0.4); letter-spacing: 1px; }
+    #interact-btn .bkey  { font-size: 16px; color: #f9c74f; line-height: 1; }
+    #interact-btn .blbl  { font-size: 5px;  color: rgba(249,199,79,0.55); letter-spacing: 1px; }
 
     /* ── Desktop hint ── */
     #hint {
@@ -350,16 +364,18 @@
     <button id="tv-close-btn">✕  CLOSE</button>
   </div>
 
-  <!-- Touch controls (overlaid) -->
-  <div id="touch-ui">
-    <div id="joystick-zone">
-      <div id="joystick-base"></div>
-      <div id="joystick-knob"></div>
-    </div>
-    <div id="interact-btn">
-      <span class="bkey">E</span>
-      <span class="blbl">ACT</span>
-    </div>
+
+</div>
+
+<!-- Touch controls — body-level so they sit in side gutters, not on canvas -->
+<div id="touch-ui">
+  <div id="joystick-zone">
+    <div id="joystick-base"></div>
+    <div id="joystick-knob"></div>
+  </div>
+  <div id="interact-btn">
+    <span class="bkey">E</span>
+    <span class="blbl">ACT</span>
   </div>
 </div>
 
@@ -410,7 +426,8 @@ let PH          = 76;
 let FEET_OY     = 58;   // top of feet rect (from player.y)
 let FEET_H      = 18;
 let FEET_MARGIN = 10;
-const SPEED = 3.5;
+const SPEED     = 3.5;   // keyboard walking speed
+const JOY_SPEED = 5.0;   // mobile joystick walking speed — snappier analog feel
 
 // ── Walkable zone — TUNE THESE with debug mode (press ` backtick) ──
 //  After image loads these update automatically, but fine-tune as needed:
@@ -634,6 +651,30 @@ const sceneObjects = [
     interactable: false,
     img: couchwboxImg,
     draw() {}
+  },
+
+  // ── INVISIBLE WALL COLLIDERS  (middle of room, frames the window/TV area) ──
+  // These are purely collision rects — no visual render — so the player
+  // can't walk into the back-wall / window area in the centre of the room.
+  {
+    id: 'wall_mid_left',
+    x: 325, y: 10,
+    w: 50, h: 400,
+    baseY: 10,
+    collision: { x: 325, y: 10, w: 50, h: 400 },
+    interactable: false,
+    img: null,
+    draw() {}              // invisible — no render
+  },
+  {
+    id: 'wall_mid_right',
+    x: 850, y: 10,
+    w: 50, h: 400,
+    baseY: 10,
+    collision: { x: 850, y: 10, w: 50, h: 400 },
+    interactable: false,
+    img: null,
+    draw() {}              // invisible — no render
   },
 
 ];
@@ -927,21 +968,21 @@ function update() {
   let vx = 0, vy = 0;
 
   if (joy.active) {
-    // Joystick → snap to dominant axis
-    if (Math.abs(joy.dx) >= Math.abs(joy.dy)) vx = joy.dx * SPEED;
-    else                                        vy = joy.dy * SPEED;
+    // Analogue control from joystick — full 360° diagonal movement
+    // JOY_SPEED is a boosted speed specifically for mobile/touch
+    const mag = Math.min(1, Math.hypot(joy.dx, joy.dy));
+    vx = joy.dx * JOY_SPEED * mag;
+    vy = joy.dy * JOY_SPEED * mag;
   } else {
+    // Digital keyboard control — supports diagonal (8-way) movement
     const up    = keys['w'] || keys['W'] || keys['ArrowUp'];
     const down  = keys['s'] || keys['S'] || keys['ArrowDown'];
     const left  = keys['a'] || keys['A'] || keys['ArrowLeft'];
     const right = keys['d'] || keys['D'] || keys['ArrowRight'];
-    const wX = left || right, wY = up || down;
-    if (wX && !wY) lastAxis = 'x';
-    if (wY && !wX) lastAxis = 'y';
-    if      (lastAxis==='x' && wX) vx = right ? SPEED : -SPEED;
-    else if (lastAxis==='y' && wY) vy = down  ? SPEED : -SPEED;
-    else if (wX)                   vx = right ? SPEED : -SPEED;
-    else if (wY)                   vy = down  ? SPEED : -SPEED;
+    vx = right ? SPEED : left ? -SPEED : 0;
+    vy = down  ? SPEED : up   ? -SPEED : 0;
+    // Normalize diagonal so it isn't faster than cardinal
+    if (vx !== 0 && vy !== 0) { vx *= 0.7071; vy *= 0.7071; }
   }
 
   // Facing direction
@@ -1238,18 +1279,32 @@ function resizeGame() {
   const vw      = window.innerWidth;
   const vh      = window.innerHeight;
 
-  // Total vertical space consumed by UI outside the game
-  const uiH = (header ? header.offsetHeight + 8 : 28)
+  // Detect coarse-pointer (mobile/touch) to shrink chrome and grow the game
+  const isMobile = matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+  // Vertical space consumed by UI outside the game.
+  // Mobile: tighter margins + hint already hidden → more room for the canvas.
+  const headerMargin = isMobile ? 2 : 8;
+  const hintMargin   = isMobile ? 0 : 8;
+  const bodyBuffer   = isMobile ? 4 : 16;
+
+  const uiH = (header ? header.offsetHeight + headerMargin : 28)
              + (hint && getComputedStyle(hint).display !== 'none'
-                ? hint.offsetHeight + 8 : 0)
-             + 16; // body padding buffer
+                ? hint.offsetHeight + hintMargin : 0)
+             + bodyBuffer;
 
   const availH = vh - uiH;
+  // On mobile, reserve NOTHING for the touch controls horizontally — they're
+  // body-level fixed and intentionally sit in whatever gutter exists.
   const availW = vw;
 
-  // Fit 16:9 ratio into available space, cap at 1068px wide
-  const RATIO = 1068 / 600; // 16:9 exact match to image
-  let w = Math.min(1068, availW, availH * RATIO);
+  // Fit 16:9 ratio into available space
+  const RATIO = 1068 / 600; // matches base.png aspect
+  // Mobile gets a bigger cap so the game can grow past the desktop 1068 ceiling
+  // (canvas is pixelated — scaling up stays crisp).
+  const MAX_W = isMobile ? 1400 : 1068;
+
+  let w = Math.min(MAX_W, availW, availH * RATIO);
   let h = w / RATIO;
 
   // Never let height exceed available space
