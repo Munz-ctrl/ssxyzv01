@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sunsex · Dashboard</title>
+  <link rel="stylesheet" href="/apps/dashboard/dashboard.css">
+</head>
+<body class="dash-body">
+  <div class="dash-shell">
+
+    <header class="dash-header">
+      <a class="dash-logo" href="/">sunsex.xyz</a>
+      <div class="dash-mode" id="dashMode">guest mode</div>
+      <div class="dash-auth-row">
+        <button id="authBtn" class="dash-auth-btn">Log in</button>
+        <button id="logoutBtn" class="dash-auth-btn secondary" style="display:none;">Log out</button>
+      </div>
+    </header>
+
+    <!-- Auth dialog -->
+    <dialog id="authDialog" class="dash-dialog">
+      <button class="dash-dialog-close" id="closeAuthDialog">&times;</button>
+      <h2 class="dash-dialog-title">Sign in</h2>
+      <div class="dash-dialog-tabs">
+        <button class="dtab active" data-panel="signin">Sign in</button>
+        <button class="dtab" data-panel="signup">Sign up</button>
+      </div>
+      <div id="signinPanel" class="dpanel active">
+        <input id="siEmail" type="email" placeholder="Email" autocomplete="email" />
+        <input id="siPass" type="password" placeholder="Password" autocomplete="current-password" />
+        <button id="siBtn" class="dash-submit-btn">Sign in</button>
+        <p id="siStatus" class="dash-status"></p>
+      </div>
+      <div id="signupPanel" class="dpanel">
+        <input id="suEmail" type="email" placeholder="Email" autocomplete="email" />
+        <input id="suPass" type="password" placeholder="Password (min 6 chars)" autocomplete="new-password" />
+        <button id="suBtn" class="dash-submit-btn">Create account</button>
+        <p id="suStatus" class="dash-status"></p>
+      </div>
+    </dialog>
+
+    <main class="dash-main">
+
+      <!-- Left: player identity card -->
+      <section class="dash-card dash-card-player">
+        <div class="dash-card-label" id="cardLabel">Player</div>
+        <h1 class="dash-player-name" id="playerName">MUNZ</h1>
+        <p class="dash-player-tag" id="playerTag">demo profile · isometric mirror</p>
+
+        <div class="dash-avatar-ring">
+          <img id="avatarImg"
+               src="/shared/assets/fallbackIsoAvatar.webp"
+               alt="Player avatar"
+               class="dash-avatar-img" />
+        </div>
+
+        <div class="dash-xp-row">
+          <span class="dash-xp-label">XP</span>
+          <div class="dash-xp-bar">
+            <div class="dash-xp-fill" id="xpFill" style="width:38%;"></div>
+          </div>
+          <span class="dash-xp-value" id="levelLabel">LVL 01</span>
+        </div>
+      </section>
+
+      <!-- Right: actions card -->
+      <section class="dash-card dash-card-actions">
+        <div class="dash-card-label">Explore</div>
+        <h2 class="dash-card-title" id="actionsTitle">Your mirror world</h2>
+        <p class="dash-card-copy" id="actionsCopy">
+          Viewing demo player <strong>MUNZ</strong>. Log in to access your own profile.
+        </p>
+
+        <div class="dash-actions-list" id="actionsList">
+          <!-- Filled by JS -->
+        </div>
+
+        <!-- Login prompt for guests -->
+        <div id="guestPrompt" class="dash-guest-prompt">
+          <button id="guestLoginBtn" class="dash-auth-btn">Log in / Sign up</button>
+          <p>to claim your player profile</p>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="dash-footer animated-text">
+      <span id="footerText">SUNSEX_MIRROR · guest mode · viewing MUNZ</span>
+      <span class="dash-footer-dots">...</span>
+    </footer>
+
+  </div>
+
+  <script type="module" src="/apps/dashboard/dashboard.js"></script>
+</body>
+</html>

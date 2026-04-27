@@ -1,377 +1,368 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
 <head>
-
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="/shared/css/styles.css">
-  <title>Edit Player</title>
+  <title>Edit Profile · Sunsex</title>
   <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
 
-  <script type="module" src="/shared/js/supabase.js"></script>
-  <script type="module" src="/shared/js/main.js"></script>
-  <script type="module" src="/shared/js/playerUtils.js"></script>
-  <script type="module" src="/shared/js/ssxyz.js"></script>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #111;
+      color: #f5f5f5;
+      font-family: 'Ubuntu', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
+    .edit-wrap {
+      width: min(380px, 92vw);
+      background: rgba(255,255,255,0.95);
+      color: #111;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
+    #statusBar {
+      font-size: 11px;
+      min-height: 14px;
+      opacity: 0.7;
+    }
+
+    .profile-id { font-size: 11px; opacity: 0.6; }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      resize: vertical;
+    }
+
+    textarea { min-height: 80px; }
+
+    .feature-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .feature-btn {
+      width: 50px;
+      height: 50px;
+      border: 1px dashed #bbb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      font-size: 20px;
+      color: #aaa;
+    }
+
+    .feature-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+    .avatar-preview {
+      width: 100%;
+      max-height: 200px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .avatar-preview img { max-width: 100%; max-height: 200px; object-fit: contain; }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .field-row label { white-space: nowrap; opacity: 0.7; }
+    .field-row input[type="file"] { font-size: 11px; }
+
+    button {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .btn-save {
+      background: #111;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .btn-save:hover { background: #333; }
+
+    .btn-secondary {
+      background: #eee;
+      color: #333;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    #notOwnerMsg {
+      display: none;
+      color: #c00;
+      font-size: 12px;
+    }
+  </style>
 </head>
-
 <body>
 
+<div class="edit-wrap">
+  <div id="statusBar">Loading...</div>
+  <div class="profile-id" id="playerID">P-ID: —</div>
 
+  <input type="text" id="playerName" placeholder="Player Name" />
 
-  <div class="edit-popup">
-    <div class="profile-id" id="playerID">P-ID: </div>
-    <input type="text" id="playerName" class="profile-name z-0" placeholder="Player Name" />
-
-    <div class="feature-row">
-      <label class="feature-btn" for="uploadSpecial1">
-        <img id="previewSpecial1" src="" alt="+" />
-      </label>
-      <label class="feature-btn" for="uploadSpecial2">
-        <img id="previewSpecial2" src="" alt="+" />
-      </label>
-    </div>
-
-
-    <div id="mainAvatarPreviewContainer" class="player-main-avatar"></div>
-
-    <input type="file" id="uploadMain" accept="image/*" style="display:none" />
-
-
-
-    <textarea id="playerMission" class="mission-textarea" placeholder="Mission(s)... (One per line)"></textarea>
-
-    <!-- <div class="coord-row" style="margin-top: 10px;">
-      <label style="font-size: 10px;">Popup BG Color:</label>
-      <input type="color" id="popupBgColor" style="width: 40px; height: 30px; border: none;" />
-    </div> -->
-
-    <div class="coord-row" style="margin-top: 6px;">
-      <label style="font-size: 10px;">Upload BG Image:</label>
-      <input type="file" id="popupBgImage" accept="image/*" />
-    </div>
-
-
-    <!-- <button class="save-btn" onclick="savePlayerEdits()">Save Changes</button> -->
-    <button class="save-btn" id="saveBtn">Save Changes</button>
-
-
-    <input type="file" id="uploadSpecial1" accept="image/*" style="display:none" />
-    <input type="file" id="uploadSpecial2" accept="image/*" style="display:none" />
-    <input type="file" id="uploadAvatar" accept="image/*" style="display:none" />
+  <div class="feature-row">
+    <label class="feature-btn" for="uploadSpecial1" title="Feature image 1">
+      <img id="previewSpecial1" src="" alt="+" style="display:none;" />
+      <span id="special1Placeholder">+</span>
+    </label>
+    <label class="feature-btn" for="uploadSpecial2" title="Feature image 2">
+      <img id="previewSpecial2" src="" alt="+" style="display:none;" />
+      <span id="special2Placeholder">+</span>
+    </label>
   </div>
 
-  <button id="logoutBtn" style="
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  z-index: 9999;
-  padding: 6px 10px;
-  background: #222;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
- ">
-    Log Out
-  </button>
+  <div class="avatar-preview" id="avatarPreview"></div>
 
-  <button id="backBtn" style="
-  position: fixed;
-  top: 45px;
-  right: 10px;
-  z-index: 9999;
-  padding: 6px 10px;
-  background: #ccc;
-  color: black;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-   ">
-    ← Back to Map
-  </button>
+  <div class="field-row">
+    <label>Main image:</label>
+    <input type="file" id="uploadMain" accept="image/*" />
+  </div>
 
+  <textarea id="playerMission" placeholder="Mission(s)... (one per line)"></textarea>
 
+  <div class="field-row">
+    <label>Popup background:</label>
+    <input type="file" id="popupBgImage" accept="image/*" />
+  </div>
 
-  <script type="module">
-    import { supabase } from '/shared/js/supabase.js';
-    import '/shared/js/ssxyz.js';
+  <p id="notOwnerMsg">You don't own this player profile.</p>
 
-    import '/shared/js/playerUtils.js';
+  <div class="btn-row">
+    <button class="btn-save" id="saveBtn">Save Changes</button>
+    <button class="btn-secondary" id="backBtn">← Back to Map</button>
+    <button class="btn-secondary" id="logoutBtn">Log Out</button>
+  </div>
+</div>
 
-     const ssxyz = window.ssxyz;
+<!-- Hidden file inputs -->
+<input type="file" id="uploadSpecial1" accept="image/*" style="display:none" />
+<input type="file" id="uploadSpecial2" accept="image/*" style="display:none" />
 
-    console.log('✅ ssxyz loaded:', window.ssxyz);
+<script type="module">
+import { supabase } from '/shared/js/supabase.js';
 
+const params   = new URLSearchParams(location.search);
+const playerId = params.get('id');
 
+const statusBar = document.getElementById('statusBar');
+const saveBtn   = document.getElementById('saveBtn');
+const notOwner  = document.getElementById('notOwnerMsg');
 
-    const params = new URLSearchParams(window.location.search);
-    const playerId = params.get('id');
+let currentUser   = null;
+let currentPlayer = null;
+let uploads = { main: '', special1: '', special2: '', popupBg: '' };
 
-    let currentAvatarURL = "";
-    let currentSpecial1URL = "";
-    let currentSpecial2URL = "";
-    let currentMainURL = "";
-    let currentBgImage = "";
+// ── Auth gate ────────────────────────────────────────────────
 
-   let currentUser = null;
-   let uploaderId = ""; // <-- initialize safely
+const { data: { user } } = await supabase.auth.getUser();
+currentUser = user;
 
-
-
-
-    // 🔐 Step 1: Ensure we are logged in anonymously
-    (async () => {
-  const { data: sessionData, error: authError } = await supabase.auth.getSession();
-  if (!sessionData?.session?.user) {
-    await supabase.auth.signInAnonymously();
-   }
-
-  const { data } = await supabase.auth.getUser();
-  currentUser = data?.user;
-  
-  if (!currentUser) {
-  alert("❌ Failed to retrieve user.");
-  return;
-  }
-
-  uploaderId = data.user.id; // ✅ safe here, after assignment
-  loadPlayerData();
-})();
-
-
-
-
-async function loadPlayerData() {
-
-      if (!uploaderId) {
-  alert("Uploader not ready");
-  return;
+if (!currentUser) {
+  statusBar.textContent = 'Not logged in — redirecting...';
+  setTimeout(() => location.href = '/dashboard', 1500);
+  throw new Error('unauthenticated');
 }
 
+if (!playerId) {
+  statusBar.textContent = 'No player ID in URL.';
+  throw new Error('no pid');
+}
 
-      const { data: player, error } = await supabase
-        .from('players')
-        .select('*')
-        .eq('pid', playerId)
-        .single();
+// ── Load player ───────────────────────────────────────────────
 
-      if (!player || error) {
-        alert('❌ Could not load player');
-        console.error(error);
-        return;
-      }
+const { data: player, error } = await supabase
+  .from('players')
+  .select('*')
+  .eq('pid', playerId)
+  .maybeSingle();
 
-    const ownerId = player.owner_id;
+if (!player || error) {
+  statusBar.textContent = 'Player not found.';
+  throw new Error('player not found');
+}
 
-    document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
-    document.getElementById('playerName').value = player.name || '';
-     
-    document.getElementById('playerMission').value = player.mission || '';
+currentPlayer = player;
 
+// Ownership check
+if (player.owner_id !== currentUser.id) {
+  statusBar.textContent = '';
+  notOwner.style.display = 'block';
+  saveBtn.disabled = true;
+}
 
+// Populate form
+document.getElementById('playerID').textContent = 'P-ID: ' + player.pid;
+document.getElementById('playerName').value = player.name || '';
+document.getElementById('playerMission').value = Array.isArray(player.mission)
+  ? player.mission.join('\n')
+  : player.mission || '';
 
+// Avatar preview
+const preview = document.getElementById('avatarPreview');
+if (player.spritesheet) {
+  preview.innerHTML = `<img src="${player.spritesheet}" />`;
+} else if (player.main) {
+  preview.innerHTML = `<img id="mainImg" src="${player.main}" />`;
+  uploads.main = player.main;
+} else if (player.avatar) {
+  preview.innerHTML = `<img src="${player.avatar}" />`;
+}
 
-    if (player.popupBg?.startsWith('http')) {
-     currentBgImage = player.popupBg;
-     }
+// Feature images
+function setSpecial(n, url) {
+  if (!url) return;
+  const img = document.getElementById(`previewSpecial${n}`);
+  const placeholder = document.getElementById(`special${n}Placeholder`);
+  img.src = url;
+  img.style.display = 'block';
+  placeholder.style.display = 'none';
+  uploads[`special${n}`] = url;
+}
+setSpecial(1, player.special);
+setSpecial(2, player.special2);
 
+// Popup BG preview on form background
+if (player.popupBg?.startsWith('http')) {
+  uploads.popupBg = player.popupBg;
+  document.querySelector('.edit-wrap').style.background =
+    `url(${player.popupBg}) no-repeat center center / cover`;
+}
 
-      document.getElementById('popupBgImage').addEventListener('change', async function () {
-  const file = this.files[0];
-  if (file) {
-    const url = await ssxyz.uploadImage(file, "popupBg.webp", currentUser.id);
-    if (url) {
-      currentBgImage = url;
-      editPopup.style.background = `url(${currentBgImage}?t=${Date.now()}) no-repeat center center / cover`;
+statusBar.textContent = `Loaded ${player.pid}`;
 
-    }
+// ── Upload helper ─────────────────────────────────────────────
+
+async function uploadFile(file, filename) {
+  const path = `userassets/${currentUser.id}/${filename}`;
+  const { error } = await supabase.storage.from('userassets').upload(path, file, { upsert: true });
+  if (error) throw error;
+  const { data: pub } = supabase.storage.from('userassets').getPublicUrl(path);
+  return pub.publicUrl;
+}
+
+// ── File input handlers ───────────────────────────────────────
+
+document.getElementById('uploadMain').addEventListener('change', async function () {
+  if (!this.files[0]) return;
+  statusBar.textContent = 'Uploading...';
+  try {
+    const url = await uploadFile(this.files[0], 'main.webp');
+    uploads.main = url;
+    document.getElementById('avatarPreview').innerHTML = `<img id="mainImg" src="${url}" />`;
+    statusBar.textContent = 'Main image uploaded.';
+  } catch (e) {
+    statusBar.textContent = 'Upload failed: ' + e.message;
   }
 });
 
+document.getElementById('uploadSpecial1').addEventListener('change', async function () {
+  if (!this.files[0]) return;
+  try {
+    const url = await uploadFile(this.files[0], 'special1.webp');
+    setSpecial(1, url);
+  } catch (e) { statusBar.textContent = 'Upload failed: ' + e.message; }
+});
 
-      const editPopup = document.querySelector('.edit-popup');
-    //  const popupColorInput = document.getElementById('popupBgColor');
-     const popupImageInput = document.getElementById('popupBgImage');
+document.getElementById('uploadSpecial2').addEventListener('change', async function () {
+  if (!this.files[0]) return;
+  try {
+    const url = await uploadFile(this.files[0], 'special2.webp');
+    setSpecial(2, url);
+  } catch (e) { statusBar.textContent = 'Upload failed: ' + e.message; }
+});
 
-     // Live background preview on color change
-    //  popupColorInput.addEventListener('input', () => {
-    //    currentBgImage = ""; // override image if color selected
-    //    editPopup.style.background = popupColorInput.value;
-    //  });
-
-  editPopup.style.background = currentBgImage
-  ? `url(${currentBgImage}?t=${Date.now()}) no-repeat center center / cover`
-  : player.popupBg || 'rgba(255, 114, 114, 0.4)';
-
-
-     // Live background preview on image upload
-    //  popupImageInput.addEventListener('change', async function () {
-    //    const file = this.files[0];
-    //    if (file) {
-    //      const url = await ssxyz.uploadImage(file, "popupBg.webp", currentUser.id);
-    //      if (url) {
-    //        currentBgImage = url;
-    //        editPopup.style.background = `url(${currentBgImage}) no-repeat center center / cover`;
-    //      }
-    //    }
-    //  });
-
-     
-
-
-      const avatarContainer = document.getElementById('mainAvatarPreviewContainer');
-      const fallback = '/assets/fallbackIsoAvatar.webp';
-
-      let avatarHTML = '';
-
-      if (player.spritesheet) {
-        avatarHTML = `<div class="sprite-anim" style="background-image: url('${player.spritesheet}')"></div>`;
-      } else if (player.main) {
-      avatarHTML = `<img id="mainPreview" src="${player.main}" />`;
-      } else if (player.avatar) {
-        avatarHTML = `<img src="${player.avatar}" />`;
-        } else if (!player.avatar && player.popupBg?.startsWith('http')) {
-        avatarHTML = `<img src="${fallback}" class="fallback" />`;
-        } else {
-           avatarHTML = ''; // No avatar shown if no avatar and no popupBg image
-     }
-
-
-      avatarContainer.innerHTML = avatarHTML;
-
-
-
-      if (player.special) document.getElementById('previewSpecial1').src = currentSpecial1URL = player.special;
-      if (player.special2) document.getElementById('previewSpecial2').src = currentSpecial2URL = player.special2;
-
-      document.getElementById('saveBtn')?.addEventListener('click', savePlayerEdits);
-
-    }
-
-    document.getElementById('uploadAvatar').addEventListener('change', async function () {
-      if (!uploaderId) return alert("User not ready");
-      const file = this.files[0];
-      if (file) {
-        const url = await ssxyz.uploadImage(file, "avatar.webp", uploaderId);
-        if (url) {
-          currentAvatarURL = url;
-          document.getElementById('avatarPreview').src = url;
-        }
-      }
-    });
-
-   document.getElementById('uploadMain').addEventListener('change', async function () {
-  if (!uploaderId) return alert("User not ready");
-  const file = this.files[0];
-  if (file) {
-    const url = await ssxyz.uploadImage(file, "main.webp", uploaderId);
-    if (url) {
-      currentMainURL = url;
-      document.getElementById('mainPreview').src = url;
-    }
+document.getElementById('popupBgImage').addEventListener('change', async function () {
+  if (!this.files[0]) return;
+  statusBar.textContent = 'Uploading background...';
+  try {
+    const url = await uploadFile(this.files[0], 'popupBg.webp');
+    uploads.popupBg = url;
+    document.querySelector('.edit-wrap').style.background =
+      `url(${url}) no-repeat center center / cover`;
+    statusBar.textContent = 'Background uploaded.';
+  } catch (e) {
+    statusBar.textContent = 'Upload failed: ' + e.message;
   }
 });
 
+// ── Save ──────────────────────────────────────────────────────
 
+saveBtn.addEventListener('click', async () => {
+  const name    = document.getElementById('playerName').value.trim();
+  const mission = document.getElementById('playerMission').value.trim();
 
-    document.getElementById('uploadSpecial1').addEventListener('change', async function () {
-      if (!uploaderId) return alert("User not ready");
-      const file = this.files[0];
-      if (file) {
-        const url = await ssxyz.uploadImage(file, "special1.webp", uploaderId);
-        if (url) {
-          currentSpecial1URL = url;
-          document.getElementById('previewSpecial1').src = url;
-        }
-      }
-    });
+  statusBar.textContent = 'Saving...';
 
-    document.getElementById('uploadSpecial2').addEventListener('change', async function () {
-      if (!uploaderId) return alert("User not ready");
-      const file = this.files[0];
-      if (file) {
-        const url = await ssxyz.uploadImage(file, "special2.webp", uploaderId);
-        if (url) {
-          currentSpecial2URL = url;
-          document.getElementById('previewSpecial2').src = url;
-        }
-      }
-    });
+  const updates = {
+    name,
+    mission,
+    ...(uploads.main     && { main:    uploads.main }),
+    ...(uploads.special1 && { special: uploads.special1 }),
+    ...(uploads.special2 && { special2: uploads.special2 }),
+    ...(uploads.popupBg  && { popupBg: uploads.popupBg }),
+  };
 
+  const { error } = await supabase
+    .from('players')
+    .update(updates)
+    .eq('pid', playerId)
+    .eq('owner_id', currentUser.id);
 
+  if (error) {
+    statusBar.textContent = 'Save failed: ' + error.message;
+  } else {
+    statusBar.textContent = 'Saved!';
+    setTimeout(() => location.href = '/map', 1200);
+  }
+});
 
+// ── Nav buttons ───────────────────────────────────────────────
 
-    async function savePlayerEdits() {
-      const { data: userData, error: userError } = await supabase.auth.getUser();
-      if (userError || !userData?.user?.id) {
-        alert("❌ You're not logged in.");
-        console.error(userError);
-        return;
-      }
+document.getElementById('backBtn').addEventListener('click', () => location.href = '/map');
 
-      const name = document.getElementById('playerName').value.trim();
-      const mission = document.getElementById('playerMission').value.trim();
-
-
-      let popupBg = currentBgImage || 'rgba(15, 255, 255, 0.4)';
-
-      const updates = {
-        name: name || '',
-        mission: mission || '',
-
-        main: currentMainURL || '',
-        popupBg: popupBg
-
-      };
-
-
-
-      const { error } = await supabase
-        .from('players')
-        .update(updates)
-        .eq('pid', playerId);
-
-      if (error) {
-  console.error("❌ Failed to save edits:", error);
-  alert('❌ Edit failed. You may not be the owner of this player.');
-} else {
-  alert('✅ Player updated!');
-  location.href = 'index.html';
-}
-
-
-
-      console.log("Current user ID:", userData.user.id);
-
-    }
-
-    document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+document.getElementById('logoutBtn').addEventListener('click', async () => {
   await supabase.auth.signOut();
-  alert('👋 Logged out.');
-  location.href = 'index.html';
+  location.href = '/dashboard';
 });
-
-
-    document.getElementById('backBtn')?.addEventListener('click', () => {
-      location.href = 'index.html';
-    });
-
-    document.getElementById('upgradeEmailBtn')?.addEventListener('click', upgradeToEmail);
-    window.savePlayerEdits = savePlayerEdits;
-
-
-  </script>
-
-
-
-  <!-- <button id="upgradeEmailBtn">🔐 Secure My Account</button> -->
+</script>
 
 </body>
-
 </html>

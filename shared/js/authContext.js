@@ -1,39 +1,26 @@
-// /shared/js/authContext.js (concept)
 import { supabase } from './supabase.js';
 
+/**
+ * Returns current auth state + linked player (if any).
+ * Uses the shared supabase client — do NOT call from DressUp routes.
+ *
+ * @returns {{ supabase, authUser, player }}
+ *   authUser — Supabase auth user object, or null
+ *   player   — players row where owner_id = auth user id, or null
+ */
 export async function getAuthContext() {
-  // 1) Check session
   const { data: sess } = await supabase.auth.getSession();
   const authUser = sess?.session?.user || null;
 
   if (!authUser) {
-    // No anon auto-create, caller must handle this
-    return { supabase, authUser: null, appUser: null, mainPlayer: null };
+    return { supabase, authUser: null, player: null };
   }
 
-  // 2) Ensure app_users row
-  const { data: appUserRow, error: appErr } = await supabase
-    .from('app_users')
-    .upsert({ id: authUser.id }, { onConflict: 'id' })
-    .select()
-    .single();
+  const { data: player } = await supabase
+    .from('players')
+    .select('*')
+    .eq('owner_id', authUser.id)
+    .maybeSingle();
 
-  if (appErr) {
-    console.error('app_users upsert failed', appErr);
-    throw appErr;
-  }
-
-  // 3) Load main player if any
-  let mainPlayer = null;
-
-  if (appUserRow?.primary_pid) {
-    const { data: player } = await supabase
-      .from('players')
-      .select('*')
-      .eq('pid', appUserRow.primary_pid)
-      .single();
-    mainPlayer = player || null;
-  }
-
-  return { supabase, authUser, appUser: appUserRow, mainPlayer };
+  return { supabase, authUser, player: player || null };
 }
