@@ -14,7 +14,7 @@
     { "source": "/nomadsuitcase","destination": "/apps/nomadsuitcase/nomadsuitcase.html" },
     { "source": "/edit-profile", "destination": "/apps/edit/edit-profile.html" },
     { "source": "/puffcounter",  "destination": "/apps/puffcounter/index.html" },
-    { "source": "/tana",         "destination": "/apps/tanapixelgame/portfolio-game-v2.html" }
+    { "source": "/portfolio",    "destination": "/apps/portfolio/index.html" }
   ],
   "redirects": [
     { "source": "/Nomad_Suitcase.html",       "destination": "/nomadsuitcase", "permanent": true },
