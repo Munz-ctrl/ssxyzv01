@@ -70,9 +70,10 @@ const resetBtn        = $('btnResetHero');
 
 // (removed) legacy skin dropdown refs (we only use Featured + My Skins now)
 
-const mySkinActionsEl = $('mySkinActions');
-const btnSetAsBase = $('btnSetAsBase');
-const btnDiscardAvatar = $('btnDiscardAvatar');
+const mySkinActionsEl    = $('mySkinActions');
+const btnSetAsBase       = $('btnSetAsBase');
+const btnSetAsMapAvatar  = $('btnSetAsMapAvatar');
+const btnDiscardAvatar   = $('btnDiscardAvatar');
 
 const btnDressupLogout = $('btnDressupLogout');
 const dressupLogoutStatus = $('dressupLogoutStatus');
@@ -458,6 +459,35 @@ async function saveCurrentHeroAsDefaultSkin({ name = 'My Default Skin' } = {}) {
     setHeroImage(def.hero_url);
     currentSkinName = def.name || 'My Skin';
     renderMySkinsRow();
+  }
+}
+
+
+// Write the given image URL to players.avatar for the logged-in user's linked player.
+async function setPlayerMapAvatar(heroUrl) {
+  const sb = getSb();
+  if (!sb || !currentUserId) return { ok: false, msg: 'Not logged in.' };
+
+  const url = toAbsoluteHttpUrl(heroUrl);
+  if (!url) return { ok: false, msg: 'No image to use.' };
+
+  try {
+    const { data: player } = await withTimeout(
+      sb.from('players').select('pid').eq('owner_id', currentUserId).maybeSingle(),
+      8000, 'player lookup timeout'
+    );
+
+    if (!player?.pid) return { ok: false, msg: 'No player linked to your account.' };
+
+    const { error } = await withTimeout(
+      sb.from('players').update({ avatar: url }).eq('owner_id', currentUserId),
+      8000, 'player update timeout'
+    );
+
+    if (error) return { ok: false, msg: error.message };
+    return { ok: true, msg: `Map avatar updated (${player.pid})` };
+  } catch (e) {
+    return { ok: false, msg: e?.message || 'Unknown error' };
   }
 }
 
@@ -885,6 +915,9 @@ function renderMySkinsRow() {
   }
 
   availableSkins.forEach((skin) => {
+    const entry = document.createElement('div');
+    entry.className = 'skin-entry';
+
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'avatar-pill';
@@ -895,11 +928,34 @@ function renderMySkinsRow() {
       selectSkinUnified({ source: 'my', skin, btnEl: btn });
     });
 
-    row.appendChild(btn);
-
     if (selectedSkin.source === 'my' && selectedSkin.id === skin.id) {
       btn.classList.add('avatar-pill-active');
     }
+
+    entry.appendChild(btn);
+
+    // "→ map" button — sets this skin as the player's map avatar
+    const mapBtn = document.createElement('button');
+    mapBtn.type = 'button';
+    mapBtn.className = 'avatar-pill-map';
+    mapBtn.textContent = '→ map';
+    mapBtn.title = 'Set this skin as your map avatar';
+    mapBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      mapBtn.disabled = true;
+      mapBtn.textContent = '…';
+      const result = await setPlayerMapAvatar(skin.hero_url);
+      mapBtn.textContent = result.ok ? '✓' : '✗';
+      mapBtn.title = result.msg;
+      setTimeout(() => {
+        mapBtn.textContent = '→ map';
+        mapBtn.title = 'Set this skin as your map avatar';
+        mapBtn.disabled = false;
+      }, 2000);
+    });
+
+    entry.appendChild(mapBtn);
+    row.appendChild(entry);
   });
 }
 
@@ -1864,6 +1920,24 @@ if (avatarCreateBtn) {
               avatarStatusEl.textContent = 'Save failed (check console / RLS).';
             } finally {
               btnSetAsBase.disabled = false;
+            }
+          });
+        }
+
+        if (btnSetAsMapAvatar) {
+          btnSetAsMapAvatar.addEventListener('click', async () => {
+            const heroUrl = hero?.getAttribute('data-person-url');
+            if (!heroUrl) return;
+            btnSetAsMapAvatar.disabled = true;
+            const prev = avatarStatusEl?.textContent || '';
+            if (avatarStatusEl) avatarStatusEl.textContent = 'Updating map avatar…';
+            const result = await setPlayerMapAvatar(heroUrl);
+            if (avatarStatusEl) avatarStatusEl.textContent = result.msg;
+            btnSetAsMapAvatar.disabled = false;
+            if (result.ok) {
+              setTimeout(() => {
+                if (avatarStatusEl?.textContent === result.msg) avatarStatusEl.textContent = prev;
+              }, 3000);
             }
           });
         }
