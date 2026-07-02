@@ -323,10 +323,10 @@ ul {
   font-size: 0.95rem;
 }
 
-.credibility__award-note {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--accent);
+.credibility__award-secondary {
+  margin: 2px 0 0;
+  font-size: 0.72rem;
+  color: var(--muted-dim);
 }
 
 .credibility__clients-label {
