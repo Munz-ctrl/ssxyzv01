@@ -3,7 +3,10 @@
     "allow": [
       "mcp__a634a4cd-21e8-4eee-a2f1-574a998fb6c2__list_projects",
       "mcp__a634a4cd-21e8-4eee-a2f1-574a998fb6c2__list_tables",
-      "mcp__a634a4cd-21e8-4eee-a2f1-574a998fb6c2__apply_migration"
+      "mcp__a634a4cd-21e8-4eee-a2f1-574a998fb6c2__apply_migration",
+      "Bash(awk '{printf \"%-20s %8s\\\\n\", $NF, $5}')",
+      "Bash(file *.MP4 *.mov)",
+      "Bash(node apps/portfolio/build.js)"
     ]
   }
 }
