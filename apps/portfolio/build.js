@@ -27,11 +27,15 @@ function renderCredibility() {
     .map((name) => `<li class="credibility__client">${escapeHtml(name)}</li>`)
     .join("\n            ");
 
+  const secondary = siteMeta.secondaryAward
+    ? `<p class="credibility__award-secondary">${escapeHtml(siteMeta.secondaryAward.name)} &middot; ${escapeHtml(siteMeta.secondaryAward.note)}</p>`
+    : "";
+
   return `<div class="credibility__award">
           <img src="${siteMeta.award.badgeImage}" alt="${escapeHtml(siteMeta.award.name)} — ${escapeHtml(siteMeta.award.note)}" loading="lazy" width="300" height="300" class="credibility__award-image" />
           <div>
-            <p class="credibility__award-name">${escapeHtml(siteMeta.award.name)}</p>
-            <p class="credibility__award-note">${escapeHtml(siteMeta.award.note)}</p>
+            <p class="credibility__award-name">${escapeHtml(siteMeta.award.name)} — ${escapeHtml(siteMeta.award.note)}</p>
+            ${secondary}
           </div>
         </div>
         <div class="credibility__clients">
