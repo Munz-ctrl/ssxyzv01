@@ -2,49 +2,382 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Portfolio – Grid</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Fonts (swap to whatever you like) -->
+  <title>Munzir Mukhtar — Experiential Reality Designer | Virtuosus</title>
+  <meta name="description" content="Munzir Mukhtar is a Clio Award-winning experiential reality designer and founder of Virtuosus — VFX, AR/XR, mixed reality activations, 3D worlds, and brand identity for Tyler the Creator, Lil Uzi Vert, Ye, and more." />
+  <link rel="canonical" href="https://sunsex.xyz/portfolio" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sunsex.xyz/portfolio" />
+  <meta property="og:title" content="Munzir Mukhtar — Experiential Reality Designer" />
+  <meta property="og:description" content="Clio Award-winning experiential reality designer and founder of Virtuosus — VFX, AR/XR, mixed reality activations, 3D worlds, and brand identity." />
+  <!-- TODO: swap to the Uzi Vert activation image/video once delivered -->
+  <meta property="og:image" content="https://sunsex.xyz/apps/portfolio/media/clio-2.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Munzir Mukhtar — Experiential Reality Designer" />
+  <meta name="twitter:description" content="Clio Award-winning experiential reality designer and founder of Virtuosus — VFX, AR/XR, mixed reality activations, 3D worlds, and brand identity." />
+  <meta name="twitter:image" content="https://sunsex.xyz/apps/portfolio/media/clio-2.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+
   <header class="site-header">
     <div class="site-header__inner">
-      <div class="brand">
-        <span class="brand__logo">Digital Artist Portfolio</span>
-        <span class="brand__subtitle">MUNZIR MUKHTAR</span>
-      </div>
-      <nav class="site-nav">
+      <a href="#top" class="brand">
+        <span class="brand__name">Munzir Mukhtar</span>
+        <span class="brand__role">Experiential Reality Designer</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Primary">
         <a href="#work" class="site-nav__link">Work</a>
+        <a href="#about" class="site-nav__link">About</a>
         <a href="#contact" class="site-nav__link">Contact</a>
       </nav>
+
+      <!-- Persistent, one-click contact — always visible, no scrolling required -->
+      <div class="site-contact">
+        <a href="mailto:77PhoenixLane@gmail.com" class="site-contact__link" aria-label="Email Munzir">Email</a>
+        <a href="https://instagram.com/munzir_here" class="site-contact__link" target="_blank" rel="noopener" aria-label="Munzir on Instagram">Instagram</a>
+      </div>
     </div>
   </header>
 
-  <main class="app-shell">
-  <section id="work" class="grid-section">
-    <div class="grid-section__inner">
-      <div class="grid-layout">
-        <!-- Main fullscreen project card -->
-        <div id="project-viewer" class="project-viewer">
-          <!-- Active card injected here -->
+  <main>
+
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="hero__inner">
+        <div class="hero__copy">
+          <p class="hero__eyebrow">Clio Award-Winning Designer &middot; Founder, Virtuosus</p>
+          <h1 class="hero__title">Munzir Mukhtar</h1>
+          <p class="hero__tagline">I design VFX, AR/XR, and mixed reality activations, 3D worlds, games, and brand identity for artists and brands.</p>
+          <div class="hero__actions">
+            <a href="#work" class="btn btn--primary">See the work</a>
+            <a href="mailto:77PhoenixLane@gmail.com" class="btn btn--ghost">Get in touch</a>
+          </div>
         </div>
 
-        <!-- Vertical PNG rail (side stack) -->
-        <aside id="stack-column" class="stack-column"></aside>
+        <!-- TODO: replace with a muted, autoplay, loop video of the Lil Uzi Vert
+             UFO activation once that asset is delivered. Using the real Clio
+             award photo as the lead visual in the meantime. -->
+        <figure class="hero__visual">
+          <img
+            src="media/clio-2.png"
+            alt="Munzir Mukhtar holding the 2026 Clio Award"
+            width="900"
+            height="1200"
+            fetchpriority="high"
+          />
+          <figcaption class="hero__visual-caption">2026 Clio Award — Official Honoree</figcaption>
+        </figure>
       </div>
+    </section>
+
+    <!-- CREDIBILITY STRIP — Clio Award proof + client list. No interaction required. -->
+    <section class="credibility" id="credibility">
+      <div class="credibility__inner">
+        <!-- CREDIBILITY:START -->
+        <div class="credibility__award">
+          <img src="media/clio-1.png" alt="Clio Award — 2026 Official Honoree" loading="lazy" width="300" height="300" class="credibility__award-image" />
+          <div>
+            <p class="credibility__award-name">Clio Award</p>
+            <p class="credibility__award-note">2026 Official Honoree</p>
+          </div>
+        </div>
+        <div class="credibility__clients">
+          <p class="credibility__clients-label">Selected clients</p>
+          <ul class="credibility__client-list">
+            <li class="credibility__client">Tyler, the Creator</li>
+            <li class="credibility__client">Lil Uzi Vert</li>
+            <li class="credibility__client">Ye</li>
+            <li class="credibility__client">Hulu</li>
+            <li class="credibility__client">Clarks</li>
+            <li class="credibility__client">GBNY</li>
+            <li class="credibility__client">Daily Paper</li>
+            <li class="credibility__client">Stranger Things</li>
+            <li class="credibility__client">OVO</li>
+            <li class="credibility__client">JD Sports</li>
+            <li class="credibility__client">Tom Brady</li>
+            <li class="credibility__client">Dame Dash</li>
+            <li class="credibility__client">RCA Records</li>
+            <li class="credibility__client">Atlantic Records</li>
+          </ul>
+        </div>
+        <!-- CREDIBILITY:END -->
+      </div>
+    </section>
+
+    <!-- WORK -->
+    <section class="work" id="work">
+      <div class="work__inner">
+        <div class="section-head">
+          <h2 class="section-head__title">Selected Work</h2>
+          <p class="section-head__sub">Case studies, flagship first. Filter by discipline — filtering is optional, everything below is visible by default.</p>
+        </div>
+
+        <div class="filters" role="tablist" aria-label="Filter case studies by category">
+          <!-- FILTERS:START -->
+        <button type="button" class="filter-tab filter-tab--active" data-filter="all" role="tab" aria-selected="true">All</button>
+          <button type="button" class="filter-tab" data-filter="experiential" role="tab" aria-selected="false">Experiential / Activations</button>
+          <button type="button" class="filter-tab" data-filter="ar-xr" role="tab" aria-selected="false">AR &amp; XR</button>
+          <button type="button" class="filter-tab" data-filter="vfx" role="tab" aria-selected="false">VFX</button>
+          <button type="button" class="filter-tab" data-filter="web-game" role="tab" aria-selected="false">Web &amp; Game Design</button>
+          <button type="button" class="filter-tab" data-filter="brand" role="tab" aria-selected="false">Brand &amp; Graphic</button>
+        <!-- FILTERS:END -->
+        </div>
+
+        <div class="case-studies">
+          <!-- CASE_STUDIES:START -->
+        <article class="case-study case-study--flagship" data-category="experiential ar-xr" id="uzi-vert-ufo">
+          <div class="case-study__media">
+            <div class="case-study__media-pending">
+              <p>Activation video coming soon</p>
+              
+            </div>
+          </div>
+          <div class="case-study__body">
+            <p class="case-study__eyebrow">Experiential / Activations &middot; AR & XR &middot; Flagship</p>
+            <h3 class="case-study__title">Lil Uzi Vert — Mixed Reality UFO Activation</h3>
+            <p class="case-study__meta">Lil Uzi Vert / Atlantic Records &middot; 2026 &middot; Creative Lead</p>
+            <a class="case-study__award-ref" href="#credibility">2026 Clio Award — Official Honoree &rarr;</a>
+
+            <div class="case-study__row">
+              <p class="case-study__row-label">Brief</p>
+              <p class="case-study__row-value">Design and lead a mixed reality activation supporting the NYC rollout of Lil Uzi Vert&#39;s album — a UFO-themed experience bringing the album&#39;s world into physical space for fans and press.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Challenge</p>
+              <p class="case-study__row-value">TODO — add the creative/production challenge for this activation.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Concept</p>
+              <p class="case-study__row-value">TODO — add the core creative concept.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Execution</p>
+              <p class="case-study__row-value">TODO — add build/production/execution details.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Result</p>
+              <p class="case-study__row-value">TODO — add outcome/reception details.</p>
+            </div>
+
+            
+            <p class="case-study__credits"><span class="case-study__row-label">Credits</span> TODO — collaborators, agency, production team</p>
+            
+            
+            
+          </div>
+        </article>
+
+          <article class="case-study" data-category="vfx" id="tyler-the-creator-cgi">
+          <div class="case-study__media">
+            <video class="case-study__media-el" src="media/tylr.MP4" muted loop playsinline preload="metadata" poster="media/tylrt.png" controls></video>
+          </div>
+          <div class="case-study__body">
+            <p class="case-study__eyebrow">VFX</p>
+            <h3 class="case-study__title">Tyler the Creator — CGI Moment</h3>
+            <p class="case-study__meta">Tyler, the Creator &middot; TODO — e.g. CGI / VFX Artist</p>
+            
+
+            <div class="case-study__row">
+              <p class="case-study__row-label">Brief</p>
+              <p class="case-study__row-value">TODO — add the client&#39;s ask for this piece.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Challenge</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Concept</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Execution</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Result</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+
+            
+            <p class="case-study__credits"><span class="case-study__row-label">Credits</span> TODO</p>
+            <div class="case-study__press">
+              <p class="case-study__row-label">Press</p>
+              <a href="https://x.com/EmpireStateBldg/status/1947446591821942998" target="_blank" rel="noopener">View post</a>
+            </div>
+            <div class="case-study__gallery">
+              <img src="media/complxt.png" alt="" loading="lazy" />
+            </div>
+            <a class="case-study__external" href="https://x.com/EmpireStateBldg/status/1947446591821942998" target="_blank" rel="noopener">View project &rarr;</a>
+          </div>
+        </article>
+
+          <article class="case-study" data-category="brand vfx" id="yeezy-ad-creation">
+          <div class="case-study__media">
+            <video class="case-study__media-el" src="media/podvid.MP4" muted loop playsinline preload="metadata" controls></video>
+          </div>
+          <div class="case-study__body">
+            <p class="case-study__eyebrow">Brand & Graphic &middot; VFX</p>
+            <h3 class="case-study__title">YEEZY — Ad Creation</h3>
+            <p class="case-study__meta">Ye / YEEZY &middot; TODO — e.g. Visual Designer</p>
+            
+
+            <div class="case-study__row">
+              <p class="case-study__row-label">Brief</p>
+              <p class="case-study__row-value">Commissioned by Ye&#39;s team to create compelling visual ads, with a secondary role in graphic design.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Challenge</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Concept</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Execution</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Result</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+
+            
+            <p class="case-study__credits"><span class="case-study__row-label">Credits</span> TODO</p>
+            
+            <div class="case-study__gallery">
+              <video src="media/vul.MP4" muted loop playsinline preload="metadata" controls></video>
+              <img src="media/yep.png" alt="" loading="lazy" />
+            </div>
+            
+          </div>
+        </article>
+
+          <article class="case-study" data-category="web-game" id="sunsex-isometric-world">
+          <div class="case-study__media">
+            <div class="case-study__media-pending">
+              <p>Lookdev media coming soon</p>
+              
+            </div>
+          </div>
+          <div class="case-study__body">
+            <p class="case-study__eyebrow">Web & Game Design</p>
+            <h3 class="case-study__title">Sunsex — Isometric World</h3>
+            <p class="case-study__meta">Personal IP &middot; Creator / Designer</p>
+            
+
+            <div class="case-study__row">
+              <p class="case-study__row-label">Brief</p>
+              <p class="case-study__row-value">Sunsex is my long-term creative IP project — an isometric digital world layered over reality, documented through visual art.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Challenge</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Concept</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Execution</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Result</p>
+              <p class="case-study__row-value">TODO</p>
+            </div>
+
+            
+            <p class="case-study__credits"><span class="case-study__row-label">Credits</span> TODO</p>
+            
+            
+            
+          </div>
+        </article>
+        <!-- CASE_STUDIES:END -->
+        </div>
+      </div>
+    </section>
+
+    <!-- MORE WORK — native CSS scroll-snap carousel, no custom autoplay/JS -->
+    <section class="more-work" aria-label="Studio and process">
+      <div class="more-work__inner">
+        <h2 class="section-head__title section-head__title--sm">Studio &amp; Process</h2>
+        <div class="carousel">
+          <div class="carousel__track">
+            <figure class="carousel__item">
+              <img src="media/munzslide.gif" alt="Studio look, Munzir Mukhtar" loading="lazy" width="640" height="640" />
+              <figcaption>Studio look</figcaption>
+            </figure>
+            <figure class="carousel__item">
+              <video src="media/MJ.mov" muted loop playsinline preload="metadata" controls></video>
+              <figcaption>Process reel</figcaption>
+            </figure>
+            <figure class="carousel__item">
+              <video src="media/ajmet.MOV" muted loop playsinline preload="metadata" controls></video>
+              <figcaption>Behind the scenes</figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="about" id="about">
+      <div class="about__inner">
+        <div class="about__copy">
+          <h2 class="section-head__title">About</h2>
+          <!-- ABOUT:START -->
+        <p class="about__years"><span>9+</span> years designing experiences</p>
+          <p class="about__statement">As lead artist, project manager, and co-founder at Virtuosus, I oversee the full creative pipeline — from concept and design to final CGI, VFX, and interactive experiences. I balance hands-on visual creation with team coordination to bring ambitious ideas to life on schedule.</p>
+          <ul class="about__skills">
+            <li>3D Modeling &amp; Texturing</li>
+            <li>Lighting, Rendering &amp; Compositing</li>
+            <li>VFX &amp; Motion Graphics</li>
+            <li>AR / XR &amp; Mixed Reality</li>
+            <li>Cinema 4D · Houdini · After Effects · Unity</li>
+            <li>Art Direction &amp; Pipeline Management</li>
+          </ul>
+        <!-- ABOUT:END -->
+        </div>
+        <!-- TODO: swap for a final headshot/bio photo when available -->
+        <img class="about__photo" src="media/abtmunz2.png" alt="Munzir Mukhtar" loading="lazy" width="400" height="400" />
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact" id="contact">
+      <div class="contact__inner">
+        <h2 class="section-head__title">Let's work together</h2>
+        <p class="contact__text">Available for freelance and full-time work. Based in New York, working globally.</p>
+        <div class="contact__links">
+          <a href="mailto:77PhoenixLane@gmail.com" class="btn btn--primary">77PhoenixLane@gmail.com</a>
+          <a href="https://instagram.com/munzir_here" class="btn btn--ghost" target="_blank" rel="noopener">@munzir_here</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__inner">
+      <span>&copy; 2026 Munzir Mukhtar</span>
+      <a href="#top">Back to top</a>
     </div>
-  </section>
-  <div id="media-pager" class="project-card__pager"></div>
-</main>
+  </footer>
 
-
-
-  <script src="script.js"></script>
+  <script src="js/main.js" defer></script>
 </body>
 </html>
