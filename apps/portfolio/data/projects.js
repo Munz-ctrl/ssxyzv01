@@ -16,9 +16,16 @@ export const siteMeta = {
   // as a static placeholder until the real Uzi Vert activation video is provided.
   award: {
     name: "Clio Award",
-    note: "2026 Official Honoree",
+    note: "Winner",
     badgeImage: "media/clio-1.png",
     heroImage: "media/clio-2.png",
+  },
+  // Separate accolade — the "2026 Official Honoree" certificate visible in
+  // clio-1.png is from The Webby Awards, not the Clios. Kept distinct so the
+  // two aren't conflated.
+  secondaryAward: {
+    name: "The Webby Awards",
+    note: "2026 Official Honoree",
   },
 };
 
@@ -91,7 +98,7 @@ export const caseStudies = [
     press: [], // TODO e.g. [{ label: "Coverage name", url: "TODO" }]
     // Minimal cross-link back to the Clio credibility strip, per request —
     // the award is presented on its own first, then noted here.
-    awardRef: { label: "2026 Clio Award — Official Honoree", href: "#credibility" },
+    awardRef: { label: "Clio Award Winner", href: "#credibility" },
     // TODO: replace with the real activation video once delivered.
     media: { type: "pending", note: "Activation video coming soon", link: null },
     gallery: [],
