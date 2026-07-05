@@ -104,9 +104,8 @@ export const caseStudies = [
     // Minimal cross-link back to the Clio credibility strip, per request —
     // the award is presented on its own first, then noted here.
     awardRef: { label: "Clio Award Winner", href: "#credibility" },
-    // TODO: replace with the real activation video once delivered.
-    media: { type: "pending", note: "Activation video coming soon", link: null },
-    gallery: [],
+    media: { type: "video", src: MEDIA + "MunzF.mp4", poster: null },
+    gallery: [MEDIA + "revF.mp4", MEDIA + "UFOclip4.mp4"],
     link: null,
   },
   {
