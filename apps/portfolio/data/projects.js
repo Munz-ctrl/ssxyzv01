@@ -3,6 +3,11 @@
 // the static markup inside index.html. Do not hand-edit the generated
 // sections of index.html — they will be overwritten on the next build.
 
+// Root-absolute so paths still resolve correctly when this page is served
+// through a Vercel rewrite (e.g. /portfolio, /munzir) instead of its real
+// file path — a relative "media/..." path breaks under those short URLs.
+const MEDIA = "/apps/portfolio/media/";
+
 export const siteMeta = {
   name: "Munzir Mukhtar",
   role: "Experiential Reality Designer",
@@ -17,8 +22,8 @@ export const siteMeta = {
   award: {
     name: "Clio Award",
     note: "Winner",
-    badgeImage: "media/clio-1.png",
-    heroImage: "media/clio-2.png",
+    badgeImage: MEDIA + "clio-1.png",
+    heroImage: MEDIA + "clio-2.png",
   },
   // Separate accolade — the "2026 Official Honoree" certificate visible in
   // clio-1.png is from The Webby Awards, not the Clios. Kept distinct so the
@@ -67,7 +72,7 @@ export const about = {
     "Art Direction & Pipeline Management",
   ],
   // TODO: swap for a final headshot/bio photo when available.
-  photo: "media/abtmunz2.png",
+  photo: MEDIA + "abtmunz2.png",
 };
 
 // Case studies, flagship first. `category` is an array of category ids from
@@ -122,8 +127,8 @@ export const caseStudies = [
     press: [
       { label: "View post", url: "https://x.com/EmpireStateBldg/status/1947446591821942998" },
     ],
-    media: { type: "video", src: "media/tylr.MP4", poster: "media/tylrt.png" },
-    gallery: ["media/complxt.png"],
+    media: { type: "video", src: MEDIA + "tylr.MP4", poster: MEDIA + "tylrt.png" },
+    gallery: [MEDIA + "complxt.png"],
     link: "https://x.com/EmpireStateBldg/status/1947446591821942998",
   },
   {
@@ -143,8 +148,8 @@ export const caseStudies = [
     reach: [],
     credits: "TODO",
     press: [],
-    media: { type: "video", src: "media/podvid.MP4", poster: null },
-    gallery: ["media/vul.MP4", "media/yep.png"],
+    media: { type: "video", src: MEDIA + "podvid.MP4", poster: null },
+    gallery: [MEDIA + "vul.MP4", MEDIA + "yep.png"],
     link: null,
   },
   {
