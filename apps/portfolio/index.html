@@ -66,11 +66,21 @@
           </div>
         </div>
 
-        <!-- TODO: replace with a muted, autoplay, loop video of the Lil Uzi Vert
-             UFO activation once that asset is delivered. Using the real Clio
-             award photo as the lead visual in the meantime. -->
-        <figure class="hero__visual">
+        <!-- Opener plays once, then settles on the Clio photo in the same
+             spot (see js/main.js). TODO: swap the opener for a muted, autoplay,
+             loop video of the Lil Uzi Vert UFO activation once delivered. -->
+        <figure class="hero__visual" id="hero-visual">
+          <video
+            class="hero__visual-video"
+            id="hero-opener"
+            src="/apps/portfolio/media/munzslide.webm"
+            autoplay
+            muted
+            playsinline
+            preload="auto"
+          ></video>
           <img
+            class="hero__visual-image"
             src="/apps/portfolio/media/clio-2.png"
             alt="Munzir Mukhtar holding his Clio Award"
             width="900"
@@ -317,10 +327,6 @@
         <h2 class="section-head__title section-head__title--sm">Studio &amp; Process</h2>
         <div class="carousel">
           <div class="carousel__track">
-            <figure class="carousel__item">
-              <img src="/apps/portfolio/media/munzslide.gif" alt="Studio look, Munzir Mukhtar" loading="lazy" width="640" height="640" />
-              <figcaption>Studio look</figcaption>
-            </figure>
             <figure class="carousel__item">
               <video src="/apps/portfolio/media/MJ.mov" muted loop playsinline preload="metadata" controls></video>
               <figcaption>Process reel</figcaption>
