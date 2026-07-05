@@ -25,3 +25,18 @@
     });
   });
 })();
+
+// Hero opener: plays the intro video once, then settles on the Clio photo
+// in the same spot. Falls back to the photo immediately if the video can't
+// play at all (e.g. unsupported format) — the photo is real markup either way.
+(() => {
+  const visual = document.getElementById("hero-visual");
+  const opener = document.getElementById("hero-opener");
+
+  if (!visual || !opener) return;
+
+  const settle = () => visual.classList.add("hero__visual--settled");
+
+  opener.addEventListener("ended", settle, { once: true });
+  opener.addEventListener("error", settle, { once: true });
+})();
