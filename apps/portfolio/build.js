@@ -133,7 +133,21 @@ function renderCaseStudy(cs) {
     ? `<a class="case-study__external" href="${escapeHtml(cs.link)}" target="_blank" rel="noopener">View project &rarr;</a>`
     : "";
 
-  return `<article class="case-study${cs.flagship ? " case-study--flagship" : ""}" data-category="${categoryAttr}" id="${cs.id}">
+  const emblem = cs.emblem
+    ? `<div class="case-study__emblem">
+            <img src="${escapeHtml(cs.emblem)}" alt="${escapeHtml(cs.client)} emblem" loading="lazy" />
+          </div>`
+    : "";
+
+  const articleClasses = [
+    "case-study",
+    cs.flagship ? "case-study--flagship" : "",
+    cs.emblem ? "case-study--has-emblem" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return `<article class="${articleClasses}" data-category="${categoryAttr}" id="${cs.id}">
           <div class="case-study__media">
             ${renderMedia(cs)}
           </div>
@@ -155,6 +169,7 @@ function renderCaseStudy(cs) {
             ${gallery}
             ${externalLink}
           </div>
+          ${emblem}
         </article>`;
 }
 
