@@ -68,7 +68,7 @@ The AI labels signals; code converts them to cubes using `config/cubes.json`.
 
 Never rewarded: length, emotional intensity, repeating known things.
 
-**Anti-farming:** cheap pre-check before any paid call (gibberish, too short, duplicates, rapid-fire); diminishing returns per dump each day; daily cap; close repeats earn only the base; pasted walls of text earn like a normal dump; cubes are not transferable.
+**Anti-farming:** cheap pre-check before any paid call (gibberish, too short, duplicates, rapid-fire); diminishing returns per dump each day; an invisible daily cap (cost guard, never shown as a bar); close repeats earn only the base; pasted walls of text earn like a normal dump; cubes are not transferable.
 
 ## Visual rules
 
@@ -82,7 +82,7 @@ Never rewarded: length, emotional intensity, repeating known things.
 | Avatar files | 800 x 1000 px transparent PNG at 2x portrait, person 620 px tall, feet anchor (400, 900), shadow included, sticker edge drawn by the app |
 | Real vs imagined | Real (camera capture): sticker cutout, counts more. Imagined (typed or library): clean, slightly ghosted |
 | Font | Space Mono (alternate: Ubuntu Mono) |
-| HUD | Top left: `sunsex isometric v0.01` / `coord. [x, y]` / `memory: <handle>-<n>`. `[ + ]` low center. Progress bar bottom left, cube count bottom right |
+| HUD | Top left: `sunsex isometric v0.01` / `coord. [x, y]` / `memory: <handle>-<n>`. `[ + ]` low center. Level bar bottom left (progress to next room level, from lifetime earned cubes; spending never lowers it), cube count bottom right (wallet) |
 
 **Layouts:** portrait = zoomed crop, player upper middle, `[ + ]` low and centered. Landscape = full scene, player on the left, expanded UI on the right (open input, mission cards, cube count).
 

@@ -53,9 +53,13 @@ If a brief and PRODUCT.md disagree, the brief wins and you note the conflict in 
 - Font: **Space Mono** for all UI (alternate kept on file: Ubuntu Mono).
 - Background: light gray `#b3b3b3` with a thin white isometric grid (lines at 28.4 degrees, tile edge 165 px at 1080 px wide portrait, scale proportionally).
 - HUD, top left, three lines: `sunsex isometric v0.01` / `coord. [x, y]` / `memory: <handle>-<dump count>`.
-- `[ + ]` centered low on the screen. Bottom: progress bar (left) and cube count (right).
+- `[ + ]` centered low on the screen. Bottom: **level bar** (left: progress to the next room level, from lifetime earned cubes, see `levels` in `config/cubes.json`) and cube count (right: the wallet). The daily cap is an invisible guard, never a bar.
 - Minimal, lowercase, receipt-like copy. No emoji except the cube (🧊). No em dashes in any user-facing text.
 - Portrait and landscape layouts from the same components (see PRODUCT.md).
+
+## When the concept changes
+
+Concept changes are decided in the Build Bible and written into `docs/PRODUCT.md`, `config/` and a new brief by Munzir's planning chat. Do not infer concept from old briefs: PRODUCT.md and the newest brief win. If something looks like it contradicts the concept, ask.
 
 ## Working style
 

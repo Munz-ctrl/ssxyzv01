@@ -1,21 +1,72 @@
 {
   "rules_version": "0.1",
   "note": "Placeholder numbers. Tuned in Chapter 6. The AI never sets amounts; code reads this file.",
-  "base": { "real_input_min": 1, "real_input_max": 3 },
+  "base": {
+    "real_input_min": 1,
+    "real_input_max": 3
+  },
   "bonus": {
-    "new": [0, 2, 3, 5],
-    "specific": [0, 1, 2, 3],
-    "reflective": [0, 1, 2, 3],
+    "new": [
+      0,
+      2,
+      3,
+      5
+    ],
+    "specific": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "reflective": [
+      0,
+      1,
+      2,
+      3
+    ],
     "plan": 3,
     "first_dump_of_day": 3
   },
   "mission_completed": 10,
   "mission_completed_with_photo_extra": 5,
-  "rare_drop": { "chance": 0.125, "cubes": 5 },
-  "diminishing": { "factor_per_dump_today": 0.85, "floor": 0.3 },
+  "rare_drop": {
+    "chance": 0.125,
+    "cubes": 5
+  },
+  "diminishing": {
+    "factor_per_dump_today": 0.85,
+    "floor": 0.3
+  },
   "daily_cap": 40,
   "repeat_similarity_threshold": 0.9,
-  "spam": { "min_meaningful_chars": 3, "min_seconds_between_dumps": 8 },
-  "costs": { "sequel_image": 20, "avatar_change": 30, "space_edit_library": 0 },
-  "agent": { "model": "claude-haiku-5-5", "context_dumps": 20 }
+  "spam": {
+    "min_meaningful_chars": 3,
+    "min_seconds_between_dumps": 8
+  },
+  "costs": {
+    "sequel_image": 20,
+    "avatar_change": 30,
+    "space_edit_library": 0
+  },
+  "agent": {
+    "model": "claude-haiku-5-5",
+    "context_dumps": 20
+  },
+  "levels": {
+    "based_on": "lifetime_earned",
+    "note": "Level comes from all cubes ever earned, not the wallet, so spending never lowers your level. Placeholder thresholds.",
+    "thresholds": [
+      0,
+      50,
+      120,
+      220,
+      350,
+      520,
+      750,
+      1050,
+      1400,
+      1800
+    ]
+  },
+  "daily_cap_note": "Invisible anti-farming and cost guard. Never shown as the bottom bar."
 }
