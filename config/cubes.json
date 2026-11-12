@@ -16,5 +16,6 @@
   "daily_cap": 40,
   "repeat_similarity_threshold": 0.9,
   "spam": { "min_meaningful_chars": 3, "min_seconds_between_dumps": 8 },
-  "costs": { "sequel_image": 20, "avatar_change": 30, "space_edit_library": 0 }
+  "costs": { "sequel_image": 20, "avatar_change": 30, "space_edit_library": 0 },
+  "agent": { "model": "claude-haiku-5-5", "context_dumps": 20 }
 }
