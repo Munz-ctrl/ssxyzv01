@@ -8,5 +8,5 @@
     "noEmit": true,
     "types": ["node"]
   },
-  "include": ["api", "shared"]
+  "include": ["api", "shared", "scripts"]
 }

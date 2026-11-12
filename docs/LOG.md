@@ -2,6 +2,50 @@
 
 Newest first.
 
+## 2026-11-12: brief 01c, sign-in code and rescore
+
+### Why the sorter was failing
+
+`ANTHROPIC_API_KEY` is not set for the Vercel **Preview** environment. Every `/api/dump` call logged `Could not resolve authentication method`, so all 7 dumps so far were saved as `fallback` with 1 cube each (no missions, no vault items). This is a settings fix, not a code fix: add the key for Preview and redeploy. Until then every new dump is another fallback.
+
+Live state seen in the database: 1 profile, 7 dumps, 7 `base` ledger rows, 0 missions, 0 vault items. So magic link sign-in, the profile row and saving dumps all work on the preview.
+
+### Acceptance checks
+
+| Check | Result |
+| --- | --- |
+| Sign in with the 6-digit code, reopen, still signed in | **Pass locally** against a mocked auth API: send, type code, signed in, reload keeps the session. Not run on a phone: needs the email template change below. |
+| Rate-limit message reads cleanly | **Pass locally:** a mocked 429 shows `too many emails right now. try again in a bit.` |
+| Dry run lists fallback dumps and their cubes | **Tested against a fake database** (writes nothing, prints each dump and `rescore +N`). Not run on real data: I have no service role key or Anthropic key locally. |
+| Real run fills missions and the vault, adds `rescore` rows | **Tested against a fake database.** Not run on real data, same reason. |
+
+`npm test` (20 tests), typecheck and build pass.
+
+### Munzir has to do
+
+1. **Vercel:** set `ANTHROPIC_API_KEY` for Preview, then redeploy the branch.
+2. **Supabase > Authentication > Emails > Magic Link template:** add `{{ .Token }}` so the email shows the 6-digit code. Keep `{{ .ConfirmationURL }}` so the link still works.
+3. **Custom SMTP** (for example Resend) before inviting other players: the built-in sender allows only a few emails per hour.
+4. **Rescore**, after step 1, from the repo with a `.env.local` (ignored by git) holding `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`:
+   - `npx tsx --env-file=.env.local scripts/rescore.ts --user <email> --dry-run`
+   - then the same without `--dry-run`.
+
+### What was built
+
+- Sign-in: after send, the same screen shows a 6-digit code field (`verifyOtp`, type `email`). The magic link still works. Wrong or expired codes get a plain message.
+- `scripts/rescore.ts`, with the mission, vault and wishlist writes moved out of `/api/dump` into `api/_lib/apply.ts` so both use the same code.
+
+### Things I had to decide
+
+- **Sessions:** the client already stores the session on the device and refreshes it. How long it lasts is a Supabase setting (Authentication > Sessions): leave time-box and inactivity timeout off for it to last weeks.
+- **Code length is fixed at 6.** If the Supabase OTP length setting is changed, the field has to change too.
+- **Rescore rows belong to the dump's day.** They count toward that day's cap and are ignored by today's cap, so a rescore never eats into today.
+- **One `rescore` row per dump** holds the whole difference, including any mission reward the new sorting triggers.
+- **Rare drop is deterministic in a rescore** (derived from the dump id), so the dry run and the real run agree.
+- **Context for a rescored dump** is the 20 dumps before it, plus missions open at the time of the run (including ones created by earlier dumps in the same run).
+- **A dump the sorter fails on again is left untouched** and can be retried; a second run only touches dumps still marked `fallback`.
+- **Risk dumps** get their parts replaced and no rewards, same as live.
+
 ## 2026-11-12: brief 01b, level bar
 
 The bottom bar is now a level bar with `lv N` beside it; the daily cap is gone from the screen and still enforced.

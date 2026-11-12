@@ -52,6 +52,9 @@ export function tzOffset(value: unknown): number {
   return Number.isFinite(n) ? Math.max(-840, Math.min(840, Math.round(n))) : 0;
 }
 
+// Rescore rows belong to the day of their dump, not the day the script ran, so they never use up today's cap.
+export const RESCORE_REASON = 'rescore';
+
 // Cubes earned since the start of the player's day, and how many dumps earned some.
 export async function todayEarnings(userId: string, now: Date, tzOffsetMin: number) {
   const rows = must(
@@ -60,6 +63,7 @@ export async function todayEarnings(userId: string, now: Date, tzOffsetMin: numb
       .select('delta, dump_id, reason')
       .eq('user_id', userId)
       .gt('delta', 0)
+      .neq('reason', RESCORE_REASON)
       .gte('created_at', dayStart(now, tzOffsetMin).toISOString()),
     'ledger today',
   ) as { delta: number; dump_id: string | null; reason: string }[];

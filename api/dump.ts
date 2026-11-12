@@ -1,27 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { buildReceipt, type ReceiptInput } from '../shared/receipt.js';
+import { buildReceipt } from '../shared/receipt.js';
+import { applyParts, clean, fallbackPart, hasRisk, MAX_CHARS, partRows } from './_lib/apply.js';
 import { admin, levelFields, must, requireUser, todayEarnings, tzOffset, walletTotal } from './_lib/http.js';
 import { computeCubes, loadRules, preCheck, similarity, type RecentDump } from './_lib/rules.js';
 import { sortDump, sorterModel, type SortedPart } from './_lib/sorter.js';
-
-const MAX_CHARS = 20000;
-const clean = (s: string | null | undefined, max = 2000) => (s ?? '').trim().slice(0, max);
-
-function fallbackPart(text: string): SortedPart {
-  return {
-    label: 'dump',
-    content: text,
-    ambiguous: false,
-    signals: { real: true, new: 0, specific: 0, reflective: 0, plan: false, heavy: false, risk: false },
-    mission: null,
-    mission_done_id: null,
-    insight: null,
-    box_object: null,
-    note: null,
-    pattern: null,
-    command_detail: null,
-  };
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
@@ -107,26 +89,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       sorted = false;
     }
 
-    const risk = parts.some((p) => p.label === 'dump' && p.signals?.risk);
+    const risk = hasRisk(parts);
 
-    must(
-      await db.from('ssx_dump_parts').insert(
-        parts.map((p, i) => ({
-          dump_id: dump.id,
-          user_id: userId,
-          part_index: i,
-          label: p.label,
-          content: clean(p.content, MAX_CHARS),
-          signals:
-            p.label === 'dump'
-              ? { ...(p.signals ?? {}), box_object: p.box_object, ambiguous: p.ambiguous }
-              : { command_detail: p.command_detail, ambiguous: p.ambiguous },
-          heavy: p.label === 'dump' && !!p.signals?.heavy,
-          agent_version: agentVersion,
-        })),
-      ),
-      'insert parts',
-    );
+    must(await db.from('ssx_dump_parts').insert(partRows(parts, dump.id, userId, agentVersion)), 'insert parts');
 
     if (risk) {
       const lines = buildReceipt({ risk: true, parts: [], cubes: 0 });
@@ -139,101 +104,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    const receipt: ReceiptInput = {
-      parts: parts.map((p) => ({ label: p.label, content: p.content, command_detail: p.command_detail })),
-      cubes: 0,
-      missionsCreated: [],
-      missionsUpdated: [],
-      missionsDone: [],
-      insights: 0,
-      patterns: 0,
-      notes: [],
-      wishlist: 0,
-    };
-    const ledger: { reason: string; delta: number }[] = [];
-    const open = new Map(openMissions.map((m) => [m.id, m]));
     const today = await todayEarnings(userId, now, tz);
-    let earned = today.earned;
-    let missionCapped = false;
-    const vault: { kind: string; body: string }[] = [];
-    let planned = false;
-
-    for (const p of parts) {
-      if (p.label === 'wishlist') {
-        const request = clean(p.command_detail) || clean(p.content);
-        if (!request) continue;
-        must(await db.from('ssx_wishlist').insert({ user_id: userId, request, source_dump_id: dump.id }), 'wishlist');
-        receipt.wishlist! += 1;
-        continue;
-      }
-      if (p.label !== 'dump' || !p.signals?.real) continue;
-
-      const title = clean(p.mission?.title, 200);
-      if (p.signals.plan && p.mission && title) {
-        const steps = p.mission.next_steps.map((s) => clean(s, 300)).filter(Boolean).slice(0, 3);
-        const target = p.mission.updates_mission_id ? open.get(p.mission.updates_mission_id) : undefined;
-        if (target) {
-          must(
-            await db.from('ssx_missions').update({ title, next_steps: steps }).eq('id', target.id).eq('user_id', userId),
-            'update mission',
-          );
-          receipt.missionsUpdated!.push({ title });
-        } else {
-          must(
-            await db
-              .from('ssx_missions')
-              .insert({ user_id: userId, title, next_steps: steps, source_dump_id: dump.id }),
-            'insert mission',
-          );
-          receipt.missionsCreated!.push({ title, steps: steps.length });
-        }
-        planned = true;
-      }
-
-      const doneTarget = p.mission_done_id ? open.get(p.mission_done_id) : undefined;
-      if (doneTarget) {
-        const closed = must(
-          await db
-            .from('ssx_missions')
-            .update({ status: 'done', completed_at: now.toISOString() })
-            .eq('id', doneTarget.id)
-            .eq('user_id', userId)
-            .eq('status', 'open')
-            .select('id'),
-          'complete mission',
-        ) as { id: string }[];
-        if (closed.length) {
-          open.delete(doneTarget.id);
-          const award = Math.min(rules.mission_completed, Math.max(0, rules.daily_cap - earned));
-          earned += award;
-          missionCapped ||= award < rules.mission_completed;
-          if (award > 0) ledger.push({ reason: 'mission_completed', delta: award });
-          receipt.missionsDone!.push({ title: doneTarget.title, cubes: award });
-        }
-      }
-
-      if (clean(p.insight)) {
-        vault.push({ kind: 'insight', body: clean(p.insight) });
-        receipt.insights! += 1;
-      }
-      if (p.signals.heavy && clean(p.note)) {
-        vault.push({ kind: 'note', body: clean(p.note) });
-        receipt.notes!.push(clean(p.note));
-      }
-      if (clean(p.pattern)) {
-        vault.push({ kind: 'pattern', body: clean(p.pattern) });
-        receipt.patterns! += 1;
-      }
-    }
-
-    if (vault.length) {
-      must(
-        await db
-          .from('ssx_vault_items')
-          .insert(vault.map((v) => ({ ...v, user_id: userId, source_dump_ids: [dump.id] }))),
-        'insert vault items',
-      );
-    }
+    const applied = await applyParts({
+      db,
+      userId,
+      dumpId: dump.id,
+      parts,
+      open: new Map(openMissions.map((m) => [m.id, m])),
+      capLeft: rules.daily_cap - today.earned,
+      now,
+      rules,
+    });
+    const { receipt } = applied;
+    const ledger: { reason: string; delta: number }[] = [];
+    if (applied.missionAward > 0) ledger.push({ reason: 'mission_completed', delta: applied.missionAward });
 
     const closeRepeat = recent.some(
       (d) => d.raw_text && similarity(d.raw_text, text) >= rules.repeat_similarity_threshold,
@@ -241,18 +125,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const cubes = computeCubes(
       {
         signals: parts.filter((p) => p.label === 'dump' && p.signals).map((p) => p.signals!),
-        planned,
+        planned: applied.planned,
         closeRepeat: closeRepeat || !sorted,
         firstOfDay: today.dumps === 0,
         earningDumpsToday: today.dumps,
-        earnedToday: earned,
+        earnedToday: today.earned + applied.missionAward,
         rareRoll: Math.random(),
       },
       rules,
     );
     ledger.push(...cubes.rows);
     receipt.cubes = cubes.total;
-    receipt.capReached = cubes.capReached || missionCapped;
+    receipt.capReached = cubes.capReached || applied.missionCapped;
 
     if (ledger.length) {
       must(
