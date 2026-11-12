@@ -8,9 +8,9 @@ The bottom bar is now a level bar with `lv N` beside it; the daily cap is gone f
 
 | Check | Result |
 | --- | --- |
-| Bar shows progress to the next level, `lv N` matches thresholds | **Unit tested** (shared helper). Not seen in a browser: the session ran out before the visual check. |
-| Spending does not lower the level | **Unit tested** with negative ledger rows. |
-| Crossing a threshold shows `level up` on the receipt | **Not run.** Code appends `level up: lv N` with its own chime; needs a live or mocked run. |
+| Bar shows progress to the next level, `lv N` matches thresholds | **Pass locally** with mocked data: 45 lifetime cubes showed `lv 1` at 90%. Also unit tested. Not run live. |
+| Spending does not lower the level | **Pass:** unit tested with negative ledger rows, and a mocked -20 row left the bar unchanged in the browser. |
+| Crossing a threshold shows `level up` on the receipt | **Pass locally** with a mocked API: the receipt ended with `level up: lv 2` and the bar moved to `lv 2` at 10%. Not run live. |
 | Hitting the daily cap no longer changes the bar | **By construction:** the bar reads lifetime earned only. Not run live. |
 
 `npm test` (14 tests), typecheck and build pass.
