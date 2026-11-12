@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { missionDoneReceipt } from '../../shared/receipt.js';
-import { admin, must, requireUser, todayEarnings, tzOffset, walletTotal } from '../_lib/http.js';
+import { admin, levelFields, must, requireUser, todayEarnings, tzOffset, walletTotal } from '../_lib/http.js';
 import { loadRules } from '../_lib/rules.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -47,10 +47,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       );
     }
 
+    const lines = missionDoneReceipt(closed[0].title, award, award < rules.mission_completed);
     return res.status(200).json({
-      receipt: missionDoneReceipt(closed[0].title, award, award < rules.mission_completed),
+      receipt: lines,
       cubes_awarded: award,
       wallet: await walletTotal(userId),
+      ...(await levelFields(userId, award, lines)),
     });
   } catch (err) {
     console.error('[mission/complete] failed:', err instanceof Error ? err.message : 'unknown');

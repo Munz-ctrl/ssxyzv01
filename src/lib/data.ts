@@ -1,5 +1,6 @@
 import type { User } from '@supabase/supabase-js';
-import { buildReceipt, MISSION_REASON, dayStart, type Label, type ReceiptLine } from '../../shared/receipt';
+import { lifetimeEarned } from '../../shared/level';
+import { buildReceipt, MISSION_REASON, type Label, type ReceiptLine } from '../../shared/receipt';
 import { supabase } from './supabase';
 
 export interface Mission {
@@ -34,7 +35,7 @@ export interface Game {
   handle: string;
   dumpCount: number;
   wallet: number;
-  today: number;
+  lifetime: number;
   missions: Mission[];
   vault: VaultItem[];
   wishlist: Wish[];
@@ -48,6 +49,25 @@ interface ApiResult {
 }
 
 const tzOffsetMin = () => -new Date().getTimezoneOffset();
+
+// All positive ledger rows, paged because the API returns at most 1000 rows per request.
+async function lifetimeTotal(uid: string): Promise<number> {
+  let total = 0;
+  for (let from = 0; ; from += 1000) {
+    const rows =
+      ok(
+        await supabase
+          .from('ssx_ledger')
+          .select('delta')
+          .eq('user_id', uid)
+          .gt('delta', 0)
+          .order('id')
+          .range(from, from + 999),
+      ) ?? [];
+    total += lifetimeEarned(rows);
+    if (rows.length < 1000) return total;
+  }
+}
 
 function ok<T>(result: { data: T; error: { message: string } | null }): T {
   if (result.error) throw new Error(result.error.message);
@@ -64,16 +84,11 @@ async function ensureProfile(user: User): Promise<string> {
 
 export async function loadGame(user: User): Promise<Game> {
   const uid = user.id;
-  const [handle, count, wallet, todayRows, missions, vault, wishlist, dumps] = await Promise.all([
+  const [handle, count, wallet, lifetime, missions, vault, wishlist, dumps] = await Promise.all([
     ensureProfile(user),
     supabase.from('ssx_dumps').select('id', { count: 'exact', head: true }).eq('user_id', uid),
     supabase.from('ssx_wallet').select('cubes').eq('user_id', uid).maybeSingle(),
-    supabase
-      .from('ssx_ledger')
-      .select('delta')
-      .eq('user_id', uid)
-      .gt('delta', 0)
-      .gte('created_at', dayStart(new Date(), tzOffsetMin()).toISOString()),
+    lifetimeTotal(uid),
     supabase
       .from('ssx_missions')
       .select('id, title, next_steps, source_dump_id, status')
@@ -151,7 +166,7 @@ export async function loadGame(user: User): Promise<Game> {
     handle,
     dumpCount: count.count ?? 0,
     wallet: ok(wallet)?.cubes ?? 0,
-    today: (ok(todayRows) ?? []).reduce((a, r) => a + r.delta, 0),
+    lifetime,
     missions: allMissions.filter((m) => m.status === 'open'),
     vault: vaultRows,
     wishlist: wishRows,

@@ -3,7 +3,7 @@ export type Label = 'dump' | 'space_edit' | 'wishlist' | 'avatar_change' | 'sequ
 export const COMMAND_LABELS: Label[] = ['space_edit', 'avatar_change', 'sequel_image'];
 
 export interface ReceiptLine {
-  kind: 'head' | 'cubes' | 'line' | 'note' | 'spam' | 'risk';
+  kind: 'head' | 'cubes' | 'line' | 'note' | 'spam' | 'risk' | 'level';
   text: string;
   note?: string;
   cubes?: number;
@@ -76,6 +76,8 @@ export function buildReceipt(input: ReceiptInput): ReceiptLine[] {
   if (!lines.length) lines.push({ kind: 'spam', text: '...' });
   return lines;
 }
+
+export const levelUpLine = (level: number): ReceiptLine => ({ kind: 'level', text: `level up: lv ${level}` });
 
 export function missionDoneReceipt(title: string, cubes: number, capReached: boolean): ReceiptLine[] {
   const lines: ReceiptLine[] = [

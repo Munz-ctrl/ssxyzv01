@@ -12,6 +12,7 @@ export interface CubeRules {
   repeat_similarity_threshold: number;
   spam: { min_meaningful_chars: number; min_seconds_between_dumps: number };
   agent?: { model?: string; context_dumps?: number };
+  levels: { thresholds: number[] };
 }
 
 let rules: CubeRules | null = null;

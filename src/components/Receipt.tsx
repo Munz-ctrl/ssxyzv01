@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReceiptLine } from '../../shared/receipt';
-import { chime, thud } from '../lib/sound';
+import { chime, levelChime, thud } from '../lib/sound';
 
 interface Props {
   lines: ReceiptLine[];
@@ -30,6 +30,7 @@ export function Receipt({ lines, animate, onCubes, onDone }: Props) {
       const line = lines[i];
       if (!line) return;
       if (line.kind === 'spam') thud();
+      else if (line.kind === 'level') levelChime();
       else if (line.kind !== 'risk') chime(i);
       if (line.cubes) cubesRef.current?.(line.cubes);
       i += 1;

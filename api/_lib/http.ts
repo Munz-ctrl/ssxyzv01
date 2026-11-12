@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { MISSION_REASON, dayStart } from '../../shared/receipt.js';
+import { levelFor, lifetimeEarned } from '../../shared/level.js';
+import { levelUpLine, MISSION_REASON, dayStart, type ReceiptLine } from '../../shared/receipt.js';
+import { loadRules } from './rules.js';
 
 let db: SupabaseClient | null = null;
 
@@ -65,4 +67,33 @@ export async function todayEarnings(userId: string, now: Date, tzOffsetMin: numb
     earned: rows.reduce((a, r) => a + r.delta, 0),
     dumps: new Set(rows.filter((r) => r.reason !== MISSION_REASON).map((r) => r.dump_id).filter(Boolean)).size,
   };
+}
+
+// All positive ledger rows, paged because the API returns at most 1000 rows per request.
+async function lifetimeTotal(userId: string): Promise<number> {
+  let total = 0;
+  for (let from = 0; ; from += 1000) {
+    const rows = must(
+      await admin()
+        .from('ssx_ledger')
+        .select('delta')
+        .eq('user_id', userId)
+        .gt('delta', 0)
+        .order('id')
+        .range(from, from + 999),
+      'ledger lifetime',
+    ) as { delta: number }[];
+    total += lifetimeEarned(rows);
+    if (rows.length < 1000) return total;
+  }
+}
+
+// Call after the ledger rows are written. Appends the level up line to the receipt when earned.
+export async function levelFields(userId: string, justAwarded: number, receipt: ReceiptLine[]) {
+  const thresholds = loadRules().levels.thresholds;
+  const lifetime = await lifetimeTotal(userId);
+  const now = levelFor(lifetime, thresholds);
+  const leveledUp = now.level > levelFor(lifetime - justAwarded, thresholds).level;
+  if (leveledUp) receipt.push(levelUpLine(now.level));
+  return { level: now.level, level_progress: now.progress, leveled_up: leveledUp };
 }

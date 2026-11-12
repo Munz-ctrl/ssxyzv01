@@ -35,3 +35,10 @@ export function chime(step: number) {
 export function thud() {
   tone(95, 45, 0.32, 0.4, 'sine');
 }
+
+export function levelChime() {
+  [0, 7, 12].forEach((semi, i) => {
+    const f = 523 * Math.pow(2, semi / 12);
+    setTimeout(() => tone(f, f, 0.4, 0.12, 'triangle'), i * 90);
+  });
+}

@@ -2,6 +2,26 @@
 
 Newest first.
 
+## 2026-11-12: brief 01b, level bar
+
+The bottom bar is now a level bar with `lv N` beside it; the daily cap is gone from the screen and still enforced.
+
+| Check | Result |
+| --- | --- |
+| Bar shows progress to the next level, `lv N` matches thresholds | **Unit tested** (shared helper). Not seen in a browser: the session ran out before the visual check. |
+| Spending does not lower the level | **Unit tested** with negative ledger rows. |
+| Crossing a threshold shows `level up` on the receipt | **Not run.** Code appends `level up: lv N` with its own chime; needs a live or mocked run. |
+| Hitting the daily cap no longer changes the bar | **By construction:** the bar reads lifetime earned only. Not run live. |
+
+`npm test` (14 tests), typecheck and build pass.
+
+Decisions:
+
+- `lv 1` starts at 0 lifetime cubes (`thresholds[0]`). At the last threshold the bar stays full.
+- Level up lines also appear on mission-done receipts, and `/api/mission/complete` returns the same three level fields as `/api/dump`.
+- Lifetime earned is summed by paging through positive ledger rows (the API returns 1000 rows per request). A `ssx_lifetime` view would be cheaper later; that needs a migration.
+- The brief 01 note below about the progress bar showing today's cubes is superseded.
+
 ## 2026-11-12: brief 01, foundation
 
 Preview: https://ssxyzv01-git-ssxv0cl-munzs-projects.vercel.app (branch alias, follows every push to `SSXV0cl`).

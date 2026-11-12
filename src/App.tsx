@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import cubeRules from '../config/cubes.json';
 import { Grid } from './components/Grid';
 import { VERSION_LINE } from './config';
+import { levelFor } from '../shared/level';
 import { coordsFor, loadGame, type Game } from './lib/data';
 import { supabase } from './lib/supabase';
 import { Auth } from './screens/Auth';
@@ -78,8 +79,7 @@ export function App() {
   }
 
   const [x, y] = coordsFor(user.id);
-  const cap = cubeRules.daily_cap;
-  const today = Math.min(game?.today ?? 0, cap);
+  const { level, progress } = levelFor(game?.lifetime ?? 0, cubeRules.levels.thresholds);
 
   return (
     <Shell hud={[`coord. [${x}, ${y}]`, `memory: ${game ? `${game.handle}-${game.dumpCount}` : '...'}`]}>
@@ -102,12 +102,10 @@ export function App() {
       </main>
 
       <footer className="bar">
-        <div className="progress" title={`${today} of ${cap} cubes today`}>
-          <div className="fill" style={{ width: `${(today / cap) * 100}%` }} />
+        <div className="progress" title="progress to the next level">
+          <div className="fill" style={{ width: `${progress * 100}%` }} />
         </div>
-        <span className="today">
-          {today}/{cap}
-        </span>
+        <span className="level">lv {level}</span>
         <span className="cubes">🧊 {shownWallet}</span>
       </footer>
     </Shell>

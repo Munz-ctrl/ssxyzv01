@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { buildReceipt, type ReceiptInput } from '../shared/receipt.js';
-import { admin, must, requireUser, todayEarnings, tzOffset, walletTotal } from './_lib/http.js';
+import { admin, levelFields, must, requireUser, todayEarnings, tzOffset, walletTotal } from './_lib/http.js';
 import { computeCubes, loadRules, preCheck, similarity, type RecentDump } from './_lib/rules.js';
 import { sortDump, sorterModel, type SortedPart } from './_lib/sorter.js';
 
@@ -71,11 +71,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }),
         'insert spam part',
       );
+      const lines = buildReceipt({ parts: [{ label: 'spam', content: text }], cubes: 0 });
       return res.status(200).json({
         dump_id: dump.id,
-        receipt: buildReceipt({ parts: [{ label: 'spam', content: text }], cubes: 0 }),
+        receipt: lines,
         cubes_awarded: 0,
         wallet: await walletTotal(userId),
+        ...(await levelFields(userId, 0, lines)),
       });
     }
 
@@ -127,11 +129,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     if (risk) {
+      const lines = buildReceipt({ risk: true, parts: [], cubes: 0 });
       return res.status(200).json({
         dump_id: dump.id,
-        receipt: buildReceipt({ risk: true, parts: [], cubes: 0 }),
+        receipt: lines,
         cubes_awarded: 0,
         wallet: await walletTotal(userId),
+        ...(await levelFields(userId, 0, lines)),
       });
     }
 
@@ -261,11 +265,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // commands earn nothing and cost nothing yet: their part rows are the saved record
 
+    const lines = buildReceipt(receipt);
+    const awarded = ledger.reduce((a, r) => a + r.delta, 0);
     return res.status(200).json({
       dump_id: dump.id,
-      receipt: buildReceipt(receipt),
-      cubes_awarded: ledger.reduce((a, r) => a + r.delta, 0),
+      receipt: lines,
+      cubes_awarded: awarded,
       wallet: await walletTotal(userId),
+      ...(await levelFields(userId, awarded, lines)),
     });
   } catch (err) {
     console.error('[dump] failed:', err instanceof Error ? err.message : 'unknown');
