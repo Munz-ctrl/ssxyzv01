@@ -322,3 +322,8 @@ h2 {
     display: none;
   }
 }
+
+.code {
+  letter-spacing: 0.4em;
+  text-align: center;
+}
