@@ -58,6 +58,7 @@ export function buildReceipt(input: ReceiptInput): ReceiptLine[] {
       lines.push({ kind: 'line', text: `mission done: ${m.title}` });
       lines.push({ kind: 'cubes', text: `+${m.cubes} cubes`, cubes: m.cubes });
     }
+    if (!dumpParts.length && input.capReached) lines.push({ kind: 'line', text: 'daily cap reached' });
     if (input.insights) lines.push({ kind: 'line', text: `+${input.insights} insight added to vault` });
     if (input.patterns) lines.push({ kind: 'line', text: `+${input.patterns} pattern noticed` });
     for (const note of input.notes ?? []) lines.push({ kind: 'note', text: '+1 note', note });
@@ -76,12 +77,14 @@ export function buildReceipt(input: ReceiptInput): ReceiptLine[] {
   return lines;
 }
 
-export function missionDoneReceipt(title: string, cubes: number): ReceiptLine[] {
-  return [
+export function missionDoneReceipt(title: string, cubes: number, capReached: boolean): ReceiptLine[] {
+  const lines: ReceiptLine[] = [
     { kind: 'head', text: '[ receipt ]' },
     { kind: 'line', text: `mission done: ${title}` },
     { kind: 'cubes', text: `+${cubes} cubes`, cubes },
   ];
+  if (capReached) lines.push({ kind: 'line', text: 'daily cap reached' });
+  return lines;
 }
 
 // Start of the player's local day as a UTC instant. tzOffsetMin = minutes east of UTC.
@@ -91,4 +94,4 @@ export function dayStart(now: Date, tzOffsetMin: number): Date {
   return new Date(floored - tzOffsetMin * 60000);
 }
 
-export const CAP_EXEMPT_REASON = 'mission_completed';
+export const MISSION_REASON = 'mission_completed';

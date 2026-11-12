@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { CAP_EXEMPT_REASON, dayStart } from '../../shared/receipt.js';
+import { MISSION_REASON, dayStart } from '../../shared/receipt.js';
 
 let db: SupabaseClient | null = null;
 
@@ -50,20 +50,19 @@ export function tzOffset(value: unknown): number {
   return Number.isFinite(n) ? Math.max(-840, Math.min(840, Math.round(n))) : 0;
 }
 
-// Cubes earned from dumps since the start of the player's day (mission rewards are outside the cap).
+// Cubes earned since the start of the player's day, and how many dumps earned some.
 export async function todayEarnings(userId: string, now: Date, tzOffsetMin: number) {
   const rows = must(
     await admin()
       .from('ssx_ledger')
-      .select('delta, dump_id')
+      .select('delta, dump_id, reason')
       .eq('user_id', userId)
       .gt('delta', 0)
-      .neq('reason', CAP_EXEMPT_REASON)
       .gte('created_at', dayStart(now, tzOffsetMin).toISOString()),
     'ledger today',
-  ) as { delta: number; dump_id: string | null }[];
+  ) as { delta: number; dump_id: string | null; reason: string }[];
   return {
     earned: rows.reduce((a, r) => a + r.delta, 0),
-    dumps: new Set(rows.map((r) => r.dump_id).filter(Boolean)).size,
+    dumps: new Set(rows.filter((r) => r.reason !== MISSION_REASON).map((r) => r.dump_id).filter(Boolean)).size,
   };
 }

@@ -148,6 +148,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
     const ledger: { reason: string; delta: number }[] = [];
     const open = new Map(openMissions.map((m) => [m.id, m]));
+    const today = await todayEarnings(userId, now, tz);
+    let earned = today.earned;
+    let missionCapped = false;
     const vault: { kind: string; body: string }[] = [];
     let planned = false;
 
@@ -197,8 +200,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ) as { id: string }[];
         if (closed.length) {
           open.delete(doneTarget.id);
-          ledger.push({ reason: 'mission_completed', delta: rules.mission_completed });
-          receipt.missionsDone!.push({ title: doneTarget.title, cubes: rules.mission_completed });
+          const award = Math.min(rules.mission_completed, Math.max(0, rules.daily_cap - earned));
+          earned += award;
+          missionCapped ||= award < rules.mission_completed;
+          if (award > 0) ledger.push({ reason: 'mission_completed', delta: award });
+          receipt.missionsDone!.push({ title: doneTarget.title, cubes: award });
         }
       }
 
@@ -225,7 +231,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       );
     }
 
-    const today = await todayEarnings(userId, now, tz);
     const closeRepeat = recent.some(
       (d) => d.raw_text && similarity(d.raw_text, text) >= rules.repeat_similarity_threshold,
     );
@@ -236,14 +241,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         closeRepeat: closeRepeat || !sorted,
         firstOfDay: today.dumps === 0,
         earningDumpsToday: today.dumps,
-        earnedToday: today.earned,
+        earnedToday: earned,
         rareRoll: Math.random(),
       },
       rules,
     );
     ledger.push(...cubes.rows);
     receipt.cubes = cubes.total;
-    receipt.capReached = cubes.capReached;
+    receipt.capReached = cubes.capReached || missionCapped;
 
     if (ledger.length) {
       must(

@@ -58,7 +58,7 @@ The app sends `emailRedirectTo: window.location.origin`, so the link returns to 
 - **Model name lives in `config/cubes.json`** under `agent.model` (default `claude-haiku-5-5`), with `agent.context_dumps`.
 - **Base reward** is 1 to 3: the minimum plus the highest signal level, capped at the maximum. No randomness, so rescoring gives the same number.
 - **Signals are taken per dump**, not per part (the highest of each signal across parts), so splitting one message into many parts earns nothing extra.
-- **Mission rewards sit outside the daily cap** and outside the progress bar. This is farmable (dump a trivial plan, tap done, +10 each time). Needs a rule in `cubes.json`: tell me which.
+- **Mission rewards count toward the daily cap** (Munzir's call, same day) and show in the progress bar. A mission finished after the cap is still marked done; it awards what is left of the cap, down to 0, with a `daily cap reached` line. They do not count as a dump for diminishing returns or first-of-day.
 - **Saying "i finished X" in a dump** completes the matching open mission and awards `mission_completed`, same as the done button.
 - **"Today" is the player's local day.** The client sends `tz_offset_min` with each dump (one extra body field beyond the brief).
 - **Gibberish pre-check.** `min_meaningful_chars` is 3, so "asdf" passes the length rule. I added a heuristic: keyboard rows, repeated characters, words with no vowels. It will also catch a few real short inputs like "hmm".

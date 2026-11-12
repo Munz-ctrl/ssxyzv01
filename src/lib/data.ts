@@ -1,5 +1,5 @@
 import type { User } from '@supabase/supabase-js';
-import { buildReceipt, CAP_EXEMPT_REASON, dayStart, type Label, type ReceiptLine } from '../../shared/receipt';
+import { buildReceipt, MISSION_REASON, dayStart, type Label, type ReceiptLine } from '../../shared/receipt';
 import { supabase } from './supabase';
 
 export interface Mission {
@@ -73,7 +73,6 @@ export async function loadGame(user: User): Promise<Game> {
       .select('delta')
       .eq('user_id', uid)
       .gt('delta', 0)
-      .neq('reason', CAP_EXEMPT_REASON)
       .gte('created_at', dayStart(new Date(), tzOffsetMin()).toISOString()),
     supabase
       .from('ssx_missions')
@@ -133,12 +132,12 @@ export async function loadGame(user: User): Promise<Game> {
       receipt: buildReceipt({
         risk: mine.some((p) => p.signals?.risk),
         parts: mine.map((p) => ({ label: p.label, content: p.content, command_detail: p.signals?.command_detail })),
-        cubes: rows.filter((l) => l.reason !== CAP_EXEMPT_REASON).reduce((a, l) => a + l.delta, 0),
+        cubes: rows.filter((l) => l.reason !== MISSION_REASON).reduce((a, l) => a + l.delta, 0),
         missionsCreated: allMissions
           .filter((m) => m.source_dump_id === d.id)
           .map((m) => ({ title: m.title, steps: m.next_steps.length })),
         missionsDone: rows
-          .filter((l) => l.reason === CAP_EXEMPT_REASON)
+          .filter((l) => l.reason === MISSION_REASON)
           .map((l) => ({ title: 'from this dump', cubes: l.delta })),
         insights: fromVault.filter((v) => v.kind === 'insight').length,
         patterns: fromVault.filter((v) => v.kind === 'pattern').length,
@@ -177,7 +176,7 @@ async function post(path: string, body: Record<string, unknown>): Promise<ApiRes
 export const sendDump = (text: string, inputType: 'text' | 'voice') =>
   post('/api/dump', { text, input_type: inputType, tz_offset_min: tzOffsetMin() });
 
-export const completeMission = (missionId: string) => post('/api/mission/complete', { mission_id: missionId });
+export const completeMission = (missionId: string) => post('/api/mission/complete', { mission_id: missionId, tz_offset_min: tzOffsetMin() });
 
 // Stable pseudo coordinates until the map exists.
 export function coordsFor(userId: string): [number, number] {
