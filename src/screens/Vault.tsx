@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { ReceiptLine } from '../../shared/receipt';
 import { Receipt } from '../components/Receipt';
 import { completeMission, type Game } from '../lib/data';
-import { unlockSound } from '../lib/sound';
+import { setSoundOn, soundOn } from '../lib/sfx';
 
 interface Props {
   game: Game;
@@ -17,10 +17,15 @@ export function Vault({ game, refresh, addCubes, settle, signOut }: Props) {
   const [receipt, setReceipt] = useState<ReceiptLine[] | null>(null);
   const [error, setError] = useState('');
   const [leaving, setLeaving] = useState(false);
+  const [sound, setSound] = useState(soundOn);
+
+  function toggleSound() {
+    setSoundOn(!sound);
+    setSound(!sound);
+  }
 
   async function done(id: string) {
     if (busy) return;
-    unlockSound();
     setBusy(id);
     setError('');
     try {
@@ -34,11 +39,9 @@ export function Vault({ game, refresh, addCubes, settle, signOut }: Props) {
     }
   }
 
-  const of = (kind: string) => game.vault.filter((v) => v.kind === kind);
+  // Insights live under their dump in history. Patterns are kept in the database but hidden for now.
   const groups: [string, string[]][] = [
-    ['insights', of('insight').map((v) => v.body)],
-    ['notes', of('note').map((v) => v.body)],
-    ['patterns', of('pattern').map((v) => v.body)],
+    ['notes', game.vault.filter((v) => v.kind === 'note').map((v) => v.body)],
     ['wishlist', game.wishlist.map((w) => w.request)],
   ];
 
@@ -76,6 +79,12 @@ export function Vault({ game, refresh, addCubes, settle, signOut }: Props) {
           ))}
         </section>
       ))}
+
+      <section className="settings">
+        <button className="link" onClick={toggleSound}>
+          sound: {sound ? 'on' : 'off'}
+        </button>
+      </section>
 
       <section className="signout">
         {leaving ? (

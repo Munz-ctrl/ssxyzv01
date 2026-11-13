@@ -29,6 +29,7 @@ export interface HistoryEntry {
   text: string;
   created_at: string;
   receipt: ReceiptLine[];
+  insights: string[];
 }
 
 export interface Game {
@@ -144,6 +145,7 @@ export async function loadGame(user: User): Promise<Game> {
       id: d.id,
       text: d.raw_text ?? '',
       created_at: d.created_at,
+      insights: fromVault.filter((v) => v.kind === 'insight').map((v) => v.body),
       receipt: buildReceipt({
         risk: mine.some((p) => p.signals?.risk),
         parts: mine.map((p) => ({ label: p.label, content: p.content, command_detail: p.signals?.command_detail })),
@@ -155,7 +157,6 @@ export async function loadGame(user: User): Promise<Game> {
           .filter((l) => l.reason === MISSION_REASON)
           .map((l) => ({ title: 'from this dump', cubes: l.delta })),
         insights: fromVault.filter((v) => v.kind === 'insight').length,
-        patterns: fromVault.filter((v) => v.kind === 'pattern').length,
         notes: fromVault.filter((v) => v.kind === 'note').map((v) => v.body),
         wishlist: wishRows.filter((w) => w.source_dump_id === d.id).length,
       }),

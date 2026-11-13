@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReceiptLine } from '../../shared/receipt';
-import { chime, levelChime, thud } from '../lib/sound';
+import { cube, levelUp, thud } from '../lib/sfx';
 
 interface Props {
   lines: ReceiptLine[];
@@ -26,12 +26,13 @@ export function Receipt({ lines, animate, onCubes, onDone }: Props) {
     }
     setShown(0);
     let i = 0;
+    let cubeLines = 0;
     const reveal = () => {
       const line = lines[i];
       if (!line) return;
       if (line.kind === 'spam') thud();
-      else if (line.kind === 'level') levelChime();
-      else if (line.kind !== 'risk') chime(i);
+      else if (line.kind === 'level') levelUp();
+      else if (line.kind === 'cubes') cube(cubeLines++);
       if (line.cubes) cubesRef.current?.(line.cubes);
       i += 1;
       setShown(i);

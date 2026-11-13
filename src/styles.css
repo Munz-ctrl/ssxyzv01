@@ -162,6 +162,42 @@ input {
   outline: none;
 }
 
+.field {
+  position: relative;
+}
+
+.nudge {
+  position: absolute;
+  top: 11px;
+  left: 11px;
+  right: 11px;
+  font-size: 16px;
+  color: var(--dim);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+.nudge.faded {
+  opacity: 0;
+}
+
+.insight {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--dim);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.settings {
+  margin-top: 28px;
+}
+
+.settings + .signout {
+  margin-top: 8px;
+}
+
 .receipt {
   border-top: 1px dashed var(--ink);
   padding-top: 8px;

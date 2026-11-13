@@ -18,7 +18,6 @@ export interface ReceiptInput {
   missionsUpdated?: { title: string }[];
   missionsDone?: { title: string; cubes: number }[];
   insights?: number;
-  patterns?: number;
   notes?: string[];
   wishlist?: number;
 }
@@ -59,8 +58,7 @@ export function buildReceipt(input: ReceiptInput): ReceiptLine[] {
       lines.push({ kind: 'cubes', text: `+${m.cubes} cubes`, cubes: m.cubes });
     }
     if (!dumpParts.length && input.capReached) lines.push({ kind: 'line', text: 'daily cap reached' });
-    if (input.insights) lines.push({ kind: 'line', text: `+${input.insights} insight added to vault` });
-    if (input.patterns) lines.push({ kind: 'line', text: `+${input.patterns} pattern noticed` });
+    if (input.insights) lines.push({ kind: 'line', text: `+${input.insights} insight added to history` });
     for (const note of input.notes ?? []) lines.push({ kind: 'note', text: '+1 note', note });
     if (wishlist) lines.push({ kind: 'line', text: `+${wishlist} added to wishlist` });
   }

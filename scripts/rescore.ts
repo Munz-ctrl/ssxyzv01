@@ -179,7 +179,6 @@ export async function rescore(userId: string, dryRun: boolean, log: (line: strin
       ...r.missionsUpdated!.map((m) => `mission updated: ${m.title}`),
       ...r.missionsDone!.map((m) => `mission done: ${m.title}`),
       r.insights ? `+${r.insights} insight` : '',
-      r.patterns ? `+${r.patterns} pattern` : '',
       r.notes!.length ? `+${r.notes!.length} note` : '',
       r.wishlist ? `+${r.wishlist} wishlist` : '',
     ].filter(Boolean);

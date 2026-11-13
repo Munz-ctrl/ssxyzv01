@@ -79,7 +79,6 @@ export async function applyParts(o: ApplyOptions): Promise<ApplyResult> {
     missionsUpdated: [],
     missionsDone: [],
     insights: 0,
-    patterns: 0,
     notes: [],
     wishlist: 0,
   };
@@ -165,10 +164,8 @@ export async function applyParts(o: ApplyOptions): Promise<ApplyResult> {
       vault.push({ kind: 'note', body: clean(p.note) });
       receipt.notes!.push(clean(p.note));
     }
-    if (clean(p.pattern)) {
-      vault.push({ kind: 'pattern', body: clean(p.pattern) });
-      receipt.patterns! += 1;
-    }
+    // patterns stay in the database as background knowledge, but are not shown to the player yet
+    if (clean(p.pattern)) vault.push({ kind: 'pattern', body: clean(p.pattern) });
   }
 
   if (write && vault.length) {

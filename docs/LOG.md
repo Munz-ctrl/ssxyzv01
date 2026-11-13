@@ -2,6 +2,38 @@
 
 Newest first.
 
+## 2026-11-12: brief 02a, sounds, vault cleanup, prompt box nudges
+
+Read `docs/AGENT.md` first. It is a principles document with nothing to run; the vault and history changes follow its response table (insight under the dump in history, pattern hidden until it can be said with value).
+
+All checks ran in a local browser against **mocked** Supabase and `/api` responses, with the audio context instrumented to count what played. I cannot hear the sounds, so how they feel is untested.
+
+| Done when | Result |
+| --- | --- |
+| Every button ticks | **Pass locally:** one listener on `document` ticks any enabled button on click, including sign in and vault buttons. The context is created on the first click. |
+| Receipts chime upward per cube | **Pass locally:** a receipt with two cube lines and a level up played two chimes (2 oscillators each) and the three note sting. Not listened to. |
+| Bar fill and level up have sounds | **Pass locally:** the whoosh fired once when lifetime cubes went up after a dump; the sting fired on the `level up` line. |
+| Mute works and persists | **Pass locally:** `sound: on` / `sound: off` at the bottom of the vault, stored under `ssx-v0-sound` in localStorage (try/catch). Turning it off made no tick, turning it on ticked. Not checked across a real reload. |
+| Vault has no insights or patterns | **Pass locally:** sections are missions, notes, wishlist. |
+| History shows insights under their dumps | **Pass locally:** gray 13 px line under the receipt, matched on `source_dump_ids`. |
+| Prompt box cycles nudges, stops when typing | **Pass locally:** 4 s per nudge with a 400 ms fade, shuffled on load. Rotation freezes while the box is focused, hides once there is text, and resumes after blur. |
+| `npm run build` passes | **Pass.** Typecheck and 20 tests also pass. |
+
+### What was built
+
+- `src/lib/sfx.ts` replaces `sound.ts`: `tap()`, `cube(i)`, `fill()`, `levelUp()`, plus `thud()` (kept for dumps that earn nothing), `soundOn` / `setSoundOn` and `installTapSound()`. All synthesized, no files.
+- `config/nudges.json` holds the eight starting nudges.
+- Patterns are still written to `ssx_vault_items`; they are just no longer shown or counted on the receipt.
+
+### Things I had to decide
+
+- **Receipt chimes now play on cube lines only**, as the brief says, so the pitch climbs once per cube line. Head, mission and note lines are silent. Before this every line chimed.
+- **The receipt line `+1 insight added to vault` now reads `+1 insight added to history`**, because insights no longer live in the vault. The brief did not mention it.
+- **The nudge is an overlay on the empty textarea**, not the native placeholder, because a placeholder cannot fade reliably across browsers. The textarea has an `aria-label` instead.
+- **Rotation also pauses while the panel is closed.**
+- **The whoosh plays whenever lifetime cubes go up**, not on every refresh, so it does not fire on sign in.
+- **The `rescore` dry run no longer prints a pattern count.**
+
 ## 2026-11-12: brief 01e, email + password sign in
 
 All checks below ran in a local browser against a **mocked** Supabase auth API. Nothing was run against the real project: that needs the dashboard steps at the end, and a real inbox.

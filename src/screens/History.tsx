@@ -16,6 +16,11 @@ export function History({ game }: { game: Game }) {
           <div className="when">{stamp(d.created_at)}</div>
           <p className="dump-text">{d.text}</p>
           <Receipt lines={d.receipt} />
+          {d.insights.map((line, i) => (
+            <p key={i} className="insight">
+              {line}
+            </p>
+          ))}
         </article>
       ))}
     </div>

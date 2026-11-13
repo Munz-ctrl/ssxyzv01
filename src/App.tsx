@@ -5,6 +5,7 @@ import { Grid } from './components/Grid';
 import { VERSION_LINE } from './config';
 import { levelFor } from '../shared/level';
 import { coordsFor, loadGame, SESSION_ENDED, type Game } from './lib/data';
+import { fill, installTapSound } from './lib/sfx';
 import { supabase } from './lib/supabase';
 import { Auth } from './screens/Auth';
 import { History } from './screens/History';
@@ -27,6 +28,19 @@ export function App() {
   const truth = useRef(0);
   const signedIn = useRef(false);
   const leaving = useRef(false);
+
+  useEffect(() => installTapSound(), []);
+
+  // the level bar fills when lifetime cubes go up
+  const lastLifetime = useRef<number | null>(null);
+  useEffect(() => {
+    if (!game) {
+      lastLifetime.current = null;
+      return;
+    }
+    if (lastLifetime.current !== null && game.lifetime > lastLifetime.current) fill();
+    lastLifetime.current = game.lifetime;
+  }, [game]);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {

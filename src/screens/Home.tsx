@@ -1,8 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
+import nudgeConfig from '../../config/nudges.json';
 import type { ReceiptLine } from '../../shared/receipt';
 import { Receipt } from '../components/Receipt';
 import { sendDump, type Game } from '../lib/data';
-import { unlockSound } from '../lib/sound';
+
+const NUDGE_MS = 4000;
+const FADE_MS = 400;
+
+function shuffled(list: string[]): string[] {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
 
 interface Props {
   game: Game;
@@ -45,11 +57,34 @@ export function Home({ game, refresh, addCubes, settle }: Props) {
   const [listening, setListening] = useState(false);
   const [error, setError] = useState('');
   const [fresh, setFresh] = useState<ReceiptLine[] | null>(null);
+  const [nudges] = useState(() => shuffled(nudgeConfig.nudges));
+  const [nudge, setNudge] = useState(0);
+  const [faded, setFaded] = useState(false);
+  const [focused, setFocused] = useState(false);
   const spoke = useRef(false);
   const recognition = useRef<Recognition | null>(null);
   const box = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => () => recognition.current?.stop(), []);
+
+  // Rotate the filler questions while the box is open, empty and not focused.
+  const rotating = open && !focused && !text && nudges.length > 1;
+  useEffect(() => {
+    if (!rotating) return;
+    let swap: ReturnType<typeof setTimeout>;
+    const timer = setInterval(() => {
+      setFaded(true);
+      swap = setTimeout(() => {
+        setNudge((n) => (n + 1) % nudges.length);
+        setFaded(false);
+      }, FADE_MS);
+    }, NUDGE_MS);
+    return () => {
+      clearInterval(timer);
+      clearTimeout(swap);
+      setFaded(false);
+    };
+  }, [rotating, nudges.length]);
 
   useEffect(() => {
     try {
@@ -86,7 +121,6 @@ export function Home({ game, refresh, addCubes, settle }: Props) {
   async function send() {
     const dump = text.trim();
     if (!dump || sending) return;
-    unlockSound();
     recognition.current?.stop();
     setSending(true);
     setError('');
@@ -104,7 +138,6 @@ export function Home({ game, refresh, addCubes, settle }: Props) {
   }
 
   function plus() {
-    unlockSound();
     setOpen(true);
     setTimeout(() => box.current?.focus(), 0);
   }
@@ -124,15 +157,24 @@ export function Home({ game, refresh, addCubes, settle }: Props) {
             [ x ]
           </button>
         </div>
-        <textarea
-          ref={box}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="a thought, a plan, an update..."
-          rows={5}
-          maxLength={20000}
-          disabled={sending}
-        />
+        <div className="field">
+          <textarea
+            ref={box}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            aria-label="dump anything"
+            rows={5}
+            maxLength={20000}
+            disabled={sending}
+          />
+          {!text && nudges.length > 0 && (
+            <span className={`nudge ${faded ? 'faded' : ''}`} aria-hidden="true">
+              {nudges[nudge]}
+            </span>
+          )}
+        </div>
         <div className="row">
           {SpeechRecognitionCtor && (
             <button className="btn" onClick={toggleMic} disabled={sending}>
