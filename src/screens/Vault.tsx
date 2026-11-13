@@ -9,12 +9,14 @@ interface Props {
   refresh: (keepShown?: boolean) => Promise<void>;
   addCubes: (n: number) => void;
   settle: () => void;
+  signOut: () => void;
 }
 
-export function Vault({ game, refresh, addCubes, settle }: Props) {
+export function Vault({ game, refresh, addCubes, settle, signOut }: Props) {
   const [busy, setBusy] = useState('');
   const [receipt, setReceipt] = useState<ReceiptLine[] | null>(null);
   const [error, setError] = useState('');
+  const [leaving, setLeaving] = useState(false);
 
   async function done(id: string) {
     if (busy) return;
@@ -74,6 +76,24 @@ export function Vault({ game, refresh, addCubes, settle }: Props) {
           ))}
         </section>
       ))}
+
+      <section className="signout">
+        {leaving ? (
+          <>
+            <span>sign out on this device?</span>
+            <button className="btn" onClick={signOut}>
+              [ yes ]
+            </button>
+            <button className="btn" onClick={() => setLeaving(false)}>
+              [ no ]
+            </button>
+          </>
+        ) : (
+          <button className="link" onClick={() => setLeaving(true)}>
+            out
+          </button>
+        )}
+      </section>
     </div>
   );
 }

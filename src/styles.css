@@ -327,3 +327,17 @@ h2 {
   letter-spacing: 0.4em;
   text-align: center;
 }
+
+.signout {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 28px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--dim);
+  color: var(--dim);
+}
+
+.notice {
+  margin: 0 0 10px;
+}

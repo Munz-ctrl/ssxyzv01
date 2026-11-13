@@ -27,9 +27,20 @@ const SpeechRecognitionCtor = (
     : ((window as never)['SpeechRecognition'] ?? (window as never)['webkitSpeechRecognition'])
 ) as (new () => Recognition) | undefined;
 
+// An unsent dump survives a reload or an expired session.
+const DRAFT_KEY = 'ssx-v0-draft';
+
+function readDraft(): string {
+  try {
+    return localStorage.getItem(DRAFT_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
 export function Home({ game, refresh, addCubes, settle }: Props) {
-  const [open, setOpen] = useState(false);
-  const [text, setText] = useState('');
+  const [text, setText] = useState(readDraft);
+  const [open, setOpen] = useState(() => !!text);
   const [sending, setSending] = useState(false);
   const [listening, setListening] = useState(false);
   const [error, setError] = useState('');
@@ -39,6 +50,15 @@ export function Home({ game, refresh, addCubes, settle }: Props) {
   const box = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => () => recognition.current?.stop(), []);
+
+  useEffect(() => {
+    try {
+      if (text) localStorage.setItem(DRAFT_KEY, text);
+      else localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // storage can be unavailable in private windows: the draft just will not persist
+    }
+  }, [text]);
 
   function toggleMic() {
     if (!SpeechRecognitionCtor) return;

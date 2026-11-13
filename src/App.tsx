@@ -4,7 +4,7 @@ import cubeRules from '../config/cubes.json';
 import { Grid } from './components/Grid';
 import { VERSION_LINE } from './config';
 import { levelFor } from '../shared/level';
-import { coordsFor, loadGame, type Game } from './lib/data';
+import { coordsFor, loadGame, SESSION_ENDED, type Game } from './lib/data';
 import { supabase } from './lib/supabase';
 import { Auth } from './screens/Auth';
 import { History } from './screens/History';
@@ -20,15 +20,30 @@ export function App() {
   const [error, setError] = useState('');
   const [tab, setTab] = useState<Tab>('home');
   const [shownWallet, setShownWallet] = useState(0);
+  const [notice, setNotice] = useState('');
   const ticking = useRef(0);
   const truth = useRef(0);
+  const signedIn = useRef(false);
+  const leaving = useRef(false);
 
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       const next = session?.user ?? null;
+      // a sign out the player did not ask for means the session expired or was ended elsewhere
+      if (!next && signedIn.current && !leaving.current) setNotice(SESSION_ENDED);
+      if (next) setNotice('');
+      signedIn.current = !!next;
+      leaving.current = false;
+      if (event === 'SIGNED_OUT') setTab('home');
       setUser((prev) => (prev && next && prev.id === next.id ? prev : next));
     });
     return () => data.subscription.unsubscribe();
+  }, []);
+
+  // Ends the session on this device only; other devices stay signed in.
+  const signOut = useCallback(() => {
+    leaving.current = true;
+    void supabase.auth.signOut({ scope: 'local' });
   }, []);
 
   // keepShown: a receipt is about to tick the visible total up itself
@@ -73,7 +88,7 @@ export function App() {
   if (!user) {
     return (
       <Shell>
-        <Auth />
+        <Auth notice={notice} />
       </Shell>
     );
   }
@@ -89,15 +104,12 @@ export function App() {
             {t}
           </button>
         ))}
-        <button className="link" onClick={() => void supabase.auth.signOut()}>
-          out
-        </button>
       </nav>
 
       <main className="stage">
         {error && <p className="error">{error}</p>}
         {game && tab === 'home' && <Home game={game} refresh={refresh} addCubes={addCubes} settle={settle} />}
-        {game && tab === 'vault' && <Vault game={game} refresh={refresh} addCubes={addCubes} settle={settle} />}
+        {game && tab === 'vault' && <Vault game={game} refresh={refresh} addCubes={addCubes} settle={settle} signOut={signOut} />}
         {game && tab === 'history' && <History game={game} />}
       </main>
 

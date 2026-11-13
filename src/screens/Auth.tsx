@@ -9,7 +9,7 @@ function friendly(error: { message: string; status?: number; code?: string }): s
   return error.message.toLowerCase();
 }
 
-export function Auth() {
+export function Auth({ notice }: { notice?: string }) {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [sent, setSent] = useState(false);
@@ -42,6 +42,7 @@ export function Auth() {
 
   return (
     <main className="auth">
+      {notice && <p className="notice">{notice}</p>}
       {sent ? (
         <form onSubmit={verify}>
           <label htmlFor="code">code sent to {email.trim()}. type the 6 digits, or tap the link in the email.</label>

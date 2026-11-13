@@ -174,15 +174,32 @@ export async function loadGame(user: User): Promise<Game> {
   };
 }
 
+export const SESSION_ENDED = 'signed out. sign in again to keep going.';
+
+// The session is gone for good: drop it on this device so the sign-in screen shows.
+async function sessionEnded(): Promise<never> {
+  await supabase.auth.signOut({ scope: 'local' });
+  throw new Error(SESSION_ENDED);
+}
+
 async function post(path: string, body: Record<string, unknown>): Promise<ApiResult> {
-  const { data } = await supabase.auth.getSession();
-  const token = data.session?.access_token;
-  if (!token) throw new Error('not signed in');
-  const res = await fetch(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify(body),
-  });
+  const call = async () => {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return sessionEnded();
+    return fetch(path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(body),
+    });
+  };
+  let res = await call();
+  if (res.status === 401) {
+    const { error } = await supabase.auth.refreshSession();
+    if (error) return sessionEnded();
+    res = await call();
+    if (res.status === 401) return sessionEnded();
+  }
   const json = await res.json().catch(() => null);
   if (!res.ok || !json) throw new Error(json?.error ?? 'something broke. try again.');
   return json as ApiResult;
