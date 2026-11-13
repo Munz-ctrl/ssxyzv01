@@ -33,3 +33,10 @@ All data is valuable for now: throw a net and see what we catch. Raw dumps are k
 
 ## Parking lot
 - **Agent does a mission step for cubes.** e.g. a "write claude prompt" step in the vault is clickable: spend cubes, the agent writes it, the step is marked done, and the multiplier goes up.
+
+## Notes for the Agent Lab (Nov 12, late)
+- **Daily cap:** Munzir is not sold on it. Proposal: drop the 40 cap; keep diminishing returns plus spam detection as the farming guard, and only a high hidden abuse ceiling that honest players never hit. Reward **authentic** input above usual input (a stronger weight on real, specific, reflective).
+- **Vault top = player profile:** a few paragraphs about the player that the agent rewrites often. This replaces raw insights and notes in the vault.
+- **Insights and notes are in-the-moment context:** they live in history (or a dedicated agent tab). The agent folds them into the profile and a "recently" summary with relative timing ("this week", "lately").
+- **More productive initiative:** like regular Claude, the agent proposes what to do to accomplish something, short and sweet, shown as **branches of a mission**.
+- **Process:** a few days of honest dumps, then we sit down with the collected data and decide.
