@@ -8,7 +8,7 @@ Sunsex lifts the player out of first person and shows their life from the observ
 
 ## The loop
 
-1. Make your avatar from a selfie (one free try), then sign up to keep it. *(later brief)*
+1. Sign up with email + password (one confirmation email, then password only). Sign in is always required in the app; Google and Apple come with the native app. Make your avatar from a selfie (one free try). *(avatar: later brief)*
 2. Home: your avatar on an empty floor, the `[ + ]`, the HUD.
 3. Dump: type, speak or add a photo.
 4. The sorter agent splits the input into parts and labels each part.
