@@ -37,7 +37,7 @@
     "factor_per_dump_today": 0.85,
     "floor": 0.3
   },
-  "daily_cap": 40,
+  "daily_cap": 300,
   "repeat_similarity_threshold": 0.9,
   "spam": {
     "min_meaningful_chars": 3,
