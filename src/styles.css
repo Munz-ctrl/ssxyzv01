@@ -341,3 +341,22 @@ h2 {
 .notice {
   margin: 0 0 10px;
 }
+
+.auth-tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.auth-note p {
+  margin: 0 0 10px;
+}
+
+.auth input {
+  font-size: 16px;
+}
+
+.auth {
+  max-height: calc(100% - 2 * var(--pad));
+  overflow-y: auto;
+}

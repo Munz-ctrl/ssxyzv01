@@ -8,6 +8,7 @@ import { coordsFor, loadGame, SESSION_ENDED, type Game } from './lib/data';
 import { supabase } from './lib/supabase';
 import { Auth } from './screens/Auth';
 import { History } from './screens/History';
+import { Reset } from './screens/Reset';
 import { Home } from './screens/Home';
 import { Vault } from './screens/Vault';
 
@@ -21,6 +22,7 @@ export function App() {
   const [tab, setTab] = useState<Tab>('home');
   const [shownWallet, setShownWallet] = useState(0);
   const [notice, setNotice] = useState('');
+  const [resetting, setResetting] = useState(() => window.location.pathname === '/reset');
   const ticking = useRef(0);
   const truth = useRef(0);
   const signedIn = useRef(false);
@@ -35,6 +37,7 @@ export function App() {
       signedIn.current = !!next;
       leaving.current = false;
       if (event === 'SIGNED_OUT') setTab('home');
+      if (event === 'PASSWORD_RECOVERY') setResetting(true);
       setUser((prev) => (prev && next && prev.id === next.id ? prev : next));
     });
     return () => data.subscription.unsubscribe();
@@ -84,7 +87,19 @@ export function App() {
     }, 100);
   }, []);
 
+  const leaveReset = useCallback(() => {
+    window.history.replaceState(null, '', '/');
+    setResetting(false);
+  }, []);
+
   if (user === undefined) return <Shell />;
+  if (resetting) {
+    return (
+      <Shell>
+        <Reset signedIn={!!user} onDone={leaveReset} />
+      </Shell>
+    );
+  }
   if (!user) {
     return (
       <Shell>

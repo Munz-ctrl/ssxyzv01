@@ -2,6 +2,59 @@
 
 Newest first.
 
+## 2026-11-12: brief 01e, email + password sign in
+
+All checks below ran in a local browser against a **mocked** Supabase auth API. Nothing was run against the real project: that needs the dashboard steps at the end, and a real inbox.
+
+| Done when | Result |
+| --- | --- |
+| New email signs up, gets one email, enters the code, lands home | **Pass locally (mocked):** sign up, code screen, wrong code message, right code lands home. One `signUp` call, no other email calls. Not run live. |
+| Log out and back in with the password sends zero emails | **Pass locally (mocked):** sign in made only a password call. Not run live. |
+| Closing and reopening keeps the player signed in | **Pass locally:** the session is stored on the device and survived a reload. Not checked as an iPhone home screen app. |
+| `npm run build` passes | **Pass.** Typecheck and 20 tests also pass. |
+
+Also checked locally: wrong password shows `wrong email or password`; an unconfirmed account goes to the code screen with `send again`; `send again` locks for 60 s; forgot password sends and shows a check-your-email note; `/reset` with a session sets a new password and goes home; `/reset` without one says the link expired.
+
+### Sorter status (still failing, new reason)
+
+The dump at 23:33 UTC failed with `401 authentication_error: Invalid bearer token` from Anthropic. So a credential now reaches the function, but Anthropic rejects it, and it was sent as a bearer token rather than as an API key. Most likely the value in Vercel is not a Console API key (those start with `sk-ant-api`), or a variable named `ANTHROPIC_AUTH_TOKEN` is set. 8 dumps are now marked `fallback`.
+
+### What was built
+
+- `Auth.tsx`: `sign in` / `sign up` tabs, the confirm-code step (`verifyOtp` type `signup`), `send again`, `forgot password`.
+- `Reset.tsx` at `/reset`, shown on the `PASSWORD_RECOVERY` event or when the page is opened at that path.
+- `signInWithOtp` is gone from the app.
+- Session options are now explicit in `src/lib/supabase.ts`.
+
+### Things I had to decide
+
+- **Signing up with an email that already has an account** shows `that email already has an account. sign in, or use forgot password to set one.` Supabase sends no email in that case, so without this the player would wait for a code that never comes. This is how the old email-only accounts from 01c (Munzir's included) find their way to forgot password. It does reveal that the address is registered.
+- **An unconfirmed sign in does not send a code by itself.** The player taps `send again`, so a mistyped attempt never costs an email.
+- **Reset asks for the new password twice.**
+- **Short messages for rate limit, weak password and reused password**; anything else shows Supabase's own message in lowercase.
+
+### Munzir has to do (Supabase dashboard)
+
+1. Authentication > Sign In / Providers > Email: provider ON, **Confirm email ON**, minimum password length 8.
+2. Authentication > Emails > Templates > **Confirm signup**: add `{{ .Token }}` above the link.
+3. Authentication > URL Configuration: the `/reset` page is covered by the existing `/**` redirect entries; nothing new to add if those are in.
+4. Custom SMTP (Resend) before anyone else signs up.
+5. Your own account has no password yet: use `forgot password` once to set one.
+
+## 2026-11-12: brief 01d, stop surprise sign-outs
+
+| Check | Result |
+| --- | --- |
+| Signing out on one device leaves the other signed in | **Pass locally (mocked):** the sign-out request goes out with `scope=local`. Not run on two real devices. |
+| `out` needs a confirm and is not next to the tabs | **Pass locally:** it is at the bottom of the vault and asks `sign out on this device?` with `[ yes ]` / `[ no ]`. |
+| Expired session is handled quietly | **Pass locally (mocked):** a 401 from `/api/dump` with a failed refresh showed the sign-in screen with `signed out. sign in again to keep going.`, and the typed dump was back in the input after signing in. |
+
+Decisions:
+
+- **The unsent dump is kept in the device's local storage** until it is sent, so it also survives a reload or closing the app.
+- **A 401 from the API triggers one refresh and one retry** before the player is treated as signed out.
+- **Choosing `[ yes ]` shows no "signed out" notice**; the notice is only for sign-outs the player did not ask for.
+
 ## 2026-11-12: brief 01c, sign-in code and rescore
 
 ### Why the sorter was failing
