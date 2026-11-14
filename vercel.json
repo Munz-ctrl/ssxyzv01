@@ -7,5 +7,22 @@
       "includeFiles": "{config,agent}/**"
     }
   },
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/portfolio",
+      "destination": "/portfolio/index.html"
+    },
+    {
+      "source": "/portfolio/",
+      "destination": "/portfolio/index.html"
+    },
+    {
+      "source": "/munzir",
+      "destination": "/portfolio/index.html"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
