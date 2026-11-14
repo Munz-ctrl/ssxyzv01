@@ -30,11 +30,9 @@ export const siteMeta = {
   location: "New York, working globally",
   email: "77PhoenixLane@gmail.com",
   instagram: { handle: "@munzir_here", url: "https://instagram.com/munzir_here" },
-  // TODO: paste your LinkedIn URL here, then rebuild. The button appears automatically.
-  linkedin: null,
-  // TODO: export your resume as a PDF into media/ (e.g. media/Munzir-Mukhtar-Resume.pdf),
-  // set the path here, then rebuild. The button appears automatically.
-  resume: null,
+  linkedin: "https://www.linkedin.com/in/munzir-mukhtar-85ab47363",
+  // Master copies of all resume versions live in the "Munzir Mukhtar Resumes" doc.
+  resume: MEDIA + "Munzir-Mukhtar-Resume.pdf",
   award: {
     name: "Clio Award",
     note: "Winner 2026, Music / Branded Content",
@@ -82,7 +80,7 @@ export const categories = [
 export const about = {
   statement:
     "I'm the founder and lead creative behind Virtuosus. I take ideas from concept to launch: 3D and CGI, mixed reality activations, VFX, and the code that makes them interactive, from browser games with live multiplayer to AI-powered web tools. I've delivered campaign-scale work for artists and brands solo and with small teams, and I like owning the whole pipeline.",
-  years: "9+",
+  years: "7+",
   skills: [
     "Creative Technology & Interactive Prototyping",
     "3D Modeling, Texturing & Rendering",
@@ -114,9 +112,8 @@ export const caseStudies = [
       "Bring the alien world of Eternal Atake 2 into New York for the album rollout, as a UFO moment fans and press could experience and share.",
     challenge: null,
     concept: null,
-    // TODO: check this line matches what you did, and add specifics (tools, team size, timeline).
     execution:
-      "Led the concept and the CGI and VFX pipeline as Creative Lead, from the UFO design through to the final mixed reality footage released for the rollout.",
+      "As Creative Lead, led the concept, directed the shoot and ran the CGI and VFX pipeline, from the UFO design through to the final mixed reality footage released for the rollout.",
     result:
       "Won a 2026 Clio Award (Music / Branded Content) and was covered by outlets including Complex and The New Yorker.",
     reach: [
@@ -151,11 +148,12 @@ export const caseStudies = [
       "Three chapters that follow the rollout. CH.1 Move In: fans unpack Tana's apartment and find the gold record. CH.2 Release Party: a live multiplayer listening party with a bouncer, room cap and chat. CH.3 Zombie Street: a wave-based zombie shooter on an NYC intersection.",
     execution:
       "Pixel art, sprites and collision maps, from reference photo to 4-way sprite sheets, built as a single HTML5 Canvas game with Supabase Realtime for multiplayer and deployed on Vercel. Includes character skins, mobile dual-joystick controls, 16-bit pixelate scene transitions, 4 weapons, tiered zombie waves and a leaderboard that rejects cheated scores.",
-    // TODO: add a real outcome number if you have one (peak players, total plays).
     result:
-      "Each chapter shipped live during the campaign. The release party ran at a full 50 player room, and Zombie Street launched on October 24, 2026.",
+      "Each chapter shipped live during the campaign. The game passed 15,000 plays, 30% of players installed it as an app on their home screen, and 1,500 fans found the hidden exclusive content. The release party ran at a full 50 player room.",
     reach: [
-      { value: "3", label: "Chapters shipped" },
+      { value: "15k+", label: "Plays" },
+      { value: "30%", label: "Installed as an app" },
+      { value: "1,500", label: "Found the exclusive content" },
       { value: "50", label: "Player live room" },
     ],
     credits: "Solo build by Munzir Mukhtar for Tana",
