@@ -876,3 +876,126 @@ ul {
 .site-footer__inner a:hover {
   color: var(--accent);
 }
+
+/* ---------- SUNSEX SKIN ----------
+   Matches the v0 app: Space Mono, #b3b3b3 floor, white -33 degree iso grid
+   (28.4 degree lines, 93 px tile edge at 1920 wide), white paper panels,
+   square corners, [ bracket ] buttons. Delete this block to undo. */
+
+:root {
+  --bg: #b3b3b3;
+  --bg-elevated: rgba(255, 255, 255, 0.6);
+  --bg-card: rgba(255, 255, 255, 0.82);
+  --fg: #111;
+  --muted: #555;
+  --muted-dim: #6e6e6e;
+  --accent: #111;
+  --accent-dim: rgba(17, 17, 17, 0.08);
+  --border: rgba(255, 255, 255, 0.9);
+  --border-strong: #111;
+  --header-bg: rgba(179, 179, 179, 0.88);
+  --chip-bg: rgba(17, 17, 17, 0.85);
+  --radius-md: 0;
+  --radius-lg: 0;
+  --shadow: none;
+}
+
+body {
+  font-family: "Space Mono", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.55;
+  background-color: var(--bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='163.6' height='88.5' viewBox='0 0 163.6 88.5'%3E%3Cpath d='M0 44.25 L81.8 0 L163.6 44.25 L81.8 88.5 Z' fill='none' stroke='%23ffffff' stroke-opacity='0.7' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 163.6px 88.5px;
+  background-attachment: fixed;
+}
+
+h1, h2, h3, h4, h5, h6,
+.hero__title,
+.section-head__title {
+  font-family: "Space Mono", monospace;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Square everything, flat panels with a thin white edge like the vault. */
+.btn,
+[class*="card"],
+[class*="chip"],
+[class*="tag"],
+[class*="thumb"],
+.hero__visual {
+  border-radius: 0 !important;
+}
+
+.btn {
+  font-weight: 400;
+  padding: 10px 16px;
+  border-radius: 0;
+  letter-spacing: 0;
+}
+.btn::before { content: "[\00a0"; }
+.btn::after { content: "\00a0]"; }
+
+.btn--primary {
+  background: var(--fg);
+  color: #fff;
+}
+.btn--primary:hover {
+  background: #000;
+}
+.btn--ghost {
+  border-color: transparent;
+  background: transparent;
+}
+.btn--ghost:hover {
+  border-color: transparent;
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+a:hover {
+  text-underline-offset: 4px;
+}
+
+::selection {
+  background: #111;
+  color: #fff;
+}
+
+/* Skin pass 2: pills to squares, mono everywhere, no blue tint. */
+button, input, select, textarea { font-family: inherit; }
+.hero { background: none; }
+.site-contact__link,
+.filter-tab,
+.hero__visual-caption,
+.case-study__award-ref,
+.viewer__thumb,
+[class*="thumb"] {
+  border-radius: 0 !important;
+}
+.site-contact__link,
+.filter-tab,
+.case-study__award-ref {
+  border-color: #111;
+  background: transparent;
+}
+.filter-tab--active,
+.filter-tab--active:hover {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+.case-study--flagship { border-color: #fff; }
+.site-contact__link:hover,
+.filter-tab:hover,
+.case-study__award-ref:hover {
+  background: #111;
+  color: #fff;
+}
+@media (max-width: 600px) {
+  .site-contact { gap: 6px; }
+  .site-contact__link { padding: 6px 8px; font-size: 0.7rem; }
+  .brand__role, .site-header [class*="role"] { font-size: 0.65rem; }
+}
