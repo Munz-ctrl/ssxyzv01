@@ -999,3 +999,6 @@ button, input, select, textarea { font-family: inherit; }
   .site-contact__link { padding: 6px 8px; font-size: 0.7rem; }
   .brand__role, .site-header [class*="role"] { font-size: 0.65rem; }
 }
+
+/* Deep links (/portfolio#dressup) land below the fixed header. */
+.case-study { scroll-margin-top: calc(var(--header-h) + 16px); }
