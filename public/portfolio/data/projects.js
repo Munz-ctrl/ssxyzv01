@@ -167,6 +167,38 @@ export const caseStudies = [
     link: "https://popstar-life.com",
   },
   {
+    id: "dressup",
+    flagship: false,
+    category: ["ai", "brand"],
+    title: "DressUp: AI Try-On and Avatar Engine",
+    client: "SUNSEX (own product)",
+    year: 2026,
+    role: "Creator: product, generative pipeline and front end",
+    brief:
+      "Build a consumer tool that puts any outfit on a person or an avatar, photoreal and on brand, in seconds.",
+    challenge:
+      "Generative models drift: faces change, garments land in the wrong place and every image looks different. It had to stay consistent enough to feel like one world, and cheap enough to offer to the public.",
+    concept:
+      "Lock one scene template (camera, light, ground and framing) so every result looks like part of the same shoot, then run two modes on top of it: garment try-on and avatar swap from a person's own photos.",
+    execution:
+      "Built the pipeline on Google's Nano Banana Pro image model through Replicate, with server-side credit spending before each generation, saved skins, Supabase auth and storage, and Stripe checkout for credits. Set quality criteria for placement, pose and scale against the template, and used good and bad outputs to tune prompts and inputs.",
+    result:
+      "Shipped live on sunsex.xyz with 200+ looks generated, holding the same light, framing and identity across mannequins, real people and swappable scenes.",
+    reach: [
+      { value: "200+", label: "Looks generated" },
+      { value: "2", label: "Generation modes" },
+    ],
+    credits: "Solo build by Munzir Mukhtar",
+    press: [],
+    media: [
+      video("dressup.mp4", "DressUp walkthrough: input to output, consistency, edits, avatar mode and quality review", "dressup-poster.jpg"),
+      image("dressup-input-output.jpg", "Garment shots in, styled look out"),
+      image("dressup-consistency.jpg", "Nine generations on one locked scene template"),
+      image("dressup-quality-review.jpg", "Quality review: rejected versus approved output"),
+    ],
+    link: null,
+  },
+  {
     id: "tyler-the-creator-cgi",
     flagship: false,
     category: ["vfx"],

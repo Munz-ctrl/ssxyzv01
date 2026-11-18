@@ -273,6 +273,66 @@
           
         </article>
 
+          <article class="case-study" data-category="ai brand" id="dressup">
+          <div class="case-study__media">
+            <div class="viewer" data-viewer>
+            <div class="viewer__stage">
+              <video class="viewer__el" src="/portfolio/media/dressup.mp4" poster="/portfolio/media/posters/dressup-poster.jpg" muted loop playsinline preload="metadata" controls aria-label="DressUp walkthrough: input to output, consistency, edits, avatar mode and quality review"></video>
+            </div>
+            <div class="viewer__strip" role="tablist" aria-label="DressUp: AI Try-On and Avatar Engine media">
+              <button type="button" class="viewer__thumb viewer__thumb--active" role="tab" aria-selected="true" data-type="video" data-src="/portfolio/media/dressup.mp4" data-poster="/portfolio/media/posters/dressup-poster.jpg" data-alt="DressUp walkthrough: input to output, consistency, edits, avatar mode and quality review" aria-label="Show DressUp walkthrough: input to output, consistency, edits, avatar mode and quality review">
+                <img src="/portfolio/media/posters/dressup-poster.jpg" alt="" loading="lazy" /><span class="viewer__play" aria-hidden="true"></span>
+              </button>
+              <button type="button" class="viewer__thumb" role="tab" aria-selected="false" data-type="image" data-src="/portfolio/media/dressup-input-output.jpg" data-alt="Garment shots in, styled look out" aria-label="Show Garment shots in, styled look out">
+                <img src="/portfolio/media/dressup-input-output.jpg" alt="" loading="lazy" />
+              </button>
+              <button type="button" class="viewer__thumb" role="tab" aria-selected="false" data-type="image" data-src="/portfolio/media/dressup-consistency.jpg" data-alt="Nine generations on one locked scene template" aria-label="Show Nine generations on one locked scene template">
+                <img src="/portfolio/media/dressup-consistency.jpg" alt="" loading="lazy" />
+              </button>
+              <button type="button" class="viewer__thumb" role="tab" aria-selected="false" data-type="image" data-src="/portfolio/media/dressup-quality-review.jpg" data-alt="Quality review: rejected versus approved output" aria-label="Show Quality review: rejected versus approved output">
+                <img src="/portfolio/media/dressup-quality-review.jpg" alt="" loading="lazy" />
+              </button>
+            </div>
+          </div>
+          </div>
+          <div class="case-study__body">
+            <p class="case-study__eyebrow">AI &middot; Brand &amp; Product</p>
+            <h3 class="case-study__title">DressUp: AI Try-On and Avatar Engine</h3>
+            <p class="case-study__meta">SUNSEX (own product) &middot; 2026 &middot; Creator: product, generative pipeline and front end</p>
+            
+
+            <div class="case-study__row">
+              <p class="case-study__row-label">Brief</p>
+              <p class="case-study__row-value">Build a consumer tool that puts any outfit on a person or an avatar, photoreal and on brand, in seconds.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Challenge</p>
+              <p class="case-study__row-value">Generative models drift: faces change, garments land in the wrong place and every image looks different. It had to stay consistent enough to feel like one world, and cheap enough to offer to the public.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Concept</p>
+              <p class="case-study__row-value">Lock one scene template (camera, light, ground and framing) so every result looks like part of the same shoot, then run two modes on top of it: garment try-on and avatar swap from a person&#39;s own photos.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">What I did</p>
+              <p class="case-study__row-value">Built the pipeline on Google&#39;s Nano Banana Pro image model through Replicate, with server-side credit spending before each generation, saved skins, Supabase auth and storage, and Stripe checkout for credits. Set quality criteria for placement, pose and scale against the template, and used good and bad outputs to tune prompts and inputs.</p>
+            </div>
+            <div class="case-study__row">
+              <p class="case-study__row-label">Result</p>
+              <p class="case-study__row-value">Shipped live on sunsex.xyz with 200+ looks generated, holding the same light, framing and identity across mannequins, real people and swappable scenes.</p>
+            </div>
+
+            <div class="case-study__reach">
+              <div class="case-study__reach-item"><span class="case-study__reach-value">200+</span><span class="case-study__reach-label">Looks generated</span></div>
+              <div class="case-study__reach-item"><span class="case-study__reach-value">2</span><span class="case-study__reach-label">Generation modes</span></div>
+            </div>
+            <p class="case-study__credits"><span class="case-study__row-label">Credits</span> Solo build by Munzir Mukhtar</p>
+            
+            
+          </div>
+          
+        </article>
+
           <article class="case-study case-study--has-emblem" data-category="vfx" id="tyler-the-creator-cgi">
           <div class="case-study__media">
             <div class="viewer" data-viewer>
