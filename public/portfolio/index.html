@@ -71,13 +71,14 @@
           </div>
         </div>
 
-        <!-- Opener plays once, then settles on the Clio photo in the same
-             spot (see js/main.js). TODO: decide on the hero (reel or keep). -->
+        <!-- Opener: 3D avatar intro, match cut to the real photo, then the
+             page settles on that same frame as a still (see js/main.js). -->
         <figure class="hero__visual" id="hero-visual">
           <video
             class="hero__visual-video"
             id="hero-opener"
-            src="/portfolio/media/munzslide.webm"
+            src="/portfolio/media/hero-opener.mp4"
+            poster="/portfolio/media/posters/hero-opener-poster.jpg"
             autoplay
             muted
             playsinline
@@ -85,13 +86,13 @@
           ></video>
           <img
             class="hero__visual-image"
-            src="/portfolio/media/clio-2.png"
-            alt="Munzir Mukhtar holding his Clio Award"
-            width="900"
-            height="1200"
+            src="/portfolio/media/portfolio-hero.jpg"
+            alt="Munzir Mukhtar standing beside a suitcase, with his Clio Award on the ground"
+            width="1080"
+            height="1440"
             fetchpriority="high"
           />
-          <figcaption class="hero__visual-caption">Clio Award Winner 2026</figcaption>
+          <figcaption class="hero__visual-caption">Clio Award 2026 &middot; Webby Honoree 2026</figcaption>
         </figure>
       </div>
     </section>
