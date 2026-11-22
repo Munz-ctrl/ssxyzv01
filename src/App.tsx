@@ -1,7 +1,6 @@
 import type { User } from '@supabase/supabase-js';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import cubeRules from '../config/cubes.json';
-import { Grid } from './components/Grid';
 import { VERSION_LINE } from './config';
 import { levelFor } from '../shared/level';
 import { coordsFor, loadGame, SESSION_ENDED, type Game } from './lib/data';
@@ -12,6 +11,9 @@ import { History } from './screens/History';
 import { Reset } from './screens/Reset';
 import { Home } from './screens/Home';
 import { Vault } from './screens/Vault';
+
+// three.js is a big chunk: load it after the first paint so sign in stays fast
+const Scene = lazy(() => import('./scene/Scene'));
 
 type Tab = 'home' | 'vault' | 'history';
 const TABS: Tab[] = ['home', 'vault', 'history'];
@@ -126,7 +128,7 @@ export function App() {
   const { level, progress } = levelFor(game?.lifetime ?? 0, cubeRules.levels.thresholds);
 
   return (
-    <Shell hud={[`coord. [${x}, ${y}]`, `memory: ${game ? `${game.handle}-${game.dumpCount}` : '...'}`]}>
+    <Shell room hud={[`coord. [${x}, ${y}]`, `memory: ${game ? `${game.handle}-${game.dumpCount}` : '...'}`]}>
       <nav className="tabs">
         {TABS.map((t) => (
           <button key={t} className={`link ${tab === t ? 'on' : ''}`} onClick={() => setTab(t)}>
@@ -153,10 +155,12 @@ export function App() {
   );
 }
 
-function Shell({ hud = [], children }: { hud?: string[]; children?: React.ReactNode }) {
+function Shell({ hud = [], room = false, children }: { hud?: string[]; room?: boolean; children?: React.ReactNode }) {
   return (
     <div className="app">
-      <Grid />
+      <Suspense fallback={null}>
+        <Scene room={room} />
+      </Suspense>
       <header className="hud">
         <div>{VERSION_LINE}</div>
         {hud.map((line) => (

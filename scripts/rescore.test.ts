@@ -47,6 +47,13 @@ vi.mock('../api/_lib/http.js', async (original) => ({
 }));
 vi.mock('../api/_lib/sorter.js', () => ({ sortDump, sorterModel: () => 'test-model' }));
 
+// A small cap the test can reach in a handful of dumps, whatever config/cubes.json sets.
+const TEST_CAP = 40;
+vi.mock('../api/_lib/rules.js', async (original) => {
+  const real = await original<typeof import('../api/_lib/rules.js')>();
+  return { ...real, loadRules: () => ({ ...real.loadRules(), daily_cap: TEST_CAP }) };
+});
+
 const { rescore } = await import('./rescore.js');
 
 const U = 'user-1';
@@ -134,7 +141,7 @@ describe('rescore', () => {
     seed(8);
     sortDump.mockResolvedValue([part()]);
     await rescore(U, false, () => {});
-    expect(sum(tables.ssx_ledger)).toBe(40);
+    expect(sum(tables.ssx_ledger)).toBe(TEST_CAP);
     expect(rescoreRows().every((r) => (r.delta as number) > 0)).toBe(true);
   });
 

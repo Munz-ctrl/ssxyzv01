@@ -1,0 +1,68 @@
+{
+  "canvas": [
+    800,
+    1000
+  ],
+  "anchor": [
+    400,
+    900
+  ],
+  "person_height_px": 620,
+  "scale_note": "2x portrait plate; 1 tile edge = 330 px",
+  "avatars": [
+    {
+      "file": "avatar_01.png",
+      "scale": 0.969,
+      "anchor": [
+        400,
+        900
+      ],
+      "height_px": 620
+    },
+    {
+      "file": "avatar_02.png",
+      "scale": 1.113,
+      "anchor": [
+        400,
+        900
+      ],
+      "height_px": 620
+    },
+    {
+      "file": "avatar_03.png",
+      "scale": 0.955,
+      "anchor": [
+        400,
+        900
+      ],
+      "height_px": 620
+    },
+    {
+      "file": "avatar_04.png",
+      "scale": 0.541,
+      "anchor": [
+        400,
+        900
+      ],
+      "height_px": 620
+    },
+    {
+      "file": "avatar_05.png",
+      "scale": 1.049,
+      "anchor": [
+        400,
+        900
+      ],
+      "height_px": 620
+    },
+    {
+      "file": "avatar_06.png",
+      "scale": 0.964,
+      "anchor": [
+        400,
+        900
+      ],
+      "height_px": 620
+    }
+  ]
+}

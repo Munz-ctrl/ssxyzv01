@@ -1,0 +1,22 @@
+{
+  "name": "SSX_CAM_v1",
+  "note": "Locked Sunsex camera. Matches the C4D preset in 100 DAY RACE/1-2. Orthographic stands in for the very long lens.",
+  "projection": "orthographic",
+  "yaw_deg": 45,
+  "tilt_deg": -33,
+  "units": "1 unit = 1 meter = 1 floor tile",
+  "px_per_meter": {
+    "portrait": { "at_width": 1080, "value": 205 },
+    "landscape": { "at_width": 1920, "value": 116 }
+  },
+  "room": { "size_m": [6, 6], "wall_height_m": 2.7, "wall_thickness_m": 0.15, "walls": "back two edges only" },
+  "floor": { "color": "#b3b3b3", "grid_color": "#ffffff", "grid_opacity": 0.7, "grid_step_m": 1 },
+  "player_proxy_m": [0.5, 0.3, 1.8],
+  "avatar": {
+    "files": "public/avatars/avatar_0N.png + avatars.json",
+    "canvas_px": [800, 1000],
+    "anchor_px": [400, 900],
+    "person_height_px": 620,
+    "person_height_m": 1.8
+  }
+}

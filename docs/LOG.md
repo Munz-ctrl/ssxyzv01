@@ -2,6 +2,37 @@
 
 Newest first.
 
+## 2026-11-22: brief 02b, the 3D room (camera and scene foundation)
+
+Checked with headless Chrome rendering the app at exactly 1080 x 1920 and 1920 x 1080, signed in against **mocked** Supabase data, plus a resize check in the browser pane. Not run on a real iPhone.
+
+![portrait](screens/02b-portrait.png) ![landscape](screens/02b-landscape.png)
+
+| Done when | Result |
+| --- | --- |
+| Portrait and landscape line up with the grid slates (tile size and angle) | **Pass at screen center.** `?debug=cam` reports k 205.0 px/m portrait and 116.0 landscape, floor lines at 28.57 deg. Measured vertical tile spacing: 158 px portrait, 89.5 px landscape, constant across the screen. The slates measure about 158 to 160 and 88 to 89 near the middle, but grow toward the bottom (portrait 165 to 175 px, landscape 91 to 93 px) because they were rendered with the C4D long lens, which still has a little perspective. `config/camera.json` chooses orthographic, so the match is exact at the center and drifts by up to about 10 percent at the top and bottom edges. Overlay: [screens/02b-slate-overlay-portrait.png](screens/02b-slate-overlay-portrait.png) (slate in yellow). |
+| Avatar stands on the tile, feet planted, right size against the red proxy | **Pass.** Person measures 309 px tall at 1080 portrait (PRODUCT.md says about 310) and 175 px in landscape (PRODUCT.md says about 175). Head and feet sit inside the proxy outline: [screens/02b-portrait-debug.png](screens/02b-portrait-debug.png). |
+| Test boxes drop, land on the grid, sort in front of and behind the avatar | **Pass.** Boxes fall from 3 m, bounce once or twice, thud, and sit centered on their tile with a soft shadow. Behind: the box diagonally behind the player is hidden by the sprite. In front: with 0.5 m boxes no room tile puts a box over the sprite on screen, so I checked once with a temporary 1.3 m box in front, which covers the legs correctly: [screens/02b-sort-check.png](screens/02b-sort-check.png). The size went back to 0.5 m. |
+| `npm run build` passes | **Pass.** Typecheck and 26 tests also pass (6 new camera tests). |
+
+### What was built
+
+- `src/scene/camera.ts`: every camera, scale and room number read from `config/camera.json` (`pxPerMeter`, camera direction, tile centers, avatar plane size), with tests in `camera.test.ts`.
+- `src/scene/Scene.tsx`, lazy loaded: an orthographic camera at yaw 45, tilt 33, zoom = k, recomputed on resize, never moving. The floor is one shader plane: `#b3b3b3` with white 1 m lines at 0.7 opacity, kept 1 css px wide at any pixel ratio. Back walls 2.7 m tall and 0.15 m thick, sitting just outside the 6 x 6 floor. One ambient plus one directional light. The avatar sprite, and the `?debug=cam` tools: k, floor angle, person height in px, a blue 1 m wire cube, the red proxy, `[ drop box ]`.
+- The 3D code is a separate 928 kB chunk (246 kB gzipped). The main bundle is unchanged at 462 kB, so sign in does not wait for it. Sign in shows the floor only; the room and avatar appear once signed in.
+- Renders only on change (`frameloop="demand"`), pixel ratio capped at 2.
+- `Grid.tsx` deleted.
+
+### Things I had to decide (please check)
+
+- **Avatar plane height: the brief and its own size check disagree.** The brief says plane height = (1000 / 620) x 1.8 x cos(33) and that the plane only turns around the vertical axis. A vertical plane already gets shortened by cos(33) on screen, so with that formula the person would show about 260 px tall, shorter than the red proxy. I used (1000 / 620) x 1.8 m (2.9 m) on a vertical plane, which gives the 309 px that PRODUCT.md and the proxy expect. The brief's formula is right for a plane tilted to face the camera fully; a vertical plane keeps depth sorting simple.
+- **Tile (3, 3)** counts from the back corner: tile (0, 0) touches both walls, so (3, 3) is the tile just in front of the room center.
+- **The 1 m test cube** has one corner on the origin and fills tile (2, 2), right behind the player. It is wireframe only, so boxes can still land in it.
+- **Landscape keeps the room centered**, as the brief says. PRODUCT.md says landscape puts the player on the left; the right side panel currently covers part of the room. Worth a line in a later brief.
+- **Lights use physical units** (intensities times pi), otherwise the walls came out dark gray.
+- **Per-avatar `scale` values in `avatars.json` are not used**; the brief and `camera.json` say the person is 620 px for every file.
+- **Fixed a broken test:** `rescore.test.ts` hardcoded the old daily cap of 40, which failed after `daily_cap` became 300. It now sets its own small cap.
+
 ## 2026-11-12: brief 02a, sounds, vault cleanup, prompt box nudges
 
 Read `docs/AGENT.md` first. It is a principles document with nothing to run; the vault and history changes follow its response table (insight under the dump in history, pattern hidden until it can be said with value).
