@@ -33,8 +33,8 @@ describe('camera', () => {
     expect(p.height).toBeCloseTo((1000 / 620) * 1.8);
     expect(p.width / p.height).toBeCloseTo(0.8);
     expect(p.offsetX).toBeCloseTo(0);
-    // anchor at 900 of 1000: plane center sits 0.4 of the height above the feet
-    expect(p.offsetY).toBeCloseTo(0.4 * p.height);
+    // anchor at 875 of 1000 (ankle center): plane center sits 0.375 of the height above the ground point
+    expect(p.offsetY).toBeCloseTo(0.375 * p.height);
   });
 
   it('counts tiles from the back corner', () => {

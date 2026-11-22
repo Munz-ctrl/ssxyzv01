@@ -5,7 +5,7 @@
   ],
   "anchor": [
     400,
-    900
+    875
   ],
   "person_height_px": 620,
   "scale_note": "2x portrait plate; 1 tile edge = 330 px",
@@ -15,7 +15,7 @@
       "scale": 0.969,
       "anchor": [
         400,
-        900
+        875
       ],
       "height_px": 620
     },
@@ -24,7 +24,7 @@
       "scale": 1.113,
       "anchor": [
         400,
-        900
+        875
       ],
       "height_px": 620
     },
@@ -33,7 +33,7 @@
       "scale": 0.955,
       "anchor": [
         400,
-        900
+        875
       ],
       "height_px": 620
     },
@@ -42,7 +42,7 @@
       "scale": 0.541,
       "anchor": [
         400,
-        900
+        875
       ],
       "height_px": 620
     },
@@ -51,7 +51,7 @@
       "scale": 1.049,
       "anchor": [
         400,
-        900
+        875
       ],
       "height_px": 620
     },
@@ -60,9 +60,10 @@
       "scale": 0.964,
       "anchor": [
         400,
-        900
+        875
       ],
       "height_px": 620
     }
-  ]
+  ],
+  "anchor_note": "Ground point = center of the footprint between the ankles, 25 px above the lowest toe/shadow pixel (900). Align new avatars with public/avatars/avatar_template.png."
 }
