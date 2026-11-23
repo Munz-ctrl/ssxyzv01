@@ -1,69 +1,19 @@
 {
-  "canvas": [
-    800,
-    1000
-  ],
-  "anchor": [
-    400,
-    875
-  ],
+  "canvas": [800, 1000],
+  "anchor": [400, 875],
   "person_height_px": 620,
-  "scale_note": "2x portrait plate; 1 tile edge = 330 px",
+  "person_height_m": 1.8,
+  "scale_note": "Every PNG shares one canvas scale: 620 px above the anchor = 1.8 m. Each file is already sized to the person's real height, so nothing is rescaled in code.",
+  "anchor_note": "Ground point = center of the footprint between the ankles, 25 px above the lowest toe/shadow pixel (900). Align new avatars with avatar_template.png.",
+  "placeholder": "avatar_00_placeholdermaniquin.png",
   "avatars": [
-    {
-      "file": "avatar_01.png",
-      "scale": 0.969,
-      "anchor": [
-        400,
-        875
-      ],
-      "height_px": 620
-    },
-    {
-      "file": "avatar_02.png",
-      "scale": 1.113,
-      "anchor": [
-        400,
-        875
-      ],
-      "height_px": 620
-    },
-    {
-      "file": "avatar_03.png",
-      "scale": 0.955,
-      "anchor": [
-        400,
-        875
-      ],
-      "height_px": 620
-    },
-    {
-      "file": "avatar_04.png",
-      "scale": 0.541,
-      "anchor": [
-        400,
-        875
-      ],
-      "height_px": 620
-    },
-    {
-      "file": "avatar_05.png",
-      "scale": 1.049,
-      "anchor": [
-        400,
-        875
-      ],
-      "height_px": 620
-    },
-    {
-      "file": "avatar_06.png",
-      "scale": 0.964,
-      "anchor": [
-        400,
-        875
-      ],
-      "height_px": 620
-    }
-  ],
-  "anchor_note": "Ground point = center of the footprint between the ankles, 25 px above the lowest toe/shadow pixel (900). Align new avatars with public/avatars/avatar_template.png."
+    { "file": "avatar_00_placeholdermaniquin.png" },
+    { "file": "avatar_01.png" },
+    { "file": "avatar_02.png" },
+    { "file": "avatar_03.png" },
+    { "file": "avatar_04.png" },
+    { "file": "avatar_05.png" },
+    { "file": "avatar_06.png" },
+    { "file": "avatar_07_munz4rmDressup.png" }
+  ]
 }

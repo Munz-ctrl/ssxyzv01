@@ -2,6 +2,46 @@
 
 Newest first.
 
+## 2026-11-22: brief 02c, avatar creator (built, waiting on the migration for real runs)
+
+**Blocked on one step from Munzir:** apply `supabase/migrations/20261122_02c_avatar_creator.sql`. Until then the maker cannot run for real. The app still loads without it: the room shows the placeholder and the avatar section says `placeholder`.
+
+Everything below was checked locally: unit tests with mocked Supabase and Replicate, the normalizer on real preset PNGs, and the UI in headless Chrome at 390 x 844 against mocked data. **No real Replicate run has happened yet**, so the 3 logged test runs the brief asks for are still to do (see the end of this entry).
+
+| Done when | Result |
+| --- | --- |
+| Munzir uploads a selfie and height and sees himself correctly sized and planted, no code touched | **Not run yet** (needs the migration, then a deploy). The whole flow works against mocks: Vault > avatar > `[ make my avatar ]` > photos, height, price > `...` over the head > `your avatar [ keep ] [ try again ]`. |
+| Template overlay: ankles on the cross, head on the right height line | **Pass on simulated cutouts.** Three presets scaled up onto a 1536 x 2752 transparent canvas at random size and position, then normalized to 1.80, 1.65 and 1.45 m: heads land on their height lines, ankles on or within about 20 px of the cross. [screens/02c-normalize-overlay.png](screens/02c-normalize-overlay.png) |
+| 3 test runs logged (photos in, PNG out) | **To do** once the migration is applied. |
+
+![new player](screens/02c-new-player.png) ![maker](screens/02c-maker-form.png) ![working](screens/02c-working.png) ![review](screens/02c-review.png) ![debug picker](screens/02c-debug-picker.png)
+
+### What was built
+
+- **Avatar files (part 0):** `avatars.json` lists all eight PNGs, including the placeholder and `avatar_07_munz4rmDressup`, with no scale fields. New players stand as `avatar_00` (placeholder). `?debug=cam` adds `[ avatar: ... ]`, which cycles through the presets and back to `mine`.
+- **Migration:** a private storage bucket `ssx` (players read only their own `{user_id}/` folder; nothing uploads from the client except through one-time signed slots made by `/api`). Also `ssx_jobs` for async AI jobs (one working job per player and kind, enforced by a unique index), plus `height_m`, `raw_path`, `cutout_path` and `job_id` on `ssx_avatars`, and `active_avatar_id` on `ssx_profiles`.
+- **Tool `api/_lib/tools/createAvatar.ts`:** `createAvatar({ userId, photoUrls, heightM })` checks photos, height and price, creates the job, and starts nano-banana-pro with the two guides first, then the photos, plus the brief's prompt. `advanceAvatarJob` moves it one step per poll: generation done > save the raw file > start the cutout; cutout done > save it > normalize > upload > `ssx_avatars` row > set active > charge. It also has `keepAvatar`, `discardAvatar` and `avatarPrice`. Each step claims its job row first, so two polls at once cannot double-start or double-charge. A step that dies mid-way fails after 2 minutes, and any job older than 15 minutes fails.
+- **Normalizer `normalizeAvatar.ts` (sharp):** finds the figure by alpha, finds the ground point, scales so ground-to-head = `height_m x 620 / 1.8`, places the ground point at (400, 875) on 800 x 1000, and adds a soft contact shadow. `npx tsx scripts/normalize-avatar.ts <cutout> <m> <out> --overlay` re-runs it locally for free. `--check-presets` measures every preset against the cross.
+- **`/api/avatar`:** one function with the actions `prepare`, `create`, `status`, `keep` and `discard`. The client polls every 3 s and picks a working job back up after a reload.
+- **Models and prompt live in `config/avatar.json`**, so the generator, cutout model and normalize numbers can change without code.
+- Tests: 15 new (normalizer, job flow with mocks, height parsing), 41 total. Typecheck and build pass. The main bundle grew from 462 to 469 kB.
+
+### Things I had to decide (please check)
+
+- **The ground point rule in the brief does not match your presets.** The brief says center of the lowest 4%, raised 3%. At this camera the near foot's toe is always the lowest pixel, so a 4% band sees only one shoe and 3% lands on the toe: the presets came out 20 to 87 px below the cross. Measured on your hand-placed presets, the cross sits 4 to 9% above the lowest pixel (median 7.5%). I set band 8% and lift 7.5%. Six of the seven real-person presets then land within 20 px of the cross; avatar_04 (mid-step, baked shadow) is 57 px off. Both numbers are in `config/avatar.json`; rerun `--check-presets` after changing them.
+- **avatar_05 is 1.35 m tall in its PNG, not 4'9" (1.45 m).** Measured from the cross to the top of the head at 620 px = 1.8 m. Worth a look if 4'9" is right.
+- **Price:** the brief says `costs.avatar`; `config/cubes.json` has `costs.avatar_change` (30), so that is what it uses. First avatar free means "no avatar made yet". So `try again` on your first one costs 30 🧊, and the price shows before you confirm. Cubes are taken only once the avatar exists, so a failed job costs nothing and needs no refund.
+- **Cutout model:** `recraft-ai/recraft-remove-background`, the only one I found that explicitly promises PNG with full alpha. I could not read Replicate's API schemas without a token, so its input field (`image`) is a best guess. If the first run fails at the cutout step, fix `image_field` / `version` in `config/avatar.json`. The normalizer refuses a cutout with no transparent background rather than placing a gray box.
+- **nano-banana-pro settings:** 9:16 (matches the 1080 x 1920 guides), 2K, PNG output.
+- **The guides are uploaded to storage once** (`ssx/_refs/`) so Replicate can fetch them; they are not public files on the site.
+- **The review bar sits on the home screen**, not inside the vault, so the room is visible while you decide. `try again` puts the previous avatar back and reopens the maker.
+- **Photos are shrunk in the browser** to a 1536 px JPEG before upload.
+
+### Still to do for this brief
+
+1. Munzir applies the migration (no other dashboard steps; `REPLICATE_API_TOKEN` already exists).
+2. Deploy, then 3 real runs: photos in, PNG out, overlay each on the template, log them here with the times and any step that failed.
+
 ## 2026-11-22: brief 02b, the 3D room (camera and scene foundation)
 
 Checked with headless Chrome rendering the app at exactly 1080 x 1920 and 1920 x 1080, signed in against **mocked** Supabase data, plus a resize check in the browser pane. Not run on a real iPhone.

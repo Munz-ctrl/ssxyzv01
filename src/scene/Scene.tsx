@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import { Suspense, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   BoxGeometry,
   CanvasTexture,
@@ -14,10 +14,14 @@ import {
   Vector3,
 } from 'three';
 import { thud } from '../lib/sfx';
-import { avatarPlane, cameraDirection, FLOOR, PROXY, pxPerMeter, ROOM, tileCenter, YAW } from './camera';
+import { avatarPlane, cameraDirection, FLOOR, project, PROXY, pxPerMeter, ROOM, tileCenter, YAW } from './camera';
 
-const AVATAR_FILE = '/avatars/avatar_01.png';
+// New players stand in the room as the placeholder until they make their own avatar.
+const PRESETS_DIR = '/avatars/';
+const PLACEHOLDER = `${PRESETS_DIR}avatar_00_placeholdermaniquin.png`;
+const PLACEHOLDER_HEIGHT_M = 1.8;
 const PLAYER_TILE: [number, number] = [3, 3];
+const BUBBLE_GAP_M = 0.15;
 const CAMERA_DISTANCE = 50;
 const FLOOR_SIZE = 200;
 
@@ -38,12 +42,44 @@ interface DroppedBox {
   tile: [number, number];
 }
 
+interface SceneProps {
+  room: boolean;
+  avatarUrl?: string; // the player's own avatar; the placeholder when missing
+  avatarHeight?: number; // meters, to put the `...` above the head
+  working?: boolean; // an avatar is being made
+}
+
 // The 3D backdrop. `room` adds the walls and the player; without it only the floor shows.
-export default function Scene({ room }: { room: boolean }) {
+export default function Scene({ room, avatarUrl, avatarHeight, working = false }: SceneProps) {
   const [debug] = useState(debugCam);
   const [measure, setMeasure] = useState<Measure | null>(null);
+  const [size, setSize] = useState<{ width: number; height: number } | null>(null);
   const [boxes, setBoxes] = useState<DroppedBox[]>([]);
   const nextId = useRef(1);
+
+  // ?debug=cam: cycle through the preset avatars
+  const [presets, setPresets] = useState<string[]>([]);
+  const [preset, setPreset] = useState(-1);
+  useEffect(() => {
+    if (!debug) return;
+    fetch(`${PRESETS_DIR}avatars.json`)
+      .then((r) => r.json())
+      .then((j: { avatars: { file: string }[] }) => setPresets(j.avatars.map((a) => a.file)))
+      .catch(() => {});
+  }, [debug]);
+
+  const usingPreset = preset >= 0 && preset < presets.length;
+  const url = usingPreset ? PRESETS_DIR + presets[preset] : (avatarUrl ?? PLACEHOLDER);
+  const headM = usingPreset || !avatarUrl ? PLACEHOLDER_HEIGHT_M : (avatarHeight ?? PLACEHOLDER_HEIGHT_M);
+
+  // where the `...` goes: just above the head, in screen px (the world origin is the screen center)
+  let bubble: { left: number; top: number } | null = null;
+  if (room && working && size) {
+    const k = pxPerMeter(size.width, size.height);
+    const [x, z] = tileCenter(...PLAYER_TILE);
+    const [sx, sy] = project([x, headM + BUBBLE_GAP_M, z]);
+    bubble = { left: size.width / 2 + sx * k, top: size.height / 2 - sy * k };
+  }
 
   const taken = new Set([PLAYER_TILE, ...boxes.map((b) => b.tile)].map((t) => t.join(',')));
   const free: [number, number][] = [];
@@ -68,7 +104,7 @@ export default function Scene({ room }: { room: boolean }) {
           camera={{ near: 0.1, far: 400 }}
           gl={{ antialias: true }}
         >
-          <Rig onMeasure={debug ? setMeasure : undefined} />
+          <Rig onMeasure={debug ? setMeasure : undefined} onSize={setSize} />
           {/* physical light units: intensity pi lights a lambert surface at its own color */}
           <ambientLight intensity={0.8 * Math.PI} />
           <directionalLight position={[3, 6, 5]} intensity={0.45 * Math.PI} />
@@ -77,7 +113,7 @@ export default function Scene({ room }: { room: boolean }) {
             <>
               <Walls />
               <Suspense fallback={null}>
-                <Avatar />
+                <Avatar key={url} url={url} />
               </Suspense>
               {boxes.map((b) => (
                 <DropBox key={b.id} tile={b.tile} />
@@ -87,6 +123,13 @@ export default function Scene({ room }: { room: boolean }) {
           )}
         </Canvas>
       </div>
+      {bubble && (
+        <div className="bubble" style={{ left: bubble.left, top: bubble.top }} aria-label="making your avatar">
+          <span>.</span>
+          <span>.</span>
+          <span>.</span>
+        </div>
+      )}
       {debug && (
         <div className="debug-cam">
           {measure && (
@@ -101,6 +144,13 @@ export default function Scene({ room }: { room: boolean }) {
               {free.length ? '[ drop box ]' : '[ room full ]'}
             </button>
           )}
+          {room && presets.length > 0 && (
+            <div>
+              <button className="btn" onClick={() => setPreset((p) => (p + 1 >= presets.length ? -1 : p + 1))}>
+                [ avatar: {usingPreset ? presets[preset].replace(/\.png$/, '') : 'mine'} ]
+              </button>
+            </div>
+          )}
         </div>
       )}
     </>
@@ -108,7 +158,7 @@ export default function Scene({ room }: { room: boolean }) {
 }
 
 // The locked camera: orthographic, fixed yaw and tilt, 1 m = k css px. Never moves; recomputed on resize.
-function Rig({ onMeasure }: { onMeasure?: (m: Measure) => void }) {
+function Rig({ onMeasure, onSize }: { onMeasure?: (m: Measure) => void; onSize: (s: { width: number; height: number }) => void }) {
   const camera = useThree((s) => s.camera) as OrthographicCamera;
   const size = useThree((s) => s.size);
   const invalidate = useThree((s) => s.invalidate);
@@ -123,6 +173,7 @@ function Rig({ onMeasure }: { onMeasure?: (m: Measure) => void }) {
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
     invalidate();
+    onSize({ width: size.width, height: size.height });
 
     if (onMeasure) {
       const px = (x: number, y: number, z: number) => {
@@ -140,7 +191,7 @@ function Rig({ onMeasure }: { onMeasure?: (m: Measure) => void }) {
         personPx: feet - head,
       });
     }
-  }, [camera, size.width, size.height, invalidate, onMeasure]);
+  }, [camera, size.width, size.height, invalidate, onMeasure, onSize]);
 
   return null;
 }
@@ -220,8 +271,9 @@ function Walls() {
 }
 
 // A camera-facing sprite that only turns around the vertical axis. Feet anchor on the floor point.
-function Avatar() {
-  const texture = useLoader(TextureLoader, AVATAR_FILE);
+// Every avatar PNG shares one canvas scale, already sized to the person's real height.
+function Avatar({ url }: { url: string }) {
+  const texture = useLoader(TextureLoader, url);
   texture.colorSpace = SRGBColorSpace;
   const plane = avatarPlane();
   const [x, z] = tileCenter(...PLAYER_TILE);

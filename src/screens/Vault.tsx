@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { heightLabel } from '../../shared/height';
 import type { ReceiptLine } from '../../shared/receipt';
+import { AvatarMaker } from '../components/AvatarMaker';
 import { Receipt } from '../components/Receipt';
 import { completeMission, type Game } from '../lib/data';
 import { setSoundOn, soundOn } from '../lib/sfx';
@@ -10,9 +12,13 @@ interface Props {
   addCubes: (n: number) => void;
   settle: () => void;
   signOut: () => void;
+  making: boolean;
+  setMaking: (open: boolean) => void;
+  onAvatarStarted: (jobId: string) => void;
+  avatarWorking: boolean;
 }
 
-export function Vault({ game, refresh, addCubes, settle, signOut }: Props) {
+export function Vault({ game, refresh, addCubes, settle, signOut, making, setMaking, onAvatarStarted, avatarWorking }: Props) {
   const [busy, setBusy] = useState('');
   const [receipt, setReceipt] = useState<ReceiptLine[] | null>(null);
   const [error, setError] = useState('');
@@ -49,6 +55,26 @@ export function Vault({ game, refresh, addCubes, settle, signOut }: Props) {
     <div className="sheet">
       {receipt && <Receipt key={receipt[1]?.text} lines={receipt} animate onCubes={addCubes} onDone={settle} />}
       {error && <p className="error">{error}</p>}
+
+      <h2>avatar</h2>
+      {making && !avatarWorking ? (
+        <AvatarMaker free={game.avatarCount === 0} wallet={game.wallet} onStarted={onAvatarStarted} onCancel={() => setMaking(false)} />
+      ) : (
+        <div className="card-head">
+          <span className="empty">
+            {avatarWorking
+              ? 'making yours...'
+              : game.avatar
+                ? `yours, ${heightLabel(game.avatar.heightM)}${game.avatar.approved ? '' : ', not kept yet'}`
+                : 'placeholder'}
+          </span>
+          {!avatarWorking && (
+            <button className="btn" onClick={() => setMaking(true)}>
+              [ make my avatar ]
+            </button>
+          )}
+        </div>
+      )}
 
       <h2>missions</h2>
       {!game.missions.length && <p className="empty">none open. dump a plan to start one.</p>}

@@ -32,6 +32,13 @@ export interface HistoryEntry {
   insights: string[];
 }
 
+export interface ActiveAvatar {
+  id: string;
+  url: string;
+  heightM: number;
+  approved: boolean;
+}
+
 export interface Game {
   handle: string;
   dumpCount: number;
@@ -41,6 +48,9 @@ export interface Game {
   vault: VaultItem[];
   wishlist: Wish[];
   history: HistoryEntry[];
+  avatar: ActiveAvatar | null; // null = the placeholder
+  avatarJob: string | null; // id of an avatar job still working
+  avatarCount: number; // avatars made so far; the first one is free
 }
 
 interface ApiResult {
@@ -83,9 +93,47 @@ async function ensureProfile(user: User): Promise<string> {
   return handle;
 }
 
+// Signed urls last an hour; reuse one so the room does not reload the texture on every refresh.
+const signed = new Map<string, { url: string; until: number }>();
+async function signedAvatarUrl(path: string): Promise<string> {
+  const hit = signed.get(path);
+  if (hit && hit.until > Date.now()) return hit.url;
+  const data = ok(await supabase.storage.from('ssx').createSignedUrl(path, 3600));
+  if (!data) throw new Error('no avatar url');
+  signed.set(path, { url: data.signedUrl, until: Date.now() + 50 * 60 * 1000 });
+  return data.signedUrl;
+}
+
+type AvatarState = Pick<Game, 'avatar' | 'avatarJob' | 'avatarCount'>;
+
+// The avatar is extra: if anything here fails (say the 02c migration is not applied yet),
+// the room shows the placeholder and the rest of the game still loads.
+async function loadAvatar(uid: string): Promise<AvatarState> {
+  try {
+    const [profile, job, count] = await Promise.all([
+      supabase.from('ssx_profiles').select('active_avatar_id').eq('user_id', uid).maybeSingle(),
+      supabase.from('ssx_jobs').select('id').eq('user_id', uid).eq('kind', 'avatar').eq('status', 'working').limit(1),
+      supabase.from('ssx_avatars').select('id', { count: 'exact', head: true }).eq('user_id', uid),
+    ]);
+    const activeId = ok(profile)?.active_avatar_id as string | null | undefined;
+    let avatar: ActiveAvatar | null = null;
+    if (activeId) {
+      const row = ok(
+        await supabase.from('ssx_avatars').select('id, image_path, height_m, approved').eq('id', activeId).maybeSingle(),
+      ) as { id: string; image_path: string; height_m: number | null; approved: boolean } | null;
+      if (row) {
+        avatar = { id: row.id, url: await signedAvatarUrl(row.image_path), heightM: Number(row.height_m ?? 1.8), approved: row.approved };
+      }
+    }
+    return { avatar, avatarJob: (ok(job) ?? [])[0]?.id ?? null, avatarCount: count.count ?? 0 };
+  } catch {
+    return { avatar: null, avatarJob: null, avatarCount: 0 };
+  }
+}
+
 export async function loadGame(user: User): Promise<Game> {
   const uid = user.id;
-  const [handle, count, wallet, lifetime, missions, vault, wishlist, dumps] = await Promise.all([
+  const [handle, count, wallet, lifetime, missions, vault, wishlist, dumps, avatarState] = await Promise.all([
     ensureProfile(user),
     supabase.from('ssx_dumps').select('id', { count: 'exact', head: true }).eq('user_id', uid),
     supabase.from('ssx_wallet').select('cubes').eq('user_id', uid).maybeSingle(),
@@ -114,6 +162,7 @@ export async function loadGame(user: User): Promise<Game> {
       .eq('user_id', uid)
       .order('created_at', { ascending: false })
       .limit(50),
+    loadAvatar(uid),
   ]);
 
   const dumpRows = ok(dumps) ?? [];
@@ -172,6 +221,7 @@ export async function loadGame(user: User): Promise<Game> {
     vault: vaultRows,
     wishlist: wishRows,
     history,
+    ...avatarState,
   };
 }
 
@@ -183,7 +233,7 @@ async function sessionEnded(): Promise<never> {
   throw new Error(SESSION_ENDED);
 }
 
-async function post(path: string, body: Record<string, unknown>): Promise<ApiResult> {
+async function post<T = ApiResult>(path: string, body: Record<string, unknown>): Promise<T> {
   const call = async () => {
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
@@ -203,13 +253,56 @@ async function post(path: string, body: Record<string, unknown>): Promise<ApiRes
   }
   const json = await res.json().catch(() => null);
   if (!res.ok || !json) throw new Error(json?.error ?? 'something broke. try again.');
-  return json as ApiResult;
+  return json as T;
 }
 
 export const sendDump = (text: string, inputType: 'text' | 'voice') =>
   post('/api/dump', { text, input_type: inputType, tz_offset_min: tzOffsetMin() });
 
 export const completeMission = (missionId: string) => post('/api/mission/complete', { mission_id: missionId, tz_offset_min: tzOffsetMin() });
+
+// avatar maker
+
+export interface AvatarJobView {
+  id: string;
+  status: 'working' | 'done' | 'failed';
+  step: string;
+  error?: string;
+  avatar?: { id: string; url: string; height_m: number };
+}
+
+const MAX_EDGE = 1536;
+
+// Phone photos are huge: shrink to a jpeg before upload. Orientation follows the photo's exif.
+async function shrink(file: File): Promise<Blob> {
+  const bitmap = await createImageBitmap(file);
+  const s = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * s);
+  canvas.height = Math.round(bitmap.height * s);
+  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  return new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('could not read that photo'))), 'image/jpeg', 0.9),
+  );
+}
+
+// Photos go straight to storage through one-time upload slots made by /api, then the job starts.
+export async function startAvatar(photos: File[], heightM: number): Promise<{ job_id: string; cost: number }> {
+  const blobs = await Promise.all(photos.map(shrink));
+  const prep = await post<{ uploads: { path: string; token: string }[] }>('/api/avatar', { action: 'prepare', count: blobs.length });
+  await Promise.all(
+    prep.uploads.map(async ({ path, token }, i) => {
+      const { error } = await supabase.storage.from('ssx').uploadToSignedUrl(path, token, blobs[i], { contentType: 'image/jpeg' });
+      if (error) throw new Error('photo upload failed. try again.');
+    }),
+  );
+  return post('/api/avatar', { action: 'create', photo_paths: prep.uploads.map((u) => u.path), height_m: heightM });
+}
+
+export const avatarStatus = (jobId: string) => post<AvatarJobView>('/api/avatar', { action: 'status', job_id: jobId });
+export const keepAvatar = (avatarId: string) => post<{ ok: true }>('/api/avatar', { action: 'keep', avatar_id: avatarId });
+export const discardAvatar = (avatarId: string) => post<{ ok: true }>('/api/avatar', { action: 'discard', avatar_id: avatarId });
 
 // Stable pseudo coordinates until the map exists.
 export function coordsFor(userId: string): [number, number] {

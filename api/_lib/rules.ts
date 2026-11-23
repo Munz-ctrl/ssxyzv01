@@ -13,6 +13,7 @@ export interface CubeRules {
   spam: { min_meaningful_chars: number; min_seconds_between_dumps: number };
   agent?: { model?: string; context_dumps?: number };
   levels: { thresholds: number[] };
+  costs: Record<string, number>;
 }
 
 let rules: CubeRules | null = null;
