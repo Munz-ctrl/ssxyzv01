@@ -3,7 +3,23 @@ import { readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { HEIGHT_RANGE_M } from '../../../shared/height.js';
 import { admin, must, walletTotal } from '../http.js';
-import { download, getPrediction, outputUrl, startPrediction } from '../replicate.js';
+import {
+  BUCKET,
+  charge,
+  failJob,
+  finishedPrediction,
+  insertJob,
+  jobAge,
+  loadJob,
+  MAX_JOB_MINUTES,
+  readFile,
+  signedUrl,
+  ToolError,
+  updateJob,
+  upload,
+  type JobRow,
+} from '../jobs.js';
+import { download, startPrediction } from '../replicate.js';
 import { loadRules } from '../rules.js';
 import { avatarConfig } from './avatarConfig.js';
 import { normalizeAvatar } from './normalizeAvatar.js';
@@ -12,34 +28,18 @@ import { normalizeAvatar } from './normalizeAvatar.js';
 // the same ones later. Generation is async: createAvatar starts a job, advanceAvatarJob moves it
 // one step each time the client polls, so no call runs long.
 
-export const BUCKET = 'ssx';
+export { BUCKET, signedUrl, ToolError as AvatarError };
 const KIND = 'avatar';
-const SIGNED_SECONDS = 60 * 60;
-const MAX_JOB_MINUTES = 15;
 
-// A failure the player should read. Everything else is logged and shown as a generic line.
-export class AvatarError extends Error {
-  constructor(message: string, public status = 400) {
-    super(message);
-  }
-}
-
-interface JobRow {
-  id: string;
-  user_id: string;
-  status: 'working' | 'done' | 'failed';
-  step: string;
-  input: { height_m: number; cost: number; photo_paths?: string[]; previous_avatar_id: string | null };
-  state: { generate_id?: string; cutout_id?: string; raw_path?: string };
-  output: { avatar_id?: string } | null;
-  error: string | null;
-  created_at: string;
-  updated_at: string;
-}
+type AvatarJob = JobRow<
+  { height_m: number; cost: number; photo_paths?: string[]; previous_avatar_id: string | null },
+  { generate_id?: string; cutout_id?: string; raw_path?: string },
+  { avatar_id?: string }
+>;
 
 export interface JobView {
   id: string;
-  status: JobRow['status'];
+  status: AvatarJob['status'];
   step: string;
   error?: string;
   avatar?: { id: string; url: string; height_m: number };
@@ -51,17 +51,6 @@ export async function avatarPrice(userId: string): Promise<{ cost: number; free:
   if (error) throw new Error(`avatar count: ${error.message}`);
   const free = (count ?? 0) === 0;
   return { free, cost: free ? 0 : loadRules().costs.avatar_change };
-}
-
-export async function signedUrl(path: string): Promise<string> {
-  const { data, error } = await admin().storage.from(BUCKET).createSignedUrl(path, SIGNED_SECONDS);
-  if (error || !data) throw new Error(`sign ${path}: ${error?.message}`);
-  return data.signedUrl;
-}
-
-async function upload(path: string, bytes: Buffer, contentType: string) {
-  const { error } = await admin().storage.from(BUCKET).upload(path, bytes, { contentType, upsert: true });
-  if (error) throw new Error(`upload ${path}: ${error.message}`);
 }
 
 // The camera guides go to storage once so Replicate can fetch them.
@@ -83,7 +72,7 @@ async function guideUrls(): Promise<string[]> {
 export function checkHeight(heightM: number) {
   const { min, max } = HEIGHT_RANGE_M;
   if (!Number.isFinite(heightM) || heightM < min || heightM > max) {
-    throw new AvatarError(`height must be between ${min} and ${max} m`);
+    throw new ToolError(`height must be between ${min} and ${max} m`);
   }
 }
 
@@ -96,74 +85,38 @@ export async function createAvatar(args: {
   const { userId, photoUrls, heightM } = args;
   const cfg = avatarConfig();
   if (photoUrls.length < cfg.photos.min || photoUrls.length > cfg.photos.max) {
-    throw new AvatarError(`add ${cfg.photos.min} to ${cfg.photos.max} photos`);
+    throw new ToolError(`add ${cfg.photos.min} to ${cfg.photos.max} photos`);
   }
   checkHeight(heightM);
 
   const { cost } = await avatarPrice(userId);
-  if (cost > 0 && (await walletTotal(userId)) < cost) throw new AvatarError(`not enough cubes. this costs ${cost} 🧊`, 402);
+  if (cost > 0 && (await walletTotal(userId)) < cost) throw new ToolError(`not enough cubes. this costs ${cost} 🧊`, 402);
 
-  const db = admin();
   const profile = must(
-    await db.from('ssx_profiles').select('active_avatar_id').eq('user_id', userId).maybeSingle(),
+    await admin().from('ssx_profiles').select('active_avatar_id').eq('user_id', userId).maybeSingle(),
     'profile',
   ) as { active_avatar_id: string | null } | null;
 
-  // the unique index allows one working avatar job per player
-  const inserted = await db
-    .from('ssx_jobs')
-    .insert({
-      user_id: userId,
-      kind: KIND,
-      step: 'generating',
-      input: { height_m: heightM, cost, photo_paths: args.photoPaths ?? [], previous_avatar_id: profile?.active_avatar_id ?? null },
-    })
-    .select('id')
-    .single();
-  if (inserted.error) {
-    if (inserted.error.code === '23505') throw new AvatarError('already making one. hang on.', 409);
-    throw new Error(`insert job: ${inserted.error.message}`);
-  }
-  const jobId = (inserted.data as { id: string }).id;
+  const jobId = await insertJob(
+    userId,
+    KIND,
+    'generating',
+    { height_m: heightM, cost, photo_paths: args.photoPaths ?? [], previous_avatar_id: profile?.active_avatar_id ?? null },
+    'already making one. hang on.',
+  );
 
   try {
     const g = cfg.generate;
     const prediction = await startPrediction(g, { prompt: g.prompt, image_input: [...(await guideUrls()), ...photoUrls] });
-    await update(jobId, { state: { generate_id: prediction.id } });
+    await updateJob(jobId, { state: { generate_id: prediction.id } });
   } catch (err) {
-    await fail(jobId, err);
+    await failJob(jobId, err, KIND);
     throw err;
   }
   return { jobId, cost };
 }
 
-async function update(jobId: string, fields: Partial<JobRow>, whereStep?: string): Promise<boolean> {
-  let q = admin()
-    .from('ssx_jobs')
-    .update({ ...fields, updated_at: new Date().toISOString() })
-    .eq('id', jobId)
-    .eq('status', 'working');
-  if (whereStep) q = q.eq('step', whereStep);
-  const rows = must(await q.select('id'), 'update job') as { id: string }[];
-  return rows.length > 0;
-}
-
-async function fail(jobId: string, err: unknown) {
-  const message = err instanceof Error ? err.message : String(err);
-  console.error('[avatar] job failed:', message.slice(0, 300));
-  await update(jobId, { status: 'failed', error: message.slice(0, 500) }).catch(() => {});
-}
-
-async function loadJob(userId: string, jobId: string): Promise<JobRow> {
-  const job = must(
-    await admin().from('ssx_jobs').select('*').eq('id', jobId).eq('user_id', userId).eq('kind', KIND).maybeSingle(),
-    'load job',
-  ) as JobRow | null;
-  if (!job) throw new AvatarError('no such job', 404);
-  return job;
-}
-
-async function view(job: JobRow): Promise<JobView> {
+async function view(job: AvatarJob): Promise<JobView> {
   const v: JobView = { id: job.id, status: job.status, step: job.step };
   if (job.status === 'failed') v.error = 'that did not work. no cubes spent. try again.';
   if (job.status === 'done' && job.output?.avatar_id) {
@@ -178,38 +131,28 @@ async function view(job: JobRow): Promise<JobView> {
 
 // Moves a working job forward by at most one step and reports where it stands.
 export async function advanceAvatarJob(userId: string, jobId: string): Promise<JobView> {
-  let job = await loadJob(userId, jobId);
+  let job = await loadJob<AvatarJob>(userId, jobId, KIND);
   if (job.status !== 'working') return view(job);
 
   try {
-    const age = (Date.now() - new Date(job.created_at).getTime()) / 60000;
-    const idle = (Date.now() - new Date(job.updated_at).getTime()) / 1000;
-    if (age > MAX_JOB_MINUTES) throw new Error('job timed out');
+    const { minutes, idleSeconds } = jobAge(job);
+    if (minutes > MAX_JOB_MINUTES) throw new Error('job timed out');
     // a step claimed by a call that then died
     const claimed = (job.step === 'cutting' && !job.state.cutout_id) || job.step === 'normalizing';
-    if (claimed && idle > avatarConfig().stale_seconds) throw new Error(`stuck in ${job.step}`);
+    if (claimed && idleSeconds > avatarConfig().stale_seconds) throw new Error(`stuck in ${job.step}`);
 
     if (job.step === 'generating' && job.state.generate_id) await afterGenerate(job);
     else if (job.step === 'cutting' && job.state.cutout_id) await afterCutout(job);
   } catch (err) {
-    await fail(job.id, err);
+    await failJob(job.id, err, KIND);
   }
-  job = await loadJob(userId, jobId);
+  job = await loadJob<AvatarJob>(userId, jobId, KIND);
   return view(job);
 }
 
-async function finished(id: string): Promise<string | null> {
-  const p = await getPrediction(id);
-  if (p.status === 'failed' || p.status === 'canceled') throw new Error(`prediction ${p.status}: ${String(p.error ?? '')}`);
-  if (p.status !== 'succeeded') return null;
-  const url = outputUrl(p.output);
-  if (!url) throw new Error('prediction had no output');
-  return url;
-}
-
-async function afterGenerate(job: JobRow) {
-  const url = await finished(job.state.generate_id!);
-  if (!url || !(await update(job.id, { step: 'cutting' }, 'generating'))) return;
+async function afterGenerate(job: AvatarJob) {
+  const url = await finishedPrediction(job.state.generate_id!);
+  if (!url || !(await updateJob(job.id, { step: 'cutting' }, 'generating'))) return;
 
   // keep the paid generation so we can re-normalize later without paying again
   const raw = await download(url);
@@ -218,12 +161,12 @@ async function afterGenerate(job: JobRow) {
 
   const c = avatarConfig().cutout;
   const prediction = await startPrediction(c, { [c.image_field]: url });
-  await update(job.id, { state: { ...job.state, raw_path: rawPath, cutout_id: prediction.id } });
+  await updateJob(job.id, { state: { ...job.state, raw_path: rawPath, cutout_id: prediction.id } });
 }
 
-async function afterCutout(job: JobRow) {
-  const url = await finished(job.state.cutout_id!);
-  if (!url || !(await update(job.id, { step: 'normalizing' }, 'cutting'))) return;
+async function afterCutout(job: AvatarJob) {
+  const url = await finishedPrediction(job.state.cutout_id!);
+  if (!url || !(await updateJob(job.id, { step: 'normalizing' }, 'cutting'))) return;
 
   const db = admin();
   const userId = job.user_id;
@@ -254,13 +197,27 @@ async function afterCutout(job: JobRow) {
   must(await db.from('ssx_profiles').upsert({ user_id: userId, active_avatar_id: avatarId }), 'set active avatar');
 
   // charged only once the avatar exists, so a failed job never costs anything
-  if (job.input.cost > 0) {
-    must(
-      await db.from('ssx_ledger').insert({ user_id: userId, delta: -job.input.cost, reason: 'avatar', rules_version: loadRules().rules_version }),
-      'charge avatar',
-    );
-  }
-  await update(job.id, { status: 'done', step: 'done', output: { avatar_id: avatarId } });
+  await charge(userId, job.input.cost, 'avatar', loadRules().rules_version);
+  await updateJob(job.id, { status: 'done', step: 'done', output: { avatar_id: avatarId } });
+}
+
+// Runs the normalizer again on an avatar's saved cutout: no new generation, no cubes.
+// Used when the normalize rules change (brief 02d took the baked shadow out).
+export async function renormalizeAvatar(userId: string, avatarId: string): Promise<{ url: string }> {
+  const db = admin();
+  const row = must(
+    await db.from('ssx_avatars').select('cutout_path, height_m').eq('id', avatarId).eq('user_id', userId).maybeSingle(),
+    'avatar',
+  ) as { cutout_path: string | null; height_m: number | null } | null;
+  if (!row) throw new ToolError('no such avatar', 404);
+  if (!row.cutout_path || !row.height_m) throw new ToolError('this avatar has no saved cutout');
+
+  const { png } = await normalizeAvatar(await readFile(row.cutout_path), Number(row.height_m));
+  // a new file name, so no cache anywhere keeps showing the old picture
+  const imagePath = `${userId}/avatars/${avatarId}-${Date.now().toString(36)}.png`;
+  await upload(imagePath, png, 'image/png');
+  must(await db.from('ssx_avatars').update({ image_path: imagePath }).eq('id', avatarId).eq('user_id', userId), 'save avatar');
+  return { url: await signedUrl(imagePath) };
 }
 
 export async function keepAvatar(userId: string, avatarId: string) {
@@ -274,10 +231,10 @@ export async function discardAvatar(userId: string, avatarId: string) {
     await db.from('ssx_avatars').select('job_id').eq('id', avatarId).eq('user_id', userId).maybeSingle(),
     'avatar',
   ) as { job_id: string | null } | null;
-  if (!row) throw new AvatarError('no such avatar', 404);
+  if (!row) throw new ToolError('no such avatar', 404);
   let previous: string | null = null;
   if (row.job_id) {
-    const job = must(await db.from('ssx_jobs').select('input').eq('id', row.job_id).maybeSingle(), 'job') as Pick<JobRow, 'input'> | null;
+    const job = must(await db.from('ssx_jobs').select('input').eq('id', row.job_id).maybeSingle(), 'job') as Pick<AvatarJob, 'input'> | null;
     previous = job?.input.previous_avatar_id ?? null;
   }
   must(

@@ -15,6 +15,13 @@
       "value": 116
     }
   },
+  "moves": {
+    "note": "Only zoom and pan ever move, always eased. 1x = the px_per_meter framing. The bake always renders at 1x.",
+    "focus_zoom": 2,
+    "min_zoom": 1,
+    "max_zoom": 3,
+    "ease_seconds": 0.6
+  },
   "room": {
     "size_m": [
       6,
@@ -22,7 +29,21 @@
     ],
     "wall_height_m": 2.7,
     "wall_thickness_m": 0.15,
-    "walls": "back two edges only"
+    "walls": "data in ssx_profiles.room.walls: { edge: [i, j, 'x' | 'z'], height }. Default: the two back edges as backdrops.",
+    "wall_heights_m": {
+      "low": 1,
+      "normal": 2.7,
+      "tall": 4
+    },
+    "backdrop_note": "height 'backdrop' = tall enough to pass the top of the screen at 1x, computed from the frustum.",
+    "wall_color": "#dcdcdc",
+    "cutaway_height_m": 0.3,
+    "grid_limits": [
+      -3,
+      9
+    ],
+    "max_size_m": 12,
+    "max_walls": 200
   },
   "floor": {
     "color": "#b3b3b3",
@@ -47,6 +68,11 @@
     ],
     "person_height_px": 620,
     "person_height_m": 1.8,
-    "anchor_note": "Ground point = center of the footprint between the ankles, 25 px above the lowest toe/shadow pixel (900). Align new avatars with public/avatars/avatar_template.png."
+    "anchor_note": "Ground point = center of the footprint between the ankles, 25 px above the lowest toe/shadow pixel (900). Align new avatars with public/avatars/avatar_template.png.",
+    "shadow": {
+      "note": "3D floor shadow under generated avatars (presets keep their baked one).",
+      "size_of_height": 0.5,
+      "opacity": 0.3
+    }
   }
 }

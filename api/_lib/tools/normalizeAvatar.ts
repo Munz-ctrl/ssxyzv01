@@ -98,11 +98,10 @@ export async function normalizeAvatar(cutout: Buffer, heightM: number) {
     .png()
     .toBuffer();
 
+  // the room draws the floor shadow in 3D now; a baked one only when the config asks for it
+  const layers = N.shadow.opacity > 0 ? [{ input: contactShadow(targetPx, ay + (fig.bottom - fig.groundY) * sy), left: 0, top: 0 }] : [];
   const png = await sharp({ create: { width: cw, height: ch, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } })
-    .composite([
-      { input: contactShadow(targetPx, ay + (fig.bottom - fig.groundY) * sy), left: 0, top: 0 },
-      { input: person, left: dstLeft, top: dstTop },
-    ])
+    .composite([...layers, { input: person, left: dstLeft, top: dstTop }])
     .png()
     .toBuffer();
 

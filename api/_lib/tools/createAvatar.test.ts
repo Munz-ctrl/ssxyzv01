@@ -59,6 +59,8 @@ const storage = {
   from: () => ({
     createSignedUrl: async (path: string) => ({ data: { signedUrl: `https://signed/${path}` }, error: null }),
     upload: async (path: string, bytes: Buffer) => (files.set(path, bytes), { error: null }),
+    download: async (path: string) =>
+      files.has(path) ? { data: new Blob([new Uint8Array(files.get(path)!)]), error: null } : { data: null, error: { message: 'not found' } },
   }),
 };
 
@@ -91,7 +93,8 @@ async function cutoutPng() {
   return sharp(data, { raw: { width: w, height: h, channels: 4 } }).png().toBuffer();
 }
 
-const { advanceAvatarJob, createAvatar, discardAvatar, keepAvatar } = await import('./createAvatar.js');
+const { advanceAvatarJob, createAvatar, discardAvatar, keepAvatar, renormalizeAvatar } = await import('./createAvatar.js');
+const { avatarConfig } = await import('./avatarConfig.js');
 
 const U = '11111111-1111-4111-8111-111111111111';
 const photos = ['https://signed/photo-1.jpg'];
@@ -118,11 +121,25 @@ beforeEach(() => {
 });
 
 describe('createAvatar', () => {
-  it('sends the two guides first, then the photos', async () => {
+  it('sends the guides from config/avatar.json first, then the photos, with its prompt', async () => {
     await createAvatar({ userId: U, photoUrls: photos, heightM: 1.8 });
     const urls = started[0].input.image_input as string[];
-    expect(urls.map((u) => u.split('/').pop())).toEqual(['grid-portrait.png', 'grid-player-placement.png', 'photo-1.jpg']);
-    expect(String(started[0].input.prompt)).toMatch(/^The first two images are grid guides/);
+    const guides = avatarConfig().generate.guides.map((g) => g.split('/').pop());
+    expect(urls.map((u) => u.split('/').pop())).toEqual([...guides, 'photo-1.jpg']);
+    expect(started[0].input.prompt).toBe(avatarConfig().generate.prompt);
+  });
+
+  it('re-normalizes a saved cutout for free, under a new file name', async () => {
+    const { jobId } = await createAvatar({ userId: U, photoUrls: photos, heightM: 1.8 });
+    const done = await finish(jobId);
+    const before = (tables.ssx_avatars[0].image_path as string);
+    const ledger = tables.ssx_ledger.length;
+    await renormalizeAvatar(U, done.avatar!.id);
+    const after = tables.ssx_avatars[0].image_path as string;
+    expect(after).not.toBe(before);
+    expect(files.has(after)).toBe(true);
+    expect(tables.ssx_ledger).toHaveLength(ledger);
+    await expect(renormalizeAvatar('22222222-2222-4222-8222-222222222222', done.avatar!.id)).rejects.toThrow('no such avatar');
   });
 
   it('makes the first avatar for free, sets it active, and keeps the raw and cutout files', async () => {

@@ -46,6 +46,7 @@
   "costs": {
     "sequel_image": 20,
     "avatar_change": 30,
+    "surface": 5,
     "space_edit_library": 0
   },
   "agent": {

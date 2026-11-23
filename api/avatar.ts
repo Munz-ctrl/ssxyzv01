@@ -1,15 +1,16 @@
 import { randomUUID } from 'node:crypto';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { admin, requireUser } from './_lib/http.js';
+import { requireUser } from './_lib/http.js';
+import { uploadSlot } from './_lib/jobs.js';
 import { avatarConfig } from './_lib/tools/avatarConfig.js';
 import {
   advanceAvatarJob,
   AvatarError,
   avatarPrice,
-  BUCKET,
   createAvatar,
   discardAvatar,
   keepAvatar,
+  renormalizeAvatar,
   signedUrl,
 } from './_lib/tools/createAvatar.js';
 
@@ -22,6 +23,7 @@ const PHOTO = /^[0-9a-f-]{36}\/avatar-photos\/[0-9a-f-]{36}\.jpg$/i;
 //   status   { job_id }                -> the job, advanced one step
 //   keep     { avatar_id }
 //   discard  { avatar_id }             -> the room goes back to the previous avatar
+//   renormalize { avatar_id }          -> runs the normalizer again on the saved cutout, free
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const userId = await requireUser(req, res);
@@ -33,12 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { max } = avatarConfig().photos;
         const count = Math.max(1, Math.min(max, Math.round(Number(body.count) || 1)));
         const uploads = await Promise.all(
-          Array.from({ length: count }, async () => {
-            const path = `${userId}/avatar-photos/${randomUUID()}.jpg`;
-            const { data, error } = await admin().storage.from(BUCKET).createSignedUploadUrl(path);
-            if (error || !data) throw new Error(`upload slot: ${error?.message}`);
-            return { path, token: data.token };
-          }),
+          Array.from({ length: count }, () => uploadSlot(`${userId}/avatar-photos/${randomUUID()}.jpg`)),
         );
         return res.status(200).json({ uploads, ...(await avatarPrice(userId)) });
       }
@@ -63,6 +60,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (typeof body.avatar_id !== 'string' || !UUID.test(body.avatar_id)) return res.status(400).json({ error: 'bad avatar id' });
         await (body.action === 'keep' ? keepAvatar : discardAvatar)(userId, body.avatar_id);
         return res.status(200).json({ ok: true });
+      }
+
+      case 'renormalize': {
+        if (typeof body.avatar_id !== 'string' || !UUID.test(body.avatar_id)) return res.status(400).json({ error: 'bad avatar id' });
+        return res.status(200).json(await renormalizeAvatar(userId, body.avatar_id));
       }
 
       default:

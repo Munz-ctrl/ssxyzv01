@@ -1,0 +1,32 @@
+{
+  "note": "Floor and wall textures (brief 02d). Presets are free files in public/surfaces/ (made by scripts/make-surfaces.ts). Photo and describe cost costs.surface in cubes.json. Every texture is 1 m x 1 m and repeats once per meter.",
+  "presets": [
+    { "id": "plain", "label": "plain gray" },
+    { "id": "asphalt", "label": "asphalt" },
+    { "id": "concrete", "label": "concrete" },
+    { "id": "wood", "label": "wood" },
+    { "id": "white_tile", "label": "white tile" },
+    { "id": "siding", "label": "siding" },
+    { "id": "brick", "label": "brick" }
+  ],
+  "generate": {
+    "model": "google/nano-banana-pro",
+    "version": null,
+    "prompt": "Seamless tileable texture of {subject}, seen straight on, flat even light, no perspective, no shadows, no objects. Exactly 1 meter by 1 meter.",
+    "subject_photo": "the surface in the photo",
+    "input": {
+      "aspect_ratio": "1:1",
+      "resolution": "1K",
+      "output_format": "png"
+    }
+  },
+  "size_px": 1024,
+  "blend_edges": 0.18,
+  "tone": {
+    "note": "Generated textures come out a little flatter so the layout stays readable.",
+    "saturation": 0.85,
+    "contrast": 0.88
+  },
+  "prompt_max_chars": 160,
+  "stale_seconds": 120
+}

@@ -47,14 +47,12 @@ describe('normalizeAvatar', () => {
     });
   }
 
-  it('adds a soft shadow under the feet that does not count as figure', async () => {
+  it('bakes no shadow: the floor under the feet stays clear (the room draws it in 3D)', async () => {
     const { png } = await normalizeAvatar(await fakeCutout(), 1.8);
     const { data, info } = await sharp(png).raw().toBuffer({ resolveWithObject: true });
-    // just below the lowest foot pixel, under the anchor: only shadow there
+    // just below the lowest foot pixel, under the anchor
     const floorY = Math.round(spec.anchor[1] + ((LIFT / (1 - LIFT)) * 1.8 * spec.pxPerM)) + 12;
-    const a = data[(floorY * info.width + spec.anchor[0]) * 4 + 3];
-    expect(a).toBeGreaterThan(5);
-    expect(a).toBeLessThan(128);
+    expect(data[(floorY * info.width + spec.anchor[0]) * 4 + 3]).toBe(0);
   });
 
   it('refuses an image with no transparent background', async () => {

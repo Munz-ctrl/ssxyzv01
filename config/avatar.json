@@ -30,9 +30,10 @@
     "foot_band": 0.08,
     "ankle_lift": 0.075,
     "shadow": {
+      "note": "Opacity 0 since brief 02d: the room draws the floor shadow in 3D. Raise it only to bake a shadow into the PNG again.",
       "width_of_height": 0.26,
       "squash": 0.545,
-      "opacity": 0.35
+      "opacity": 0
     }
   },
   "photos": {
