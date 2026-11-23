@@ -1,5 +1,8 @@
 import type { User } from '@supabase/supabase-js';
+import surfaceConfig from '../../config/surfaces.json';
 import { lifetimeEarned } from '../../shared/level';
+import { parseRoom, type Room, type SurfaceTarget, type WallOp } from '../../shared/room';
+import { ROOM_RULES } from '../scene/camera';
 import { buildReceipt, MISSION_REASON, type Label, type ReceiptLine } from '../../shared/receipt';
 import { supabase } from './supabase';
 
@@ -51,6 +54,8 @@ export interface Game {
   avatar: ActiveAvatar | null; // null = the placeholder
   avatarJob: string | null; // id of an avatar job still working
   avatarCount: number; // avatars made so far; the first one is free
+  room: Room; // walls and surfaces (the default backdrops until the player edits)
+  surfaceJob: string | null; // id of a texture job still working
 }
 
 interface ApiResult {
@@ -95,7 +100,7 @@ async function ensureProfile(user: User): Promise<string> {
 
 // Signed urls last an hour; reuse one so the room does not reload the texture on every refresh.
 const signed = new Map<string, { url: string; until: number }>();
-async function signedAvatarUrl(path: string): Promise<string> {
+async function signedFileUrl(path: string): Promise<string> {
   const hit = signed.get(path);
   if (hit && hit.until > Date.now()) return hit.url;
   const data = ok(await supabase.storage.from('ssx').createSignedUrl(path, 3600));
@@ -122,7 +127,7 @@ async function loadAvatar(uid: string): Promise<AvatarState> {
         await supabase.from('ssx_avatars').select('id, image_path, height_m, approved').eq('id', activeId).maybeSingle(),
       ) as { id: string; image_path: string; height_m: number | null; approved: boolean } | null;
       if (row) {
-        avatar = { id: row.id, url: await signedAvatarUrl(row.image_path), heightM: Number(row.height_m ?? 1.8), approved: row.approved };
+        avatar = { id: row.id, url: await signedFileUrl(row.image_path), heightM: Number(row.height_m ?? 1.8), approved: row.approved };
       }
     }
     return { avatar, avatarJob: (ok(job) ?? [])[0]?.id ?? null, avatarCount: count.count ?? 0 };
@@ -131,9 +136,41 @@ async function loadAvatar(uid: string): Promise<AvatarState> {
   }
 }
 
+export const PRESETS = surfaceConfig.presets;
+const PRESET_IDS = PRESETS.map((p) => p.id).filter((id) => id !== 'plain');
+
+// The room is extra too: without the 02d migration it is the default room.
+async function loadRoom(uid: string): Promise<Pick<Game, 'room' | 'surfaceJob'>> {
+  try {
+    const [profile, job] = await Promise.all([
+      supabase.from('ssx_profiles').select('room').eq('user_id', uid).maybeSingle(),
+      supabase.from('ssx_jobs').select('id').eq('user_id', uid).eq('kind', 'surface').eq('status', 'working').limit(1),
+    ]);
+    return { room: parseRoom(ok(profile)?.room ?? null, ROOM_RULES, uid, PRESET_IDS), surfaceJob: (job.data ?? [])[0]?.id ?? null };
+  } catch {
+    return { room: parseRoom(null, ROOM_RULES, uid, PRESET_IDS), surfaceJob: null };
+  }
+}
+
+// Texture ref -> url the scene can load: presets are static files, the player's own are signed.
+export async function textureUrls(room: Room): Promise<Record<string, string>> {
+  const refs = new Set([room.floor_texture, room.wall_texture, ...room.walls.map((w) => w.texture)].filter((r): r is string => !!r));
+  const out: Record<string, string> = {};
+  await Promise.all(
+    [...refs].map(async (ref) => {
+      try {
+        out[ref] = ref.startsWith('preset:') ? `/surfaces/${ref.slice(7)}.jpg` : await signedFileUrl(ref);
+      } catch {
+        // a texture that will not load leaves the plain color
+      }
+    }),
+  );
+  return out;
+}
+
 export async function loadGame(user: User): Promise<Game> {
   const uid = user.id;
-  const [handle, count, wallet, lifetime, missions, vault, wishlist, dumps, avatarState] = await Promise.all([
+  const [handle, count, wallet, lifetime, missions, vault, wishlist, dumps, avatarState, roomState] = await Promise.all([
     ensureProfile(user),
     supabase.from('ssx_dumps').select('id', { count: 'exact', head: true }).eq('user_id', uid),
     supabase.from('ssx_wallet').select('cubes').eq('user_id', uid).maybeSingle(),
@@ -163,6 +200,7 @@ export async function loadGame(user: User): Promise<Game> {
       .order('created_at', { ascending: false })
       .limit(50),
     loadAvatar(uid),
+    loadRoom(uid),
   ]);
 
   const dumpRows = ok(dumps) ?? [];
@@ -222,6 +260,7 @@ export async function loadGame(user: User): Promise<Game> {
     wishlist: wishRows,
     history,
     ...avatarState,
+    ...roomState,
   };
 }
 
@@ -274,9 +313,9 @@ export interface AvatarJobView {
 const MAX_EDGE = 1536;
 
 // Phone photos are huge: shrink to a jpeg before upload. Orientation follows the photo's exif.
-async function shrink(file: File): Promise<Blob> {
+async function shrink(file: File, maxEdge = MAX_EDGE): Promise<Blob> {
   const bitmap = await createImageBitmap(file);
-  const s = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  const s = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(bitmap.width * s);
   canvas.height = Math.round(bitmap.height * s);
@@ -303,6 +342,34 @@ export async function startAvatar(photos: File[], heightM: number): Promise<{ jo
 export const avatarStatus = (jobId: string) => post<AvatarJobView>('/api/avatar', { action: 'status', job_id: jobId });
 export const keepAvatar = (avatarId: string) => post<{ ok: true }>('/api/avatar', { action: 'keep', avatar_id: avatarId });
 export const discardAvatar = (avatarId: string) => post<{ ok: true }>('/api/avatar', { action: 'discard', avatar_id: avatarId });
+
+// room edits (brief 02d)
+
+export interface SurfaceJobView {
+  id: string;
+  status: 'working' | 'done' | 'failed';
+  step: string;
+  error?: string;
+  room?: Room;
+}
+
+export const editWalls = (ops: WallOp[]) => post<{ room: Room }>('/api/room', { action: 'walls', ops });
+
+export const setSurfacePreset = (target: SurfaceTarget, preset: string) =>
+  post<{ room: Room }>('/api/room', { action: 'surface', target, preset });
+
+export const describeSurface = (target: SurfaceTarget, prompt: string) =>
+  post<{ job_id: string; cost: number }>('/api/room', { action: 'surface', target, prompt });
+
+export async function photoSurface(target: SurfaceTarget, photo: File): Promise<{ job_id: string; cost: number }> {
+  const blob = await shrink(photo, 1024);
+  const slot = await post<{ path: string; token: string }>('/api/room', { action: 'photo' });
+  const { error } = await supabase.storage.from('ssx').uploadToSignedUrl(slot.path, slot.token, blob, { contentType: 'image/jpeg' });
+  if (error) throw new Error('photo upload failed. try again.');
+  return post('/api/room', { action: 'surface', target, photo_path: slot.path });
+}
+
+export const surfaceStatus = (jobId: string) => post<SurfaceJobView>('/api/room', { action: 'status', job_id: jobId });
 
 // Stable pseudo coordinates until the map exists.
 export function coordsFor(userId: string): [number, number] {

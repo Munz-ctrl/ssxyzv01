@@ -3,7 +3,23 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import cubeRules from '../config/cubes.json';
 import { VERSION_LINE } from './config';
 import { levelFor } from '../shared/level';
-import { avatarStatus, coordsFor, discardAvatar, keepAvatar, loadGame, SESSION_ENDED, type Game } from './lib/data';
+import { applyWallOps, setTexture, type Edge, type Room, type SurfaceTarget, type WallOp } from '../shared/room';
+import { RoomEditor, type Selection, type SurfaceChoice } from './components/RoomEditor';
+import {
+  avatarStatus,
+  coordsFor,
+  describeSurface,
+  discardAvatar,
+  editWalls,
+  keepAvatar,
+  loadGame,
+  photoSurface,
+  SESSION_ENDED,
+  setSurfacePreset,
+  surfaceStatus,
+  textureUrls,
+  type Game,
+} from './lib/data';
 import { fill, installTapSound } from './lib/sfx';
 import { supabase } from './lib/supabase';
 import { Auth } from './screens/Auth';
@@ -11,6 +27,7 @@ import { History } from './screens/History';
 import { Reset } from './screens/Reset';
 import { Home } from './screens/Home';
 import { Vault } from './screens/Vault';
+import { ROOM_RULES, type ScenePick } from './scene/camera';
 
 // three.js is a big chunk: load it after the first paint so sign in stays fast
 const Scene = lazy(() => import('./scene/Scene'));
@@ -18,6 +35,19 @@ const Scene = lazy(() => import('./scene/Scene'));
 type Tab = 'home' | 'vault' | 'history';
 const TABS: Tab[] = ['home', 'vault', 'history'];
 const POLL_MS = 3000;
+const NOTE_MS = 4000;
+const GRID_KEY = 'ssx-v0-grid';
+
+const sameEdge = (a: Edge, b: Edge) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
+const message = (err: unknown) => (err instanceof Error ? err.message : 'something broke. try again.');
+
+function readGrid(): boolean {
+  try {
+    return localStorage.getItem(GRID_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
 
 export function App() {
   const [user, setUser] = useState<User | null | undefined>(undefined);
@@ -35,6 +65,17 @@ export function App() {
   const [making, setMaking] = useState(false);
   const [avatarNote, setAvatarNote] = useState('');
   const [reviewing, setReviewing] = useState(false);
+
+  // room edit mode (brief 02d)
+  const [editing, setEditing] = useState(false);
+  const [room, setRoom] = useState<Room | null>(null);
+  const [textures, setTextures] = useState<Record<string, string>>({});
+  const [selection, setSelection] = useState<Selection>(null);
+  const [grid, setGrid] = useState(readGrid);
+  const [surfaceJob, setSurfaceJob] = useState<string | null>(null);
+  const [roomNote, setRoomNote] = useState('');
+  const pending = useRef(0);
+  const queue = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => installTapSound(), []);
 
@@ -89,8 +130,133 @@ export function App() {
     setAvatarJob(null);
     setMaking(false);
     setAvatarNote('');
+    setEditing(false);
+    setSelection(null);
+    setRoom(null);
+    setSurfaceJob(null);
     void refresh();
   }, [refresh]);
+
+  // the room follows the server copy, except while an edit is still on its way
+  const serverRoom = game?.room ?? null;
+  useEffect(() => {
+    if (serverRoom && pending.current === 0) setRoom(serverRoom);
+  }, [serverRoom]);
+
+  useEffect(() => {
+    if (!room) return;
+    let live = true;
+    void textureUrls(room).then((urls) => live && setTextures((t) => ({ ...t, ...urls })));
+    return () => {
+      live = false;
+    };
+  }, [room]);
+
+  useEffect(() => {
+    if (!roomNote) return;
+    const timer = setTimeout(() => setRoomNote(''), NOTE_MS);
+    return () => clearTimeout(timer);
+  }, [roomNote]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(GRID_KEY, grid ? 'on' : 'off');
+    } catch {
+      // private windows: the choice just will not persist
+    }
+  }, [grid]);
+
+  const resumableSurface = game?.surfaceJob ?? null;
+  useEffect(() => {
+    if (resumableSurface) setSurfaceJob((j) => j ?? resumableSurface);
+  }, [resumableSurface]);
+
+  // a texture job: each poll moves it one step on the server
+  useEffect(() => {
+    if (!surfaceJob) return;
+    let stopped = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = async () => {
+      try {
+        const job = await surfaceStatus(surfaceJob);
+        if (stopped) return;
+        if (job.status === 'working') {
+          timer = setTimeout(tick, POLL_MS);
+          return;
+        }
+        if (job.status === 'failed') setRoomNote(job.error ?? 'that did not work. try again.');
+        if (job.room && pending.current === 0) setRoom(job.room);
+        await refresh();
+        setSurfaceJob(null);
+      } catch {
+        if (!stopped) timer = setTimeout(tick, POLL_MS * 2);
+      }
+    };
+    timer = setTimeout(tick, POLL_MS);
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+    };
+  }, [surfaceJob, refresh]);
+
+  // Room edits show at once and go to the server one after another. A failed one reloads the room.
+  const send = useCallback(
+    (next: Room, call: () => Promise<{ room: Room }>) => {
+      setRoom(next);
+      pending.current += 1;
+      queue.current = queue.current.then(async () => {
+        let failed = false;
+        try {
+          const result = await call();
+          if (pending.current === 1) setRoom(result.room);
+        } catch (err) {
+          setRoomNote(message(err));
+          failed = true;
+        }
+        pending.current -= 1;
+        // the server copy wins again once nothing else is on its way
+        if (failed && pending.current === 0) await refresh();
+      });
+    },
+    [refresh],
+  );
+
+  function changeWalls(ops: WallOp[]) {
+    if (!room) return;
+    try {
+      send(applyWallOps(room, ops, ROOM_RULES), () => editWalls(ops));
+    } catch (err) {
+      setRoomNote(message(err));
+    }
+  }
+
+  async function changeSurface(target: SurfaceTarget, choice: SurfaceChoice): Promise<boolean> {
+    if (!room) return false;
+    try {
+      if ('preset' in choice) {
+        send(setTexture(room, target, choice.preset === 'plain' ? null : `preset:${choice.preset}`), () => setSurfacePreset(target, choice.preset));
+        return true;
+      }
+      const start = 'prompt' in choice ? await describeSurface(target, choice.prompt) : await photoSurface(target, choice.photo);
+      setSurfaceJob(start.job_id);
+      return true;
+    } catch (err) {
+      setRoomNote(message(err));
+      return false;
+    }
+  }
+
+  function pick(p: ScenePick) {
+    if (!editing) return;
+    if (p.kind === 'floor') setSelection((s) => (s === 'floor' ? null : 'floor'));
+    else if (p.kind === 'edge') setSelection((s) => (s && s !== 'floor' && sameEdge(s, p.edge) ? null : p.edge));
+    else setSelection(null);
+  }
+
+  function leaveEdit() {
+    setEditing(false);
+    setSelection(null);
+  }
 
   // pick up an avatar job that was still working when the app was closed
   const resumable = game?.avatarJob ?? null;
@@ -200,20 +366,53 @@ export function App() {
   return (
     <Shell
       room
-      avatar={{ url: avatar?.url, heightM: avatar?.heightM, working: !!avatarJob }}
+      scene={{
+        avatarUrl: avatar?.url,
+        avatarHeight: avatar?.heightM,
+        working: !!avatarJob,
+        layout: room ?? undefined,
+        textures,
+        editing,
+        grid,
+        selected: selection,
+        onPick: pick,
+      }}
       hud={[`coord. [${x}, ${y}]`, `memory: ${game ? `${game.handle}-${game.dumpCount}` : '...'}`]}
-    >
-      <nav className="tabs">
-        {TABS.map((t) => (
-          <button key={t} className={`link ${tab === t ? 'on' : ''}`} onClick={() => setTab(t)}>
-            {t}
+      hudAction={
+        game && room && tab === 'home' && !editing ? (
+          <button className="link hud-action" onClick={() => setEditing(true)}>
+            [ edit ]
           </button>
-        ))}
-      </nav>
+        ) : null
+      }
+    >
+      {!editing && (
+        <nav className="tabs">
+          {TABS.map((t) => (
+            <button key={t} className={`link ${tab === t ? 'on' : ''}`} onClick={() => setTab(t)}>
+              {t}
+            </button>
+          ))}
+        </nav>
+      )}
 
-      <main className="stage">
+      <main className={`stage ${editing ? 'editing' : ''}`}>
         {error && <p className="error">{error}</p>}
-        {game && tab === 'home' && <Home game={game} refresh={refresh} addCubes={addCubes} settle={settle} />}
+        {game && tab === 'home' && !editing && <Home game={game} refresh={refresh} addCubes={addCubes} settle={settle} />}
+        {editing && room && (
+          <RoomEditor
+            room={room}
+            selection={selection}
+            grid={grid}
+            wallet={game?.wallet ?? 0}
+            busy={!!surfaceJob}
+            note={roomNote}
+            onGrid={setGrid}
+            onWalls={changeWalls}
+            onSurface={changeSurface}
+            onDone={leaveEdit}
+          />
+        )}
         {game && tab === 'vault' && (
           <Vault
             game={game}
@@ -228,7 +427,7 @@ export function App() {
           />
         )}
         {game && tab === 'history' && <History game={game} />}
-        {tab === 'home' && (unreviewed || avatarNote) && (
+        {tab === 'home' && !editing && (unreviewed || avatarNote) && (
           <div className="review">
             {avatarNote ? (
               <>
@@ -265,22 +464,24 @@ export function App() {
 
 interface ShellProps {
   hud?: string[];
+  hudAction?: React.ReactNode;
   room?: boolean;
-  avatar?: { url?: string; heightM?: number; working: boolean };
+  scene?: Omit<React.ComponentProps<typeof Scene>, 'room'>;
   children?: React.ReactNode;
 }
 
-function Shell({ hud = [], room = false, avatar, children }: ShellProps) {
+function Shell({ hud = [], hudAction, room = false, scene, children }: ShellProps) {
   return (
     <div className="app">
       <Suspense fallback={null}>
-        <Scene room={room} avatarUrl={avatar?.url} avatarHeight={avatar?.heightM} working={avatar?.working} />
+        <Scene room={room} {...scene} />
       </Suspense>
       <header className="hud">
         <div>{VERSION_LINE}</div>
         {hud.map((line) => (
           <div key={line}>{line}</div>
         ))}
+        {hudAction}
       </header>
       {children}
     </div>

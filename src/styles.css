@@ -51,7 +51,7 @@ textarea {
 
 .debug-cam {
   position: absolute;
-  top: calc(80px + env(safe-area-inset-top));
+  top: calc(108px + env(safe-area-inset-top));
   left: calc(var(--pad) + env(safe-area-inset-left));
   z-index: 4;
   color: var(--dim);
@@ -493,4 +493,135 @@ h2 {
 .auth {
   max-height: calc(100% - 2 * var(--pad));
   overflow-y: auto;
+}
+
+/* room edit mode (brief 02d) */
+
+/* the room takes taps and gestures wherever no ui sits on top of it */
+.scene.live {
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.stage {
+  pointer-events: none;
+}
+
+.stage > * {
+  pointer-events: auto;
+}
+
+.hud .hud-action {
+  pointer-events: auto;
+  padding: 2px 0;
+  margin-top: 2px;
+}
+
+.editdock {
+  position: absolute;
+  left: calc(var(--pad) + env(safe-area-inset-left));
+  right: calc(var(--pad) + env(safe-area-inset-right));
+  bottom: calc(46px + env(safe-area-inset-bottom));
+  top: calc(96px + env(safe-area-inset-top));
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.editdock > * {
+  pointer-events: auto;
+}
+
+.editbar {
+  padding: 2px 10px;
+  background: var(--paper);
+  border: 1px solid #fff;
+}
+
+.editbar .row {
+  align-items: center;
+}
+
+.edit-label {
+  min-width: 0;
+}
+
+.edit-tools,
+.edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 8px;
+}
+
+.edit-tools {
+  flex-shrink: 0;
+}
+
+.edit-actions {
+  border-top: 1px dashed var(--dim);
+}
+
+.texsheet {
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--pad);
+  background: var(--paper);
+  border: 1px solid #fff;
+}
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 6px;
+}
+
+.preset {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.preset:disabled {
+  color: var(--dim);
+  cursor: default;
+}
+
+.swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--ink);
+  background: var(--bg) center / cover;
+}
+
+.btn.off {
+  color: var(--dim);
+  cursor: default;
+}
+
+@media (orientation: landscape) {
+  .editdock {
+    left: auto;
+    width: 42%;
+    top: calc(48px + env(safe-area-inset-top));
+  }
+}
+
+/* keeps the hud and bars readable over a dark floor or wall texture */
+.hud,
+.tabs,
+.bar,
+.plus {
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.75), 0 0 1px rgba(255, 255, 255, 0.9);
 }
