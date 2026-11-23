@@ -3,9 +3,20 @@
   "generate": {
     "model": "google/nano-banana-pro",
     "version": null,
-    "guides": ["agent/refs/grid-portrait.png", "agent/refs/grid-player-placement.png"],
-    "prompt": "The first two images are grid guides showing our camera: a true -33 degree downward angle, rotated 45 degrees, very long flat lens. Recreate the person from the remaining photos as a full-body figure standing on this floor, seen from exactly that camera. Keep their face, body, build, hair and outfit. Natural standing pose. Soft natural daylight, plain flat light gray background, no props, full body in frame with space around.",
-    "input": { "aspect_ratio": "9:16", "resolution": "2K", "output_format": "png" }
+    "guides": [
+      "agent/refs/avatar-template.png"
+    ],
+    "prompt": "Replace the mannequin in the first image with the person from the other photos. Keep the first image exactly as it is: same camera angle (looking down from above at about 33 degrees), same framing, same body direction, same position and size in the frame, same plain flat light gray background, same soft shadow under the feet. The person stands in the mannequin's exact pose and facing direction, full body, feet in the same place. Keep the person's real face, hair, skin, build and outfit from their photos. Photorealistic. Nothing else in the image: no other people, no grid, no props, no text.",
+    "input": {
+      "aspect_ratio": "9:16",
+      "resolution": "2K",
+      "output_format": "png"
+    },
+    "guides_old": [
+      "agent/refs/grid-portrait.png",
+      "agent/refs/grid-player-placement.png"
+    ],
+    "note": "Template swap, same method that worked in DressUp: the placeholder mannequin on a plain background fixes pose, angle and framing; the background stays plain so the cutout is clean."
   },
   "cutout": {
     "model": "recraft-ai/recraft-remove-background",
@@ -18,8 +29,15 @@
     "alpha_threshold": 128,
     "foot_band": 0.08,
     "ankle_lift": 0.075,
-    "shadow": { "width_of_height": 0.26, "squash": 0.545, "opacity": 0.35 }
+    "shadow": {
+      "width_of_height": 0.26,
+      "squash": 0.545,
+      "opacity": 0.35
+    }
   },
-  "photos": { "min": 1, "max": 3 },
+  "photos": {
+    "min": 1,
+    "max": 3
+  },
   "stale_seconds": 120
 }
