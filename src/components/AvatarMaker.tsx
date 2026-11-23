@@ -36,7 +36,9 @@ export function AvatarMaker({ free, wallet, onStarted, onCancel }: Props) {
 
   function addPhotos(list: FileList | null) {
     if (!list) return;
-    setPhotos((p) => [...p, ...Array.from(list)].slice(0, MAX_PHOTOS));
+    // Copy the files now: the input is cleared right after this call, which empties the live FileList.
+    const files = Array.from(list);
+    setPhotos((p) => [...p, ...files].slice(0, MAX_PHOTOS));
   }
 
   async function go() {
