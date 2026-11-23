@@ -2,6 +2,78 @@
 
 Newest first.
 
+## 2026-11-23: brief 02d, walls and surfaces (built, waiting on a migration and a deploy)
+
+**Blocked on Munzir for two steps:**
+1. Apply `supabase/migrations/20261123_02d_room.sql`. It adds one column, `ssx_profiles.room` (jsonb). Without it the app still loads and shows the default room, but wall and texture edits fail with `something broke`.
+2. Push and deploy. After that, re-normalize your current avatar (see part 0).
+
+Everything below was checked locally. That covers unit tests, plus the UI in headless Chrome at 390 x 844, 1080 x 1920, 1920 x 1080 and 1280 x 720, against mocked Supabase data and a fake `/api/room`. Touch pinch and drag were sent as real touch events. **No real nano banana texture run has happened yet**, and the done-when walkthrough is yours to do in the app.
+
+| Done when | Result |
+| --- | --- |
+| From inside the app: add a wall, remove one, make one tall, floor to asphalt, walls to siding, looks like `goal-placeholder-room.png` | **Not run for real yet** (needs the migration and a deploy). Every step works against the fake API: `[ edit ]`, tap a grid line, `[ add wall ]`, `[ tall ]`, `[ remove ]`, `[ texture ]`, then asphalt on the floor and siding on `all walls`. To get the goal look, remove the right back wall and keep the left one: [screens/02d-goal-portrait.png](screens/02d-goal-portrait.png). |
+
+![home](screens/02d-home.png) ![focus](screens/02d-focus.png) ![line](screens/02d-edit-line.png) ![cutaway](screens/02d-edit-wall-cutaway.png) ![behind](screens/02d-edit-wall-behind.png) ![sheet](screens/02d-texture-sheet.png) ![goal](screens/02d-goal-portrait.png)
+
+### What was built
+
+- **Part 0, avatar shadow.**
+  - `normalize.shadow.opacity` is now 0, so new avatars come out with no baked shadow.
+  - The room draws a soft 3D floor shadow under the ground point instead. It uses the same texture as the box shadows and is sized to the avatar's height (`avatar.shadow` in `camera.json`).
+  - **Presets keep their hand-made shadows and get no 3D shadow.** That was simpler than editing the PNGs. Only generated avatars get the 3D one.
+  - New tool `renormalizeAvatar` (exposed as `/api/avatar` action `renormalize`). It re-runs the normalizer on an avatar's saved cutout: no generation, no cubes, written under a new file name so no cache keeps the old picture.
+  - **Not run on your avatar yet**, because it needs the deploy. Your current avatar is the kept v2. The unkept v1 still has its baked shadow.
+- **Part 0b, backdrop walls.**
+  - The default room is the two back edges as `height: "backdrop"`. Each backdrop's height is computed from the frustum so its top passes the top of the screen at 1x: about 7 m on a phone, 5.6 m in landscape, up to about 10 m for walls at the far edge of a 12 m room.
+  - Floor and walls share one shader. The white 1 m grid is drawn in each face's own plane, with the same width (1 css px) and opacity (0.7) as the floor.
+  - A texture replaces the plain color and the grid stays on top. `grid on / off` hides both.
+  - Walls get a little light so the two back walls read apart.
+- **Part 0b, camera moves.**
+  - Only zoom and pan move. The numbers are in `camera.json` `moves`.
+  - Tapping the avatar eases over 0.6 s to 2x on it. Tapping it again, or the empty floor outside edit mode, eases back to 1x.
+  - Pinch zooms between 1x and 3x and drag pans. Past a limit the view moves a third as far, then eases back.
+  - Pan never leaves the 1x frame, so the bake framing is always the outer edge. On desktop the mouse wheel zooms.
+  - [screens/02d-pinch.png](screens/02d-pinch.png)
+- **Edit mode.**
+  - `[ edit ]` sits under the HUD lines on home. In edit mode the tabs and `[ + ]` hide and grid lines go to full white.
+  - A thin bar shows what is selected and its actions: `[ add wall ]`, or `[ remove ] [ low ] [ normal ] [ tall ] [ texture ]` for a wall, `[ texture ]` for the floor. It also has `[ grid on ]` and `[ done ]`.
+  - Taps near a grid line pick that 1 m segment. Taps on a wall pick the segment under your finger. Anywhere else picks the floor.
+  - Edits show instantly and save in order. If one fails, the room reloads from the server.
+- **Tool `editWalls({ userId, ops })`** (`api/_lib/tools/editWalls.ts`). Ops are add, remove or height on `[i, j, 'x' | 'z']` edges, saved on `ssx_profiles.room`.
+  - The rules live in `shared/room.ts`, used by the server and the client alike.
+  - Walls are 0.15 m thick and run half a thickness past each end, so corners close. Neighbouring segments with the same look are drawn as one box.
+- **Cutaway.** A segment whose middle is on the camera side of the player renders as a 0.3 m stub. Its real height stays in the data.
+- **Tool `makeSurface({ userId, target, preset? | photoUrl? | prompt? })`** (`api/_lib/tools/makeSurface.ts`).
+  - Presets are free and apply at once. The seven presets (plain gray, asphalt, concrete, wood, white tile, siding, brick) are in `public/surfaces/`, made by `scripts/make-surfaces.ts` and seamless by construction: [screens/02d-surface-presets.png](screens/02d-surface-presets.png).
+  - A photo or a description costs `costs.surface` (5, added to `cubes.json`). It starts a job on nano-banana-pro with the brief's prompt at 1:1, 1K.
+  - When the job finishes, the result is cut square, its edges blended so it repeats cleanly, its saturation set to 0.85 and contrast to 0.88, then saved to `{user_id}/surfaces/`. Cubes are taken only after that, as with the avatar.
+  - Everything is in `config/surfaces.json`.
+- **`/api/room`**, one function: `load`, `walls`, `photo` (upload slot), `surface`, `status`. The job and storage helpers moved to `api/_lib/jobs.ts`, shared by the avatar and surface tools.
+- **Tests and build:**
+  - 18 new tests (room rules, edge blending, the surface and walls tools with mocks, camera picking and limits), 59 in total.
+  - The avatar guide test was out of date after the `avatar-template.png` change; it now reads the guides from config.
+  - Typecheck and build pass. The main bundle grew from 469 to 484 kB.
+
+### Things I had to decide (please check)
+
+- **Brief conflict:** the Walls section says the default room is "the two back edges, 2.7 m". Section 0b says the default walls are `height: "backdrop"`. I went with 0b, since it is the newer note.
+- **Walls sit centered on grid lines.** The old back walls sat just outside the 6 x 6 floor; now the back row of tiles loses 7.5 cm.
+- **Cutaway covers every segment on the camera side of the player** (Sims style), not only the ones that would overlap the avatar on screen. Otherwise a long front wall would still block most of the room.
+- **Room limit:** walls can go on grid points -3 to 9 on both axes, a 12 x 12 m area centered on the default room.
+- **`all walls` sets one wall texture for the room**, which walls added later also get. A single wall can still have its own texture.
+- **`grid on / off` is remembered per device**, not saved in the room. If the bake (02f) should respect it, it belongs in `room`.
+- **The presets are generated patterns, not photos.** Drop real 1 m photos into `public/surfaces/` with the same names to replace them.
+- **HUD readability:** I added a faint white halo behind the HUD, tabs, `[ + ]` and the level bar. Without it the black text disappeared on the asphalt floor. Please check that it fits the visual rules.
+- **Goal look:** the goal image has the wall close behind the avatar and running past the top of the screen. A player-made wall maxes out at 4 m (`tall`), which does not reach the top. Getting closer would need either a `backdrop` choice in the height actions or a movable player tile. I left heights as the brief lists them.
+- **In landscape, the backdrops only span the 6 m room**, so floor shows beyond their ends on both sides.
+
+### Not done
+
+- Long-press and slide to add several segments (nice to have).
+- `bake now?` when leaving edit mode (VISION-scene.md). There is no bake until 02f.
+- A real photo or describe texture run, and re-normalizing your avatar. Both need the migration and the deploy.
+
 ## 2026-11-22: brief 02c, avatar creator (built, waiting on the migration for real runs)
 
 **Blocked on one step from Munzir:** apply `supabase/migrations/20261122_02c_avatar_creator.sql`. Until then the maker cannot run for real. The app still loads without it: the room shows the placeholder and the avatar section says `placeholder`.
