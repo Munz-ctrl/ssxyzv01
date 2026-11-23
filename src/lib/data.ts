@@ -328,7 +328,8 @@ async function shrink(file: File, maxEdge = MAX_EDGE): Promise<Blob> {
 
 // Photos go straight to storage through one-time upload slots made by /api, then the job starts.
 export async function startAvatar(photos: File[], heightM: number): Promise<{ job_id: string; cost: number }> {
-  const blobs = await Promise.all(photos.map(shrink));
+  // not photos.map(shrink): map would pass the index as maxEdge
+  const blobs = await Promise.all(photos.map((photo) => shrink(photo)));
   const prep = await post<{ uploads: { path: string; token: string }[] }>('/api/avatar', { action: 'prepare', count: blobs.length });
   await Promise.all(
     prep.uploads.map(async ({ path, token }, i) => {
