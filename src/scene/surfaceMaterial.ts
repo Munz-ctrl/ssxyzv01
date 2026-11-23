@@ -1,12 +1,11 @@
-import { Color, RepeatWrapping, ShaderMaterial, SRGBColorSpace, type Texture, Vector3 } from 'three';
+import { Color, RepeatWrapping, ShaderMaterial, SRGBColorSpace, type Texture } from 'three';
 import { FLOOR } from './camera';
+import { LIGHT_UNIFORMS } from './light';
 
 // One shader for the floor and every wall face: a plain color or a 1 m texture, with the white
 // 1 m grid on top, drawn in the face's own plane (floor and wall tops in x/z, walls in x/y or z/y),
 // so wall lines follow each wall's direction. Lines stay 1 css px wide at any zoom.
-// Walls get a simple light so the two back walls read apart; the floor stays flat.
-
-const LIGHT = new Vector3(3, 6, 5).normalize();
+// Lit faces take the shared sun (light.ts): ambient + sun * cos(angle), the grid lines stay pure white.
 
 export interface SurfaceLook {
   color: string;
@@ -26,7 +25,8 @@ export function surfaceMaterial(look: SurfaceLook): ShaderMaterial {
       uStep: { value: FLOOR.grid_step_m },
       uWidth: { value: 1 },
       uLit: { value: look.lit ? 1 : 0 },
-      uLight: { value: LIGHT },
+      // shared objects, not copies: one setSun() relights every surface
+      ...LIGHT_UNIFORMS,
     },
     vertexShader: /* glsl */ `
       varying vec3 vWorld;
@@ -48,6 +48,8 @@ export function surfaceMaterial(look: SurfaceLook): ShaderMaterial {
       uniform float uWidth;
       uniform float uLit;
       uniform vec3 uLight;
+      uniform float uAmbient;
+      uniform float uSun;
       varying vec3 vWorld;
       varying vec3 vNormal;
       float lineDistance(float v) {
@@ -63,7 +65,7 @@ export function surfaceMaterial(look: SurfaceLook): ShaderMaterial {
         vec2 p = a.y > 0.5 ? vWorld.xz : (a.x > a.z ? vec2(vWorld.z, vWorld.y) : vec2(vWorld.x, vWorld.y));
         vec3 base = uColor;
         if (uHasMap > 0.5) base = texture2D(uMap, vec2(p.x, a.y > 0.5 ? -p.y : p.y) / uStep).rgb;
-        if (uLit > 0.5) base *= min(1.0, 0.8 + 0.45 * max(dot(n, uLight), 0.0)) * (a.y > 0.5 ? 1.0 : 0.97 + 0.03 * a.z);
+        if (uLit > 0.5) base *= uAmbient + uSun * max(dot(n, uLight), 0.0);
         float dist = min(lineDistance(p.x), lineDistance(p.y));
         float line = 1.0 - smoothstep(uWidth * 0.5 - 0.5, uWidth * 0.5 + 0.5, dist);
         gl_FragColor = vec4(mix(base, uLine, line * uOpacity), 1.0);

@@ -57,6 +57,22 @@ textarea {
   color: var(--dim);
 }
 
+.debug-sun {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 180px;
+}
+.debug-slider {
+  display: flex;
+  flex-direction: column;
+}
+.debug-slider input {
+  width: 100%;
+  accent-color: #000;
+}
+
 /* `...` over the avatar's head while a new one is being made */
 .bubble {
   position: absolute;

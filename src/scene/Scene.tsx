@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
-import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import {
   BoxGeometry,
   CanvasTexture,
@@ -38,6 +38,7 @@ import {
 } from './camera';
 
 export type { ScenePick };
+import { EXPOSURE, getSun, setSun, type Sun, SUN_DEFAULT, subscribeSun, sunDirection } from './light';
 import { setLook, surfaceMaterial } from './surfaceMaterial';
 import { useTexture, Walls } from './Walls';
 
@@ -167,9 +168,7 @@ export default function Scene({
               onPick={(p) => onPick?.(p)}
             />
           )}
-          {/* physical light units: intensity pi lights a lambert surface at its own color */}
-          <ambientLight intensity={0.8 * Math.PI} />
-          <directionalLight position={[3, 6, 5]} intensity={0.45 * Math.PI} />
+          <SunLights />
           <Floor grid={gridOpacity} url={roomData.floor_texture ? textures[roomData.floor_texture] : undefined} />
           {room && (
             <>
@@ -214,6 +213,7 @@ export default function Scene({
               </button>
             </div>
           )}
+          <SunControls />
         </div>
       )}
     </>
@@ -498,12 +498,52 @@ function Gestures({
   return null;
 }
 
+// three's own lights (the dropped boxes use them) follow the same sun as the surface shaders.
+// Physical units: intensity pi lights a lambert surface at its own color.
+function SunLights() {
+  const sun = useSyncExternalStore(subscribeSun, getSun);
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => invalidate(), [sun, invalidate]);
+  const dir = sunDirection(sun.azimuth, sun.elevation).multiplyScalar(10);
+  return (
+    <>
+      <ambientLight intensity={(sun.ambient / EXPOSURE) * Math.PI} />
+      <directionalLight position={dir} intensity={(sun.sun / EXPOSURE) * Math.PI} />
+    </>
+  );
+}
+
+// ?debug=cam: turn the sun around the room. The numbers can go straight into camera.json `light`.
+function SunControls() {
+  const sun = useSyncExternalStore(subscribeSun, getSun);
+  const slider = (key: keyof Sun, label: string, min: number, max: number, step: number) => (
+    <label className="debug-slider">
+      <span>
+        {label} {sun[key].toFixed(step < 1 ? 2 : 0)}
+      </span>
+      <input type="range" min={min} max={max} step={step} value={sun[key]} onChange={(e) => setSun({ [key]: Number(e.target.value) })} />
+    </label>
+  );
+  return (
+    <div className="debug-sun">
+      <div>sun</div>
+      {slider('azimuth', 'turn', 0, 360, 1)}
+      {slider('elevation', 'height', 2, 90, 1)}
+      {slider('sun', 'sun', 0, 1.5, 0.01)}
+      {slider('ambient', 'fill', 0, 1.5, 0.01)}
+      <button className="btn" onClick={() => setSun(SUN_DEFAULT)}>
+        [ reset sun ]
+      </button>
+    </div>
+  );
+}
+
 // The floor plane with its grid; a texture replaces the gray when one is set.
 function Floor({ grid, url }: { grid: number; url?: string }) {
   const dpr = useThree((s) => s.viewport.dpr);
   const invalidate = useThree((s) => s.invalidate);
   const material = useMemo(() => {
-    const m = surfaceMaterial({ color: FLOOR.color, grid: FLOOR.grid_opacity, lit: false });
+    const m = surfaceMaterial({ color: FLOOR.color, grid: FLOOR.grid_opacity, lit: true });
     m.depthWrite = false;
     return m;
   }, []);

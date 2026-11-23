@@ -51,6 +51,13 @@
     "grid_opacity": 0.7,
     "grid_step_m": 1
   },
+  "light": {
+    "note": "One sun: infinitely far, same direction everywhere, no falloff. Azimuth turns it around the room (0 = from +x, 90 = from +z), elevation lifts it (90 = straight down). Brightness = ambient + sun * cos(angle to the face), scaled so the floor at these defaults is exactly floor.color. Live sliders at ?debug=cam.",
+    "azimuth_deg": 59,
+    "elevation_deg": 46,
+    "sun": 0.45,
+    "ambient": 0.8
+  },
   "player_proxy_m": [
     0.5,
     0.3,

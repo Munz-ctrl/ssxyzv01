@@ -2,6 +2,14 @@
 
 Newest first.
 
+## 2026-11-23: after 02d, avatar fix and a movable sun (asked for directly, no brief)
+
+- **Avatar maker fix (pushed, e13da365).** 02d gave the photo shrink a size setting, and `photos.map(shrink)` passed the array index into it, so the first photo shrank to 0 x 0 and failed with `could not read that photo`.
+- **One shared sun** (`src/scene/light.ts`, `light` in `config/camera.json`). It's a direction plus sun and fill strengths, shared by the floor, every wall and three's own lights (the dropped boxes). Brightness is fill + sun x cos(angle to the face). It's scaled so the floor at the default sun is exactly `#b3b3b3`, so the brand gray and the HUD background don't move.
+- **The floor is lit now.** Lowering the sun darkens it (about `#a2a2a2` at 12 to 15 degrees). The walls lost the old cap at full brightness, so the side wall facing away from the sun reads a little darker than before. Grid lines stay pure white.
+- **`?debug=cam` sliders:** turn, height, sun, fill and `[ reset sun ]`. The numbers map one to one onto `config/camera.json` `light`.
+- The avatar sprite is not lit (it's a flat cutout), and nothing casts a real shadow yet.
+
 ## 2026-11-23: brief 02d, walls and surfaces (built, waiting on a migration and a deploy)
 
 **Blocked on Munzir for two steps:**
